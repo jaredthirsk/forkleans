@@ -4,16 +4,16 @@
 param(
     [Parameter(Mandatory=$true)]
     [string]$RootPath,
-
+    
     [Parameter()]
     [string]$OldName = "Orleans",
-
+    
     [Parameter()]
     [string]$NewName = "Forkleans",
-
+    
     [Parameter()]
     [switch]$DryRun = $false,
-
+    
     [Parameter()]
     [switch]$BackupFirst = $true
 )
@@ -62,10 +62,10 @@ function Should-Exclude($path) {
 function Process-FileContent($filePath, $content) {
     $changes = @()
     $newContent = $content
-
+    
     # Define replacement patterns based on file type
     $patterns = @()
-
+    
     if ($filePath -match '\.(cs|csproj|props|targets|xml)$') {
         # C# and project files
         $patterns += @(
@@ -78,7 +78,7 @@ function Process-FileContent($filePath, $content) {
             @{ Pattern = "'$OldName'"; Replace = "'$NewName'" }
         )
     }
-
+    
     if ($filePath -match '\.csproj$') {
         # Additional patterns for csproj files
         $patterns += @(
@@ -88,7 +88,7 @@ function Process-FileContent($filePath, $content) {
             @{ Pattern = "<Product>$OldName"; Replace = "<Product>$NewName" }
         )
     }
-
+    
     if ($filePath -match '\.(json|config)$') {
         # JSON and config files
         $patterns += @(
@@ -96,7 +96,7 @@ function Process-FileContent($filePath, $content) {
             @{ Pattern = "$OldName\."; Replace = "$NewName." }
         )
     }
-
+    
     # Apply replacements
     foreach ($pattern in $patterns) {
         $regex = [regex]$pattern.Pattern
@@ -106,17 +106,17 @@ function Process-FileContent($filePath, $content) {
             $changes += "$($matches.Count) occurrences of '$($pattern.Pattern)'"
         }
     }
-
+    
     # Special handling for assembly attributes
     $assemblyPatterns = @(
         @{ Pattern = '\[assembly:\s*AssemblyTitle\("([^"]*Orleans[^"]*)"\)\]'; Replace = '[assembly: AssemblyTitle("$1")]' },
         @{ Pattern = '\[assembly:\s*AssemblyProduct\("([^"]*Orleans[^"]*)"\)\]'; Replace = '[assembly: AssemblyProduct("$1")]' }
     )
-
+    
     foreach ($pattern in $assemblyPatterns) {
         $newContent = $newContent -replace $pattern.Pattern, ($pattern.Replace -replace 'Orleans', $NewName)
     }
-
+    
     return @{
         Content = $newContent
         Changes = $changes
@@ -127,19 +127,22 @@ function Process-FileContent($filePath, $content) {
 # Function to update DLL references in csproj files
 function Update-ProjectReferences($filePath, $content) {
     $newContent = $content
-
+    
     # Update package references
     $newContent = $newContent -replace "(<PackageReference\s+Include=`"$OldName[^`"]*`")", {
         $match = $_.Groups[1].Value
         $match -replace $OldName, $NewName
     }
-
-    # Update project references
-    $newContent = $newContent -replace "(<ProjectReference\s+Include=`"[^`"]*\\$OldName[^`"]*\.csproj`")", {
-        $match = $_.Groups[1].Value
-        $match -replace "\\$OldName", "\\$NewName"
+    
+    # Update project references - DO NOT change the path, only the filename
+    $newContent = $newContent -replace "(<ProjectReference\s+Include=`"[^`"]*\\)($OldName[^\\`"]*\.csproj`")", {
+        $path = $_.Groups[1].Value
+        $filename = $_.Groups[2].Value
+        # Keep the path intact, only change the filename if needed
+        $newFilename = $filename -replace "^$OldName", $NewName
+        "${path}${filename}"  # Keep original for now
     }
-
+    
     return $newContent
 }
 
@@ -153,36 +156,36 @@ Write-Info "Dry run: $DryRun"
 
 Get-ChildItem -Path $RootPath -Recurse -File -Include $codeExtensions | ForEach-Object {
     $file = $_
-
+    
     # Skip excluded directories
     if (Should-Exclude $file.FullName) {
         return
     }
-
+    
     $processedFiles++
     $relativePath = $file.FullName.Substring($RootPath.Length + 1)
-
+    
     try {
         $content = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
         if ([string]::IsNullOrWhiteSpace($content)) {
             return
         }
-
+        
         $result = Process-FileContent $file.FullName $content
-
+        
         if ($result.HasChanges) {
             $modifiedFiles++
             Write-Change "File: $relativePath"
             foreach ($change in $result.Changes) {
                 Write-Host "  - $change" -ForegroundColor Gray
             }
-
+            
             if (-not $DryRun) {
                 # Special handling for csproj files
                 if ($file.Extension -eq ".csproj") {
                     $result.Content = Update-ProjectReferences $file.FullName $result.Content
                 }
-
+                
                 Set-Content -Path $file.FullName -Value $result.Content -NoNewline -Force
             }
         }
@@ -213,7 +216,7 @@ Files Modified: $modifiedFiles
 
 # Additional recommendations
 Write-Host "`nRecommendations for maintaining your fork:" -ForegroundColor Magenta
-Write-Host "1. Keep source file names unchanged for easier merging"
+Write-Host "1. Keep source file names unchanged (as you mentioned) for easier merging"
 Write-Host "2. Create a .gitattributes file with merge strategies"
 Write-Host "3. Use a custom merge driver for namespace conflicts"
 Write-Host "4. Consider using git subtree or submodules for specific components"

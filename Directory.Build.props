@@ -105,7 +105,7 @@
   </Choose>
   <PropertyGroup>
     <PackageIdPrefix>Forkleans.</PackageIdPrefix>
-    <Version>$(Version)-fork</Version>
-    <PackageProjectUrl>https://github.com/yourusername/forkleans</PackageProjectUrl>
+    <Version>1.0.0-fork</Version>
+    <PackageProjectUrl>https://github.com/jaredthirsk/forkleans</PackageProjectUrl>
   </PropertyGroup>
 </Project>
