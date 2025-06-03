@@ -158,7 +158,7 @@ namespace Orleans.Configuration
     public partial class GrainDirectoryOptions
     {
         public const int DEFAULT_CACHE_SIZE = 1000000;
-        public const CachingStrategyType DEFAULT_CACHING_STRATEGY = 2;
+        public const CachingStrategyType DEFAULT_CACHING_STRATEGY = 1;
         public static readonly System.TimeSpan DEFAULT_INITIAL_CACHE_TTL;
         public static readonly System.TimeSpan DEFAULT_MAXIMUM_CACHE_TTL;
         public const double DEFAULT_TTL_EXTENSION_FACTOR = 2D;
@@ -572,6 +572,7 @@ namespace Orleans.Runtime
     public abstract partial class GrainService : SystemTarget, Orleans.Services.IGrainService, ISystemTarget, IAddressable
     {
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        [System.Obsolete("Do not call the empty constructor.")]
         protected GrainService() { }
 
         protected GrainService(GrainId grainId, Silo silo, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) { }
