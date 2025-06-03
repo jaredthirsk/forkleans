@@ -1,3 +1,13 @@
+# Forkleans (fork of Orleans)
+
+This is an experiment to make the transport layer more extensible.
+
+## Fork maintenance
+
+- (fork-maintenance-guide.md)
+
+# Original Readme
+
 <p align="center">
   <image src="https://raw.githubusercontent.com/dotnet/orleans/gh-pages/assets/logo_full.png" alt="Orleans logo" width="600px">
 </p>
@@ -77,9 +87,9 @@ public class ThermostatGrain : Grain, IThermostat, IThermostatControl
         _commands = new List<Command>();
         return Task.FromResult(result);
     }
-    
+
     public Task<ThermostatStatus> GetStatus() => Task.FromResult(_status);
-    
+
     public Task UpdateConfiguration(ThermostatConfiguration config)
     {
         _commands.Add(new ConfigUpdateCommand(config));
@@ -202,7 +212,7 @@ or
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <packageSources>
-    <clear /> 
+    <clear />
     <add key="orleans-nightly" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/orleans-nightly/nuget/v3/index.json" />
     <add key="nuget" value="https://api.nuget.org/v3/index.json" />
   </packageSources>
@@ -214,7 +224,7 @@ or
 ## Community
 
 [![Discord](https://discordapp.com/api/guilds/333727978460676096/widget.png?style=banner4)](https://aka.ms/orleans-discord)
-    
+
 * Ask questions by [opening an issue on GitHub](https://github.com/dotnet/orleans/issues) or on [Stack Overflow](https://stackoverflow.com/questions/ask?tags=orleans)
 * [Chat on Discord](https://aka.ms/orleans-discord)
 * Follow the [@msftorleans](https://twitter.com/msftorleans) Twitter account for Orleans announcements.

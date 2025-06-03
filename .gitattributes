@@ -18,3 +18,17 @@
 
 # Verify.Xunit
 *.verified.cs text eol=lf working-tree-encoding=UTF-8
+
+# Fork additions:
+
+# Treat these files as binary to avoid merge conflicts
+*.dll binary
+*.exe binary
+*.pdb binary
+
+# Use union merge for project files
+*.csproj merge=union
+*.sln merge=union
+
+# Custom merge driver for C# files
+*.cs merge=ours
