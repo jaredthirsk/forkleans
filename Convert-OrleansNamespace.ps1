@@ -51,7 +51,15 @@ if ($BackupFirst -and -not $DryRun) {
 # Function to check if path should be excluded
 function Should-Exclude($path) {
     foreach ($exclude in $excludeDirs) {
-        if ($path -like "*\$exclude\*" -or $path -like "*/$exclude/*") {
+        if ($path -like "*\$exclude\*" -or $path -like "*/$exclude/*" -or $path -like "*\$exclude" -or $path -like "*/$exclude") {
+            return $true
+        }
+    }
+    # Also check if any parent directory is in the exclude list
+    $directory = Split-Path -Path $path -Parent
+    if ($directory) {
+        $dirName = Split-Path -Path $directory -Leaf
+        if ($dirName -in $excludeDirs) {
             return $true
         }
     }
@@ -149,16 +157,21 @@ function Update-ProjectReferences($filePath, $content) {
 # Process all files
 $processedFiles = 0
 $modifiedFiles = 0
+$skippedFiles = 0
 
 Write-Info "Starting namespace conversion from $OldName to $NewName"
 Write-Info "Root path: $RootPath"
 Write-Info "Dry run: $DryRun"
+
+# First, close any Visual Studio instances that might have files locked
+Write-Info "Note: Please close Visual Studio if it's open to avoid file locking issues"
 
 Get-ChildItem -Path $RootPath -Recurse -File -Include $codeExtensions | ForEach-Object {
     $file = $_
     
     # Skip excluded directories
     if (Should-Exclude $file.FullName) {
+        $skippedFiles++
         return
     }
     
@@ -166,6 +179,17 @@ Get-ChildItem -Path $RootPath -Recurse -File -Include $codeExtensions | ForEach-
     $relativePath = $file.FullName.Substring($RootPath.Length + 1)
     
     try {
+        # Skip if file is locked (common for .vs folder files)
+        try {
+            $fileStream = [System.IO.File]::Open($file.FullName, 'Open', 'Read', 'Read')
+            $fileStream.Close()
+        }
+        catch {
+            Write-Warning "Skipping locked file: $relativePath"
+            $skippedFiles++
+            return
+        }
+        
         $content = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
         if ([string]::IsNullOrWhiteSpace($content)) {
             return
@@ -198,6 +222,7 @@ Get-ChildItem -Path $RootPath -Recurse -File -Include $codeExtensions | ForEach-
 Write-Success "Processing complete!"
 Write-Info "Files processed: $processedFiles"
 Write-Info "Files modified: $modifiedFiles"
+Write-Info "Files skipped: $skippedFiles"
 
 # Generate summary report
 if (-not $DryRun) {
