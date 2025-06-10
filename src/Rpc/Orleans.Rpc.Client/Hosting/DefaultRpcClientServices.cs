@@ -10,6 +10,7 @@ using Forkleans.GrainReferences;
 using Forkleans.Metadata;
 using Forkleans.Providers;
 using Forkleans.Runtime;
+using Forkleans.Runtime.Versions;
 using Forkleans.Rpc.Configuration;
 using Forkleans.Rpc.Transport;
 using Forkleans.Serialization;
@@ -88,7 +89,8 @@ namespace Forkleans.Rpc.Hosting
             services.TryAddSingleton<RpcProvider>();
             services.TryAddSingleton<IGrainReferenceRuntime, GrainReferenceRuntime>();
             services.TryAddSingleton<GrainPropertiesResolver>();
-            services.TryAddSingleton<IGrainCancellationTokenRuntime, GrainCancellationTokenRuntime>();
+            // Note: IGrainCancellationTokenRuntime is internal
+            // services.TryAddSingleton<IGrainCancellationTokenRuntime, GrainCancellationTokenRuntime>();
             services.TryAddFromExisting<IGrainFactory, GrainFactory>();
             services.TryAddFromExisting<IInternalGrainFactory, GrainFactory>();
             
@@ -103,19 +105,32 @@ namespace Forkleans.Rpc.Hosting
             services.TryAddSingleton<GrainBindingsResolver>();
             services.AddSingleton<GrainInterfaceTypeResolver>();
             services.AddSingleton<IGrainInterfaceTypeProvider, AttributeGrainInterfaceTypeProvider>();
-            services.AddSingleton<IGrainInterfacePropertiesProvider, AttributeGrainInterfacePropertiesProvider>();
+            // Note: AttributeGrainInterfacePropertiesProvider is internal
+            // services.AddSingleton<IGrainInterfacePropertiesProvider, AttributeGrainInterfacePropertiesProvider>();
             services.AddSingleton<IGrainInterfacePropertiesProvider, TypeNameGrainPropertiesProvider>();
-            services.AddSingleton<IGrainInterfacePropertiesProvider, ImplementedInterfaceProvider>();
+            // Note: ImplementedInterfaceProvider is internal
+            // services.AddSingleton<IGrainInterfacePropertiesProvider, ImplementedInterfaceProvider>();
             services.AddSingleton<IGrainPropertiesProvider, AttributeGrainPropertiesProvider>();
             services.AddSingleton<IGrainPropertiesProvider, TypeNameGrainPropertiesProvider>();
-            services.AddSingleton<IGrainPropertiesProvider, ImplementedInterfaceProvider>();
+            // Note: ImplementedInterfaceProvider is internal 
+            // services.AddSingleton<IGrainPropertiesProvider, ImplementedInterfaceProvider>();
             services.AddSingleton<IGrainTypeProvider, AttributeGrainTypeProvider>();
             services.AddSingleton<GrainTypeResolver>();
-            services.AddSingleton<GrainVersionManifest>();
+            // Note: GrainVersionManifest might be internal
+            // services.AddSingleton<GrainVersionManifest>();
             
             // Cluster manifest provider for RPC (simplified version)
             services.AddSingleton<RpcClientManifestProvider>();
             services.AddSingleton<IClusterManifestProvider>(sp => sp.GetRequiredService<RpcClientManifestProvider>());
+            
+            // Grain version manifest
+            services.TryAddSingleton<GrainVersionManifest>();
+            
+            // Add grain cancellation token runtime
+            services.TryAddSingleton<IGrainCancellationTokenRuntime, GrainCancellationTokenRuntime>();
+            
+            // Add the standard Orleans grain reference runtime
+            services.TryAddSingleton<IGrainReferenceRuntime, GrainReferenceRuntime>();
 
             // Serialization
             services.AddSerializer(serializer =>
@@ -124,8 +139,9 @@ namespace Forkleans.Rpc.Hosting
                 serializer.AddAssembly(typeof(Protocol.RpcMessage).Assembly);
             });
             services.AddSingleton<ITypeNameFilter, AllowForkleanTypes>();
-            services.AddSingleton<ISpecializableCodec, GrainReferenceCodecProvider>();
-            services.AddSingleton<ISpecializableCopier, GrainReferenceCopierProvider>();
+            // Note: GrainReferenceCodecProvider and GrainReferenceCopierProvider are internal
+            // services.AddSingleton<ISpecializableCodec, GrainReferenceCodecProvider>();
+            // services.AddSingleton<ISpecializableCopier, GrainReferenceCopierProvider>();
             services.AddSingleton<OnDeserializedCallbacks>();
             services.AddSingleton<MigrationContext.SerializationHooks>();
             services.AddSingleton<IPostConfigureOptions<OrleansJsonSerializerOptions>, ConfigureOrleansJsonSerializerOptions>();

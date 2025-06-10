@@ -8,7 +8,7 @@ namespace Forkleans.Runtime
     /// <summary>
     /// Functionality required by <see cref="GrainCancellationToken"/> and <see cref="GrainCancellationTokenSource"/>.
     /// </summary>
-    internal interface IGrainCancellationTokenRuntime
+    public interface IGrainCancellationTokenRuntime
     {
         /// <summary>
         /// Cancels the <see cref="GrainCancellationToken"/> with the provided id.

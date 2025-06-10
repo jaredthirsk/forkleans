@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using Forkleans.Configuration;
-using Forkleans.Internal;
+using Forkleans.Runtime.Utilities;
 using Forkleans.Metadata;
 using Forkleans.Runtime;
 using Microsoft.Extensions.Options;
