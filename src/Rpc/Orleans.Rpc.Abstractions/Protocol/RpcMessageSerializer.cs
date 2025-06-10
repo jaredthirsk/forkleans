@@ -1,5 +1,7 @@
 using System;
 using System.Buffers;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Forkleans.Serialization;
 
@@ -12,11 +14,24 @@ namespace Forkleans.Rpc.Protocol
     {
         private readonly Serializer _serializer;
         private readonly ILogger<RpcMessageSerializer> _logger;
+        private readonly JsonSerializerOptions _jsonOptions;
 
         public RpcMessageSerializer(Serializer serializer, ILogger<RpcMessageSerializer> logger)
         {
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            
+            // Configure JSON serialization options
+            _jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = false,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                Converters =
+                {
+                    new JsonStringEnumConverter()
+                }
+            };
         }
 
         /// <summary>
@@ -31,8 +46,10 @@ namespace Forkleans.Rpc.Protocol
                 // Write message type byte
                 writer.Write(new[] { GetMessageTypeByte(message) });
                 
-                // Serialize the message
-                _serializer.Serialize(message, writer);
+                // Serialize to JSON
+                var json = JsonSerializer.Serialize(message, message.GetType(), _jsonOptions);
+                var jsonBytes = System.Text.Encoding.UTF8.GetBytes(json);
+                writer.Write(jsonBytes);
                 
                 return writer.WrittenMemory.ToArray();
             }
@@ -57,13 +74,16 @@ namespace Forkleans.Rpc.Protocol
 
                 var messageType = data.Span[0];
                 var messageData = data.Slice(1);
+                
+                // Deserialize from JSON
+                var json = System.Text.Encoding.UTF8.GetString(messageData.Span);
 
                 return messageType switch
                 {
-                    1 => _serializer.Deserialize<RpcRequest>(messageData),
-                    2 => _serializer.Deserialize<RpcResponse>(messageData),
-                    3 => _serializer.Deserialize<RpcHeartbeat>(messageData),
-                    4 => _serializer.Deserialize<RpcHandshake>(messageData),
+                    1 => JsonSerializer.Deserialize<RpcRequest>(json, _jsonOptions),
+                    2 => JsonSerializer.Deserialize<RpcResponse>(json, _jsonOptions),
+                    3 => JsonSerializer.Deserialize<RpcHeartbeat>(json, _jsonOptions),
+                    4 => JsonSerializer.Deserialize<RpcHandshake>(json, _jsonOptions),
                     _ => throw new NotSupportedException($"Unknown message type: {messageType}")
                 };
             }

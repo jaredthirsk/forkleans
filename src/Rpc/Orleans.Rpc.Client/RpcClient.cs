@@ -213,6 +213,10 @@ namespace Forkleans.Rpc
             // Start transport (client mode will connect automatically)
             await _transport.StartAsync(_serverEndpoint, cancellationToken);
             
+            // The transport's StartAsync waits for connection, so we're connected now
+            _isConnected = true;
+            _logger.LogDebug("Transport connected, setting _isConnected = true");
+            
             // Send handshake
             await SendHandshake();
         }
@@ -235,6 +239,7 @@ namespace Forkleans.Rpc
 
         private void EnsureConnected()
         {
+            _logger.LogDebug("EnsureConnected called, _isConnected = {IsConnected}", _isConnected);
             if (!_isConnected)
             {
                 throw new InvalidOperationException("RPC client is not connected");
@@ -319,6 +324,7 @@ namespace Forkleans.Rpc
         {
             _logger.LogInformation("Connected to RPC server at {Endpoint}", e.RemoteEndPoint);
             _isConnected = true;
+            _logger.LogDebug("Set _isConnected to true");
         }
 
         private void OnConnectionClosed(object sender, RpcConnectionEventArgs e)

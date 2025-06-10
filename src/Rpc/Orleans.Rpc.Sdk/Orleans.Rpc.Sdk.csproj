@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
     <ProjectReference Include="..\..\Orleans.Sdk\Orleans.Sdk.csproj" />
+    <ProjectReference Include="..\..\Orleans.CodeGenerator\Orleans.CodeGenerator.csproj" PrivateAssets="None" />
   </ItemGroup>
 
   <ItemGroup>

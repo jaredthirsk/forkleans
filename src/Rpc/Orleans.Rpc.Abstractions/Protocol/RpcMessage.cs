@@ -114,7 +114,7 @@ namespace Forkleans.Rpc.Protocol
         /// <summary>
         /// Client ID.
         /// </summary>
-        [Id(2)]
+        [Id(2)] // TODO FIXME: Fork cleanup - The Id should start at 0, even though there is a base class with serialized properties.
         public string ClientId { get; set; }
 
         /// <summary>

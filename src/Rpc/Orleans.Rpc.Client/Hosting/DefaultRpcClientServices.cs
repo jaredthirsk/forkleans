@@ -88,8 +88,7 @@ namespace Forkleans.Rpc.Hosting
             services.TryAddSingleton<RpcProvider>();
             services.TryAddSingleton<IGrainReferenceRuntime, GrainReferenceRuntime>();
             services.TryAddSingleton<GrainPropertiesResolver>();
-            // Note: IGrainCancellationTokenRuntime is internal
-            // services.TryAddSingleton<IGrainCancellationTokenRuntime, GrainCancellationTokenRuntime>();
+            services.TryAddSingleton<IGrainCancellationTokenRuntime, GrainCancellationTokenRuntime>();
             services.TryAddFromExisting<IGrainFactory, GrainFactory>();
             services.TryAddFromExisting<IInternalGrainFactory, GrainFactory>();
             
@@ -104,9 +103,19 @@ namespace Forkleans.Rpc.Hosting
             services.TryAddSingleton<GrainBindingsResolver>();
             services.AddSingleton<GrainInterfaceTypeResolver>();
             services.AddSingleton<IGrainInterfaceTypeProvider, AttributeGrainInterfaceTypeProvider>();
-            // Note: AttributeGrainInterfacePropertiesProvider is internal
-            // services.AddSingleton<IGrainInterfacePropertiesProvider, AttributeGrainInterfacePropertiesProvider>();
+            services.AddSingleton<IGrainInterfacePropertiesProvider, AttributeGrainInterfacePropertiesProvider>();
             services.AddSingleton<IGrainInterfacePropertiesProvider, TypeNameGrainPropertiesProvider>();
+            services.AddSingleton<IGrainInterfacePropertiesProvider, ImplementedInterfaceProvider>();
+            services.AddSingleton<IGrainPropertiesProvider, AttributeGrainPropertiesProvider>();
+            services.AddSingleton<IGrainPropertiesProvider, TypeNameGrainPropertiesProvider>();
+            services.AddSingleton<IGrainPropertiesProvider, ImplementedInterfaceProvider>();
+            services.AddSingleton<IGrainTypeProvider, AttributeGrainTypeProvider>();
+            services.AddSingleton<GrainTypeResolver>();
+            services.AddSingleton<GrainVersionManifest>();
+            
+            // Cluster manifest provider for RPC (simplified version)
+            services.AddSingleton<RpcClientManifestProvider>();
+            services.AddSingleton<IClusterManifestProvider>(sp => sp.GetRequiredService<RpcClientManifestProvider>());
 
             // Serialization
             services.AddSerializer(serializer =>
@@ -115,10 +124,10 @@ namespace Forkleans.Rpc.Hosting
                 serializer.AddAssembly(typeof(Protocol.RpcMessage).Assembly);
             });
             services.AddSingleton<ITypeNameFilter, AllowForkleanTypes>();
-            // Note: GrainReferenceCodecProvider and GrainReferenceCopierProvider are internal
-            // services.AddSingleton<ISpecializableCodec, GrainReferenceCodecProvider>();
-            // services.AddSingleton<ISpecializableCopier, GrainReferenceCopierProvider>();
+            services.AddSingleton<ISpecializableCodec, GrainReferenceCodecProvider>();
+            services.AddSingleton<ISpecializableCopier, GrainReferenceCopierProvider>();
             services.AddSingleton<OnDeserializedCallbacks>();
+            services.AddSingleton<MigrationContext.SerializationHooks>();
             services.AddSingleton<IPostConfigureOptions<OrleansJsonSerializerOptions>, ConfigureOrleansJsonSerializerOptions>();
             services.AddSingleton<OrleansJsonSerializer>();
 
@@ -132,6 +141,11 @@ namespace Forkleans.Rpc.Hosting
             services.ConfigureFormatter<RpcClientOptions>();
             services.ConfigureFormatter<RpcTransportOptions>();
             services.ConfigureFormatter<ClusterOptions>();
+            services.ConfigureFormatter<GrainTypeOptions>();
+            
+            // Configuration options
+            services.AddSingleton<IConfigureOptions<GrainTypeOptions>, DefaultGrainTypeOptionsProvider>();
+            services.Configure<TypeManagementOptions>(options => { });
         }
 
         private class AllowForkleanTypes : ITypeNameFilter

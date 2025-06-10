@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Forkleans.Configuration;
 using Forkleans.Rpc.Configuration;
 using Forkleans.Rpc.Transport;
 using Forkleans.Runtime;
@@ -27,8 +29,11 @@ namespace Forkleans.Rpc
         private readonly RpcCatalog _catalog;
         private readonly MessageFactory _messageFactory;
         private readonly Forkleans.Serialization.Serializer _serializer;
+        private readonly IOptions<MessagingOptions> _messagingOptions;
+        private readonly ILoggerFactory _loggerFactory;
         
         private IRpcTransport _transport;
+        private readonly ConcurrentDictionary<string, RpcConnection> _connections = new();
 
         public RpcServer(
             ILogger<RpcServer> logger,
@@ -38,7 +43,9 @@ namespace Forkleans.Rpc
             IRpcServerLifecycle lifecycle,
             RpcCatalog catalog,
             MessageFactory messageFactory,
-            Forkleans.Serialization.Serializer serializer)
+            Forkleans.Serialization.Serializer serializer,
+            IOptions<MessagingOptions> messagingOptions,
+            ILoggerFactory loggerFactory)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _serverDetails = serverDetails ?? throw new ArgumentNullException(nameof(serverDetails));
@@ -48,6 +55,8 @@ namespace Forkleans.Rpc
             _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
             _messageFactory = messageFactory ?? throw new ArgumentNullException(nameof(messageFactory));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _messagingOptions = messagingOptions ?? throw new ArgumentNullException(nameof(messagingOptions));
+            _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
             
             _logger.LogInformation("RpcServer created, registering with lifecycle");
         }
@@ -101,6 +110,14 @@ namespace Forkleans.Rpc
                 _transport.Dispose();
                 _transport = null;
             }
+            
+            // Clean up all connections
+            foreach (var kvp in _connections)
+            {
+                kvp.Value.Dispose();
+            }
+            _connections.Clear();
+            _logger.LogDebug("Cleaned up all RPC connections");
         }
 
         private async void OnDataReceived(object sender, RpcDataReceivedEventArgs e)
@@ -163,36 +180,30 @@ namespace Forkleans.Rpc
             _logger.LogDebug("Handling RPC request {MessageId} for grain {GrainId}", 
                 request.MessageId, request.GrainId);
 
-            var response = new Protocol.RpcResponse
-            {
-                RequestId = request.MessageId
-            };
+            // Get or create connection for this endpoint
+            var connectionId = remoteEndpoint.ToString();
+            var connection = GetOrCreateConnection(connectionId, remoteEndpoint);
+            
+            // Process the request through the connection
+            await connection.ProcessRequestAsync(request);
+        }
 
-            try
+        private RpcConnection GetOrCreateConnection(string connectionId, IPEndPoint remoteEndpoint)
+        {
+            return _connections.GetOrAdd(connectionId, id =>
             {
-                // Get or create the grain activation
-                var grainContext = await _catalog.GetOrCreateActivationAsync(request.GrainId);
+                _logger.LogDebug("Creating new RPC connection for {ConnectionId}", id);
                 
-                // Get the grain reference
-                var grainReference = grainContext.GrainReference;
-                
-                // For now, just return a dummy response until we implement proper invocation
-                // TODO: Implement proper grain method invocation using RpcConnection
-                response.Success = true;
-                response.Payload = System.Text.Encoding.UTF8.GetBytes($"Hello from grain {request.GrainId}! Method {request.MethodId} called.");
-                
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error handling request for grain {GrainId}", request.GrainId);
-                response.Success = false;
-                response.ErrorMessage = ex.Message;
-            }
-
-            // Send response
-            var messageSerializer = _catalog.ServiceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
-            var responseData = messageSerializer.SerializeMessage(response);
-            await _transport.SendAsync(remoteEndpoint, responseData, CancellationToken.None);
+                var connectionLogger = _loggerFactory.CreateLogger<RpcConnection>();
+                return new RpcConnection(
+                    id,
+                    remoteEndpoint,
+                    _transport,
+                    _catalog,
+                    _messageFactory,
+                    _messagingOptions.Value,
+                    connectionLogger);
+            });
         }
 
         private async Task HandleHeartbeat(Protocol.RpcHeartbeat heartbeat, IPEndPoint remoteEndpoint)
@@ -220,6 +231,14 @@ namespace Forkleans.Rpc
         {
             _logger.LogInformation("Connection closed with {Endpoint} (ID: {ConnectionId})", 
                 e.RemoteEndPoint, e.ConnectionId);
+                
+            // Remove connection from dictionary
+            var connectionId = e.RemoteEndPoint.ToString();
+            if (_connections.TryRemove(connectionId, out var connection))
+            {
+                connection.Dispose();
+                _logger.LogDebug("Removed and disposed connection {ConnectionId}", connectionId);
+            }
         }
     }
 }

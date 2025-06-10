@@ -37,7 +37,7 @@ namespace Orleans.Rpc.IntegrationTest
                 .ConfigureLogging(logging =>
                 {
                     logging.AddConsole();
-                    logging.SetMinimumLevel(LogLevel.Information);
+                    logging.SetMinimumLevel(LogLevel.Debug);
                 })
                 .UseOrleansRpc(rpcServer =>
                 {
@@ -59,7 +59,7 @@ namespace Orleans.Rpc.IntegrationTest
                 .ConfigureLogging(logging =>
                 {
                     logging.AddConsole();
-                    logging.SetMinimumLevel(LogLevel.Information);
+                    logging.SetMinimumLevel(LogLevel.Debug);
                 })
                 .UseOrleansRpcClient(rpcClient =>
                 {
@@ -69,7 +69,10 @@ namespace Orleans.Rpc.IntegrationTest
                 .Build();
 
             await host.StartAsync();
-            Console.WriteLine("[CLIENT] RPC Client connected");
+            Console.WriteLine("[CLIENT] RPC Client starting...");
+            
+            // Give the client time to establish connection
+            await Task.Delay(1000);
 
             var client = host.Services.GetRequiredService<IClusterClient>();
 
