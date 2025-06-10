@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
-using Orleans.Runtime;
-using Orleans.TestingHost;
+using Forkleans.Runtime;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using Xunit;

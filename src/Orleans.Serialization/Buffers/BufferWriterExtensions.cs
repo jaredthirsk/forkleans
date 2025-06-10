@@ -1,9 +1,9 @@
-using Orleans.Serialization.Session;
+using Forkleans.Serialization.Session;
 using System;
 using System.Buffers;
 using System.Runtime.CompilerServices;
 
-namespace Orleans.Serialization.Buffers
+namespace Forkleans.Serialization.Buffers
 {
     /// <summary>
     /// Extensions for working with <see cref="IBufferWriter{Byte}"/> implementations.

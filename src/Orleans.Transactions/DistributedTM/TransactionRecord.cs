@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Orleans.Transactions
+namespace Forkleans.Transactions
 {
     /// <summary>
     /// Each participant plays a particular role in the commit protocol

@@ -1,13 +1,13 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans;
-using Orleans.Hosting;
-using Orleans.Providers;
+using Forkleans;
+using Forkleans.Hosting;
+using Forkleans.Providers;
 
 [assembly: RegisterProvider("Default", "BroadcastChannel", "Client", typeof(BroadcastChannelProviderBuilder))]
 [assembly: RegisterProvider("Default", "BroadcastChannel", "Silo", typeof(BroadcastChannelProviderBuilder))]
 
-namespace Orleans.Providers;
+namespace Forkleans.Providers;
 
 internal sealed class BroadcastChannelProviderBuilder : IProviderBuilder<ISiloBuilder>, IProviderBuilder<IClientBuilder>
 {

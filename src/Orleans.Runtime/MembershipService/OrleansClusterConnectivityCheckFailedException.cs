@@ -1,12 +1,12 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     /// <summary>
     /// Exception used to indicate that a cluster connectivity check failed.
     /// </summary>
-    /// <seealso cref="Orleans.Runtime.OrleansException" />
+    /// <seealso cref="Forkleans.Runtime.OrleansException" />
     [Serializable]
     [GenerateSerializer]
     public sealed class OrleansClusterConnectivityCheckFailedException : OrleansException

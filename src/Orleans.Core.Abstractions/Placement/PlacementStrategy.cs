@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Metadata;
+using Forkleans.Metadata;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// The base type for all placement strategies.

@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// An analogue to <see cref="CancellationTokenSource"/> which can be sent between grains.
@@ -15,7 +15,7 @@ namespace Orleans
         private readonly GrainCancellationToken _grainCancellationToken;
 
         /// <summary>
-        /// Initializes the <see cref="T:Orleans.GrainCancellationTokenSource"/>.
+        /// Initializes the <see cref="T:Forkleans.GrainCancellationTokenSource"/>.
         /// </summary>
         public GrainCancellationTokenSource()
         {
@@ -74,7 +74,7 @@ namespace Orleans
         }
 
         /// <summary>
-        /// Releases the resources used by this <see cref="T:Orleans.Async.GrainCancellationTokenSource" />.
+        /// Releases the resources used by this <see cref="T:Forkleans.Async.GrainCancellationTokenSource" />.
         /// </summary>
         /// <remarks>
         /// This method is not thread-safe for any other concurrent calls.

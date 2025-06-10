@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     /// <summary>
     /// Describes the proxy base for an invokable method, including whether the proxy is a grain reference or extension, and what invokable base types should be used for a given return type.

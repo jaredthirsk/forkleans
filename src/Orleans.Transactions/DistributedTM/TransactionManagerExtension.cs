@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.Runtime;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Runtime;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions
+namespace Forkleans.Transactions
 {
     public class TransactionManagerExtension : ITransactionManagerExtension
     {

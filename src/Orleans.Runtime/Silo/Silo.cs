@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Runtime.ConsistentRing;
-using Orleans.Runtime.Messaging;
-using Orleans.Runtime.Scheduler;
-using Orleans.Services;
-using Orleans.Configuration;
-using Orleans.Internal;
+using Forkleans.Runtime.ConsistentRing;
+using Forkleans.Runtime.Messaging;
+using Forkleans.Runtime.Scheduler;
+using Forkleans.Services;
+using Forkleans.Configuration;
+using Forkleans.Internal;
 using System.Net;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Orleans silo.

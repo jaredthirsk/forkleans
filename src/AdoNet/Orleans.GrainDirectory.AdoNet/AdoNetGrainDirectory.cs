@@ -1,4 +1,4 @@
-namespace Orleans.GrainDirectory.AdoNet;
+namespace Forkleans.GrainDirectory.AdoNet;
 
 internal sealed partial class AdoNetGrainDirectory(string name, AdoNetGrainDirectoryOptions options, ILogger<AdoNetGrainDirectory> logger, IOptions<ClusterOptions> clusterOptions, IHostApplicationLifetime lifetime) : IGrainDirectory
 {

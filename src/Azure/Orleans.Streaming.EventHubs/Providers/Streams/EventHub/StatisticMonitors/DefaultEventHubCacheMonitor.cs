@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Orleans.Providers.Streams.Common;
+using Forkleans.Providers.Streams.Common;
 
-namespace Orleans.Streaming.EventHubs.StatisticMonitors
+namespace Forkleans.Streaming.EventHubs.StatisticMonitors
 {
     /// <summary>
     /// Default cache monitor for eventhub streaming provider ecosystem

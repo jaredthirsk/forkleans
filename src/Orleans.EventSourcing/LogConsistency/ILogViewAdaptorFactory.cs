@@ -1,7 +1,7 @@
 
-using Orleans.Storage;
+using Forkleans.Storage;
 
-namespace Orleans.EventSourcing
+namespace Forkleans.EventSourcing
 {
     /// <summary>
     /// Interface to be implemented for a log-view adaptor factory

@@ -1,8 +1,8 @@
-using Orleans.Providers.Streams.Common;
+using Forkleans.Providers.Streams.Common;
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Pressure monitor which is in favor of the slow consumer in the cache

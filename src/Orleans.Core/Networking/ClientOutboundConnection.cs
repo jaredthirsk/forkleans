@@ -4,10 +4,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Messaging;
+using Forkleans.Configuration;
+using Forkleans.Messaging;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     internal sealed class ClientOutboundConnection : Connection
     {

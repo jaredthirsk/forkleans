@@ -1,8 +1,8 @@
 #nullable enable
 using System;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Placement.Repartitioning;
+namespace Forkleans.Placement.Repartitioning;
 
 internal interface IMessageStatisticsSink
 {

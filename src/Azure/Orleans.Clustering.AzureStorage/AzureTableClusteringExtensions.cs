@@ -1,13 +1,13 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.AzureUtils;
-using Orleans.Clustering.AzureStorage;
-using Orleans.Configuration;
-using Orleans.Messaging;
-using Orleans.Runtime.MembershipService;
+using Forkleans.AzureUtils;
+using Forkleans.Clustering.AzureStorage;
+using Forkleans.Configuration;
+using Forkleans.Messaging;
+using Forkleans.Runtime.MembershipService;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static class AzureTableClusteringExtensions
     {

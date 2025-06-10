@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Orleans.Placement.Rebalancing;
+namespace Forkleans.Placement.Rebalancing;
 
 /// <summary>
 /// A gateway to interface with the activation rebalancer.

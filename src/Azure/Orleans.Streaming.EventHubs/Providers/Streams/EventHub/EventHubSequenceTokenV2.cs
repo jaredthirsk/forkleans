@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Event Hub messages consist of a batch of application layer events, so EventHub tokens contain three pieces of information.

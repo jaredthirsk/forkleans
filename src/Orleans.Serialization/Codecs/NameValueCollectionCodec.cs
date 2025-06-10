@@ -1,9 +1,9 @@
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Serializers;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Serializers;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
-namespace Orleans.Serialization.Codecs
+namespace Forkleans.Serialization.Codecs
 {
     /// <summary>
     /// Serializer for <see cref="NameValueCollection"/>.

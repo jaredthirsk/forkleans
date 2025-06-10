@@ -1,7 +1,7 @@
 #nullable enable
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Orleans.Internal;
+using Forkleans.Internal;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using Xunit;
@@ -590,7 +590,7 @@ public class AsyncEnumerableGrainCallTests : HostedTestClusterEnsureDefaultStart
         void IObserver<DiagnosticListener>.OnError(Exception error) { }
         void IObserver<DiagnosticListener>.OnNext(DiagnosticListener value)
         {
-            if (value.Name == "Orleans.Runtime.AsyncEnumerableGrainExtension")
+            if (value.Name == "Forkleans.Runtime.AsyncEnumerableGrainExtension")
             {
                 _instanceSubscription = value.Subscribe(this);
             }

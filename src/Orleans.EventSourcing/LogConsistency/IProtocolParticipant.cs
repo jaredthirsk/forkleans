@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Orleans.EventSourcing
+namespace Forkleans.EventSourcing
 {
     /// <summary>
     /// Grain interface for grains that participate in multi-cluster log-consistency protocols.

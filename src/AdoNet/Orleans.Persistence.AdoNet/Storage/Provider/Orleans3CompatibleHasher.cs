@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Orleans v3-compatible hasher implementation for non-string-only grain key ids.
@@ -22,7 +22,7 @@ namespace Orleans.Storage
         /// </summary>
         public int Hash(ReadOnlySpan<byte> data)
         {
-            // implementation restored from Orleans v3.7.2: https://github.com/dotnet/orleans/blob/b24e446abfd883f0e4ed614f5267eaa3331548dc/src/AdoNet/Orleans.Persistence.AdoNet/Storage/Provider/OrleansDefaultHasher.cs
+            // implementation restored from Orleans v3.7.2: https://github.com/dotnet/orleans/blob/b24e446abfd883f0e4ed614f5267eaa3331548dc/src/AdoNet/Forkleans.Persistence.AdoNet/Storage/Provider/OrleansDefaultHasher.cs
             return unchecked((int)JenkinsHash.ComputeHash(data));
         }
     }

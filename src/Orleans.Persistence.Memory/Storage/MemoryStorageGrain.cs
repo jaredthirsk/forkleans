@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Storage.Internal;
+using Forkleans.Storage.Internal;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Implementation class for the Storage Grain used by In-memory storage provider
-    /// <c>Orleans.Storage.MemoryStorage</c>
+    /// <c>Forkleans.Storage.MemoryStorage</c>
     /// </summary>
     [KeepAlive]
     internal partial class MemoryStorageGrain : Grain, IMemoryStorageGrain

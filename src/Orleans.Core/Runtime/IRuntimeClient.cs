@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.CodeGeneration;
-using Orleans.Serialization;
-using Orleans.Serialization.Invocation;
+using Forkleans.CodeGeneration;
+using Forkleans.Serialization;
+using Forkleans.Serialization.Invocation;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// The IRuntimeClient interface defines a subset of the runtime API that is exposed to both silo and client.

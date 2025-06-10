@@ -1,8 +1,8 @@
 using System;
 using Newtonsoft.Json.Serialization;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     /// <summary>
     /// Implementation of <see cref="ISerializationBinder"/> which resolves types using a <see cref="TypeResolver"/>.

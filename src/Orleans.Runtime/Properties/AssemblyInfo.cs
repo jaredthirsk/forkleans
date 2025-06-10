@@ -1,9 +1,9 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Orleans.Streaming")]
-[assembly: InternalsVisibleTo("Orleans.Reminders")]
-[assembly: InternalsVisibleTo("Orleans.Journaling")]
-[assembly: InternalsVisibleTo("Orleans.TestingHost")]
+[assembly: InternalsVisibleTo("Forkleans.Streaming")]
+[assembly: InternalsVisibleTo("Forkleans.Reminders")]
+[assembly: InternalsVisibleTo("Forkleans.Journaling")]
+[assembly: InternalsVisibleTo("Forkleans.TestingHost")]
 
 [assembly: InternalsVisibleTo("AWSUtils.Tests")]
 [assembly: InternalsVisibleTo("LoadTestGrains")]

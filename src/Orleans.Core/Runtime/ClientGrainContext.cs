@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans
+namespace Forkleans
 {
     internal class ClientGrainContext : IGrainContext, IGrainExtensionBinder, IGrainContextAccessor
     {

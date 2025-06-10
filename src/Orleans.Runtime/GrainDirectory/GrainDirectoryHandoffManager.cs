@@ -4,10 +4,10 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime.Scheduler;
+using Forkleans.Runtime.Scheduler;
 
 #nullable enable
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     /// <summary>
     /// Most methods of this class are synchronized since they might be called both

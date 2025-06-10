@@ -1,4 +1,4 @@
-namespace Orleans.Providers.Azure
+namespace Forkleans.Providers.Azure
 {
     internal enum AzureProviderErrorCode
     {

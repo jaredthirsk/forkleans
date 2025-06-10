@@ -3,15 +3,15 @@ using System;
 using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
-using Orleans.Serialization.Activators;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.GeneratedCodeHelpers;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Activators;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.GeneratedCodeHelpers;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.WireProtocol;
 
-namespace Orleans.Serialization.Invocation
+namespace Forkleans.Serialization.Invocation
 {
     /// <summary>
     /// Represents the result of a method invocation.

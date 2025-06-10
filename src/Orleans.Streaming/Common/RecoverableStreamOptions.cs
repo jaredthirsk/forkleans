@@ -1,7 +1,7 @@
 using System;
-using Orleans.Streams;
+using Forkleans.Streams;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Configuration options for stream cache eviction.

@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Lifecycle observer used to handle start and stop notification.

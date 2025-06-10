@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Microsoft.Forkleans.BroadcastChannel</PackageId>
+    <Title>Microsoft Orleans Broadcast Channel Library</Title>
+    <Description>Broadcast Channel library for Microsoft Orleans used both on the client and server.</Description>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+  </ItemGroup>
+</Project>

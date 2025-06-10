@@ -1,7 +1,7 @@
-using Orleans.Transactions;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Transactions;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 public static class SiloBuilderExtensions
 {

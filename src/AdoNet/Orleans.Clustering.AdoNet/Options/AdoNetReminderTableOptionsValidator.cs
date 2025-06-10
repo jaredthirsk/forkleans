@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
-using Orleans.Runtime.MembershipService;
+using Forkleans.Runtime;
+using Forkleans.Runtime.MembershipService;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Validates <see cref="AdoNetClusteringSiloOptions"/> configuration.

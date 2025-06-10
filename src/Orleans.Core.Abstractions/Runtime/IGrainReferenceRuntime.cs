@@ -1,9 +1,9 @@
-using Orleans.CodeGeneration;
-using Orleans.Serialization.Invocation;
+using Forkleans.CodeGeneration;
+using Forkleans.Serialization.Invocation;
 using System;
 using System.Threading.Tasks;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Runtime logic for <see cref="GrainReference"/>s to be usable.

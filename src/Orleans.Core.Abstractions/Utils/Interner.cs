@@ -2,7 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Constants used by the generic <see cref="Interner{K, T}"/> class.

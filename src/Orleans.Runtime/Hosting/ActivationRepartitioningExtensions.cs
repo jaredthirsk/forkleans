@@ -1,12 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration.Internal;
-using Orleans.Runtime;
-using Orleans.Configuration;
-using Orleans.Runtime.Placement.Repartitioning;
+using Forkleans.Configuration.Internal;
+using Forkleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Runtime.Placement.Repartitioning;
 using System.Diagnostics.CodeAnalysis;
-using Orleans.Placement.Repartitioning;
+using Forkleans.Placement.Repartitioning;
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 #nullable enable
 public static class ActivationRepartitioningExtensions

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.Providers;
+using Forkleans.Providers;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Interface for system management functions of silos,
@@ -96,7 +96,7 @@ namespace Orleans.Runtime
         /// Commands are sent to all known providers on each silo which match both the <c>providerTypeFullName</c> AND <c>providerName</c> parameters.
         /// </summary>
         /// <remarks>
-        /// Providers must implement the <c>Orleans.Providers.IControllable</c>
+        /// Providers must implement the <c>Forkleans.Providers.IControllable</c>
         /// interface in order to receive these control channel commands.
         /// </remarks>
         /// <param name="providerName">Provider name to send this command to.</param>
@@ -108,14 +108,14 @@ namespace Orleans.Runtime
         public Task<object[]> SendControlCommandToProvider<T>(string providerName, int command, object arg = null) where T : IControllable;
 
         /// <summary>
-        /// Return the <see cref="Orleans.Runtime.SiloAddress"/> where a given Grain is activated (if any).
+        /// Return the <see cref="Forkleans.Runtime.SiloAddress"/> where a given Grain is activated (if any).
         /// </summary>
         /// <remarks>
         /// Please note that this method does not represent a strong consistent view of the Grain Catalog.
         /// The return of this method is taken based on a last known state of the grain which may or may not be up-to-date by the time the caller receive the request.
         /// </remarks>
-        /// <param name="reference">The <see cref="Orleans.Runtime.IAddressable"/> to look up.</param>
-        /// <returns>The <see cref="Orleans.Runtime.SiloAddress"/> where the Grain is activated or null if not activated taken from a snapshot of the last known state of the Grain Catalog.</returns>
+        /// <param name="reference">The <see cref="Forkleans.Runtime.IAddressable"/> to look up.</param>
+        /// <returns>The <see cref="Forkleans.Runtime.SiloAddress"/> where the Grain is activated or null if not activated taken from a snapshot of the last known state of the Grain Catalog.</returns>
         ValueTask<SiloAddress> GetActivationAddress(IAddressable reference);
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace Orleans.Runtime
     /// Represents an estimation of the frequency calls made from a source grain to a target grain.
     /// </summary>
     [GenerateSerializer]
-    [Alias("Orleans.Runtime.GrainCallFrequency")]
+    [Alias("Forkleans.Runtime.GrainCallFrequency")]
     [Immutable]
     public struct GrainCallFrequency
     {

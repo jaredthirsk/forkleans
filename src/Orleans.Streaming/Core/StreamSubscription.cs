@@ -1,7 +1,7 @@
 using System;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams.Core
+namespace Forkleans.Streams.Core
 {
     /// <summary>
     /// Represents a subscription to a stream.

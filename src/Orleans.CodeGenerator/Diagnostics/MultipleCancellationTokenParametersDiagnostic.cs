@@ -1,7 +1,7 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
-namespace Orleans.CodeGenerator.Diagnostics;
+namespace Forkleans.CodeGenerator.Diagnostics;
 
 public static class MultipleCancellationTokenParametersDiagnostic
 {

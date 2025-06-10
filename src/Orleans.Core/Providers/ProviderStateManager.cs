@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.Serialization;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     internal enum ProviderState
     {

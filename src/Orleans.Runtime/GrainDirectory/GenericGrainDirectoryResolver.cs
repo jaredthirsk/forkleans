@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.GrainDirectory;
-using Orleans.Metadata;
+using Forkleans.GrainDirectory;
+using Forkleans.Metadata;
 
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     internal class GenericGrainDirectoryResolver : IGrainDirectoryResolver
     {

@@ -1,4 +1,4 @@
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// A default implementation uses the same hash as Orleans in grains placement.

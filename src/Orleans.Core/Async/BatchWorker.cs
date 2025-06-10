@@ -1,10 +1,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Orleans.Timers.Internal;
+using Forkleans.Timers.Internal;
 
 #nullable enable
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// General pattern for an asynchronous worker that performs a work task, when notified,

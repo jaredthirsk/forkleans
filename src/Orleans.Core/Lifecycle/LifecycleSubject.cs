@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Provides functionality for observing a lifecycle.

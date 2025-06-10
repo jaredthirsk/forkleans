@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.Internal;
+using Forkleans.Runtime;
+using Forkleans.Internal;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using UnitTests.Grains;

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Orleans.Storage;
+using Forkleans.Storage;
 
-namespace Orleans.EventSourcing
+namespace Forkleans.EventSourcing
 {
     /// <summary>
     /// A base class for log-consistent grains using standard event-sourcing terminology.

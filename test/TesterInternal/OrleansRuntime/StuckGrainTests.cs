@@ -1,10 +1,10 @@
-using Orleans.Configuration;
-using Orleans.TestingHost;
-using Orleans.Internal;
+using Forkleans.Configuration;
+using Forkleans.TestingHost;
+using Forkleans.Internal;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using Xunit;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using UnitTests.Grains;
 
 namespace UnitTests.StuckGrainTests

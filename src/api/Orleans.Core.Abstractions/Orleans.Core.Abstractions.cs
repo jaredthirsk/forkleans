@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans
+namespace Forkleans
 {
     public readonly partial struct DeactivationReason
     {
@@ -1361,7 +1361,7 @@ namespace Orleans
     }
 }
 
-namespace Orleans.CodeGeneration
+namespace Forkleans.CodeGeneration
 {
     [System.Flags]
     [GenerateSerializer]
@@ -1385,7 +1385,7 @@ namespace Orleans.CodeGeneration
     }
 }
 
-namespace Orleans.Concurrency
+namespace Forkleans.Concurrency
 {
     [InvokableCustomInitializer("AddInvokeMethodOptions", CodeGeneration.InvokeMethodOptions.AlwaysInterleave)]
     [System.AttributeUsage(System.AttributeTargets.Method)]
@@ -1451,7 +1451,7 @@ namespace Orleans.Concurrency
     }
 }
 
-namespace Orleans.Core
+namespace Forkleans.Core
 {
     public partial interface IStorage
     {
@@ -1473,7 +1473,7 @@ namespace Orleans.Core
     }
 }
 
-namespace Orleans.Core.Internal
+namespace Forkleans.Core.Internal
 {
     public partial interface ICallChainReentrantGrainContext
     {
@@ -1488,7 +1488,7 @@ namespace Orleans.Core.Internal
     }
 }
 
-namespace Orleans.GrainDirectory
+namespace Forkleans.GrainDirectory
 {
     [System.AttributeUsage(System.AttributeTargets.Class)]
     public sealed partial class GrainDirectoryAttribute : System.Attribute, Metadata.IGrainPropertiesProviderAttribute
@@ -1513,7 +1513,7 @@ namespace Orleans.GrainDirectory
     }
 }
 
-namespace Orleans.Metadata
+namespace Forkleans.Metadata
 {
     public sealed partial class AttributeGrainBindingsProvider : IGrainPropertiesProvider
     {
@@ -1708,7 +1708,7 @@ namespace Orleans.Metadata
     }
 }
 
-namespace Orleans.Placement
+namespace Forkleans.Placement
 {
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = false)]
     public sealed partial class ActivationCountBasedPlacementAttribute : PlacementAttribute
@@ -1802,7 +1802,7 @@ namespace Orleans.Placement
     }
 }
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     public partial interface IProviderBuilder<TBuilder>
     {
@@ -1829,7 +1829,7 @@ namespace Orleans.Providers
     }
 }
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     [GenerateSerializer]
     [Immutable]
@@ -1888,7 +1888,7 @@ namespace Orleans.Runtime
     [GenerateSerializer]
     [SuppressReferenceTracking]
     [Invocation.ReturnValueProxy("InitializeRequest")]
-    public abstract partial class AsyncEnumerableRequest<T> : RequestBase, System.Collections.Generic.IAsyncEnumerable<T>, IAsyncEnumerableRequest<T>, IRequest, Orleans.Serialization.Invocation.IInvokable, System.IDisposable
+    public abstract partial class AsyncEnumerableRequest<T> : RequestBase, System.Collections.Generic.IAsyncEnumerable<T>, IAsyncEnumerableRequest<T>, IRequest, Forkleans.Serialization.Invocation.IInvokable, System.IDisposable
     {
         [Id(0)]
         public int MaxBatchSize { get { throw null; } set { } }
@@ -1897,7 +1897,7 @@ namespace Orleans.Runtime
 
         public System.Collections.Generic.IAsyncEnumerable<T> InitializeRequest(GrainReference targetGrainReference) { throw null; }
 
-        public override System.Threading.Tasks.ValueTask<Orleans.Serialization.Invocation.Response> Invoke() { throw null; }
+        public override System.Threading.Tasks.ValueTask<Forkleans.Serialization.Invocation.Response> Invoke() { throw null; }
 
         public System.Collections.Generic.IAsyncEnumerable<T> InvokeImplementation() { throw null; }
 
@@ -2175,9 +2175,9 @@ namespace Orleans.Runtime
     {
         protected GrainReference(GrainReferenceShared shared, IdSpan key) { }
 
-        protected Orleans.Serialization.Serializers.CodecProvider CodecProvider { get { throw null; } }
+        protected Forkleans.Serialization.Serializers.CodecProvider CodecProvider { get { throw null; } }
 
-        protected Orleans.Serialization.Cloning.CopyContextPool CopyContextPool { get { throw null; } }
+        protected Forkleans.Serialization.Cloning.CopyContextPool CopyContextPool { get { throw null; } }
 
         public GrainId GrainId { get { throw null; } }
 
@@ -2225,11 +2225,11 @@ namespace Orleans.Runtime
 
     public partial class GrainReferenceShared
     {
-        public GrainReferenceShared(GrainType grainType, GrainInterfaceType grainInterfaceType, ushort interfaceVersion, IGrainReferenceRuntime runtime, CodeGeneration.InvokeMethodOptions invokeMethodOptions, Orleans.Serialization.Serializers.CodecProvider codecProvider, Orleans.Serialization.Cloning.CopyContextPool copyContextPool, System.IServiceProvider serviceProvider) { }
+        public GrainReferenceShared(GrainType grainType, GrainInterfaceType grainInterfaceType, ushort interfaceVersion, IGrainReferenceRuntime runtime, CodeGeneration.InvokeMethodOptions invokeMethodOptions, Forkleans.Serialization.Serializers.CodecProvider codecProvider, Forkleans.Serialization.Cloning.CopyContextPool copyContextPool, System.IServiceProvider serviceProvider) { }
 
-        public Orleans.Serialization.Serializers.CodecProvider CodecProvider { get { throw null; } }
+        public Forkleans.Serialization.Serializers.CodecProvider CodecProvider { get { throw null; } }
 
-        public Orleans.Serialization.Cloning.CopyContextPool CopyContextPool { get { throw null; } }
+        public Forkleans.Serialization.Cloning.CopyContextPool CopyContextPool { get { throw null; } }
 
         public GrainType GrainType { get { throw null; } }
 
@@ -2382,7 +2382,7 @@ namespace Orleans.Runtime
         System.Threading.Tasks.ValueTask<(EnumerationResult Status, object Value)> StartEnumeration<T>(System.Guid requestId, IAsyncEnumerableRequest<T> request);
     }
 
-    public partial interface IAsyncEnumerableRequest<T> : IRequest, Orleans.Serialization.Invocation.IInvokable, System.IDisposable
+    public partial interface IAsyncEnumerableRequest<T> : IRequest, Forkleans.Serialization.Invocation.IInvokable, System.IDisposable
     {
         int MaxBatchSize { get; set; }
 
@@ -2444,20 +2444,20 @@ namespace Orleans.Runtime
     }
 
     [RegisterSerializer]
-    public sealed partial class IdSpanCodec : Orleans.Serialization.Codecs.IFieldCodec<IdSpan>, Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class IdSpanCodec : Forkleans.Serialization.Codecs.IFieldCodec<IdSpan>, Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public static IdSpan ReadRaw<TInput>(ref Orleans.Serialization.Buffers.Reader<TInput> reader) { throw null; }
+        public static IdSpan ReadRaw<TInput>(ref Forkleans.Serialization.Buffers.Reader<TInput> reader) { throw null; }
 
-        public IdSpan ReadValue<TInput>(ref Orleans.Serialization.Buffers.Reader<TInput> reader, Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public IdSpan ReadValue<TInput>(ref Forkleans.Serialization.Buffers.Reader<TInput> reader, Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void WriteField<TBufferWriter>(ref Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, IdSpan value)
+        public void WriteField<TBufferWriter>(ref Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, IdSpan value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public static void WriteRaw<TBufferWriter>(ref Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, IdSpan value)
+        public static void WriteRaw<TBufferWriter>(ref Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, IdSpan value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    public partial interface IGrainContext : Orleans.Serialization.Invocation.ITargetHolder, System.IEquatable<IGrainContext>
+    public partial interface IGrainContext : Forkleans.Serialization.Invocation.ITargetHolder, System.IEquatable<IGrainContext>
     {
         ActivationId ActivationId { get; }
 
@@ -2529,9 +2529,9 @@ namespace Orleans.Runtime
     public partial interface IGrainReferenceRuntime
     {
         object Cast(IAddressable grain, System.Type interfaceType);
-        void InvokeMethod(GrainReference reference, Orleans.Serialization.Invocation.IInvokable request, CodeGeneration.InvokeMethodOptions options);
-        System.Threading.Tasks.ValueTask InvokeMethodAsync(GrainReference reference, Orleans.Serialization.Invocation.IInvokable request, CodeGeneration.InvokeMethodOptions options);
-        System.Threading.Tasks.ValueTask<T> InvokeMethodAsync<T>(GrainReference reference, Orleans.Serialization.Invocation.IInvokable request, CodeGeneration.InvokeMethodOptions options);
+        void InvokeMethod(GrainReference reference, Forkleans.Serialization.Invocation.IInvokable request, CodeGeneration.InvokeMethodOptions options);
+        System.Threading.Tasks.ValueTask InvokeMethodAsync(GrainReference reference, Forkleans.Serialization.Invocation.IInvokable request, CodeGeneration.InvokeMethodOptions options);
+        System.Threading.Tasks.ValueTask<T> InvokeMethodAsync<T>(GrainReference reference, Forkleans.Serialization.Invocation.IInvokable request, CodeGeneration.InvokeMethodOptions options);
     }
 
     public partial interface IGrainRuntime
@@ -2566,7 +2566,7 @@ namespace Orleans.Runtime
         bool TryGetValue<T>(string key, out T? value);
     }
 
-    public partial interface IRequest : Orleans.Serialization.Invocation.IInvokable, System.IDisposable
+    public partial interface IRequest : Forkleans.Serialization.Invocation.IInvokable, System.IDisposable
     {
         CodeGeneration.InvokeMethodOptions Options { get; }
 
@@ -2777,14 +2777,14 @@ namespace Orleans.Runtime
     [SerializerTransparent]
     public abstract partial class Request : RequestBase
     {
-        public sealed override System.Threading.Tasks.ValueTask<Orleans.Serialization.Invocation.Response> Invoke() { throw null; }
+        public sealed override System.Threading.Tasks.ValueTask<Forkleans.Serialization.Invocation.Response> Invoke() { throw null; }
 
         protected abstract System.Threading.Tasks.ValueTask InvokeInner();
     }
 
     [SuppressReferenceTracking]
     [SerializerTransparent]
-    public abstract partial class RequestBase : IRequest, Orleans.Serialization.Invocation.IInvokable, System.IDisposable
+    public abstract partial class RequestBase : IRequest, Forkleans.Serialization.Invocation.IInvokable, System.IDisposable
     {
         public CodeGeneration.InvokeMethodOptions Options { get { throw null; } protected set { } }
 
@@ -2805,10 +2805,10 @@ namespace Orleans.Runtime
         public abstract System.Reflection.MethodInfo GetMethod();
         public abstract string GetMethodName();
         public abstract object GetTarget();
-        public abstract System.Threading.Tasks.ValueTask<Orleans.Serialization.Invocation.Response> Invoke();
+        public abstract System.Threading.Tasks.ValueTask<Forkleans.Serialization.Invocation.Response> Invoke();
         public virtual void SetArgument(int index, object value) { }
 
-        public abstract void SetTarget(Orleans.Serialization.Invocation.ITargetHolder holder);
+        public abstract void SetTarget(Forkleans.Serialization.Invocation.ITargetHolder holder);
         public override string ToString() { throw null; }
 
         public virtual bool TryCancel() { throw null; }
@@ -2846,7 +2846,7 @@ namespace Orleans.Runtime
     [SerializerTransparent]
     public abstract partial class Request<TResult> : RequestBase
     {
-        public sealed override System.Threading.Tasks.ValueTask<Orleans.Serialization.Invocation.Response> Invoke() { throw null; }
+        public sealed override System.Threading.Tasks.ValueTask<Forkleans.Serialization.Invocation.Response> Invoke() { throw null; }
 
         protected abstract System.Threading.Tasks.ValueTask<TResult> InvokeInner();
     }
@@ -2992,7 +2992,7 @@ namespace Orleans.Runtime
     [SerializerTransparent]
     public abstract partial class TaskRequest : RequestBase
     {
-        public sealed override System.Threading.Tasks.ValueTask<Orleans.Serialization.Invocation.Response> Invoke() { throw null; }
+        public sealed override System.Threading.Tasks.ValueTask<Forkleans.Serialization.Invocation.Response> Invoke() { throw null; }
 
         protected abstract System.Threading.Tasks.Task InvokeInner();
     }
@@ -3000,7 +3000,7 @@ namespace Orleans.Runtime
     [SerializerTransparent]
     public abstract partial class TaskRequest<TResult> : RequestBase
     {
-        public sealed override System.Threading.Tasks.ValueTask<Orleans.Serialization.Invocation.Response> Invoke() { throw null; }
+        public sealed override System.Threading.Tasks.ValueTask<Forkleans.Serialization.Invocation.Response> Invoke() { throw null; }
 
         protected abstract System.Threading.Tasks.Task<TResult> InvokeInner();
     }
@@ -3106,7 +3106,7 @@ namespace Orleans.Runtime
     [SerializerTransparent]
     public abstract partial class VoidRequest : RequestBase
     {
-        public sealed override System.Threading.Tasks.ValueTask<Orleans.Serialization.Invocation.Response> Invoke() { throw null; }
+        public sealed override System.Threading.Tasks.ValueTask<Forkleans.Serialization.Invocation.Response> Invoke() { throw null; }
 
         protected abstract void InvokeInner();
     }
@@ -3132,19 +3132,19 @@ namespace Orleans.Runtime
     }
 }
 
-namespace Orleans.Runtime.Serialization
+namespace Forkleans.Runtime.Serialization
 {
     [RegisterSerializer]
-    public sealed partial class SiloAddressCodec : Orleans.Serialization.Codecs.IFieldCodec<SiloAddress>, Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class SiloAddressCodec : Forkleans.Serialization.Codecs.IFieldCodec<SiloAddress>, Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public SiloAddress ReadValue<TReaderInput>(ref Orleans.Serialization.Buffers.Reader<TReaderInput> reader, Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public SiloAddress ReadValue<TReaderInput>(ref Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void WriteField<TBufferWriter>(ref Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, SiloAddress? value)
+        public void WriteField<TBufferWriter>(ref Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, SiloAddress? value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 }
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     public abstract partial class DeserializationContext
     {
@@ -3158,7 +3158,7 @@ namespace Orleans.Serialization
     }
 }
 
-namespace Orleans.Services
+namespace Forkleans.Services
 {
     public partial interface IGrainService : ISystemTarget, Runtime.IAddressable
     {
@@ -3170,11 +3170,11 @@ namespace Orleans.Services
     }
 }
 
-namespace Orleans.Statistics
+namespace Forkleans.Statistics
 {
     [Immutable]
     [GenerateSerializer]
-    [Alias("Orleans.Statistics.EnvironmentStatistics")]
+    [Alias("Forkleans.Statistics.EnvironmentStatistics")]
     public readonly partial struct EnvironmentStatistics
     {
         [Id(2)]
@@ -3209,7 +3209,7 @@ namespace Orleans.Statistics
     }
 }
 
-namespace Orleans.Timers
+namespace Forkleans.Timers
 {
     public partial interface ITimerRegistry
     {
@@ -3219,7 +3219,7 @@ namespace Orleans.Timers
     }
 }
 
-namespace Orleans.Versions
+namespace Forkleans.Versions
 {
     public partial interface IVersionStore : IVersionManager
     {
@@ -3232,7 +3232,7 @@ namespace Orleans.Versions
     }
 }
 
-namespace Orleans.Versions.Compatibility
+namespace Forkleans.Versions.Compatibility
 {
     [GenerateSerializer]
     [Immutable]
@@ -3269,7 +3269,7 @@ namespace Orleans.Versions.Compatibility
     }
 }
 
-namespace Orleans.Versions.Selector
+namespace Forkleans.Versions.Selector
 {
     [GenerateSerializer]
     [Immutable]
@@ -3306,117 +3306,117 @@ namespace Orleans.Versions.Selector
     }
 }
 
-namespace OrleansCodeGen.Orleans
+namespace ForkleansCodeGen.Orleans
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_DeactivationReasonCode : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.DeactivationReasonCode>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_DeactivationReasonCode : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.DeactivationReasonCode>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public global::Orleans.DeactivationReasonCode ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.DeactivationReasonCode ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.DeactivationReasonCode value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.DeactivationReasonCode value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 }
 
-namespace OrleansCodeGen.Orleans.CodeGeneration
+namespace ForkleansCodeGen.Forkleans.CodeGeneration
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_InvokeMethodOptions : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.CodeGeneration.InvokeMethodOptions>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_InvokeMethodOptions : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.CodeGeneration.InvokeMethodOptions>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public global::Orleans.CodeGeneration.InvokeMethodOptions ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.CodeGeneration.InvokeMethodOptions ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.CodeGeneration.InvokeMethodOptions value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.CodeGeneration.InvokeMethodOptions value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 }
 
-namespace OrleansCodeGen.Orleans.Concurrency
+namespace ForkleansCodeGen.Forkleans.Concurrency
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_Immutable<T> : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Concurrency.Immutable<T>>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IValueSerializer<global::Orleans.Concurrency.Immutable<T>>, global::Orleans.Serialization.Serializers.IValueSerializer
+    public sealed partial class Codec_Immutable<T> : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Concurrency.Immutable<T>>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IValueSerializer<global::Forkleans.Concurrency.Immutable<T>>, global::Forkleans.Serialization.Serializers.IValueSerializer
     {
-        public Codec_Immutable(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_Immutable(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Orleans.Concurrency.Immutable<T> instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Forkleans.Concurrency.Immutable<T> instance) { }
 
-        public global::Orleans.Concurrency.Immutable<T> ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Concurrency.Immutable<T> ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Orleans.Concurrency.Immutable<T> instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Forkleans.Concurrency.Immutable<T> instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Concurrency.Immutable<T> value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Concurrency.Immutable<T> value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_Immutable<T> : global::Orleans.Serialization.Cloning.ShallowCopier<global::Orleans.Concurrency.Immutable<T>>
+    public sealed partial class Copier_Immutable<T> : global::Forkleans.Serialization.Cloning.ShallowCopier<global::Forkleans.Concurrency.Immutable<T>>
     {
     }
 }
 
-namespace OrleansCodeGen.Orleans.Core.Internal
+namespace ForkleansCodeGen.Forkleans.Core.Internal
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 : global::Orleans.Serialization.Codecs.IFieldCodec<Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 instance) { }
 
-        public Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 value)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 : global::Orleans.Serialization.Codecs.IFieldCodec<Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45>, global::Orleans.Serialization.Codecs.IFieldCodec
-    {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 instance) { }
-
-        public Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 instance)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 : global::Orleans.Serialization.Cloning.IDeepCopier<Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1>, global::Orleans.Serialization.Cloning.IDeepCopier
+    public sealed partial class Codec_Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 DeepCopy(Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 original, global::Orleans.Serialization.Cloning.CopyContext context) { throw null; }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 instance) { }
+
+        public Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 instance)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
+
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 value)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 : global::Orleans.Serialization.Cloning.IDeepCopier<Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45>, global::Orleans.Serialization.Cloning.IDeepCopier
+    public sealed partial class Copier_Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1>, global::Forkleans.Serialization.Cloning.IDeepCopier
     {
-        public Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 DeepCopy(Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 original, global::Orleans.Serialization.Cloning.CopyContext context) { throw null; }
+        public Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 DeepCopy(Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    [global::Orleans.CompoundTypeAlias(new[] { "inv", typeof(global::Orleans.Runtime.GrainReference), "Ext", typeof(global::Orleans.Core.Internal.IGrainManagementExtension), typeof(global::Orleans.Core.Internal.IGrainManagementExtension), "1B9614D1" })]
-    public sealed partial class Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 : global::Orleans.Runtime.Request
+    public sealed partial class Copier_Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45>, global::Forkleans.Serialization.Cloning.IDeepCopier
+    {
+        public Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 DeepCopy(Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), "Ext", typeof(global::Forkleans.Core.Internal.IGrainManagementExtension), typeof(global::Forkleans.Core.Internal.IGrainManagementExtension), "1B9614D1" })]
+    public sealed partial class Invokable_IGrainManagementExtension_GrainReference_Ext_1B9614D1 : global::Forkleans.Runtime.Request
     {
         public override void Dispose() { }
 
@@ -3434,14 +3434,14 @@ namespace OrleansCodeGen.Orleans.Core.Internal
 
         protected override System.Threading.Tasks.ValueTask InvokeInner() { throw null; }
 
-        public override void SetTarget(global::Orleans.Serialization.Invocation.ITargetHolder holder) { }
+        public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    [global::Orleans.CompoundTypeAlias(new[] { "inv", typeof(global::Orleans.Runtime.GrainReference), "Ext", typeof(global::Orleans.Core.Internal.IGrainManagementExtension), typeof(global::Orleans.Core.Internal.IGrainManagementExtension), "4CC93B45" })]
-    public sealed partial class Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 : global::Orleans.Runtime.Request
+    [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), "Ext", typeof(global::Forkleans.Core.Internal.IGrainManagementExtension), typeof(global::Forkleans.Core.Internal.IGrainManagementExtension), "4CC93B45" })]
+    public sealed partial class Invokable_IGrainManagementExtension_GrainReference_Ext_4CC93B45 : global::Forkleans.Runtime.Request
     {
         public override void Dispose() { }
 
@@ -3459,800 +3459,800 @@ namespace OrleansCodeGen.Orleans.Core.Internal
 
         protected override System.Threading.Tasks.ValueTask InvokeInner() { throw null; }
 
-        public override void SetTarget(global::Orleans.Serialization.Invocation.ITargetHolder holder) { }
+        public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 }
 
-namespace OrleansCodeGen.Orleans.Metadata
+namespace ForkleansCodeGen.Forkleans.Metadata
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_ClusterManifest : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Metadata.ClusterManifest>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_ClusterManifest : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Metadata.ClusterManifest>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_ClusterManifest(global::Orleans.Serialization.Activators.IActivator<global::Orleans.Metadata.ClusterManifest> _activator, global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_ClusterManifest(global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Metadata.ClusterManifest> _activator, global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Metadata.ClusterManifest instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Metadata.ClusterManifest instance) { }
 
-        public global::Orleans.Metadata.ClusterManifest ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Metadata.ClusterManifest ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Metadata.ClusterManifest instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Metadata.ClusterManifest instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Metadata.ClusterManifest value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Metadata.ClusterManifest value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_GrainInterfaceProperties : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Metadata.GrainInterfaceProperties>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_GrainInterfaceProperties : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Metadata.GrainInterfaceProperties>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_GrainInterfaceProperties(global::Orleans.Serialization.Activators.IActivator<global::Orleans.Metadata.GrainInterfaceProperties> _activator, global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_GrainInterfaceProperties(global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Metadata.GrainInterfaceProperties> _activator, global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Metadata.GrainInterfaceProperties instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Metadata.GrainInterfaceProperties instance) { }
 
-        public global::Orleans.Metadata.GrainInterfaceProperties ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Metadata.GrainInterfaceProperties ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Metadata.GrainInterfaceProperties instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Metadata.GrainInterfaceProperties instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Metadata.GrainInterfaceProperties value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Metadata.GrainInterfaceProperties value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_GrainManifest : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Metadata.GrainManifest>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_GrainManifest : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Metadata.GrainManifest>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_GrainManifest(global::Orleans.Serialization.Activators.IActivator<global::Orleans.Metadata.GrainManifest> _activator, global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_GrainManifest(global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Metadata.GrainManifest> _activator, global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Metadata.GrainManifest instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Metadata.GrainManifest instance) { }
 
-        public global::Orleans.Metadata.GrainManifest ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Metadata.GrainManifest ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Metadata.GrainManifest instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Metadata.GrainManifest instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Metadata.GrainManifest value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Metadata.GrainManifest value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_GrainProperties : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Metadata.GrainProperties>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_GrainProperties : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Metadata.GrainProperties>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_GrainProperties(global::Orleans.Serialization.Activators.IActivator<global::Orleans.Metadata.GrainProperties> _activator, global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_GrainProperties(global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Metadata.GrainProperties> _activator, global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Metadata.GrainProperties instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Metadata.GrainProperties instance) { }
 
-        public global::Orleans.Metadata.GrainProperties ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Metadata.GrainProperties ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Metadata.GrainProperties instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Metadata.GrainProperties instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Metadata.GrainProperties value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Metadata.GrainProperties value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_MajorMinorVersion : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Metadata.MajorMinorVersion>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IValueSerializer<global::Orleans.Metadata.MajorMinorVersion>, global::Orleans.Serialization.Serializers.IValueSerializer
+    public sealed partial class Codec_MajorMinorVersion : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Metadata.MajorMinorVersion>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IValueSerializer<global::Forkleans.Metadata.MajorMinorVersion>, global::Forkleans.Serialization.Serializers.IValueSerializer
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Orleans.Metadata.MajorMinorVersion instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Forkleans.Metadata.MajorMinorVersion instance) { }
 
-        public global::Orleans.Metadata.MajorMinorVersion ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Metadata.MajorMinorVersion ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Orleans.Metadata.MajorMinorVersion instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Forkleans.Metadata.MajorMinorVersion instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Metadata.MajorMinorVersion value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Metadata.MajorMinorVersion value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 }
 
-namespace OrleansCodeGen.Orleans.Runtime
+namespace ForkleansCodeGen.Forkleans.Runtime
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_ActivationCountBasedPlacement : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.ActivationCountBasedPlacement>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_ActivationCountBasedPlacement : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.ActivationCountBasedPlacement>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.ActivationCountBasedPlacement instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.ActivationCountBasedPlacement instance) { }
 
-        public global::Orleans.Runtime.ActivationCountBasedPlacement ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.ActivationCountBasedPlacement ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.ActivationCountBasedPlacement instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.ActivationCountBasedPlacement instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.ActivationCountBasedPlacement value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.ActivationCountBasedPlacement value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_ActivationId : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.ActivationId>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IValueSerializer<global::Orleans.Runtime.ActivationId>, global::Orleans.Serialization.Serializers.IValueSerializer
+    public sealed partial class Codec_ActivationId : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.ActivationId>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IValueSerializer<global::Forkleans.Runtime.ActivationId>, global::Forkleans.Serialization.Serializers.IValueSerializer
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Orleans.Runtime.ActivationId instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Forkleans.Runtime.ActivationId instance) { }
 
-        public global::Orleans.Runtime.ActivationId ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.ActivationId ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Orleans.Runtime.ActivationId instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Forkleans.Runtime.ActivationId instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.ActivationId value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.ActivationId value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_AsyncEnumerableRequest<T> : global::Orleans.Serialization.Serializers.AbstractTypeSerializer<global::Orleans.Runtime.AsyncEnumerableRequest<T>>
+    public sealed partial class Codec_AsyncEnumerableRequest<T> : global::Forkleans.Serialization.Serializers.AbstractTypeSerializer<global::Forkleans.Runtime.AsyncEnumerableRequest<T>>
     {
-        public override void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.AsyncEnumerableRequest<T> instance) { }
+        public override void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.AsyncEnumerableRequest<T> instance) { }
 
-        public override void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.AsyncEnumerableRequest<T> instance) { }
+        public override void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.AsyncEnumerableRequest<T> instance) { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_ClientNotAvailableException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.ClientNotAvailableException>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_ClientNotAvailableException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.ClientNotAvailableException>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_ClientNotAvailableException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider, global::Orleans.Serialization.Activators.IActivator<global::Orleans.Runtime.ClientNotAvailableException> _activator) { }
+        public Codec_ClientNotAvailableException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider, global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Runtime.ClientNotAvailableException> _activator) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.ClientNotAvailableException instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.ClientNotAvailableException instance) { }
 
-        public global::Orleans.Runtime.ClientNotAvailableException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.ClientNotAvailableException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.ClientNotAvailableException instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.ClientNotAvailableException instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.ClientNotAvailableException value)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_EnumerationAbortedException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.EnumerationAbortedException>, global::Orleans.Serialization.Codecs.IFieldCodec
-    {
-        public Codec_EnumerationAbortedException(global::Orleans.Serialization.Serializers.IBaseCodec<System.Exception> _baseTypeSerializer) { }
-
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.EnumerationAbortedException instance) { }
-
-        public global::Orleans.Runtime.EnumerationAbortedException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.EnumerationAbortedException instance)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.EnumerationAbortedException value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.ClientNotAvailableException value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_EnumerationResult : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.EnumerationResult>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_EnumerationAbortedException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.EnumerationAbortedException>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public global::Orleans.Runtime.EnumerationResult ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public Codec_EnumerationAbortedException(global::Forkleans.Serialization.Serializers.IBaseCodec<System.Exception> _baseTypeSerializer) { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.EnumerationResult value)
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.EnumerationAbortedException instance) { }
+
+        public global::Forkleans.Runtime.EnumerationAbortedException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.EnumerationAbortedException instance)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
+
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.EnumerationAbortedException value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_GatewayTooBusyException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.GatewayTooBusyException>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_EnumerationResult : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.EnumerationResult>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_GatewayTooBusyException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public global::Forkleans.Runtime.EnumerationResult ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.GatewayTooBusyException instance) { }
-
-        public global::Orleans.Runtime.GatewayTooBusyException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.GatewayTooBusyException instance)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.GatewayTooBusyException value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.EnumerationResult value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_GrainAddress : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.GrainAddress>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_GatewayTooBusyException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.GatewayTooBusyException>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_GrainAddress(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_GatewayTooBusyException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.GrainAddress instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.GatewayTooBusyException instance) { }
 
-        public global::Orleans.Runtime.GrainAddress ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.GatewayTooBusyException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.GrainAddress instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.GatewayTooBusyException instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.GrainAddress value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.GatewayTooBusyException value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_GrainAddressCacheUpdate : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.GrainAddressCacheUpdate>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_GrainAddress : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.GrainAddress>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_GrainAddressCacheUpdate(global::Orleans.Serialization.Activators.IActivator<global::Orleans.Runtime.GrainAddressCacheUpdate> _activator, global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_GrainAddress(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.GrainAddressCacheUpdate instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.GrainAddress instance) { }
 
-        public global::Orleans.Runtime.GrainAddressCacheUpdate ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.GrainAddress ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.GrainAddressCacheUpdate instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.GrainAddress instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.GrainAddressCacheUpdate value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.GrainAddress value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_GrainExtensionNotInstalledException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.GrainExtensionNotInstalledException>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_GrainAddressCacheUpdate : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.GrainAddressCacheUpdate>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_GrainExtensionNotInstalledException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_GrainAddressCacheUpdate(global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Runtime.GrainAddressCacheUpdate> _activator, global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.GrainExtensionNotInstalledException instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.GrainAddressCacheUpdate instance) { }
 
-        public global::Orleans.Runtime.GrainExtensionNotInstalledException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.GrainAddressCacheUpdate ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.GrainExtensionNotInstalledException instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.GrainAddressCacheUpdate instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.GrainExtensionNotInstalledException value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.GrainAddressCacheUpdate value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_GrainId : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.GrainId>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IValueSerializer<global::Orleans.Runtime.GrainId>, global::Orleans.Serialization.Serializers.IValueSerializer
+    public sealed partial class Codec_GrainExtensionNotInstalledException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.GrainExtensionNotInstalledException>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_GrainId(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_GrainExtensionNotInstalledException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Orleans.Runtime.GrainId instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.GrainExtensionNotInstalledException instance) { }
 
-        public global::Orleans.Runtime.GrainId ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.GrainExtensionNotInstalledException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Orleans.Runtime.GrainId instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.GrainExtensionNotInstalledException instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.GrainId value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.GrainExtensionNotInstalledException value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_GrainInterfaceType : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.GrainInterfaceType>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IValueSerializer<global::Orleans.Runtime.GrainInterfaceType>, global::Orleans.Serialization.Serializers.IValueSerializer
+    public sealed partial class Codec_GrainId : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.GrainId>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IValueSerializer<global::Forkleans.Runtime.GrainId>, global::Forkleans.Serialization.Serializers.IValueSerializer
     {
-        public Codec_GrainInterfaceType(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_GrainId(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Orleans.Runtime.GrainInterfaceType instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Forkleans.Runtime.GrainId instance) { }
 
-        public global::Orleans.Runtime.GrainInterfaceType ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.GrainId ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Orleans.Runtime.GrainInterfaceType instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Forkleans.Runtime.GrainId instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.GrainInterfaceType value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.GrainId value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_GrainReferenceNotBoundException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.GrainReferenceNotBoundException>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_GrainInterfaceType : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.GrainInterfaceType>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IValueSerializer<global::Forkleans.Runtime.GrainInterfaceType>, global::Forkleans.Serialization.Serializers.IValueSerializer
     {
-        public Codec_GrainReferenceNotBoundException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider, global::Orleans.Serialization.Activators.IActivator<global::Orleans.Runtime.GrainReferenceNotBoundException> _activator) { }
+        public Codec_GrainInterfaceType(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.GrainReferenceNotBoundException instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Forkleans.Runtime.GrainInterfaceType instance) { }
 
-        public global::Orleans.Runtime.GrainReferenceNotBoundException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.GrainInterfaceType ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.GrainReferenceNotBoundException instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Forkleans.Runtime.GrainInterfaceType instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.GrainReferenceNotBoundException value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.GrainInterfaceType value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_GrainType : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.GrainType>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IValueSerializer<global::Orleans.Runtime.GrainType>, global::Orleans.Serialization.Serializers.IValueSerializer
+    public sealed partial class Codec_GrainReferenceNotBoundException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.GrainReferenceNotBoundException>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_GrainType(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_GrainReferenceNotBoundException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider, global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Runtime.GrainReferenceNotBoundException> _activator) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Orleans.Runtime.GrainType instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.GrainReferenceNotBoundException instance) { }
 
-        public global::Orleans.Runtime.GrainType ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.GrainReferenceNotBoundException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Orleans.Runtime.GrainType instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.GrainReferenceNotBoundException instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.GrainType value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.GrainReferenceNotBoundException value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_GuidId : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.GuidId>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_GrainType : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.GrainType>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IValueSerializer<global::Forkleans.Runtime.GrainType>, global::Forkleans.Serialization.Serializers.IValueSerializer
     {
-        public Codec_GuidId(global::Orleans.Serialization.Activators.IActivator<global::Orleans.Runtime.GuidId> _activator) { }
+        public Codec_GrainType(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.GuidId instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Forkleans.Runtime.GrainType instance) { }
 
-        public global::Orleans.Runtime.GuidId ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.GrainType ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.GuidId instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Forkleans.Runtime.GrainType instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.GuidId value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.GrainType value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_HashBasedPlacement : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.HashBasedPlacement>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_GuidId : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.GuidId>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.HashBasedPlacement instance) { }
+        public Codec_GuidId(global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Runtime.GuidId> _activator) { }
 
-        public global::Orleans.Runtime.HashBasedPlacement ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.GuidId instance) { }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.HashBasedPlacement instance)
+        public global::Forkleans.Runtime.GuidId ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.GuidId instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.HashBasedPlacement value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.GuidId value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_IdSpan : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.IdSpan>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IValueSerializer<global::Orleans.Runtime.IdSpan>, global::Orleans.Serialization.Serializers.IValueSerializer
+    public sealed partial class Codec_HashBasedPlacement : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.HashBasedPlacement>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Orleans.Runtime.IdSpan instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.HashBasedPlacement instance) { }
 
-        public global::Orleans.Runtime.IdSpan ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.HashBasedPlacement ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Orleans.Runtime.IdSpan instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.HashBasedPlacement instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.IdSpan value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.HashBasedPlacement value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> : global::Orleans.Serialization.Codecs.IFieldCodec<Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T>>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_IdSpan : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.IdSpan>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IValueSerializer<global::Forkleans.Runtime.IdSpan>, global::Forkleans.Serialization.Serializers.IValueSerializer
     {
-        public Codec_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Forkleans.Runtime.IdSpan instance) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> instance) { }
+        public global::Forkleans.Runtime.IdSpan ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Forkleans.Runtime.IdSpan instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.IdSpan value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 : global::Orleans.Serialization.Codecs.IFieldCodec<Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T>>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 instance) { }
+        public Codec_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> instance) { }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 instance)
+        public Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 value)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> : global::Orleans.Serialization.Codecs.IFieldCodec<Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T>>, global::Orleans.Serialization.Codecs.IFieldCodec
-    {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> instance) { }
-
-        public Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> instance)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_LegacyGrainId : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.LegacyGrainId>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_LegacyGrainId(global::Orleans.Serialization.Activators.IActivator<global::Orleans.Runtime.LegacyGrainId> _activator, global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 instance) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.LegacyGrainId instance) { }
+        public Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public global::Orleans.Runtime.LegacyGrainId ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.LegacyGrainId instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.LegacyGrainId value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_LimitExceededException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.LimitExceededException>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T>>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_LimitExceededException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> instance) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.LimitExceededException instance) { }
+        public Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public global::Orleans.Runtime.LimitExceededException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.LimitExceededException instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.LimitExceededException value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_MembershipVersion : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.MembershipVersion>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IValueSerializer<global::Orleans.Runtime.MembershipVersion>, global::Orleans.Serialization.Serializers.IValueSerializer
+    public sealed partial class Codec_LegacyGrainId : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.LegacyGrainId>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Orleans.Runtime.MembershipVersion instance) { }
+        public Codec_LegacyGrainId(global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Runtime.LegacyGrainId> _activator, global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public global::Orleans.Runtime.MembershipVersion ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.LegacyGrainId instance) { }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Orleans.Runtime.MembershipVersion instance)
+        public global::Forkleans.Runtime.LegacyGrainId ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.LegacyGrainId instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.MembershipVersion value)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_OrleansConfigurationException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.OrleansConfigurationException>, global::Orleans.Serialization.Codecs.IFieldCodec
-    {
-        public Codec_OrleansConfigurationException(global::Orleans.Serialization.Serializers.IBaseCodec<System.Exception> _baseTypeSerializer, global::Orleans.Serialization.Activators.IActivator<global::Orleans.Runtime.OrleansConfigurationException> _activator) { }
-
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.OrleansConfigurationException instance) { }
-
-        public global::Orleans.Runtime.OrleansConfigurationException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.OrleansConfigurationException instance)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.OrleansConfigurationException value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.LegacyGrainId value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_OrleansException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.OrleansException>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IBaseCodec<global::Orleans.Runtime.OrleansException>, global::Orleans.Serialization.Serializers.IBaseCodec
+    public sealed partial class Codec_LimitExceededException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.LimitExceededException>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Codec_OrleansException(global::Orleans.Serialization.Serializers.IBaseCodec<System.Exception> _baseTypeSerializer) { }
+        public Codec_LimitExceededException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.OrleansException instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.LimitExceededException instance) { }
 
-        public global::Orleans.Runtime.OrleansException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.LimitExceededException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.OrleansException instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.LimitExceededException instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.OrleansException value)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_OrleansLifecycleCanceledException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.OrleansLifecycleCanceledException>, global::Orleans.Serialization.Codecs.IFieldCodec
-    {
-        public Codec_OrleansLifecycleCanceledException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider, global::Orleans.Serialization.Activators.IActivator<global::Orleans.Runtime.OrleansLifecycleCanceledException> _activator) { }
-
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.OrleansLifecycleCanceledException instance) { }
-
-        public global::Orleans.Runtime.OrleansLifecycleCanceledException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.OrleansLifecycleCanceledException instance)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.OrleansLifecycleCanceledException value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.LimitExceededException value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_OrleansMessageRejectionException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.OrleansMessageRejectionException>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IBaseCodec<global::Orleans.Runtime.OrleansMessageRejectionException>, global::Orleans.Serialization.Serializers.IBaseCodec
+    public sealed partial class Codec_MembershipVersion : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.MembershipVersion>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IValueSerializer<global::Forkleans.Runtime.MembershipVersion>, global::Forkleans.Serialization.Serializers.IValueSerializer
     {
-        public Codec_OrleansMessageRejectionException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider, global::Orleans.Serialization.Activators.IActivator<global::Orleans.Runtime.OrleansMessageRejectionException> _activator) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Forkleans.Runtime.MembershipVersion instance) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.OrleansMessageRejectionException instance) { }
+        public global::Forkleans.Runtime.MembershipVersion ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public global::Orleans.Runtime.OrleansMessageRejectionException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.OrleansMessageRejectionException instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Forkleans.Runtime.MembershipVersion instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.OrleansMessageRejectionException value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.MembershipVersion value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_PreferLocalPlacement : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.PreferLocalPlacement>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_OrleansConfigurationException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.OrleansConfigurationException>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.PreferLocalPlacement instance) { }
+        public Codec_OrleansConfigurationException(global::Forkleans.Serialization.Serializers.IBaseCodec<System.Exception> _baseTypeSerializer, global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Runtime.OrleansConfigurationException> _activator) { }
 
-        public global::Orleans.Runtime.PreferLocalPlacement ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.OrleansConfigurationException instance) { }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.PreferLocalPlacement instance)
+        public global::Forkleans.Runtime.OrleansConfigurationException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.OrleansConfigurationException instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.PreferLocalPlacement value)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_RandomPlacement : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.RandomPlacement>, global::Orleans.Serialization.Codecs.IFieldCodec
-    {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.RandomPlacement instance) { }
-
-        public global::Orleans.Runtime.RandomPlacement ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.RandomPlacement instance)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.RandomPlacement value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.OrleansConfigurationException value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_SiloUnavailableException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.SiloUnavailableException>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_OrleansException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.OrleansException>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Runtime.OrleansException>, global::Forkleans.Serialization.Serializers.IBaseCodec
     {
-        public Codec_SiloUnavailableException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_OrleansException(global::Forkleans.Serialization.Serializers.IBaseCodec<System.Exception> _baseTypeSerializer) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.SiloUnavailableException instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.OrleansException instance) { }
 
-        public global::Orleans.Runtime.SiloUnavailableException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Runtime.OrleansException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.SiloUnavailableException instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.OrleansException instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.SiloUnavailableException value)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_SystemTargetPlacementStrategy : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.SystemTargetPlacementStrategy>, global::Orleans.Serialization.Codecs.IFieldCodec
-    {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.SystemTargetPlacementStrategy instance) { }
-
-        public global::Orleans.Runtime.SystemTargetPlacementStrategy ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.SystemTargetPlacementStrategy instance)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.SystemTargetPlacementStrategy value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.OrleansException value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_UniqueKey : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.UniqueKey>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_OrleansLifecycleCanceledException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.OrleansLifecycleCanceledException>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.UniqueKey instance) { }
+        public Codec_OrleansLifecycleCanceledException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider, global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Runtime.OrleansLifecycleCanceledException> _activator) { }
 
-        public global::Orleans.Runtime.UniqueKey ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.OrleansLifecycleCanceledException instance) { }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.UniqueKey instance)
+        public global::Forkleans.Runtime.OrleansLifecycleCanceledException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.OrleansLifecycleCanceledException instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.UniqueKey value)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_WrappedException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Runtime.WrappedException>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IBaseCodec<global::Orleans.Runtime.WrappedException>, global::Orleans.Serialization.Serializers.IBaseCodec
-    {
-        public Codec_WrappedException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider, global::Orleans.Serialization.Activators.IActivator<global::Orleans.Runtime.WrappedException> _activator) { }
-
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Runtime.WrappedException instance) { }
-
-        public global::Orleans.Runtime.WrappedException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Runtime.WrappedException instance)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Runtime.WrappedException value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.OrleansLifecycleCanceledException value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_AsyncEnumerableRequest<T> : global::Orleans.Serialization.Cloning.IDeepCopier<global::Orleans.Runtime.AsyncEnumerableRequest<T>>, global::Orleans.Serialization.Cloning.IDeepCopier, global::Orleans.Serialization.Cloning.IBaseCopier<global::Orleans.Runtime.AsyncEnumerableRequest<T>>, global::Orleans.Serialization.Cloning.IBaseCopier
+    public sealed partial class Codec_OrleansMessageRejectionException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.OrleansMessageRejectionException>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Runtime.OrleansMessageRejectionException>, global::Forkleans.Serialization.Serializers.IBaseCodec
     {
-        public void DeepCopy(global::Orleans.Runtime.AsyncEnumerableRequest<T> input, global::Orleans.Runtime.AsyncEnumerableRequest<T> output, global::Orleans.Serialization.Cloning.CopyContext context) { }
+        public Codec_OrleansMessageRejectionException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider, global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Runtime.OrleansMessageRejectionException> _activator) { }
 
-        public global::Orleans.Runtime.AsyncEnumerableRequest<T> DeepCopy(global::Orleans.Runtime.AsyncEnumerableRequest<T> original, global::Orleans.Serialization.Cloning.CopyContext context) { throw null; }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.OrleansMessageRejectionException instance) { }
+
+        public global::Forkleans.Runtime.OrleansMessageRejectionException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.OrleansMessageRejectionException instance)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
+
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.OrleansMessageRejectionException value)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_ClientNotAvailableException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Runtime.ClientNotAvailableException, global::Orleans.Runtime.OrleansException>
+    public sealed partial class Codec_PreferLocalPlacement : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.PreferLocalPlacement>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Copier_ClientNotAvailableException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.PreferLocalPlacement instance) { }
+
+        public global::Forkleans.Runtime.PreferLocalPlacement ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.PreferLocalPlacement instance)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
+
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.PreferLocalPlacement value)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_EnumerationAbortedException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Runtime.EnumerationAbortedException, System.Exception>
+    public sealed partial class Codec_RandomPlacement : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.RandomPlacement>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Copier_EnumerationAbortedException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.RandomPlacement instance) { }
+
+        public global::Forkleans.Runtime.RandomPlacement ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.RandomPlacement instance)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
+
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.RandomPlacement value)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_GatewayTooBusyException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Runtime.GatewayTooBusyException, global::Orleans.Runtime.OrleansException>
+    public sealed partial class Codec_SiloUnavailableException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.SiloUnavailableException>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Copier_GatewayTooBusyException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public Codec_SiloUnavailableException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.SiloUnavailableException instance) { }
+
+        public global::Forkleans.Runtime.SiloUnavailableException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.SiloUnavailableException instance)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
+
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.SiloUnavailableException value)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_GrainExtensionNotInstalledException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Runtime.GrainExtensionNotInstalledException, global::Orleans.Runtime.OrleansException>
+    public sealed partial class Codec_SystemTargetPlacementStrategy : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.SystemTargetPlacementStrategy>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Copier_GrainExtensionNotInstalledException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.SystemTargetPlacementStrategy instance) { }
+
+        public global::Forkleans.Runtime.SystemTargetPlacementStrategy ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.SystemTargetPlacementStrategy instance)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
+
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.SystemTargetPlacementStrategy value)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_GrainReferenceNotBoundException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Runtime.GrainReferenceNotBoundException, global::Orleans.Runtime.OrleansException>
+    public sealed partial class Codec_UniqueKey : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.UniqueKey>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public Copier_GrainReferenceNotBoundException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.UniqueKey instance) { }
+
+        public global::Forkleans.Runtime.UniqueKey ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.UniqueKey instance)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
+
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.UniqueKey value)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> : global::Orleans.Serialization.Cloning.IDeepCopier<Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T>>, global::Orleans.Serialization.Cloning.IDeepCopier
+    public sealed partial class Codec_WrappedException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.WrappedException>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Runtime.WrappedException>, global::Forkleans.Serialization.Serializers.IBaseCodec
     {
-        public Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> DeepCopy(Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> original, global::Orleans.Serialization.Cloning.CopyContext context) { throw null; }
+        public Codec_WrappedException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider, global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Runtime.WrappedException> _activator) { }
+
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Runtime.WrappedException instance) { }
+
+        public global::Forkleans.Runtime.WrappedException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Runtime.WrappedException instance)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
+
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Runtime.WrappedException value)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 : global::Orleans.Serialization.Cloning.IDeepCopier<Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209>, global::Orleans.Serialization.Cloning.IDeepCopier
+    public sealed partial class Copier_AsyncEnumerableRequest<T> : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Runtime.AsyncEnumerableRequest<T>>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Runtime.AsyncEnumerableRequest<T>>, global::Forkleans.Serialization.Cloning.IBaseCopier
     {
-        public Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 DeepCopy(Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 original, global::Orleans.Serialization.Cloning.CopyContext context) { throw null; }
+        public void DeepCopy(global::Forkleans.Runtime.AsyncEnumerableRequest<T> input, global::Forkleans.Runtime.AsyncEnumerableRequest<T> output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
+
+        public global::Forkleans.Runtime.AsyncEnumerableRequest<T> DeepCopy(global::Forkleans.Runtime.AsyncEnumerableRequest<T> original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> : global::Orleans.Serialization.Cloning.IDeepCopier<Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T>>, global::Orleans.Serialization.Cloning.IDeepCopier
+    public sealed partial class Copier_ClientNotAvailableException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.ClientNotAvailableException, global::Forkleans.Runtime.OrleansException>
     {
-        public Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> DeepCopy(Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> original, global::Orleans.Serialization.Cloning.CopyContext context) { throw null; }
+        public Copier_ClientNotAvailableException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_LimitExceededException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Runtime.LimitExceededException, global::Orleans.Runtime.OrleansException>
+    public sealed partial class Copier_EnumerationAbortedException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.EnumerationAbortedException, System.Exception>
     {
-        public Copier_LimitExceededException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public Copier_EnumerationAbortedException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_OrleansConfigurationException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Runtime.OrleansConfigurationException, System.Exception>
+    public sealed partial class Copier_GatewayTooBusyException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.GatewayTooBusyException, global::Forkleans.Runtime.OrleansException>
     {
-        public Copier_OrleansConfigurationException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public Copier_GatewayTooBusyException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_OrleansException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Runtime.OrleansException, System.Exception>
+    public sealed partial class Copier_GrainExtensionNotInstalledException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.GrainExtensionNotInstalledException, global::Forkleans.Runtime.OrleansException>
     {
-        public Copier_OrleansException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public Copier_GrainExtensionNotInstalledException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_OrleansLifecycleCanceledException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Runtime.OrleansLifecycleCanceledException, global::Orleans.Runtime.OrleansException>
+    public sealed partial class Copier_GrainReferenceNotBoundException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.GrainReferenceNotBoundException, global::Forkleans.Runtime.OrleansException>
     {
-        public Copier_OrleansLifecycleCanceledException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public Copier_GrainReferenceNotBoundException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_OrleansMessageRejectionException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Runtime.OrleansMessageRejectionException, global::Orleans.Runtime.OrleansException>
+    public sealed partial class Copier_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T>>, global::Forkleans.Serialization.Cloning.IDeepCopier
     {
-        public Copier_OrleansMessageRejectionException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> DeepCopy(Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_SiloUnavailableException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Runtime.SiloUnavailableException, global::Orleans.Runtime.OrleansMessageRejectionException>
+    public sealed partial class Copier_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209>, global::Forkleans.Serialization.Cloning.IDeepCopier
     {
-        public Copier_SiloUnavailableException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 DeepCopy(Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_WrappedException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Runtime.WrappedException, global::Orleans.Runtime.OrleansException>
+    public sealed partial class Copier_Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T>>, global::Forkleans.Serialization.Cloning.IDeepCopier
     {
-        public Copier_WrappedException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
-
-        public override void DeepCopy(global::Orleans.Runtime.WrappedException input, global::Orleans.Runtime.WrappedException output, global::Orleans.Serialization.Cloning.CopyContext context) { }
+        public Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> DeepCopy(Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    [global::Orleans.CompoundTypeAlias(new[] { "inv", typeof(global::Orleans.Runtime.GrainReference), "Ext", typeof(global::Orleans.Runtime.IAsyncEnumerableGrainExtension), typeof(global::Orleans.Runtime.IAsyncEnumerableGrainExtension), "370CD5AB" })]
-    public sealed partial class Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> : global::Orleans.Runtime.Request<(global::Orleans.Runtime.EnumerationResult, object)>
+    public sealed partial class Copier_LimitExceededException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.LimitExceededException, global::Forkleans.Runtime.OrleansException>
+    {
+        public Copier_LimitExceededException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public sealed partial class Copier_OrleansConfigurationException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.OrleansConfigurationException, System.Exception>
+    {
+        public Copier_OrleansConfigurationException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public sealed partial class Copier_OrleansException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.OrleansException, System.Exception>
+    {
+        public Copier_OrleansException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public sealed partial class Copier_OrleansLifecycleCanceledException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.OrleansLifecycleCanceledException, global::Forkleans.Runtime.OrleansException>
+    {
+        public Copier_OrleansLifecycleCanceledException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public sealed partial class Copier_OrleansMessageRejectionException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.OrleansMessageRejectionException, global::Forkleans.Runtime.OrleansException>
+    {
+        public Copier_OrleansMessageRejectionException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public sealed partial class Copier_SiloUnavailableException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.SiloUnavailableException, global::Forkleans.Runtime.OrleansMessageRejectionException>
+    {
+        public Copier_SiloUnavailableException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public sealed partial class Copier_WrappedException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.WrappedException, global::Forkleans.Runtime.OrleansException>
+    {
+        public Copier_WrappedException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+
+        public override void DeepCopy(global::Forkleans.Runtime.WrappedException input, global::Forkleans.Runtime.WrappedException output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), "Ext", typeof(global::Forkleans.Runtime.IAsyncEnumerableGrainExtension), typeof(global::Forkleans.Runtime.IAsyncEnumerableGrainExtension), "370CD5AB" })]
+    public sealed partial class Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_370CD5AB_1<T> : global::Forkleans.Runtime.Request<(global::Forkleans.Runtime.EnumerationResult, object)>
     {
         public System.Guid arg0;
-        public global::Orleans.Runtime.IAsyncEnumerableRequest<T> arg1;
+        public global::Forkleans.Runtime.IAsyncEnumerableRequest<T> arg1;
         public override void Dispose() { }
 
         public override string GetActivityName() { throw null; }
@@ -4271,50 +4271,18 @@ namespace OrleansCodeGen.Orleans.Runtime
 
         public override object GetTarget() { throw null; }
 
-        protected override System.Threading.Tasks.ValueTask<(global::Orleans.Runtime.EnumerationResult, object)> InvokeInner() { throw null; }
+        protected override System.Threading.Tasks.ValueTask<(global::Forkleans.Runtime.EnumerationResult, object)> InvokeInner() { throw null; }
 
         public override void SetArgument(int index, object value) { }
 
-        public override void SetTarget(global::Orleans.Serialization.Invocation.ITargetHolder holder) { }
+        public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    [global::Orleans.CompoundTypeAlias(new[] { "inv", typeof(global::Orleans.Runtime.GrainReference), "Ext", typeof(global::Orleans.Runtime.IAsyncEnumerableGrainExtension), typeof(global::Orleans.Runtime.IAsyncEnumerableGrainExtension), "3C6D7209" })]
-    public sealed partial class Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 : global::Orleans.Runtime.Request
-    {
-        public System.Guid arg0;
-        public override void Dispose() { }
-
-        public override string GetActivityName() { throw null; }
-
-        public override object GetArgument(int index) { throw null; }
-
-        public override int GetArgumentCount() { throw null; }
-
-        public override string GetInterfaceName() { throw null; }
-
-        public override System.Type GetInterfaceType() { throw null; }
-
-        public override System.Reflection.MethodInfo GetMethod() { throw null; }
-
-        public override string GetMethodName() { throw null; }
-
-        public override object GetTarget() { throw null; }
-
-        protected override System.Threading.Tasks.ValueTask InvokeInner() { throw null; }
-
-        public override void SetArgument(int index, object value) { }
-
-        public override void SetTarget(global::Orleans.Serialization.Invocation.ITargetHolder holder) { }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    [global::Orleans.CompoundTypeAlias(new[] { "inv", typeof(global::Orleans.Runtime.GrainReference), "Ext", typeof(global::Orleans.Runtime.IAsyncEnumerableGrainExtension), typeof(global::Orleans.Runtime.IAsyncEnumerableGrainExtension), "A7FA7E30" })]
-    public sealed partial class Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> : global::Orleans.Runtime.Request<(global::Orleans.Runtime.EnumerationResult, object)>
+    [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), "Ext", typeof(global::Forkleans.Runtime.IAsyncEnumerableGrainExtension), typeof(global::Forkleans.Runtime.IAsyncEnumerableGrainExtension), "3C6D7209" })]
+    public sealed partial class Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_3C6D7209 : global::Forkleans.Runtime.Request
     {
         public System.Guid arg0;
         public override void Dispose() { }
@@ -4335,131 +4303,163 @@ namespace OrleansCodeGen.Orleans.Runtime
 
         public override object GetTarget() { throw null; }
 
-        protected override System.Threading.Tasks.ValueTask<(global::Orleans.Runtime.EnumerationResult, object)> InvokeInner() { throw null; }
+        protected override System.Threading.Tasks.ValueTask InvokeInner() { throw null; }
 
         public override void SetArgument(int index, object value) { }
 
-        public override void SetTarget(global::Orleans.Serialization.Invocation.ITargetHolder holder) { }
+        public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), "Ext", typeof(global::Forkleans.Runtime.IAsyncEnumerableGrainExtension), typeof(global::Forkleans.Runtime.IAsyncEnumerableGrainExtension), "A7FA7E30" })]
+    public sealed partial class Invokable_IAsyncEnumerableGrainExtension_GrainReference_Ext_A7FA7E30_1<T> : global::Forkleans.Runtime.Request<(global::Forkleans.Runtime.EnumerationResult, object)>
+    {
+        public System.Guid arg0;
+        public override void Dispose() { }
+
+        public override string GetActivityName() { throw null; }
+
+        public override object GetArgument(int index) { throw null; }
+
+        public override int GetArgumentCount() { throw null; }
+
+        public override string GetInterfaceName() { throw null; }
+
+        public override System.Type GetInterfaceType() { throw null; }
+
+        public override System.Reflection.MethodInfo GetMethod() { throw null; }
+
+        public override string GetMethodName() { throw null; }
+
+        public override object GetTarget() { throw null; }
+
+        protected override System.Threading.Tasks.ValueTask<(global::Forkleans.Runtime.EnumerationResult, object)> InvokeInner() { throw null; }
+
+        public override void SetArgument(int index, object value) { }
+
+        public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 }
 
-namespace OrleansCodeGen.Orleans.Statistics
+namespace ForkleansCodeGen.Forkleans.Statistics
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_EnvironmentStatistics : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Statistics.EnvironmentStatistics>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IValueSerializer<global::Orleans.Statistics.EnvironmentStatistics>, global::Orleans.Serialization.Serializers.IValueSerializer
+    public sealed partial class Codec_EnvironmentStatistics : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Statistics.EnvironmentStatistics>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IValueSerializer<global::Forkleans.Statistics.EnvironmentStatistics>, global::Forkleans.Serialization.Serializers.IValueSerializer
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Orleans.Statistics.EnvironmentStatistics instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Forkleans.Statistics.EnvironmentStatistics instance) { }
 
-        public global::Orleans.Statistics.EnvironmentStatistics ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Statistics.EnvironmentStatistics ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Orleans.Statistics.EnvironmentStatistics instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Forkleans.Statistics.EnvironmentStatistics instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Statistics.EnvironmentStatistics value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Statistics.EnvironmentStatistics value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 }
 
-namespace OrleansCodeGen.Orleans.Versions.Compatibility
+namespace ForkleansCodeGen.Forkleans.Versions.Compatibility
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_AllVersionsCompatible : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Versions.Compatibility.AllVersionsCompatible>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_AllVersionsCompatible : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Versions.Compatibility.AllVersionsCompatible>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Versions.Compatibility.AllVersionsCompatible instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Versions.Compatibility.AllVersionsCompatible instance) { }
 
-        public global::Orleans.Versions.Compatibility.AllVersionsCompatible ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Versions.Compatibility.AllVersionsCompatible ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Versions.Compatibility.AllVersionsCompatible instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Versions.Compatibility.AllVersionsCompatible instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Versions.Compatibility.AllVersionsCompatible value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Versions.Compatibility.AllVersionsCompatible value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_BackwardCompatible : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Versions.Compatibility.BackwardCompatible>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_BackwardCompatible : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Versions.Compatibility.BackwardCompatible>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Versions.Compatibility.BackwardCompatible instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Versions.Compatibility.BackwardCompatible instance) { }
 
-        public global::Orleans.Versions.Compatibility.BackwardCompatible ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Versions.Compatibility.BackwardCompatible ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Versions.Compatibility.BackwardCompatible instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Versions.Compatibility.BackwardCompatible instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Versions.Compatibility.BackwardCompatible value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Versions.Compatibility.BackwardCompatible value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_StrictVersionCompatible : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Versions.Compatibility.StrictVersionCompatible>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_StrictVersionCompatible : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Versions.Compatibility.StrictVersionCompatible>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Versions.Compatibility.StrictVersionCompatible instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Versions.Compatibility.StrictVersionCompatible instance) { }
 
-        public global::Orleans.Versions.Compatibility.StrictVersionCompatible ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Versions.Compatibility.StrictVersionCompatible ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Versions.Compatibility.StrictVersionCompatible instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Versions.Compatibility.StrictVersionCompatible instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Versions.Compatibility.StrictVersionCompatible value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Versions.Compatibility.StrictVersionCompatible value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 }
 
-namespace OrleansCodeGen.Orleans.Versions.Selector
+namespace ForkleansCodeGen.Forkleans.Versions.Selector
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_AllCompatibleVersions : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Versions.Selector.AllCompatibleVersions>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_AllCompatibleVersions : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Versions.Selector.AllCompatibleVersions>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Versions.Selector.AllCompatibleVersions instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Versions.Selector.AllCompatibleVersions instance) { }
 
-        public global::Orleans.Versions.Selector.AllCompatibleVersions ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Versions.Selector.AllCompatibleVersions ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Versions.Selector.AllCompatibleVersions instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Versions.Selector.AllCompatibleVersions instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Versions.Selector.AllCompatibleVersions value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Versions.Selector.AllCompatibleVersions value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_LatestVersion : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Versions.Selector.LatestVersion>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_LatestVersion : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Versions.Selector.LatestVersion>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Versions.Selector.LatestVersion instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Versions.Selector.LatestVersion instance) { }
 
-        public global::Orleans.Versions.Selector.LatestVersion ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Versions.Selector.LatestVersion ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Versions.Selector.LatestVersion instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Versions.Selector.LatestVersion instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Versions.Selector.LatestVersion value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Versions.Selector.LatestVersion value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_MinimumVersion : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Versions.Selector.MinimumVersion>, global::Orleans.Serialization.Codecs.IFieldCodec
+    public sealed partial class Codec_MinimumVersion : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Versions.Selector.MinimumVersion>, global::Forkleans.Serialization.Codecs.IFieldCodec
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Versions.Selector.MinimumVersion instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Versions.Selector.MinimumVersion instance) { }
 
-        public global::Orleans.Versions.Selector.MinimumVersion ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Versions.Selector.MinimumVersion ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Versions.Selector.MinimumVersion instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Versions.Selector.MinimumVersion instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Versions.Selector.MinimumVersion value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Versions.Selector.MinimumVersion value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 }

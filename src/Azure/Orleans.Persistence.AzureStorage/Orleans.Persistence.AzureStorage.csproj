@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Persistence.AzureStorage</PackageId>
+    <PackageId>Microsoft.Forkleans.Persistence.AzureStorage</PackageId>
     <Title>Microsoft Orleans Azure Storage Persistence Provider</Title>
     <Description>Microsoft Orleans persistence providers backed by Azure Storage</Description>
     <PackageTags>$(PackageTags) Azure Table Blob Storage</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <AssemblyName>Orleans.Persistence.AzureStorage</AssemblyName>
-    <RootNamespace>Orleans.Persistence.AzureStorage</RootNamespace>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <AssemblyName>Forkleans.Persistence.AzureStorage</AssemblyName>
+    <RootNamespace>Forkleans.Persistence.AzureStorage</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <DefineConstants>$(DefineConstants);ORLEANS_PERSISTENCE</DefineConstants>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
     <PackageReference Include="Azure.Data.Tables" />
     <PackageReference Include="Azure.Core" />
     <PackageReference Include="Azure.Storage.Blobs" />

@@ -1,4 +1,4 @@
-namespace Orleans.Streams.Core
+namespace Forkleans.Streams.Core
 {
     /// <summary>
     /// Functionality for retrieving a <see cref="IStreamSubscriptionManager"/> instance.

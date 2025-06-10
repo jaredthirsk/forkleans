@@ -6,7 +6,7 @@ using System.Threading;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace Orleans.Runtime.Utilities;
+namespace Forkleans.Runtime.Utilities;
 
 /// <summary>
 /// Provides a striped bounded buffer. Add operations use thread ID to index into

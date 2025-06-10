@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Options relating to load shedding.

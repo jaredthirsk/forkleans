@@ -1,17 +1,17 @@
-using Orleans.Providers;
+using Forkleans.Providers;
 using Microsoft.Extensions.Configuration;
-using Orleans;
-using Orleans.Hosting;
+using Forkleans;
+using Forkleans.Hosting;
 using StackExchange.Redis;
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using System.Threading.Tasks;
 
 [assembly: RegisterProvider("Redis", "Reminders", "Silo", typeof(RedisRemindersProviderBuilder))]
 [assembly: RegisterProvider("AzureRedisCache", "Reminders", "Silo", typeof(RedisRemindersProviderBuilder))]
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 internal sealed class RedisRemindersProviderBuilder : IProviderBuilder<ISiloBuilder>
 {

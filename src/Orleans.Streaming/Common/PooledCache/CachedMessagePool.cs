@@ -1,5 +1,5 @@
 
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// Pool of tightly packed cached messages that are kept in large blocks to reduce GC pressure.

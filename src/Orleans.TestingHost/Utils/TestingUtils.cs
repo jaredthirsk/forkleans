@@ -6,9 +6,9 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.TestingHost.Logging;
+using Forkleans.TestingHost.Logging;
 
-namespace Orleans.TestingHost.Utils
+namespace Forkleans.TestingHost.Utils
 {
     /// <summary> Collection of test utilities </summary>
     public static class TestingUtils

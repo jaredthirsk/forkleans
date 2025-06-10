@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.Runtime.Placement;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Placement;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Extensions for configuring grain placement.

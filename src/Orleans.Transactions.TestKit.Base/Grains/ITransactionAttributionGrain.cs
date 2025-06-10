@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Orleans.Transactions.TestKit
+namespace Forkleans.Transactions.TestKit
 {
     public interface INoAttributionGrain : IGrainWithGuidKey
     {

@@ -1,11 +1,11 @@
 using System;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
-using Orleans.Streaming.EventHubs;
-using Orleans.Streams;
+using Forkleans.Configuration;
+using Forkleans.Streaming.EventHubs;
+using Forkleans.Streams;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public interface IEventHubStreamConfigurator : INamedServiceConfigurator {}
 

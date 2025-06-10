@@ -1,7 +1,7 @@
 using System;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams;
+namespace Forkleans.Streams;
 
 internal readonly struct HashRing
 {

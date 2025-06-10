@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Providers.Streams.Generator
+namespace Forkleans.Providers.Streams.Generator
 {
     /// <summary>
     /// Event use in generated streams

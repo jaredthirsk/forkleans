@@ -6,15 +6,15 @@ using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Configuration.Internal;
-using Orleans.GrainDirectory;
-using Orleans.Runtime;
-using Orleans.Runtime.GrainDirectory;
-using Orleans.Runtime.Hosting;
-using Orleans.Runtime.MembershipService;
+using Forkleans.Configuration;
+using Forkleans.Configuration.Internal;
+using Forkleans.GrainDirectory;
+using Forkleans.Runtime;
+using Forkleans.Runtime.GrainDirectory;
+using Forkleans.Runtime.Hosting;
+using Forkleans.Runtime.MembershipService;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Extensions for <see cref="ISiloBuilder"/> instances.

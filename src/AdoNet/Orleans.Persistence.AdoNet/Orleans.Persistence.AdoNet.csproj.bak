@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Microsoft.Forkleans.Persistence.AdoNet</PackageId>
+    <Title>Microsoft Orleans ADO.NET Persistence Provider</Title>
+    <Description>Microsoft Orleans persistence providers backed by ADO.NET</Description>
+    <PackageTags>$(PackageTags) ADO.NET SQL MySQL PostgreSQL Oracle</PackageTags>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyName>Forkleans.Persistence.AdoNet</AssemblyName>
+    <RootNamespace>Forkleans.Persistence.AdoNet</RootNamespace>
+    <DefineConstants>$(DefineConstants);PERSISTENCE_ADONET</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\Storage\*.cs" LinkBase="Storage" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Reminders\Forkleans.Reminders.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

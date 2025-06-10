@@ -1,10 +1,10 @@
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Serializers;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Serializers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Orleans.Serialization.Codecs
+namespace Forkleans.Serialization.Codecs
 {
     [RegisterSerializer]
     public sealed class ReadOnlyDictionaryCodec<TKey, TValue> : GeneralizedReferenceTypeSurrogateCodec<ReadOnlyDictionary<TKey, TValue>, ReadOnlyDictionarySurrogate<TKey, TValue>>

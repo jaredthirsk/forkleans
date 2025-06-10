@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.Serialization;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// This exception indicates that a stream event was not successfully delivered to the consumer.

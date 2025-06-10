@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Azure;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
-using Orleans.Internal;
-using Orleans.Runtime;
+using Forkleans.Internal;
+using Forkleans.Runtime;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 //
@@ -15,21 +15,21 @@ using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 //
 
 #if ORLEANS_CLUSTERING
-namespace Orleans.Clustering.AzureStorage
+namespace Forkleans.Clustering.AzureStorage
 #elif ORLEANS_PERSISTENCE
-namespace Orleans.Persistence.AzureStorage
+namespace Forkleans.Persistence.AzureStorage
 #elif ORLEANS_REMINDERS
-namespace Orleans.Reminders.AzureStorage
+namespace Forkleans.Reminders.AzureStorage
 #elif ORLEANS_STREAMING
-namespace Orleans.Streaming.AzureStorage
+namespace Forkleans.Streaming.AzureStorage
 #elif ORLEANS_EVENTHUBS
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 #elif TESTER_AZUREUTILS
-namespace Orleans.Tests.AzureUtils
+namespace Forkleans.Tests.AzureUtils
 #elif ORLEANS_TRANSACTIONS
-namespace Orleans.Transactions.AzureStorage
+namespace Forkleans.Transactions.AzureStorage
 #elif ORLEANS_DIRECTORY
-namespace Orleans.GrainDirectory.AzureStorage
+namespace Forkleans.GrainDirectory.AzureStorage
 #else
 // No default namespace intentionally to cause compile errors if something is not defined
 #endif

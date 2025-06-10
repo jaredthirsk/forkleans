@@ -1,7 +1,7 @@
 using System;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Configuration options for the simple queue cache.

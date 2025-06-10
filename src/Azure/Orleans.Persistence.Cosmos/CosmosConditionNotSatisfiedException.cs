@@ -1,7 +1,7 @@
 using System.Runtime.Serialization;
-using Orleans.Storage;
+using Forkleans.Storage;
 
-namespace Orleans.Persistence.Cosmos;
+namespace Forkleans.Persistence.Cosmos;
 
 /// <summary>
 /// Exception thrown when a storage provider detects an Etag inconsistency when attempting to perform a WriteStateAsync operation.

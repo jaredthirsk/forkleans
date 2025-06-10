@@ -1,7 +1,7 @@
-using Orleans.Runtime.Configuration;
+using Forkleans.Runtime.Configuration;
 using System;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// When applied to a property on an options class, this attribute prevents the property value from being formatted by conforming <see cref="IOptionFormatter"/> instances.

@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// Eviction strategy for the PooledQueueCache

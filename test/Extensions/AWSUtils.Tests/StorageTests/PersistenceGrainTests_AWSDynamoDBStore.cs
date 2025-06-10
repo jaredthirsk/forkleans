@@ -1,14 +1,14 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
-using Orleans.Providers;
-using Orleans.Storage;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Providers;
+using Forkleans.Storage;
+using Forkleans.TestingHost;
 using Microsoft.Extensions.Logging.Abstractions;
 using TesterInternal;
 using UnitTests.GrainInterfaces;
 using Xunit;
 using Xunit.Abstractions;
-using static Orleans.Storage.DynamoDBGrainStorage;
+using static Forkleans.Storage.DynamoDBGrainStorage;
 using TestExtensions.Runners;
 
 namespace AWSUtils.Tests.StorageTests

@@ -2,7 +2,7 @@ using System;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 
-namespace Orleans.Serialization.Activators
+namespace Forkleans.Serialization.Activators
 {
     internal abstract class DefaultActivator<T> : IActivator<T>
     {

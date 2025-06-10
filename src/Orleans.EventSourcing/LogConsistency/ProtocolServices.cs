@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.Logging;
-using Orleans.EventSourcing;
-using Orleans.Serialization;
+using Forkleans.EventSourcing;
+using Forkleans.Serialization;
 
-namespace Orleans.Runtime.LogConsistency
+namespace Forkleans.Runtime.LogConsistency
 {
     /// <summary>
     /// Functionality for use by log view adaptors that run distributed protocols.

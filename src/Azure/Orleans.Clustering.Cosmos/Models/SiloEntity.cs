@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Orleans.Clustering.Cosmos.Models;
+namespace Forkleans.Clustering.Cosmos.Models;
 
 internal class SiloEntity : BaseClusterEntity
 {

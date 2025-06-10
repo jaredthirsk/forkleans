@@ -1,8 +1,8 @@
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Serializers;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Serializers;
 using System.Globalization;
 
-namespace Orleans.Serialization.Codecs
+namespace Forkleans.Serialization.Codecs
 {
     /// <summary>
     /// Serializer for <see cref="CultureInfo"/>.

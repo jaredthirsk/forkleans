@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Orleans.Analyzers
+namespace Forkleans.Analyzers
 {
     [ExportCodeFixProvider(LanguageNames.CSharp)]
     public class GenerateOrleansSerializationAttributesCodeFix : CodeFixProvider

@@ -1,10 +1,10 @@
-using Orleans.CodeGenerator.SyntaxGeneration;
+using Forkleans.CodeGenerator.SyntaxGeneration;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using System.Collections.Generic;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     internal class ActivatorGenerator
     {

@@ -2,7 +2,7 @@
 using System;
 using System.Threading;
 
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// Simple object pool Interface.

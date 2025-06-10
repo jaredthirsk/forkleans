@@ -1,6 +1,6 @@
 using System.Globalization;
-using Orleans;
-using Orleans.Runtime;
+using Forkleans;
+using Forkleans.Runtime;
 using TestExtensions;
 using Xunit;
 using Tester;

@@ -2,8 +2,8 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Hosting;
-using Orleans.Runtime;
+using Forkleans.Hosting;
+using Forkleans.Runtime;
 
 namespace Microsoft.Extensions.Hosting
 {
@@ -170,6 +170,6 @@ namespace Microsoft.Extensions.Hosting
         }
 
         private static OrleansConfigurationException GetOrleansClientAddedException() =>
-            new("Do not call both UseOrleansClient/AddOrleansClient with UseOrleans/AddOrleans. If you want a client and server in the same process, only UseOrleans/AddOrleans is necessary and the UseOrleansClient/AddOrleansClient call can be removed.");
+            new("Do not call both UseOrleansClient/AddOrleansClient with UseOrleans/AddForkleans. If you want a client and server in the same process, only UseOrleans/AddOrleans is necessary and the UseOrleansClient/AddOrleansClient call can be removed.");
     }
 }

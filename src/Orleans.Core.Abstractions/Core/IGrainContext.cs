@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Orleans.Serialization.Invocation;
+using Forkleans.Serialization.Invocation;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Represents a grain from the perspective of the runtime.

@@ -5,12 +5,12 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Configuration;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.Generator
+namespace Forkleans.Providers.Streams.Generator
 {
     /// <summary>
     /// Stream generator commands

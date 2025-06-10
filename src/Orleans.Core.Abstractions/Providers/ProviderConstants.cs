@@ -1,4 +1,4 @@
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     /// <summary>
     /// Constant values used by providers.

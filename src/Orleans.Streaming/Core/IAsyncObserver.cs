@@ -3,7 +3,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// This interface generalizes the standard .NET IObserver interface to allow asynchronous production of items.

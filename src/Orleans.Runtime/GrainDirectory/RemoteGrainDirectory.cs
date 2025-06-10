@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.GrainDirectory;
+using Forkleans.GrainDirectory;
 
 #nullable enable
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     internal sealed partial class RemoteGrainDirectory : SystemTarget, IRemoteGrainDirectory
     {

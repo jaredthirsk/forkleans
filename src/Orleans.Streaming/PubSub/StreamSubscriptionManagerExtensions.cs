@@ -1,9 +1,9 @@
-using Orleans.Streams.Core;
+using Forkleans.Streams.Core;
 using System;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams.PubSub
+namespace Forkleans.Streams.PubSub
 {
     /// <summary>
     /// Extension methods for <see cref="IStreamSubscriptionManager"/>.

@@ -5,11 +5,11 @@ using Azure.Core;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Persistence.AzureStorage;
-using Orleans.Runtime;
-using Orleans.Storage;
+using Forkleans.Persistence.AzureStorage;
+using Forkleans.Runtime;
+using Forkleans.Storage;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public class AzureBlobStorageOptions : IStorageProviderSerializerOptions
     {

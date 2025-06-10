@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using Orleans.TestingHost;
-using Orleans.TestingHost.Utils;
+using Forkleans.TestingHost;
+using Forkleans.TestingHost.Utils;
 using TestExtensions;
 
 namespace Tester.StreamingTests

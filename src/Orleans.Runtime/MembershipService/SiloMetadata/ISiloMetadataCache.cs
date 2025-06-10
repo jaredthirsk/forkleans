@@ -1,6 +1,6 @@
 #nullable enable
 
-namespace Orleans.Runtime.MembershipService.SiloMetadata;
+namespace Forkleans.Runtime.MembershipService.SiloMetadata;
 
 public interface ISiloMetadataCache
 {

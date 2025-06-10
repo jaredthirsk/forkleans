@@ -1,12 +1,12 @@
 using System;
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     /// <summary>
-    /// The [Orleans.Providers.StorageProvider] attribute is used to define which storage provider to use for persistence of grain state.
+    /// The [Forkleans.Providers.StorageProvider] attribute is used to define which storage provider to use for persistence of grain state.
     /// <para>
-    /// Specifying [Orleans.Providers.StorageProvider] property is recommended for all grains which extend Grain&lt;T&gt;.
-    /// If no [Orleans.Providers.StorageProvider] attribute is  specified, then a "Default" storage provider will be used.
+    /// Specifying [Forkleans.Providers.StorageProvider] property is recommended for all grains which extend Grain&lt;T&gt;.
+    /// If no [Forkleans.Providers.StorageProvider] attribute is  specified, then a "Default" storage provider will be used.
     /// If a suitable storage provider cannot be located for this grain, then the grain will fail to load into the Silo.
     /// </para>
     /// </summary>
@@ -28,11 +28,11 @@ namespace Orleans.Providers
     }
 
     /// <summary>
-    /// The [Orleans.Providers.LogConsistencyProvider] attribute is used to define which consistency provider to use for grains using the log-view state abstraction.
+    /// The [Forkleans.Providers.LogConsistencyProvider] attribute is used to define which consistency provider to use for grains using the log-view state abstraction.
     /// <para>
-    /// Specifying [Orleans.Providers.LogConsistencyProvider] property is recommended for all grains that derive
+    /// Specifying [Forkleans.Providers.LogConsistencyProvider] property is recommended for all grains that derive
     /// from LogConsistentGrain, such as JournaledGrain.
-    /// If no [Orleans.Providers.LogConsistencyProvider] attribute is  specified, then the runtime tries to locate
+    /// If no [Forkleans.Providers.LogConsistencyProvider] attribute is  specified, then the runtime tries to locate
     /// one as follows. First, it looks for a
     /// "Default" provider in the configuration file, then it checks if the grain type defines a default.
     /// If a consistency provider cannot be located for this grain, then the grain will fail to load into the Silo.

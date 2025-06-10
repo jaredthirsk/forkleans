@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class ConsulClusteringOptions
     {
@@ -31,7 +31,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class ConsulUtilsHostingExtensions
     {
@@ -45,7 +45,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Runtime.Host
+namespace Forkleans.Runtime.Host
 {
     [Newtonsoft.Json.JsonObject]
     public partial class ConsulSiloRegistration
@@ -82,11 +82,11 @@ namespace Orleans.Runtime.Host
     }
 }
 
-namespace Orleans.Runtime.Membership
+namespace Forkleans.Runtime.Membership
 {
     public partial class ConsulBasedMembershipTable : IMembershipTable
     {
-        public ConsulBasedMembershipTable(Microsoft.Extensions.Logging.ILogger<ConsulBasedMembershipTable> logger, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.ConsulClusteringOptions> membershipTableOptions, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.ClusterOptions> clusterOptions) { }
+        public ConsulBasedMembershipTable(Microsoft.Extensions.Logging.ILogger<ConsulBasedMembershipTable> logger, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.ConsulClusteringOptions> membershipTableOptions, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.ClusterOptions> clusterOptions) { }
 
         public System.Threading.Tasks.Task CleanupDefunctSiloEntries(System.DateTimeOffset beforeDate) { throw null; }
 
@@ -107,9 +107,9 @@ namespace Orleans.Runtime.Membership
         public System.Threading.Tasks.Task<bool> UpdateRow(MembershipEntry entry, string etag, TableVersion tableVersion) { throw null; }
     }
 
-    public partial class ConsulGatewayListProvider : Orleans.Messaging.IGatewayListProvider
+    public partial class ConsulGatewayListProvider : Forkleans.Messaging.IGatewayListProvider
     {
-        public ConsulGatewayListProvider(Microsoft.Extensions.Logging.ILogger<ConsulGatewayListProvider> logger, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.ConsulClusteringOptions> options, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.GatewayOptions> gatewayOptions, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.ClusterOptions> clusterOptions) { }
+        public ConsulGatewayListProvider(Microsoft.Extensions.Logging.ILogger<ConsulGatewayListProvider> logger, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.ConsulClusteringOptions> options, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.GatewayOptions> gatewayOptions, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.ClusterOptions> clusterOptions) { }
 
         public bool IsUpdatable { get { throw null; } }
 

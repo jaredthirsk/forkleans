@@ -1,11 +1,11 @@
 using System;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime.Host;
-using Orleans.Configuration;
-using Orleans.Streams;
+using Forkleans.Runtime.Host;
+using Forkleans.Configuration;
+using Forkleans.Streams;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static class SiloPersistentStreamConfiguratorExtension
     {

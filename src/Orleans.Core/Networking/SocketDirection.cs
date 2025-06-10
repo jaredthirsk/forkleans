@@ -1,4 +1,4 @@
-namespace Orleans.Messaging
+namespace Forkleans.Messaging
 {
     internal enum ConnectionDirection : byte
     {

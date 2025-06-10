@@ -1,31 +1,31 @@
-﻿#pragma warning disable CS1591, RS0016, RS0041
-[assembly: global::Orleans.ApplicationPartAttribute("TestProject")]
-[assembly: global::Orleans.ApplicationPartAttribute("Orleans.Core.Abstractions")]
-[assembly: global::Orleans.ApplicationPartAttribute("Orleans.Serialization")]
-[assembly: global::Orleans.ApplicationPartAttribute("Orleans.Core")]
-[assembly: global::Orleans.ApplicationPartAttribute("Orleans.Runtime")]
-[assembly: global::Orleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(OrleansCodeGen.TestProject.Metadata_TestProject))]
-namespace OrleansCodeGen.TestProject
+#pragma warning disable CS1591, RS0016, RS0041
+[assembly: global::Forkleans.ApplicationPartAttribute("TestProject")]
+[assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Core.Abstractions")]
+[assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Serialization")]
+[assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Core")]
+[assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Runtime")]
+[assembly: global::Forkleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(OrleansCodeGen.TestProject.Metadata_TestProject))]
+namespace ForkleansCodeGen.TestProject
 {
-    using global::Orleans.Serialization.Codecs;
-    using global::Orleans.Serialization.GeneratedCodeHelpers;
+    using global::Forkleans.Serialization.Codecs;
+    using global::Forkleans.Serialization.GeneratedCodeHelpers;
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    public sealed class Codec_MyCompoundTypeAliasBaseClass : global::Orleans.Serialization.Codecs.IFieldCodec<global::TestProject.MyCompoundTypeAliasBaseClass>, global::Orleans.Serialization.Serializers.IBaseCodec<global::TestProject.MyCompoundTypeAliasBaseClass>
+    public sealed class Codec_MyCompoundTypeAliasBaseClass : global::Forkleans.Serialization.Codecs.IFieldCodec<global::TestProject.MyCompoundTypeAliasBaseClass>, global::Forkleans.Serialization.Serializers.IBaseCodec<global::TestProject.MyCompoundTypeAliasBaseClass>
     {
         private readonly global::System.Type _codecFieldType = typeof(global::TestProject.MyCompoundTypeAliasBaseClass);
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::TestProject.MyCompoundTypeAliasBaseClass instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::TestProject.MyCompoundTypeAliasBaseClass instance)
             where TBufferWriter : global::System.Buffers.IBufferWriter<byte>
         {
-            global::Orleans.Serialization.Codecs.Int32Codec.WriteField(ref writer, 0U, instance.BaseValue);
+            global::Forkleans.Serialization.Codecs.Int32Codec.WriteField(ref writer, 0U, instance.BaseValue);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::TestProject.MyCompoundTypeAliasBaseClass instance)
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::TestProject.MyCompoundTypeAliasBaseClass instance)
         {
             uint id = 0U;
-            global::Orleans.Serialization.WireProtocol.Field header = default;
+            global::Forkleans.Serialization.WireProtocol.Field header = default;
             while (true)
             {
                 reader.ReadFieldHeader(ref header);
@@ -34,7 +34,7 @@ namespace OrleansCodeGen.TestProject
                 id += header.FieldIdDelta;
                 if (id == 0U)
                 {
-                    instance.BaseValue = global::Orleans.Serialization.Codecs.Int32Codec.ReadValue(ref reader, header);
+                    instance.BaseValue = global::Forkleans.Serialization.Codecs.Int32Codec.ReadValue(ref reader, header);
                     reader.ReadFieldHeader(ref header);
                 }
 
@@ -44,7 +44,7 @@ namespace OrleansCodeGen.TestProject
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, global::System.Type expectedType, global::TestProject.MyCompoundTypeAliasBaseClass @value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, global::System.Type expectedType, global::TestProject.MyCompoundTypeAliasBaseClass @value)
             where TBufferWriter : global::System.Buffers.IBufferWriter<byte>
         {
             if (@value is null || @value.GetType() == typeof(global::TestProject.MyCompoundTypeAliasBaseClass))
@@ -60,7 +60,7 @@ namespace OrleansCodeGen.TestProject
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public global::TestProject.MyCompoundTypeAliasBaseClass ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field)
+        public global::TestProject.MyCompoundTypeAliasBaseClass ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field)
         {
             if (field.IsReference)
                 return ReferenceCodec.ReadReference<global::TestProject.MyCompoundTypeAliasBaseClass, TReaderInput>(ref reader, field);
@@ -79,10 +79,10 @@ namespace OrleansCodeGen.TestProject
     }
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    public sealed class Copier_MyCompoundTypeAliasBaseClass : global::Orleans.Serialization.Cloning.IDeepCopier<global::TestProject.MyCompoundTypeAliasBaseClass>, global::Orleans.Serialization.Cloning.IBaseCopier<global::TestProject.MyCompoundTypeAliasBaseClass>
+    public sealed class Copier_MyCompoundTypeAliasBaseClass : global::Forkleans.Serialization.Cloning.IDeepCopier<global::TestProject.MyCompoundTypeAliasBaseClass>, global::Forkleans.Serialization.Cloning.IBaseCopier<global::TestProject.MyCompoundTypeAliasBaseClass>
     {
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public global::TestProject.MyCompoundTypeAliasBaseClass DeepCopy(global::TestProject.MyCompoundTypeAliasBaseClass original, global::Orleans.Serialization.Cloning.CopyContext context)
+        public global::TestProject.MyCompoundTypeAliasBaseClass DeepCopy(global::TestProject.MyCompoundTypeAliasBaseClass original, global::Forkleans.Serialization.Cloning.CopyContext context)
         {
             if (context.TryGetCopy(original, out global::TestProject.MyCompoundTypeAliasBaseClass existing))
                 return existing;
@@ -95,44 +95,44 @@ namespace OrleansCodeGen.TestProject
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void DeepCopy(global::TestProject.MyCompoundTypeAliasBaseClass input, global::TestProject.MyCompoundTypeAliasBaseClass output, global::Orleans.Serialization.Cloning.CopyContext context)
+        public void DeepCopy(global::TestProject.MyCompoundTypeAliasBaseClass input, global::TestProject.MyCompoundTypeAliasBaseClass output, global::Forkleans.Serialization.Cloning.CopyContext context)
         {
             output.BaseValue = input.BaseValue;
         }
     }
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    internal sealed class Activator_MyCompoundTypeAliasBaseClass : global::Orleans.Serialization.Activators.IActivator<global::TestProject.MyCompoundTypeAliasBaseClass>
+    internal sealed class Activator_MyCompoundTypeAliasBaseClass : global::Forkleans.Serialization.Activators.IActivator<global::TestProject.MyCompoundTypeAliasBaseClass>
     {
         public global::TestProject.MyCompoundTypeAliasBaseClass Create() => new global::TestProject.MyCompoundTypeAliasBaseClass();
     }
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    public sealed class Codec_MyCompoundTypeAliasClass : global::Orleans.Serialization.Codecs.IFieldCodec<global::TestProject.MyCompoundTypeAliasClass>, global::Orleans.Serialization.Serializers.IBaseCodec<global::TestProject.MyCompoundTypeAliasClass>
+    public sealed class Codec_MyCompoundTypeAliasClass : global::Forkleans.Serialization.Codecs.IFieldCodec<global::TestProject.MyCompoundTypeAliasClass>, global::Forkleans.Serialization.Serializers.IBaseCodec<global::TestProject.MyCompoundTypeAliasClass>
     {
         private readonly global::System.Type _codecFieldType = typeof(global::TestProject.MyCompoundTypeAliasClass);
         private readonly OrleansCodeGen.TestProject.Codec_MyCompoundTypeAliasBaseClass _baseTypeSerializer;
-        public Codec_MyCompoundTypeAliasClass(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider)
+        public Codec_MyCompoundTypeAliasClass(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider)
         {
-            _baseTypeSerializer = OrleansGeneratedCodeHelper.GetService<OrleansCodeGen.TestProject.Codec_MyCompoundTypeAliasBaseClass>(this, codecProvider);
+            _baseTypeSerializer = OrleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Codec_MyCompoundTypeAliasBaseClass>(this, codecProvider);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::TestProject.MyCompoundTypeAliasClass instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::TestProject.MyCompoundTypeAliasClass instance)
             where TBufferWriter : global::System.Buffers.IBufferWriter<byte>
         {
             _baseTypeSerializer.Serialize(ref writer, instance);
             writer.WriteEndBase();
-            global::Orleans.Serialization.Codecs.StringCodec.WriteField(ref writer, 0U, instance.Name);
-            global::Orleans.Serialization.Codecs.Int32Codec.WriteField(ref writer, 1U, instance.Value);
+            global::Forkleans.Serialization.Codecs.StringCodec.WriteField(ref writer, 0U, instance.Name);
+            global::Forkleans.Serialization.Codecs.Int32Codec.WriteField(ref writer, 1U, instance.Value);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::TestProject.MyCompoundTypeAliasClass instance)
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::TestProject.MyCompoundTypeAliasClass instance)
         {
             _baseTypeSerializer.Deserialize(ref reader, instance);
             uint id = 0U;
-            global::Orleans.Serialization.WireProtocol.Field header = default;
+            global::Forkleans.Serialization.WireProtocol.Field header = default;
             while (true)
             {
                 reader.ReadFieldHeader(ref header);
@@ -141,7 +141,7 @@ namespace OrleansCodeGen.TestProject
                 id += header.FieldIdDelta;
                 if (id == 0U)
                 {
-                    instance.Name = global::Orleans.Serialization.Codecs.StringCodec.ReadValue(ref reader, header);
+                    instance.Name = global::Forkleans.Serialization.Codecs.StringCodec.ReadValue(ref reader, header);
                     reader.ReadFieldHeader(ref header);
                     if (header.IsEndBaseOrEndObject)
                         break;
@@ -150,7 +150,7 @@ namespace OrleansCodeGen.TestProject
 
                 if (id == 1U)
                 {
-                    instance.Value = global::Orleans.Serialization.Codecs.Int32Codec.ReadValue(ref reader, header);
+                    instance.Value = global::Forkleans.Serialization.Codecs.Int32Codec.ReadValue(ref reader, header);
                     reader.ReadFieldHeader(ref header);
                 }
 
@@ -160,7 +160,7 @@ namespace OrleansCodeGen.TestProject
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, global::System.Type expectedType, global::TestProject.MyCompoundTypeAliasClass @value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, global::System.Type expectedType, global::TestProject.MyCompoundTypeAliasClass @value)
             where TBufferWriter : global::System.Buffers.IBufferWriter<byte>
         {
             if (@value is null || @value.GetType() == typeof(global::TestProject.MyCompoundTypeAliasClass))
@@ -176,7 +176,7 @@ namespace OrleansCodeGen.TestProject
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public global::TestProject.MyCompoundTypeAliasClass ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field)
+        public global::TestProject.MyCompoundTypeAliasClass ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field)
         {
             if (field.IsReference)
                 return ReferenceCodec.ReadReference<global::TestProject.MyCompoundTypeAliasClass, TReaderInput>(ref reader, field);
@@ -195,11 +195,11 @@ namespace OrleansCodeGen.TestProject
     }
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    public sealed class Copier_MyCompoundTypeAliasClass : global::Orleans.Serialization.Cloning.IDeepCopier<global::TestProject.MyCompoundTypeAliasClass>, global::Orleans.Serialization.Cloning.IBaseCopier<global::TestProject.MyCompoundTypeAliasClass>
+    public sealed class Copier_MyCompoundTypeAliasClass : global::Forkleans.Serialization.Cloning.IDeepCopier<global::TestProject.MyCompoundTypeAliasClass>, global::Forkleans.Serialization.Cloning.IBaseCopier<global::TestProject.MyCompoundTypeAliasClass>
     {
         private readonly OrleansCodeGen.TestProject.Copier_MyCompoundTypeAliasBaseClass _baseTypeCopier;
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public global::TestProject.MyCompoundTypeAliasClass DeepCopy(global::TestProject.MyCompoundTypeAliasClass original, global::Orleans.Serialization.Cloning.CopyContext context)
+        public global::TestProject.MyCompoundTypeAliasClass DeepCopy(global::TestProject.MyCompoundTypeAliasClass original, global::Forkleans.Serialization.Cloning.CopyContext context)
         {
             if (context.TryGetCopy(original, out global::TestProject.MyCompoundTypeAliasClass existing))
                 return existing;
@@ -211,13 +211,13 @@ namespace OrleansCodeGen.TestProject
             return result;
         }
 
-        public Copier_MyCompoundTypeAliasClass(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider)
+        public Copier_MyCompoundTypeAliasClass(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider)
         {
-            _baseTypeCopier = OrleansGeneratedCodeHelper.GetService<OrleansCodeGen.TestProject.Copier_MyCompoundTypeAliasBaseClass>(this, codecProvider);
+            _baseTypeCopier = OrleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Copier_MyCompoundTypeAliasBaseClass>(this, codecProvider);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void DeepCopy(global::TestProject.MyCompoundTypeAliasClass input, global::TestProject.MyCompoundTypeAliasClass output, global::Orleans.Serialization.Cloning.CopyContext context)
+        public void DeepCopy(global::TestProject.MyCompoundTypeAliasClass input, global::TestProject.MyCompoundTypeAliasClass output, global::Forkleans.Serialization.Cloning.CopyContext context)
         {
             _baseTypeCopier.DeepCopy(input, output, context);
             output.Name = input.Name;
@@ -226,15 +226,15 @@ namespace OrleansCodeGen.TestProject
     }
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    internal sealed class Activator_MyCompoundTypeAliasClass : global::Orleans.Serialization.Activators.IActivator<global::TestProject.MyCompoundTypeAliasClass>
+    internal sealed class Activator_MyCompoundTypeAliasClass : global::Forkleans.Serialization.Activators.IActivator<global::TestProject.MyCompoundTypeAliasClass>
     {
         public global::TestProject.MyCompoundTypeAliasClass Create() => new global::TestProject.MyCompoundTypeAliasClass();
     }
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    internal sealed class Metadata_TestProject : global::Orleans.Serialization.Configuration.TypeManifestProviderBase
+    internal sealed class Metadata_TestProject : global::Forkleans.Serialization.Configuration.TypeManifestProviderBase
     {
-        protected override void ConfigureInner(global::Orleans.Serialization.Configuration.TypeManifestOptions config)
+        protected override void ConfigureInner(global::Forkleans.Serialization.Configuration.TypeManifestOptions config)
         {
             config.Serializers.Add(typeof(OrleansCodeGen.TestProject.Codec_MyCompoundTypeAliasBaseClass));
             config.Serializers.Add(typeof(OrleansCodeGen.TestProject.Codec_MyCompoundTypeAliasClass));

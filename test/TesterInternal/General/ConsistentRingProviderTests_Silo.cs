@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Runtime.ReminderService;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Runtime.ReminderService;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.TestHelper;
 using Xunit;

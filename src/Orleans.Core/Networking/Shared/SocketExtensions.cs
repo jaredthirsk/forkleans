@@ -2,7 +2,7 @@ using System;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     internal static class SocketExtensions
     {

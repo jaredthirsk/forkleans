@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Placement.Rebalancing;
+using Forkleans.Placement.Rebalancing;
 using Xunit;
 using Xunit.Abstractions;
 

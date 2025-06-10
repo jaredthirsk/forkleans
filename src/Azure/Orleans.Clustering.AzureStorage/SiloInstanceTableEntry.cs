@@ -4,9 +4,9 @@ using System.Net;
 using System.Text;
 using Azure;
 using Azure.Data.Tables;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.AzureUtils
+namespace Forkleans.AzureUtils
 {
     internal class SiloInstanceTableEntry : ITableEntity
     {

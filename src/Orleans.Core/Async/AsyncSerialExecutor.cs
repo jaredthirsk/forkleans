@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// A utility class that provides serial execution of async functions.

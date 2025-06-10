@@ -4,12 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Hosting;
-using Orleans.Runtime.Services;
-using Orleans.Timers;
+using Forkleans.Hosting;
+using Forkleans.Runtime.Services;
+using Forkleans.Timers;
 
 #nullable enable
-namespace Orleans.Runtime.ReminderService
+namespace Forkleans.Runtime.ReminderService
 {
     internal sealed class ReminderRegistry : GrainServiceClient<IReminderService>, IReminderRegistry
     {
@@ -76,11 +76,11 @@ namespace Orleans.Runtime.ReminderService
             {
                 throw new OrleansConfigurationException(
                     "The reminder service has not been configured. Reminders can be configured using extension methods from the following packages:"
-                    + "\n  * Microsoft.Orleans.Reminders.AzureStorage via ISiloBuilder.UseAzureTableReminderService(...)"
-                    + "\n  * Microsoft.Orleans.Reminders.AdoNet via ISiloBuilder.UseAdoNetReminderService(...)"
-                    + "\n  * Microsoft.Orleans.Reminders.DynamoDB via via ISiloBuilder.UseDynamoDBReminderService(...)"
-                    + "\n  * Microsoft.Orleans.OrleansRuntime via ISiloBuilder.UseInMemoryReminderService(...) (Note: for development purposes only)"
-                    + "\n  * Others, see: https://www.nuget.org/packages?q=Microsoft.Orleans.Reminders.");
+                    + "\n  * Microsoft.Forkleans.Reminders.AzureStorage via ISiloBuilder.UseAzureTableReminderService(...)"
+                    + "\n  * Microsoft.Forkleans.Reminders.AdoNet via ISiloBuilder.UseAdoNetReminderService(...)"
+                    + "\n  * Microsoft.Forkleans.Reminders.DynamoDB via via ISiloBuilder.UseDynamoDBReminderService(...)"
+                    + "\n  * Microsoft.Forkleans.OrleansRuntime via ISiloBuilder.UseInMemoryReminderService(...) (Note: for development purposes only)"
+                    + "\n  * Others, see: https://www.nuget.org/packages?q=Microsoft.Forkleans.Reminders.");
             }
 
             serviceProvider = null;

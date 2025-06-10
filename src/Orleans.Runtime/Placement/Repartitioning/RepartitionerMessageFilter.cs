@@ -1,8 +1,8 @@
 #nullable enable
 
-using Orleans.Placement;
+using Forkleans.Placement;
 
-namespace Orleans.Runtime.Placement.Repartitioning;
+namespace Forkleans.Runtime.Placement.Repartitioning;
 
 internal interface IRepartitionerMessageFilter
 {

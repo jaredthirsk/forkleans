@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using Orleans.Concurrency;
+using Forkleans.Concurrency;
 
-namespace Orleans.Placement.Rebalancing;
+namespace Forkleans.Placement.Rebalancing;
 
 [Alias("IActivationRebalancerWorker")]
 internal interface IActivationRebalancerWorker : IGrainWithIntegerKey

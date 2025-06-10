@@ -1,8 +1,8 @@
 using System.Net;
 using System.Diagnostics;
-using Orleans.Reminders.Cosmos.Models;
+using Forkleans.Reminders.Cosmos.Models;
 
-namespace Orleans.Reminders.Cosmos;
+namespace Forkleans.Reminders.Cosmos;
 
 internal partial class CosmosReminderTable : IReminderTable
 {

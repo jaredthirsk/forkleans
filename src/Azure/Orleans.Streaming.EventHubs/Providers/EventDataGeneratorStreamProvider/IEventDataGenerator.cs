@@ -1,7 +1,7 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System.Collections.Generic;
 
-namespace Orleans.Streaming.EventHubs.Testing
+namespace Forkleans.Streaming.EventHubs.Testing
 {
     /// <summary>
     /// Data generator for test purpose

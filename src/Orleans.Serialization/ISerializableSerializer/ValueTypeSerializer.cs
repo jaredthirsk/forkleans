@@ -1,11 +1,11 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
 using System;
 using System.Buffers;
 using System.Runtime.Serialization;
 using System.Security;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     internal abstract class ValueTypeSerializer
     {

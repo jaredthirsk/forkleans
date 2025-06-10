@@ -1,8 +1,8 @@
 using System;
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Configuration;
+namespace Forkleans.Configuration;
 
 /// <summary>
 /// Options for configuring activation rebalancing.

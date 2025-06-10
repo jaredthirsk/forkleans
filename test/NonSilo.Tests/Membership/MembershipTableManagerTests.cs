@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime.MembershipService;
+using Forkleans.Configuration;
+using Forkleans.Runtime.MembershipService;
 using Xunit;
 using NSubstitute;
-using Orleans.Runtime;
-using Orleans;
+using Forkleans.Runtime;
+using Forkleans;
 using Xunit.Abstractions;
 using TestExtensions;
 using System.Collections.Concurrent;

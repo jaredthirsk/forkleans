@@ -1,11 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     internal class ClientStreamingProviderRuntime : IStreamProviderRuntime, ILifecycleParticipant<IClusterClientLifecycle>
     {

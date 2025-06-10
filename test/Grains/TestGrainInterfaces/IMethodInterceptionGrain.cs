@@ -1,8 +1,8 @@
 namespace UnitTests.GrainInterfaces
 {
     using System;
-    using Orleans;
-    using Orleans.Runtime;
+    using Forkleans;
+    using Forkleans.Runtime;
 
     [GrainInterfaceType("method-interception-custom-name")]
     public interface IMethodInterceptionGrain : IGrainWithIntegerKey, IMethodFromAnotherInterface

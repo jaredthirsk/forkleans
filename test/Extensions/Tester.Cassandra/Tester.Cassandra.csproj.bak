@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Testcontainers" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Cassandra\Forkleans.Clustering.Cassandra\Forkleans.Clustering.Cassandra.csproj" />
+    <ProjectReference Include="$(SourceRoot)test\TesterInternal\TesterInternal.csproj" />
+
+  </ItemGroup>
+
+</Project>

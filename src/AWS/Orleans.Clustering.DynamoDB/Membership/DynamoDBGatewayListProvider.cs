@@ -2,16 +2,16 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Messaging;
-using Orleans.Runtime;
-using Orleans.Runtime.MembershipService;
+using Forkleans.Configuration;
+using Forkleans.Messaging;
+using Forkleans.Runtime;
+using Forkleans.Runtime.MembershipService;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Orleans.Clustering.DynamoDB
+namespace Forkleans.Clustering.DynamoDB
 {
     internal class DynamoDBGatewayListProvider : IGatewayListProvider
     {

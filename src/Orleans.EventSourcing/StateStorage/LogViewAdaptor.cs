@@ -4,10 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Storage;
-using Orleans.EventSourcing.Common;
+using Forkleans.Storage;
+using Forkleans.EventSourcing.Common;
 
-namespace Orleans.EventSourcing.StateStorage
+namespace Forkleans.EventSourcing.StateStorage
 {
     /// <summary>
     /// A log view adaptor that wraps around a traditional storage adaptor, and uses batching and e-tags

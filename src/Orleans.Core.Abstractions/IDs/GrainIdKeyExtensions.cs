@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Text;
 
 #nullable enable
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Extensions for <see cref="GrainId"/> keys.

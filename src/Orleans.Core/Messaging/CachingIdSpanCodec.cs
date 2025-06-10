@@ -3,10 +3,10 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Orleans.Serialization.Buffers;
-using Orleans.Caching;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Caching;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     /// <summary>
     /// A serializer for <see cref="IdSpan"/> which caches values and avoids re-encoding and unnecessary allocations.

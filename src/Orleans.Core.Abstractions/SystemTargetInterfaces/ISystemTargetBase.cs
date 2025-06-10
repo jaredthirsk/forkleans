@@ -1,6 +1,6 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Internal interface implemented by the SystemTarget base class that enables generation of grain references for system targets.

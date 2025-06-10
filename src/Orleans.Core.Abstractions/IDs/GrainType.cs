@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using System.Text;
 
 #nullable enable
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Represents the type of a grain.

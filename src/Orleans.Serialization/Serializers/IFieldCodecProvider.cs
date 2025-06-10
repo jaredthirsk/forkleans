@@ -1,8 +1,8 @@
 #nullable enable
-using Orleans.Serialization.Codecs;
+using Forkleans.Serialization.Codecs;
 using System;
 
-namespace Orleans.Serialization.Serializers
+namespace Forkleans.Serialization.Serializers
 {
     /// <summary>
     /// Provides access to field codecs.

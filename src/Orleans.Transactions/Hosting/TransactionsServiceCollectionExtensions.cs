@@ -1,10 +1,10 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Orleans.Runtime;
-using Orleans.Transactions.Abstractions;
-using Orleans.Transactions;
+using Forkleans.Runtime;
+using Forkleans.Transactions.Abstractions;
+using Forkleans.Transactions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// <see cref="IServiceCollection"/> extensions.

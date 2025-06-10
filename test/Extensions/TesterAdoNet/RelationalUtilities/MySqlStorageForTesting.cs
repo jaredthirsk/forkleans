@@ -1,5 +1,5 @@
 using MySql.Data.MySqlClient;
-using Orleans.Tests.SqlUtils;
+using Forkleans.Tests.SqlUtils;
 using TestExtensions;
 
 namespace UnitTests.General

@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices;
-using Orleans.Core.Internal;
+using Forkleans.Core.Internal;
 
 namespace DashboardToy.Frontend.Data;
 

@@ -6,17 +6,17 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.CodeGeneration;
-using Orleans.Metadata;
-using Orleans.Runtime;
-using Orleans.Runtime.Versions;
-using Orleans.Serialization;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Configuration;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.CodeGeneration;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Versions;
+using Forkleans.Serialization;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Configuration;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans.GrainReferences
+namespace Forkleans.GrainReferences
 {
     /// <summary>
     /// The central point for creating <see cref="GrainReference"/> instances.

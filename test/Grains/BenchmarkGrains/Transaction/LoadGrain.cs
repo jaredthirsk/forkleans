@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using BenchmarkGrainInterfaces.Transaction;
-using Orleans.Transactions;
+using Forkleans.Transactions;
 
 namespace BenchmarkGrains.Transaction
 {

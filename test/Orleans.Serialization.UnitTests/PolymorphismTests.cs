@@ -1,13 +1,13 @@
-using Orleans.Serialization.Configuration;
-using Orleans.Serialization.Session;
-using Orleans.Serialization.Utilities;
+using Forkleans.Serialization.Configuration;
+using Forkleans.Serialization.Session;
+using Forkleans.Serialization.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using Xunit;
 using Microsoft.Extensions.Options;
 using System.Runtime.Serialization;
 
-namespace Orleans.Serialization.UnitTests
+namespace Forkleans.Serialization.UnitTests
 {
 
     [GenerateSerializer]

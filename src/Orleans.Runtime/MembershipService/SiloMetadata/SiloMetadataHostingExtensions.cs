@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration.Internal;
-using Orleans.Hosting;
-using Orleans.Placement;
-using Orleans.Runtime.Placement.Filtering;
+using Forkleans.Configuration.Internal;
+using Forkleans.Hosting;
+using Forkleans.Placement;
+using Forkleans.Runtime.Placement.Filtering;
 
 #nullable enable
-namespace Orleans.Runtime.MembershipService.SiloMetadata;
+namespace Forkleans.Runtime.MembershipService.SiloMetadata;
 
 public static class SiloMetadataHostingExtensions
 {
@@ -37,7 +37,7 @@ public static class SiloMetadataHostingExtensions
     public static ISiloBuilder UseSiloMetadata(this ISiloBuilder builder, IConfiguration configuration)
     {
 
-        var metadataConfigSection = configuration.GetSection("Orleans").GetSection("Metadata");
+        var metadataConfigSection = configuration.GetSection("Forkleans").GetSection("Metadata");
 
         return builder.UseSiloMetadata(metadataConfigSection);
     }

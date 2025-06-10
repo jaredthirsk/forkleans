@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.Serialization.Serializers;
-using Orleans.Storage.Internal;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Storage.Internal;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// This is a simple in-memory grain implementation of a storage provider.

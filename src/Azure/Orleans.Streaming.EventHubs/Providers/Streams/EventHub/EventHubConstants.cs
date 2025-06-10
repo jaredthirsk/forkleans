@@ -1,4 +1,4 @@
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     internal class EventHubConstants
     {

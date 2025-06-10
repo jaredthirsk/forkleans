@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Core.Messaging;
-using Orleans.Statistics;
+using Forkleans.Configuration;
+using Forkleans.Core.Messaging;
+using Forkleans.Statistics;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Snapshot of current runtime statistics for a silo

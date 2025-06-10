@@ -1,8 +1,8 @@
-using Orleans.Serialization.Buffers;
+using Forkleans.Serialization.Buffers;
 using System;
 using System.Buffers;
 
-namespace Orleans.Serialization.Serializers
+namespace Forkleans.Serialization.Serializers
 {
     /// <summary>
     /// Functionality for serializing and deserializing members in a type hierarchy.

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Cassandra\Orleans.Clustering.Cassandra\Orleans.Clustering.Cassandra.csproj" />
+    <ProjectReference Include="..\..\..\src\Cassandra\Orleans.Clustering.Cassandra\Orleans.Clustering.Cassandra.csproj" />
     <ProjectReference Include="$(SourceRoot)test\TesterInternal\TesterInternal.csproj" />
 
   </ItemGroup>

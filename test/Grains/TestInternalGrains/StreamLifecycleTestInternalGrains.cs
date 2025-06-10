@@ -1,14 +1,14 @@
 #define USE_STORAGE
 
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 using UnitTests.GrainInterfaces;
 
 namespace UnitTests.Grains
 {
 
-    [Orleans.Providers.StorageProvider(ProviderName = "MemoryStore")]
+    [Forkleans.Providers.StorageProvider(ProviderName = "MemoryStore")]
     public class StreamLifecycleProducerInternalGrain : StreamLifecycleProducerGrain, IStreamLifecycleProducerInternalGrain
     {
         public StreamLifecycleProducerInternalGrain(ILoggerFactory loggerFactory) : base(loggerFactory)
@@ -54,7 +54,7 @@ namespace UnitTests.Grains
         }
     }
 
-    [Orleans.Providers.StorageProvider(ProviderName = "MemoryStore")]
+    [Forkleans.Providers.StorageProvider(ProviderName = "MemoryStore")]
     internal class StreamLifecycleConsumerInternalGrain : StreamLifecycleConsumerGrain, IStreamLifecycleConsumerInternalGrain
     {
         public StreamLifecycleConsumerInternalGrain(ILoggerFactory loggerFactory, InsideRuntimeClient runtimeClient, IStreamProviderRuntime streamProviderRuntime)

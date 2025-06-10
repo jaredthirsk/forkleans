@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Streaming</PackageId>
+    <AssemblyName>Forkleans.Streaming</AssemblyName>
+    <PackageId>Microsoft.Forkleans.Streaming</PackageId>
     <Title>Microsoft Orleans Streaming Library</Title>
     <Description>Streaming library for Microsoft Orleans used both on the client and server.</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
   </PropertyGroup>
 

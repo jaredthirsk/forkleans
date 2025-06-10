@@ -1,5 +1,5 @@
-using Orleans.Metadata;
-using Orleans.Placement;
+using Forkleans.Metadata;
+using Forkleans.Placement;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 #nullable enable
 
-namespace Orleans.Runtime.Placement;
+namespace Forkleans.Runtime.Placement;
 
 internal sealed class GrainMigratabilityChecker(
     PlacementStrategyResolver strategyResolver,

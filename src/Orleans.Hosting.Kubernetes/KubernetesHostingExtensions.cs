@@ -1,11 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Hosting.Kubernetes;
-using Orleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Hosting.Kubernetes;
+using Forkleans.Runtime;
 using System;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Extensions for hosting a silo in Kubernetes.

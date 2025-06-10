@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     /// <summary>
     /// Interface for In-memory stream queue grain.

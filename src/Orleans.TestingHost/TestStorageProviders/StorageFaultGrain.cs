@@ -3,11 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
 
-namespace Orleans.TestingHost
+namespace Forkleans.TestingHost
 {
     /// <summary>
     /// Grain that tracks storage exceptions to be injected.

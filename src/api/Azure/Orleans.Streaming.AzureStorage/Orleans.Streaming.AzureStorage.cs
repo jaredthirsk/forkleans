@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.AzureUtils
+namespace Forkleans.AzureUtils
 {
     public partial class AzureQueueDataManager
     {
@@ -36,7 +36,7 @@ namespace Orleans.AzureUtils
     }
 }
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class AzureBlobLeaseProviderOptions
     {
@@ -116,7 +116,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class AzureQueueStreamConfiguratorExtensions
     {
@@ -181,7 +181,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.LeaseProviders
+namespace Forkleans.LeaseProviders
 {
     public partial class AzureBlobLeaseProvider : ILeaseProvider
     {
@@ -197,49 +197,49 @@ namespace Orleans.LeaseProviders
     }
 }
 
-namespace Orleans.Providers.Streams.AzureQueue
+namespace Forkleans.Providers.Streams.AzureQueue
 {
-    public partial class AzureQueueAdapterFactory : Orleans.Streams.IQueueAdapterFactory
+    public partial class AzureQueueAdapterFactory : Forkleans.Streams.IQueueAdapterFactory
     {
-        public AzureQueueAdapterFactory(string name, Configuration.AzureQueueOptions options, Configuration.SimpleQueueCacheOptions cacheOptions, Orleans.Streams.IQueueDataAdapter<string, Orleans.Streams.IBatchContainer> dataAdapter, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) { }
+        public AzureQueueAdapterFactory(string name, Configuration.AzureQueueOptions options, Configuration.SimpleQueueCacheOptions cacheOptions, Forkleans.Streams.IQueueDataAdapter<string, Forkleans.Streams.IBatchContainer> dataAdapter, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) { }
 
-        protected System.Func<Orleans.Streams.QueueId, System.Threading.Tasks.Task<Orleans.Streams.IStreamFailureHandler>> StreamFailureHandlerFactory { set { } }
+        protected System.Func<Forkleans.Streams.QueueId, System.Threading.Tasks.Task<Forkleans.Streams.IStreamFailureHandler>> StreamFailureHandlerFactory { set { } }
 
         public static AzureQueueAdapterFactory Create(System.IServiceProvider services, string name) { throw null; }
 
-        public virtual System.Threading.Tasks.Task<Orleans.Streams.IQueueAdapter> CreateAdapter() { throw null; }
+        public virtual System.Threading.Tasks.Task<Forkleans.Streams.IQueueAdapter> CreateAdapter() { throw null; }
 
-        public System.Threading.Tasks.Task<Orleans.Streams.IStreamFailureHandler> GetDeliveryFailureHandler(Orleans.Streams.QueueId queueId) { throw null; }
+        public System.Threading.Tasks.Task<Forkleans.Streams.IStreamFailureHandler> GetDeliveryFailureHandler(Forkleans.Streams.QueueId queueId) { throw null; }
 
-        public virtual Orleans.Streams.IQueueAdapterCache GetQueueAdapterCache() { throw null; }
+        public virtual Forkleans.Streams.IQueueAdapterCache GetQueueAdapterCache() { throw null; }
 
-        public Orleans.Streams.IStreamQueueMapper GetStreamQueueMapper() { throw null; }
+        public Forkleans.Streams.IStreamQueueMapper GetStreamQueueMapper() { throw null; }
 
         public virtual void Init() { }
     }
 
     [SerializationCallbacks(typeof(Runtime.OnDeserializedCallbacks))]
-    public partial class AzureQueueDataAdapterV1 : Orleans.Streams.IQueueDataAdapter<string, Orleans.Streams.IBatchContainer>, Orleans.Streams.IQueueDataAdapter<string>, Serialization.IOnDeserialized
+    public partial class AzureQueueDataAdapterV1 : Forkleans.Streams.IQueueDataAdapter<string, Forkleans.Streams.IBatchContainer>, Forkleans.Streams.IQueueDataAdapter<string>, Serialization.IOnDeserialized
     {
         public AzureQueueDataAdapterV1(Serialization.Serializer serializer) { }
 
-        public Orleans.Streams.IBatchContainer FromQueueMessage(string cloudMsg, long sequenceId) { throw null; }
+        public Forkleans.Streams.IBatchContainer FromQueueMessage(string cloudMsg, long sequenceId) { throw null; }
 
         void Serialization.IOnDeserialized.OnDeserialized(Serialization.DeserializationContext context) { }
 
-        public string ToQueueMessage<T>(Runtime.StreamId streamId, System.Collections.Generic.IEnumerable<T> events, Orleans.Streams.StreamSequenceToken token, System.Collections.Generic.Dictionary<string, object> requestContext) { throw null; }
+        public string ToQueueMessage<T>(Runtime.StreamId streamId, System.Collections.Generic.IEnumerable<T> events, Forkleans.Streams.StreamSequenceToken token, System.Collections.Generic.Dictionary<string, object> requestContext) { throw null; }
     }
 
     [SerializationCallbacks(typeof(Runtime.OnDeserializedCallbacks))]
-    public partial class AzureQueueDataAdapterV2 : Orleans.Streams.IQueueDataAdapter<string, Orleans.Streams.IBatchContainer>, Orleans.Streams.IQueueDataAdapter<string>, Serialization.IOnDeserialized
+    public partial class AzureQueueDataAdapterV2 : Forkleans.Streams.IQueueDataAdapter<string, Forkleans.Streams.IBatchContainer>, Forkleans.Streams.IQueueDataAdapter<string>, Serialization.IOnDeserialized
     {
         public AzureQueueDataAdapterV2(Serialization.Serializer serializer) { }
 
-        public Orleans.Streams.IBatchContainer FromQueueMessage(string cloudMsg, long sequenceId) { throw null; }
+        public Forkleans.Streams.IBatchContainer FromQueueMessage(string cloudMsg, long sequenceId) { throw null; }
 
         void Serialization.IOnDeserialized.OnDeserialized(Serialization.DeserializationContext context) { }
 
-        public string ToQueueMessage<T>(Runtime.StreamId streamId, System.Collections.Generic.IEnumerable<T> events, Orleans.Streams.StreamSequenceToken token, System.Collections.Generic.Dictionary<string, object> requestContext) { throw null; }
+        public string ToQueueMessage<T>(Runtime.StreamId streamId, System.Collections.Generic.IEnumerable<T> events, Forkleans.Streams.StreamSequenceToken token, System.Collections.Generic.Dictionary<string, object> requestContext) { throw null; }
     }
 
     public partial class AzureQueueStreamProviderUtils
@@ -256,19 +256,19 @@ namespace Orleans.Providers.Streams.AzureQueue
     }
 }
 
-namespace Orleans.Providers.Streams.PersistentStreams
+namespace Forkleans.Providers.Streams.PersistentStreams
 {
-    public partial class AzureTableStorageStreamFailureHandler<TEntity> : Orleans.Streams.IStreamFailureHandler where TEntity : StreamDeliveryFailureEntity, new()
+    public partial class AzureTableStorageStreamFailureHandler<TEntity> : Forkleans.Streams.IStreamFailureHandler where TEntity : StreamDeliveryFailureEntity, new()
     {
-        public AzureTableStorageStreamFailureHandler(Serialization.Serializer<Orleans.Streams.StreamSequenceToken> serializer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, bool faultOnFailure, string clusterId, Streaming.AzureStorage.AzureStorageOperationOptions azureStorageOptions, System.Func<TEntity> createEntity = null) { }
+        public AzureTableStorageStreamFailureHandler(Serialization.Serializer<Forkleans.Streams.StreamSequenceToken> serializer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, bool faultOnFailure, string clusterId, Streaming.AzureStorage.AzureStorageOperationOptions azureStorageOptions, System.Func<TEntity> createEntity = null) { }
 
         public bool ShouldFaultSubsriptionOnError { get { throw null; } }
 
         public System.Threading.Tasks.Task InitAsync() { throw null; }
 
-        public System.Threading.Tasks.Task OnDeliveryFailure(Runtime.GuidId subscriptionId, string streamProviderName, Runtime.StreamId streamId, Orleans.Streams.StreamSequenceToken sequenceToken) { throw null; }
+        public System.Threading.Tasks.Task OnDeliveryFailure(Runtime.GuidId subscriptionId, string streamProviderName, Runtime.StreamId streamId, Forkleans.Streams.StreamSequenceToken sequenceToken) { throw null; }
 
-        public System.Threading.Tasks.Task OnSubscriptionFailure(Runtime.GuidId subscriptionId, string streamProviderName, Runtime.StreamId streamId, Orleans.Streams.StreamSequenceToken sequenceToken) { throw null; }
+        public System.Threading.Tasks.Task OnSubscriptionFailure(Runtime.GuidId subscriptionId, string streamProviderName, Runtime.StreamId streamId, Forkleans.Streams.StreamSequenceToken sequenceToken) { throw null; }
     }
 
     public partial class StreamDeliveryFailureEntity : Azure.Data.Tables.ITableEntity
@@ -291,7 +291,7 @@ namespace Orleans.Providers.Streams.PersistentStreams
 
         public System.DateTimeOffset? Timestamp { get { throw null; } set { } }
 
-        public virtual Orleans.Streams.StreamSequenceToken GetSequenceToken(Serialization.Serializer<Orleans.Streams.StreamSequenceToken> serializer) { throw null; }
+        public virtual Forkleans.Streams.StreamSequenceToken GetSequenceToken(Serialization.Serializer<Forkleans.Streams.StreamSequenceToken> serializer) { throw null; }
 
         public static string MakeDefaultPartitionKey(string streamProviderName, string deploymentId) { throw null; }
 
@@ -301,11 +301,11 @@ namespace Orleans.Providers.Streams.PersistentStreams
 
         public virtual void SetRowkey() { }
 
-        public virtual void SetSequenceToken(Serialization.Serializer<Orleans.Streams.StreamSequenceToken> serializer, Orleans.Streams.StreamSequenceToken token) { }
+        public virtual void SetSequenceToken(Serialization.Serializer<Forkleans.Streams.StreamSequenceToken> serializer, Forkleans.Streams.StreamSequenceToken token) { }
     }
 }
 
-namespace Orleans.Streaming.AzureStorage
+namespace Forkleans.Streaming.AzureStorage
 {
     public partial class AzureStorageOperationOptions
     {

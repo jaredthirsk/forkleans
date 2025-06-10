@@ -3,7 +3,7 @@ using ChaoticCluster.Silo;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.AddServiceDefaults(); // Configure OTel

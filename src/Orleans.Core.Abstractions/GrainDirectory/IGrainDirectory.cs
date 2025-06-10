@@ -1,9 +1,9 @@
 #nullable enable
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.GrainDirectory
+namespace Forkleans.GrainDirectory
 {
     /// <summary>
     /// Interface for grain directory implementations

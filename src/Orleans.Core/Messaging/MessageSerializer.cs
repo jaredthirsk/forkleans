@@ -9,17 +9,17 @@ using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Orleans.Configuration;
-using Orleans.Networking.Shared;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.GeneratedCodeHelpers;
-using Orleans.Serialization.Invocation;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.Session;
-using static Orleans.Runtime.Message;
+using Forkleans.Configuration;
+using Forkleans.Networking.Shared;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.GeneratedCodeHelpers;
+using Forkleans.Serialization.Invocation;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.Session;
+using static Forkleans.Runtime.Message;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     internal sealed class MessageSerializer
     {

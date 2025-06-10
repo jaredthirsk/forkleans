@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.Extensions.Options;
 using System.Linq;
-using Orleans.Internal;
+using Forkleans.Internal;
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     /// <summary>
     /// Responsible for updating membership table with details about the local silo.

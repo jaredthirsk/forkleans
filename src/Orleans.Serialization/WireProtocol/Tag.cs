@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Orleans.Serialization.WireProtocol
+namespace Forkleans.Serialization.WireProtocol
 {
     /// <summary>
     /// A serialization tag, which is always exactly a single byte. This acts as a part of the field header for all serialized fields.

@@ -2,9 +2,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Timers;
+namespace Forkleans.Timers;
 
 /// <summary>
 /// Functionality for managing grain timers.

@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using Orleans.Concurrency;
+using Forkleans.Concurrency;
 using ProtoBuf;
 
 namespace UnitTests.GrainInterfaces

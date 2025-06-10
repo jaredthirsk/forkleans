@@ -1,11 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Journaling</PackageId>
+    <AssemblyName>Forkleans.Journaling</AssemblyName>
+    <PackageId>Microsoft.Forkleans.Journaling</PackageId>
     <Title>Microsoft Orleans Journaling</Title>
     <Description>Extensible persistence for grains based on replicated state machines.</Description>
     <PackageTags>$(PackageTags) Persistence State Machines</PackageTags>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -18,13 +19,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="Orleans.Journaling.Tests" />
+    <InternalsVisibleTo Include="Forkleans.Journaling.Tests" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Core\Orleans.Core.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Runtime\Orleans.Runtime.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Serialization\Orleans.Serialization.csproj" />
+    <ProjectReference Include="..\Orleans.Core\Orleans.Core.csproj" />
+    <ProjectReference Include="..\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\Orleans.Serialization\Orleans.Serialization.csproj" />
   </ItemGroup>
 
 </Project>

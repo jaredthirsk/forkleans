@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Internal;
-using Orleans.Runtime.Internal;
-using Orleans.Runtime.Utilities;
+using Forkleans.Internal;
+using Forkleans.Runtime.Internal;
+using Forkleans.Runtime.Utilities;
 
 #nullable enable
-namespace Orleans.Runtime.GrainDirectory;
+namespace Forkleans.Runtime.GrainDirectory;
 
 internal sealed partial class DirectoryMembershipService : IAsyncDisposable
 {

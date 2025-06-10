@@ -1,20 +1,20 @@
-﻿using Orleans.Streams;
+using Forkleans.Streams;
 
 namespace TestGrains
 {
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class StreamCheckpoint<TState>
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public Guid StreamGuid { get; set; }
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public string StreamNamespace { get; set; }
-        [Orleans.Id(2)]
+        [Forkleans.Id(2)]
         public StreamSequenceToken StartToken { get; set; }
-        [Orleans.Id(3)]
+        [Forkleans.Id(3)]
         public StreamSequenceToken LastProcessedToken { get; set; }
-        [Orleans.Id(4)]
+        [Forkleans.Id(4)]
         public TState Accumulator { get; set; }
 
         public StreamSequenceToken RecoveryToken { get { return LastProcessedToken ?? StartToken; } }

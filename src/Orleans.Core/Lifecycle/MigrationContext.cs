@@ -5,11 +5,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Session;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Session;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 [GenerateSerializer, Immutable, Alias("MigrationCtx"), SerializationCallbacks(typeof(SerializationHooks))]
 internal sealed class MigrationContext : IDehydrationContext, IRehydrationContext, IDisposable, IEnumerable<string>, IBufferWriter<byte>

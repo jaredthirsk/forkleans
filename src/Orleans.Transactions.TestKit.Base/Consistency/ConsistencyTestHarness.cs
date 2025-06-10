@@ -1,12 +1,12 @@
-using Orleans.Runtime;
-using Orleans.TestingHost;
+using Forkleans.Runtime;
+using Forkleans.TestingHost;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 
-namespace Orleans.Transactions.TestKit.Consistency
+namespace Forkleans.Transactions.TestKit.Consistency
 {
     public class ConsistencyTestHarness
     {

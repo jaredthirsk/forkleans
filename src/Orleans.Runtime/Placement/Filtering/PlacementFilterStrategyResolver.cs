@@ -3,11 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Metadata;
-using Orleans.Placement;
+using Forkleans.Metadata;
+using Forkleans.Placement;
 
 #nullable enable
-namespace Orleans.Runtime.Placement.Filtering;
+namespace Forkleans.Runtime.Placement.Filtering;
 
 /// <summary>
 /// Responsible for resolving an <see cref="PlacementFilterStrategy"/> for a <see cref="GrainType"/>.

@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 using Cassandra;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Hosting;
-using Orleans.Messaging;
+using Forkleans.Configuration;
+using Forkleans.Hosting;
+using Forkleans.Messaging;
 
-namespace Orleans.Clustering.Cassandra.Hosting;
+namespace Forkleans.Clustering.Cassandra.Hosting;
 
 /// <summary>
 /// Extension methods for configuring Cassandra as a clustering provider.

@@ -1,6 +1,6 @@
 using System.Buffers;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 /// <summary>
 /// Provides functionality for writing out-of-band log entries to the log for the state machine which holds this instance.

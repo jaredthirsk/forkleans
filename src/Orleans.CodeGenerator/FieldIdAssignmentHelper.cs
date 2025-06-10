@@ -7,11 +7,11 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.CodeAnalysis;
-using Orleans.CodeGenerator.Hashing;
-using Orleans.CodeGenerator.Model;
-using Orleans.CodeGenerator.SyntaxGeneration;
+using Forkleans.CodeGenerator.Hashing;
+using Forkleans.CodeGenerator.Model;
+using Forkleans.CodeGenerator.SyntaxGeneration;
 
-namespace Orleans.CodeGenerator;
+namespace Forkleans.CodeGenerator;
 
 internal class FieldIdAssignmentHelper
 {

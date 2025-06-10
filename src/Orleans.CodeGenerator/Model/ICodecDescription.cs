@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     internal interface ICopierDescription
     {

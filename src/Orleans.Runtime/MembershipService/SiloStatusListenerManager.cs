@@ -5,9 +5,9 @@ using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Immutable;
-using Orleans.Internal;
+using Forkleans.Internal;
 
-namespace Orleans.Runtime.MembershipService;
+namespace Forkleans.Runtime.MembershipService;
 
 /// <summary>
 /// Manages <see cref="ISiloStatusListener"/> instances.

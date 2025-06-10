@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Transactions.TestKit
+namespace Forkleans.Transactions.TestKit
 {
     public class SkewedClock : IClock
     {

@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.GrainDirectory;
-using Orleans.Hosting;
+using Forkleans.GrainDirectory;
+using Forkleans.Hosting;
 
-namespace Orleans.Runtime.Hosting
+namespace Forkleans.Runtime.Hosting
 {
     public static class DirectorySiloBuilderExtensions
     {

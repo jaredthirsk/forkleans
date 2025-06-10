@@ -2,8 +2,8 @@ using FluentAssertions;
 using System.Collections;
 using Xunit;
 using Xunit.Abstractions;
-using Orleans.Caching;
-using Orleans.Caching.Internal;
+using Forkleans.Caching;
+using Forkleans.Caching.Internal;
 
 namespace NonSilo.Tests.Caching;
 

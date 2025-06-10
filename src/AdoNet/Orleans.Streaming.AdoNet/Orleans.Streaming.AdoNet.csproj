@@ -2,18 +2,18 @@
 
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Orleans.Streaming.AdoNet</PackageId>
+    <PackageId>Microsoft.Forkleans.Streaming.AdoNet</PackageId>
     <Title>Microsoft Orleans ADO.NET Streaming Provider</Title>
     <Description>Microsoft Orleans streaming provider backed by ADO.NET</Description>
     <PackageTags>$(PackageTags) ADO.NET SQL</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <VersionSuffix Condition="$(VersionSuffix) == ''">alpha.1</VersionSuffix>
   </PropertyGroup>
 
   <PropertyGroup>
-    <AssemblyName>Orleans.Streaming.AdoNet</AssemblyName>
-    <RootNamespace>Orleans.Streaming.AdoNet</RootNamespace>
+    <AssemblyName>Forkleans.Streaming.AdoNet</AssemblyName>
+    <RootNamespace>Forkleans.Streaming.AdoNet</RootNamespace>
     <DefineConstants>$(DefineConstants);STREAMING_ADONET</DefineConstants>
   </PropertyGroup>
 
@@ -27,8 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Runtime\Orleans.Runtime.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Streaming\Orleans.Streaming.csproj" />
+    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Orleans.Streaming\Orleans.Streaming.csproj" />
   </ItemGroup>
 
 

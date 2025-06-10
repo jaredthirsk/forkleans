@@ -2,9 +2,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// An exception class used by the Orleans runtime for reporting errors.

@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.ClientObservers;
-using Orleans.Configuration;
-using Orleans.Runtime.Internal;
+using Forkleans.ClientObservers;
+using Forkleans.Configuration;
+using Forkleans.Runtime.Internal;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     internal sealed partial class Gateway : IConnectedClientCollection
     {

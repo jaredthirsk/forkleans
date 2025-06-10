@@ -1,11 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Clustering.DynamoDB;
-using Orleans.Configuration;
-using Orleans.Messaging;
+using Forkleans.Clustering.DynamoDB;
+using Forkleans.Configuration;
+using Forkleans.Messaging;
 using System;
 using Microsoft.Extensions.Options;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static class AwsUtilsHostingExtensions
     {

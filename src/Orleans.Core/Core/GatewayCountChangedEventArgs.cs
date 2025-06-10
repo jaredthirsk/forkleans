@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Handler for client disconnection from a cluster.

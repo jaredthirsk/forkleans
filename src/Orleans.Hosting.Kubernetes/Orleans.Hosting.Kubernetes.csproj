@@ -1,12 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Hosting.Kubernetes</PackageId>
+    <AssemblyName>Forkleans.Hosting.Kubernetes</AssemblyName>
+    <PackageId>Microsoft.Forkleans.Hosting.Kubernetes</PackageId>
     <Title>Microsoft Orleans Hosting for Kubernetes</Title>
     <Description>Microsoft Orleans hosting support for Kubernetes</Description>
     <PackageTags>$(PackageTags) Kubernetes k8s</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>

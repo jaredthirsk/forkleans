@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Hosting;
+using Forkleans.Hosting;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Options for configuring a static list of gateways.

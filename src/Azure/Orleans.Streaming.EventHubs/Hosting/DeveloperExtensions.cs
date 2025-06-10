@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Hosting.Developer
+namespace Forkleans.Hosting.Developer
 {
     public static class SiloBuilderExtensions
     {

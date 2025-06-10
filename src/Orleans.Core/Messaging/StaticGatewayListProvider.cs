@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
-namespace Orleans.Messaging
+namespace Forkleans.Messaging
 {
     /// <summary>
     /// <see cref="IGatewayListProvider"/> implementation which returns a static list, configured via <see cref="StaticGatewayListProviderOptions"/>.

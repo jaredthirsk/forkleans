@@ -1,5 +1,5 @@
 using Npgsql;
-using Orleans.Tests.SqlUtils;
+using Forkleans.Tests.SqlUtils;
 using TestExtensions;
 using UnitTests.General;
 

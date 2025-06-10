@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>Forkleans.Connections.Security.Tests</AssemblyName>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>

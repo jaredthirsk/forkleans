@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Orleans.Hosting;
-using Orleans.Runtime;
+using Forkleans.Hosting;
+using Forkleans.Runtime;
 
-namespace Orleans.TestingHost
+namespace Forkleans.TestingHost
 {
     /// <summary>Configuration builder for starting a <see cref="TestCluster"/>.</summary>
     public class TestClusterBuilder
@@ -160,9 +160,9 @@ namespace Orleans.TestingHost
             var finalOptions = new TestClusterOptions();
             configuration.Bind(finalOptions);
 
-            // Since the ClusterId & ServiceId properties are nested under the 'Orleans' section in the config,
-            // we bind the 'Orleans' section here to bind them to the options.
-            configuration.GetSection("Orleans").Bind(finalOptions);
+            // Since the ClusterId & ServiceId properties are nested under the 'Forkleans' section in the config,
+            // we bind the 'Forkleans' section here to bind them to the options.
+            configuration.GetSection("Forkleans").Bind(finalOptions);
 
             var configSources = new ReadOnlyCollection<IConfigurationSource>(configBuilder.Sources);
             var testCluster = new TestCluster(finalOptions, configSources, portAllocator);

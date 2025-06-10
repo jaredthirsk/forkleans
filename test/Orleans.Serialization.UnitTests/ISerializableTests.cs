@@ -1,8 +1,8 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.Session;
-using Orleans.Serialization.TypeSystem;
-using Orleans.Serialization.Utilities;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.Session;
+using Forkleans.Serialization.TypeSystem;
+using Forkleans.Serialization.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
@@ -14,7 +14,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Orleans.Serialization.UnitTests
+namespace Forkleans.Serialization.UnitTests
 {
     [Trait("Category", "BVT"), Trait("Category", "ISerializable")]
     public class ISerializableTests

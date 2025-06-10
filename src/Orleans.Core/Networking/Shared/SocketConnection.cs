@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     internal sealed class SocketConnection : TransportConnection
     {

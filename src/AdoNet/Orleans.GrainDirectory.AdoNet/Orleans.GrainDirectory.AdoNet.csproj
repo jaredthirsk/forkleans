@@ -1,12 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.GrainDirectory.AdoNet</PackageId>
+    <PackageId>Microsoft.Forkleans.GrainDirectory.AdoNet</PackageId>
     <Title>Microsoft Orleans ADO.NET Grain Directory Provider</Title>
     <Description>Microsoft Orleans grain directory provider backed by ADO.NET</Description>
     <PackageTags>$(PackageTags) ADO.NET SQL</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <VersionSuffix Condition="$(VersionSuffix) == ''">alpha.1</VersionSuffix>
     <Nullable>Enable</Nullable>
     <ImplicitUsings>Enable</ImplicitUsings>
@@ -14,8 +14,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <AssemblyName>Orleans.GrainDirectory.AdoNet</AssemblyName>
-    <RootNamespace>Orleans.GrainDirectory.AdoNet</RootNamespace>
+    <AssemblyName>Forkleans.GrainDirectory.AdoNet</AssemblyName>
+    <RootNamespace>Forkleans.GrainDirectory.AdoNet</RootNamespace>
     <DefineConstants>$(DefineConstants);GRAINDIRECTORY_ADONET</DefineConstants>
   </PropertyGroup>
 
@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
   </ItemGroup>
 
 </Project>

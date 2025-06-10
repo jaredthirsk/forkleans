@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Metadata;
+using Forkleans.Configuration;
+using Forkleans.Metadata;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Creates a manifest of the locally available grain interface types.

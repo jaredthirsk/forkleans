@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.Timers;
+using Forkleans.Runtime;
+using Forkleans.Timers;
 
 #nullable enable
-namespace Orleans;
+namespace Forkleans;
 
 /// <summary>
 /// Extension methods for accessing reminders from a <see cref="Grain"/> or <see cref="IGrainBase"/> implementation.
@@ -15,7 +15,7 @@ public static class GrainReminderExtensions
 {
     /// <summary>
     /// Registers a persistent, reliable reminder to send regular notifications (reminders) to the grain.
-    /// The grain must implement the <c>Orleans.IRemindable</c> interface, and reminders for this grain will be sent to the <c>ReceiveReminder</c> callback method.
+    /// The grain must implement the <c>Forkleans.IRemindable</c> interface, and reminders for this grain will be sent to the <c>ReceiveReminder</c> callback method.
     /// If the current grain is deactivated when the timer fires, a new activation of this grain will be created to receive this reminder.
     /// If an existing reminder with the same name already exists, that reminder will be overwritten with this new reminder.
     /// Reminders will always be received by one activation of this grain, even if multiple activations exist for this grain.
@@ -30,7 +30,7 @@ public static class GrainReminderExtensions
 
     /// <summary>
     /// Registers a persistent, reliable reminder to send regular notifications (reminders) to the grain.
-    /// The grain must implement the <c>Orleans.IRemindable</c> interface, and reminders for this grain will be sent to the <c>ReceiveReminder</c> callback method.
+    /// The grain must implement the <c>Forkleans.IRemindable</c> interface, and reminders for this grain will be sent to the <c>ReceiveReminder</c> callback method.
     /// If the current grain is deactivated when the timer fires, a new activation of this grain will be created to receive this reminder.
     /// If an existing reminder with the same name already exists, that reminder will be overwritten with this new reminder.
     /// Reminders will always be received by one activation of this grain, even if multiple activations exist for this grain.

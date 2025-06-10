@@ -6,9 +6,9 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
-namespace Orleans.Runtime.Placement;
+namespace Forkleans.Runtime.Placement;
 
 // See: https://www.ledjonbehluli.com/posts/orleans_resource_placement_kalman/
 internal sealed class ResourceOptimizedPlacementDirector : IPlacementDirector, ISiloStatisticsChangeListener

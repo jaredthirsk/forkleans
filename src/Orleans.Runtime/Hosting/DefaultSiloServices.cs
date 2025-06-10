@@ -1,51 +1,51 @@
 #nullable enable
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Orleans.Configuration;
-using Orleans.Configuration.Validators;
-using Orleans.Runtime.Configuration;
-using Orleans.Runtime.ConsistentRing;
-using Orleans.Runtime.GrainDirectory;
-using Orleans.Runtime.MembershipService;
-using Orleans.Metadata;
-using Orleans.Runtime.Messaging;
-using Orleans.Runtime.Placement;
-using Orleans.Runtime.Providers;
-using Orleans.Runtime.Versions;
-using Orleans.Runtime.Versions.Compatibility;
-using Orleans.Runtime.Versions.Selector;
-using Orleans.Serialization;
-using Orleans.Statistics;
-using Orleans.Timers;
-using Orleans.Versions;
-using Orleans.Versions.Compatibility;
-using Orleans.Versions.Selector;
-using Orleans.Providers;
-using Orleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Configuration.Validators;
+using Forkleans.Runtime.Configuration;
+using Forkleans.Runtime.ConsistentRing;
+using Forkleans.Runtime.GrainDirectory;
+using Forkleans.Runtime.MembershipService;
+using Forkleans.Metadata;
+using Forkleans.Runtime.Messaging;
+using Forkleans.Runtime.Placement;
+using Forkleans.Runtime.Providers;
+using Forkleans.Runtime.Versions;
+using Forkleans.Runtime.Versions.Compatibility;
+using Forkleans.Runtime.Versions.Selector;
+using Forkleans.Serialization;
+using Forkleans.Statistics;
+using Forkleans.Timers;
+using Forkleans.Versions;
+using Forkleans.Versions.Compatibility;
+using Forkleans.Versions.Selector;
+using Forkleans.Providers;
+using Forkleans.Runtime;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime.Utilities;
+using Forkleans.Runtime.Utilities;
 using System;
 using System.Reflection;
 using System.Linq;
 using Microsoft.Extensions.Options;
-using Orleans.Timers.Internal;
+using Forkleans.Timers.Internal;
 using Microsoft.AspNetCore.Connections;
-using Orleans.Networking.Shared;
-using Orleans.Configuration.Internal;
-using Orleans.Runtime.Metadata;
-using Orleans.GrainReferences;
-using Orleans.Storage;
-using Orleans.Serialization.TypeSystem;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.Cloning;
+using Forkleans.Networking.Shared;
+using Forkleans.Configuration.Internal;
+using Forkleans.Runtime.Metadata;
+using Forkleans.GrainReferences;
+using Forkleans.Storage;
+using Forkleans.Serialization.TypeSystem;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.Cloning;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using Orleans.Serialization.Internal;
-using Orleans.Core;
-using Orleans.Placement.Repartitioning;
-using Orleans.Runtime.Placement.Filtering;
+using Forkleans.Serialization.Internal;
+using Forkleans.Core;
+using Forkleans.Placement.Repartitioning;
+using Forkleans.Runtime.Placement.Filtering;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     internal static class DefaultSiloServices
     {
@@ -433,7 +433,7 @@ namespace Orleans.Hosting
         private static void ApplyConfiguration(ISiloBuilder builder)
         {
             var services = builder.Services;
-            var cfg = builder.Configuration.GetSection("Orleans");
+            var cfg = builder.Configuration.GetSection("Forkleans");
             var knownProviderTypes = GetRegisteredProviders();
 
             if (cfg["Name"] is { Length: > 0 } name)
@@ -476,7 +476,7 @@ namespace Orleans.Hosting
                         ?? throw new InvalidOperationException($"{kind} provider, '{name}', of type {type}, does not implement {typeof(IProviderBuilder<ISiloBuilder>)}.");
                 }
 
-                throw new InvalidOperationException($"Could not find {kind} provider named '{name}'. This can indicate that either the 'Microsoft.Orleans.Sdk' or the provider's package are not referenced by your application.");
+                throw new InvalidOperationException($"Could not find {kind} provider named '{name}'. This can indicate that either the 'Microsoft.Forkleans.Sdk' or the provider's package are not referenced by your application.");
             }
 
             static Dictionary<(string Kind, string Name), Type> GetRegisteredProviders()
@@ -520,7 +520,7 @@ namespace Orleans.Hosting
         {
             public bool? IsTypeNameAllowed(string typeName, string assemblyName)
             {
-                if (assemblyName is { Length: > 0} && assemblyName.Contains("Orleans"))
+                if (assemblyName is { Length: > 0} && assemblyName.Contains("Forkleans"))
                 {
                     return true;
                 }

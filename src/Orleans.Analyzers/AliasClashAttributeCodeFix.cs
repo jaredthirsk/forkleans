@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Orleans.Analyzers;
+namespace Forkleans.Analyzers;
 
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(GenerateAliasAttributesCodeFix)), Shared]
 public class AliasClashAttributeCodeFix : CodeFixProvider

@@ -5,9 +5,9 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.TestingHost.Logging
+namespace Forkleans.TestingHost.Logging
 {
     /// <summary>
     /// The log output which all <see cref="FileLogger"/> share to log messages to 

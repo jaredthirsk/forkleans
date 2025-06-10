@@ -6,13 +6,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Internal;
-using Orleans.Runtime;
-using Orleans.Runtime.Internal;
-using Orleans.Streams.Filtering;
+using Forkleans.Configuration;
+using Forkleans.Internal;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Internal;
+using Forkleans.Streams.Filtering;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     internal sealed partial class PersistentStreamPullingAgent : SystemTarget, IPersistentStreamPullingAgent
     {

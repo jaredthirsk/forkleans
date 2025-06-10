@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Orleans.GrainReferences;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.GrainReferences;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     public static class OrleansJsonSerializerSettings
     {

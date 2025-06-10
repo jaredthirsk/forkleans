@@ -1,6 +1,6 @@
-using Orleans.Streams;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// Pooled queue cache stores data in tightly packed structures that need to be transformed to various

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Orleans.Metadata;
+using Forkleans.Metadata;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Provides access to the cluster manifest.

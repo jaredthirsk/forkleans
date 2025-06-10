@@ -1,4 +1,4 @@
-namespace Orleans.Reminders.AzureStorage
+namespace Forkleans.Reminders.AzureStorage
 {
     /// <summary>Options for Azure Table based reminder table.</summary>
     public class AzureTableReminderStorageOptions : AzureStorageOperationOptions

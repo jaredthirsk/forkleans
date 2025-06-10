@@ -1,6 +1,6 @@
-using Orleans.Configuration;
-using Orleans.Hosting.Developer;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Hosting.Developer;
+using Forkleans.TestingHost;
 using Tester.StreamingTests;
 using TestExtensions;
 using Xunit;

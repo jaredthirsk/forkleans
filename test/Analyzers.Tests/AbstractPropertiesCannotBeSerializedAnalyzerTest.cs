@@ -1,5 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
-using Orleans.Analyzers;
+using Microsoft.CodeAnalysis;
+using Forkleans.Analyzers;
 using Xunit;
 
 namespace Analyzers.Tests;
@@ -30,8 +30,8 @@ public abstract class D { [alias::Id(0)] public abstract int F { get; set; } }
     [Fact]
     public Task GloballyQualifiedAttribute()
         => VerifyGeneratedDiagnostic("""
-[global::Orleans.GenerateSerializer]
-public abstract class D { [global::Orleans.Id(0)] public abstract int F { get; set; } }
+[global::Forkleans.GenerateSerializer]
+public abstract class D { [global::Forkleans.Id(0)] public abstract int F { get; set; } }
 """);
 
     [Fact]

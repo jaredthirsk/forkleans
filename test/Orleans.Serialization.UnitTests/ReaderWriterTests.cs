@@ -1,8 +1,8 @@
 using CsCheck;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Buffers.Adaptors;
-using Orleans.Serialization.Session;
-using Orleans.Serialization.TestKit;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Buffers.Adaptors;
+using Forkleans.Serialization.Session;
+using Forkleans.Serialization.TestKit;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Buffers;
@@ -10,11 +10,11 @@ using System.Collections.Generic;
 using System.IO;
 using Xunit;
 using Xunit.Abstractions;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.WireProtocol;
 using System.Runtime.InteropServices;
 
-namespace Orleans.Serialization.UnitTests
+namespace Forkleans.Serialization.UnitTests
 {
     [Trait("Category", "BVT")]
     public sealed class ReaderWriterPoolingStreamTest : ReaderWriterTestBase<Stream, PoolingStreamBufferWriter, ReaderInput>

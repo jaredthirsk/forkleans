@@ -2,16 +2,16 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Streams;
-using OrleansAWSUtils.Streams;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Streams;
+using ForkleansAWSUtils.Streams;
 using AWSUtils.Tests.StorageTests;
 using TestExtensions;
 using Xunit;
 using Xunit.Abstractions;
-using OrleansAWSUtils.Storage;
-using Orleans.Configuration;
+using ForkleansAWSUtils.Storage;
+using Forkleans.Configuration;
 
 namespace AWSUtils.Tests.Streaming
 {

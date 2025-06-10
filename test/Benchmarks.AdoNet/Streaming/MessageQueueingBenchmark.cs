@@ -1,7 +1,7 @@
 using System.Data.SqlClient;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
-using Orleans.Tests.SqlUtils;
+using Forkleans.Tests.SqlUtils;
 using UnitTests.General;
 using static System.String;
 

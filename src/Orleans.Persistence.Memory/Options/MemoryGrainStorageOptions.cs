@@ -1,7 +1,7 @@
-using Orleans.Runtime;
-using Orleans.Storage;
+using Forkleans.Runtime;
+using Forkleans.Storage;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Options for MemoryGrainStorage

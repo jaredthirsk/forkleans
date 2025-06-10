@@ -3,14 +3,14 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Providers.Streams.Common;
-using Orleans.Streams;
-using Orleans.Configuration;
-using Orleans;
-using Orleans.Configuration.Overrides;
-using Orleans.Serialization;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Streams;
+using Forkleans.Configuration;
+using Forkleans;
+using Forkleans.Configuration.Overrides;
+using Forkleans.Serialization;
 
-namespace OrleansAWSUtils.Streams
+namespace ForkleansAWSUtils.Streams
 {
     /// <summary> Factory class for Azure Queue based stream provider.</summary>
     public class SQSAdapterFactory : IQueueAdapterFactory
@@ -34,7 +34,7 @@ namespace OrleansAWSUtils.Streams
             HashRingStreamQueueMapperOptions queueMapperOptions,
             SimpleQueueCacheOptions cacheOptions,
             IOptions<ClusterOptions> clusterOptions, 
-            Orleans.Serialization.Serializer serializer, 
+            Forkleans.Serialization.Serializer serializer, 
             ILoggerFactory loggerFactory)
         {
             this.providerName = name;

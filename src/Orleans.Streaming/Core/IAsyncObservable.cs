@@ -2,7 +2,7 @@
 
 using System.Threading.Tasks;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// This interface generalizes the standard .NET IObserveable interface to allow asynchronous consumption of items.

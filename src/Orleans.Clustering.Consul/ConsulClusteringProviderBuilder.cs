@@ -1,14 +1,14 @@
 using System;
-using Orleans.Providers;
+using Forkleans.Providers;
 using Microsoft.Extensions.Configuration;
-using Orleans;
-using Orleans.Hosting;
+using Forkleans;
+using Forkleans.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: RegisterProvider("Consul", "Clustering", "Client", typeof(ConsulClusteringProviderBuilder))]
 [assembly: RegisterProvider("Consul", "Clustering", "Silo", typeof(ConsulClusteringProviderBuilder))]
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 internal sealed class ConsulClusteringProviderBuilder : IProviderBuilder<ISiloBuilder>, IProviderBuilder<IClientBuilder>
 {

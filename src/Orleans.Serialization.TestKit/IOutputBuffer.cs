@@ -1,6 +1,6 @@
 using System.Buffers;
 
-namespace Orleans.Serialization.TestKit
+namespace Forkleans.Serialization.TestKit
 {
     public interface IOutputBuffer
     {

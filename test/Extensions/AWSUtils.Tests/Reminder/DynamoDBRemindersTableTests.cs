@@ -1,8 +1,8 @@
 using AWSUtils.Tests.StorageTests;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Reminders.DynamoDB;
+using Forkleans.Configuration;
+using Forkleans.Reminders.DynamoDB;
 using TestExtensions;
 using UnitTests;
 using UnitTests.RemindersTest;

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// The stream queue mapper returns a list of all queues and is also responsible for mapping streams to queues.

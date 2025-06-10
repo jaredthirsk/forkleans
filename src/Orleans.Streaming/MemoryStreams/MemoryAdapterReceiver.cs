@@ -4,10 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Providers.Streams.Common;
-using Orleans.Streams;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Streams;
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     internal class MemoryAdapterReceiver<TSerializer> : IQueueAdapterReceiver
         where TSerializer : class, IMemoryMessageBodySerializer

@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace Orleans.Transactions.TestKit.Consistency
+namespace Forkleans.Transactions.TestKit.Consistency
 {
     [Serializable]
     [GenerateSerializer]

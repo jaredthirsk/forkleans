@@ -1,9 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Filter used to determine if cluster connection should be retried.

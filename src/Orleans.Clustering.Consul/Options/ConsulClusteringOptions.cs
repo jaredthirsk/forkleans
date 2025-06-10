@@ -1,8 +1,8 @@
 using System;
 using Consul;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Base class for consul-cluster-options.

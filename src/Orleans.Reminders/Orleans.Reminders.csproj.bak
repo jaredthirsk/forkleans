@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Microsoft.Forkleans.Reminders</PackageId>
+    <Title>Microsoft Orleans Reminders Library</Title>
+    <Description>Reminders library for Microsoft Orleans used on the server.</Description>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <DefineConstants>$(DefineConstants);ORLEANS_REMINDERS_PROVIDER</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Core.Abstractions\Forkleans.Core.Abstractions.csproj" />
+    <ProjectReference Include="..\Forkleans.Sdk\Forkleans.Sdk.csproj" />
+  </ItemGroup>
+</Project>

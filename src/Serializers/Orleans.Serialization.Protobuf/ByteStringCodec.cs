@@ -1,10 +1,10 @@
 using System;
 using Google.Protobuf;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.WireProtocol;
 
-namespace Orleans.Serialization;
+namespace Forkleans.Serialization;
 
 /// <summary>
 /// Serializer for <see cref="ByteString"/>.

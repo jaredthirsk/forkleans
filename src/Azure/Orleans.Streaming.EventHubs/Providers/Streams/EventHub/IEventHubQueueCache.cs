@@ -1,10 +1,10 @@
 using System;
-using Orleans.Streams;
+using Forkleans.Streams;
 using System.Collections.Generic;
 using Azure.Messaging.EventHubs;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Interface for a stream message cache that stores EventHub EventData

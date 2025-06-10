@@ -1,8 +1,8 @@
 using Azure.Identity;
 using Microsoft.Azure.Cosmos;
-using Orleans.Clustering.Cosmos;
-using Orleans.Persistence.Cosmos;
-using Orleans.Reminders.Cosmos;
+using Forkleans.Clustering.Cosmos;
+using Forkleans.Persistence.Cosmos;
+using Forkleans.Reminders.Cosmos;
 using TestExtensions;
 
 namespace Tester.Cosmos;

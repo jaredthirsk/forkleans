@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using Microsoft.Extensions.Options;
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 using TestExtensions;
 using TestExtensions.Runners;
 

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions.State
+namespace Forkleans.Transactions.State
 {
     internal class TransactionManager<TState> : ITransactionManager
                where TState : class, new()

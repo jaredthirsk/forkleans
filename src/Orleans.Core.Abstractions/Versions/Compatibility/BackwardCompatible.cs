@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Versions.Compatibility
+namespace Forkleans.Versions.Compatibility
 {
     /// <summary>
     /// A grain interface version compatibility strategy which treats all versions of an interface compatible only with equal and lower requested versions.

@@ -1,7 +1,7 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Functionality for providing streams to consumers and producers.

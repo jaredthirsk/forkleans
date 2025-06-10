@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
 #nullable enable
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     [Serializable]
     internal enum StreamConsumerDataState

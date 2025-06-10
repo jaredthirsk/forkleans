@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using Orleans.Providers.Streams.Common;
+using Forkleans.Providers.Streams.Common;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     internal interface IPersistentStreamPullingAgent : ISystemTarget, IStreamProducerExtension
     {

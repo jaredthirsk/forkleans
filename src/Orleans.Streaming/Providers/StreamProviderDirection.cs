@@ -1,4 +1,4 @@
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {    
     /// <summary>
     /// Identifies whether a stream provider is read-only, read-write, or write-only.

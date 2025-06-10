@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     internal interface IMembershipGossiper
     {

@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Configuration;
-using RunState = Orleans.Configuration.StreamLifecycleOptions.RunState;
-using Orleans.Internal;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Configuration;
+using RunState = Forkleans.Configuration.StreamLifecycleOptions.RunState;
+using Forkleans.Internal;
 using System.Threading;
-using Orleans.Streams.Filtering;
-using Orleans.Runtime.Scheduler;
+using Forkleans.Streams.Filtering;
+using Forkleans.Runtime.Scheduler;
 using System.Diagnostics.Metrics;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     internal sealed partial class PersistentStreamPullingManager : SystemTarget, IPersistentStreamPullingManager, IStreamQueueBalanceListener
     {

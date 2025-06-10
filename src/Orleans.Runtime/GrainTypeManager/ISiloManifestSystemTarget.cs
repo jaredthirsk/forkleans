@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using Orleans.Metadata;
+using Forkleans.Metadata;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal interface ISiloManifestSystemTarget : ISystemTarget
     {

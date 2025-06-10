@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
-using Orleans.Runtime.MembershipService;
+using Forkleans.Runtime;
+using Forkleans.Runtime.MembershipService;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     internal class DevelopmentClusterMembershipOptionsValidator : IConfigurationValidator
     {

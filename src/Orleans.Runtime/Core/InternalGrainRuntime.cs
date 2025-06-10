@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime.GrainDirectory;
-using Orleans.Runtime.Messaging;
-using Orleans.Runtime.Versions;
-using Orleans.Runtime.Versions.Compatibility;
+using Forkleans.Configuration;
+using Forkleans.Runtime.GrainDirectory;
+using Forkleans.Runtime.Messaging;
+using Forkleans.Runtime.Versions;
+using Forkleans.Runtime.Versions.Compatibility;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Shared runtime services which grains use.

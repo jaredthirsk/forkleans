@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Orleans.Serialization.UnitTests;
+namespace Forkleans.Serialization.UnitTests;
 
 public class RecordSerializationTests
 {

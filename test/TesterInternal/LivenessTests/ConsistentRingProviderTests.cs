@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using System.Net;
 using Microsoft.Extensions.Logging.Abstractions;
-using Orleans.Configuration;
-using Orleans.Runtime.ConsistentRing;
-using Orleans.Streams;
+using Forkleans.Configuration;
+using Forkleans.Runtime.ConsistentRing;
+using Forkleans.Streams;
 using TestExtensions;
 using Xunit;
 using Xunit.Abstractions;

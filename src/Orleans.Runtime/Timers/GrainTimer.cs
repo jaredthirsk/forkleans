@@ -5,16 +5,16 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.CodeGeneration;
-using Orleans.Runtime.Internal;
-using Orleans.Serialization.Invocation;
-using Orleans.Timers;
+using Forkleans.CodeGeneration;
+using Forkleans.Runtime.Internal;
+using Forkleans.Serialization.Invocation;
+using Forkleans.Timers;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 internal abstract partial class GrainTimer : IGrainTimer
 {
-    protected static readonly GrainInterfaceType InvokableInterfaceType = GrainInterfaceType.Create("Orleans.Runtime.IGrainTimerInvoker");
+    protected static readonly GrainInterfaceType InvokableInterfaceType = GrainInterfaceType.Create("Forkleans.Runtime.IGrainTimerInvoker");
     protected static readonly TimerCallback TimerCallback = (state) => ((GrainTimer)state!).ScheduleTickOnActivation();
     protected static readonly MethodInfo InvokableMethodInfo = typeof(IGrainTimerInvoker).GetMethod(nameof(IGrainTimerInvoker.InvokeCallbackAsync), BindingFlags.Instance | BindingFlags.Public)!;
     private readonly CancellationTokenSource _cts = new();

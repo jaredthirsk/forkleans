@@ -7,18 +7,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
-using Orleans.Configuration;
-using Orleans.Configuration.Internal;
-using Orleans.Hosting;
-using Orleans.Messaging;
-using Orleans.Runtime;
-using Orleans.Runtime.MembershipService;
-using Orleans.Runtime.TestHooks;
-using Orleans.Statistics;
-using Orleans.TestingHost.Logging;
-using Orleans.TestingHost.Utils;
+using Forkleans.Configuration;
+using Forkleans.Configuration.Internal;
+using Forkleans.Hosting;
+using Forkleans.Messaging;
+using Forkleans.Runtime;
+using Forkleans.Runtime.MembershipService;
+using Forkleans.Runtime.TestHooks;
+using Forkleans.Statistics;
+using Forkleans.TestingHost.Logging;
+using Forkleans.TestingHost.Utils;
 
-namespace Orleans.TestingHost
+namespace Forkleans.TestingHost
 {
     /// <summary>
     /// Utility for creating silos given a name and collection of configuration sources.

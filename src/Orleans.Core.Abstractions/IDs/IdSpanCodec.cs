@@ -1,12 +1,12 @@
 using System;
 using System.Buffers;
 using System.Runtime.CompilerServices;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.WireProtocol;
 
 #nullable enable
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 /// <summary>
 /// Functionality for serializing and deserializing <see cref="IdSpan"/> instances.

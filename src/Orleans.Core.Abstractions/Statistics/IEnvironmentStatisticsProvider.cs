@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Orleans.Statistics;
+namespace Forkleans.Statistics;
 
 /// <summary>
 /// Provides statistics about the current process and its execution environment.
@@ -23,7 +23,7 @@ public interface IEnvironmentStatisticsProvider
 [Immutable]
 [GenerateSerializer]
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-[Alias("Orleans.Statistics.EnvironmentStatistics")]
+[Alias("Forkleans.Statistics.EnvironmentStatistics")]
 public readonly struct EnvironmentStatistics
 {
     /// <summary>

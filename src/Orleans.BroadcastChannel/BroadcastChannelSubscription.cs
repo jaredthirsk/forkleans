@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Orleans.BroadcastChannel
+namespace Forkleans.BroadcastChannel
 {
     public interface IBroadcastChannelSubscription
     {

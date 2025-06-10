@@ -1,6 +1,6 @@
-using Orleans.GrainDirectory.AzureStorage;
+using Forkleans.GrainDirectory.AzureStorage;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public class AzureTableGrainDirectoryOptions : AzureStorageOperationOptions
     {

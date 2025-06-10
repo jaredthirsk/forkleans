@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
 
@@ -10,9 +10,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Serialization\Orleans.Serialization.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Serialization.FSharp\Orleans.Serialization.FSharp.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Serialization\Orleans.Serialization.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Serialization.FSharp\Orleans.Serialization.FSharp.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Tester\Tester.csproj" />
-    <ProjectReference Include="$(SourceRoot)test\Misc\TestInternalDtosRefOrleans\TestInternalDtosRefOrleans.csproj" />
+    <ProjectReference Include="$(SourceRoot)test\Misc\TestInternalDtosRefOrleans\TestInternalDtosRefForkleans.csproj" />
   </ItemGroup>
 </Project>

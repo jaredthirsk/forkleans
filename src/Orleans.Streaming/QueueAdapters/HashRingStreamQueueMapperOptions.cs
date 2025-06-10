@@ -1,6 +1,6 @@
-using Orleans.Streams;
+using Forkleans.Streams;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Options for <see cref="HashRingBasedStreamQueueMapper"/>.

@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
-using Orleans.Providers;
+using Forkleans.Configuration;
+using Forkleans.Providers;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Configuration builder for memory streams.

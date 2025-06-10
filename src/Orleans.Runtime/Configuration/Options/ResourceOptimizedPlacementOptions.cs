@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Configuration;
+namespace Forkleans.Configuration;
 
 /// <summary>
 /// Settings which regulate the placement of grains across a cluster when using <see cref="ResourceOptimizedPlacement"/>.

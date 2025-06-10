@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using Orleans.CodeGeneration;
+using Forkleans.CodeGeneration;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Maintains a map between grain classes and corresponding interface-implementation mappings.

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Logger for options on the client.

@@ -10,13 +10,13 @@ using Microsoft.Extensions.Options;
 
 using Newtonsoft.Json;
 
-using Orleans.Configuration;
-using Orleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
 
 using StackExchange.Redis;
 using static System.FormattableString;
 
-namespace Orleans.Reminders.Redis
+namespace Forkleans.Reminders.Redis
 {
     internal partial class RedisReminderTable : IReminderTable
     {

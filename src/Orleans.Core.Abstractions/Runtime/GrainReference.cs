@@ -1,18 +1,18 @@
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Invocation;
-using Orleans.Serialization.Serializers;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Invocation;
+using Forkleans.Serialization.Serializers;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.CodeGeneration;
+using Forkleans.CodeGeneration;
 using System.Text;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Properties common to <see cref="GrainReference"/> instances with the same <see cref="GrainType"/> and <see cref="GrainInterfaceType"/>.

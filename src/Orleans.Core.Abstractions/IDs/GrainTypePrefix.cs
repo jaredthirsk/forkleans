@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Prefixes and corresponding helper methods for <see cref="GrainType"/>.

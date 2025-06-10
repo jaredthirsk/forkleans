@@ -2,13 +2,13 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-using Orleans.Placement.Repartitioning;
-using Orleans.Placement.Rebalancing;
+using Forkleans.Placement.Repartitioning;
+using Forkleans.Placement.Rebalancing;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans.Runtime.Placement.Repartitioning;
+namespace Forkleans.Runtime.Placement.Repartitioning;
 
 #nullable enable
 

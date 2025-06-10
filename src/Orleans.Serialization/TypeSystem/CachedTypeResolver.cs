@@ -2,7 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 
-namespace Orleans.Serialization.TypeSystem
+namespace Forkleans.Serialization.TypeSystem
 {
     /// <summary>
     /// Type resolver which caches results.

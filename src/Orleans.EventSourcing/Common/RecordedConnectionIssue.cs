@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Orleans.EventSourcing.Common
+namespace Forkleans.EventSourcing.Common
 {
     /// <summary>
     /// Utility class for recording connection issues.

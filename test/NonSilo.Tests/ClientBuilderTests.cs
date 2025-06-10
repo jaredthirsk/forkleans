@@ -1,10 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Orleans;
-using Orleans.Configuration;
-using Orleans.Hosting;
-using Orleans.Messaging;
-using Orleans.Runtime;
+using Forkleans;
+using Forkleans.Configuration;
+using Forkleans.Hosting;
+using Forkleans.Messaging;
+using Forkleans.Runtime;
 using Xunit;
 
 namespace NonSilo.Tests

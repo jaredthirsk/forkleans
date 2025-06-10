@@ -1,10 +1,10 @@
 using System;
-using Orleans.Storage;
+using Forkleans.Storage;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Providers;
+using Forkleans.Providers;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Orleans.Runtime.Hosting
+namespace Forkleans.Runtime.Hosting
 {
     public static class StorageProviderExtensions
     {

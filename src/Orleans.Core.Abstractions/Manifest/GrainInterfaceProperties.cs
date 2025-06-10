@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Metadata
+namespace Forkleans.Metadata
 {
     /// <summary>
     /// Information about a communication interface.

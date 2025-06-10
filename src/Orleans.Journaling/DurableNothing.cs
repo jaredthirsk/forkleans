@@ -1,7 +1,7 @@
-﻿using System.Buffers;
+using System.Buffers;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 /// <summary>
 /// A durable object which does nothing, used for retiring other durable types.

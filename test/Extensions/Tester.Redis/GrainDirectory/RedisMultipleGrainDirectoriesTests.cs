@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
-using Orleans.GrainDirectory.Redis;
-using Orleans.TestingHost;
+using Forkleans.GrainDirectory.Redis;
+using Forkleans.TestingHost;
 using StackExchange.Redis;
 using Tester.Directories;
 using TestExtensions;

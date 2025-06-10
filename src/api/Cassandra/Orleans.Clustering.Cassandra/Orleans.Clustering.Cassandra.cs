@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Clustering.Cassandra.Hosting
+namespace Forkleans.Clustering.Cassandra.Hosting
 {
     public partial class CassandraClusteringOptions
     {
@@ -21,20 +21,20 @@ namespace Orleans.Clustering.Cassandra.Hosting
 
     public static partial class CassandraMembershipHostingExtensions
     {
-        public static Orleans.Hosting.IClientBuilder UseCassandraClustering(this Orleans.Hosting.IClientBuilder builder, System.Action<CassandraClusteringOptions> configureOptions) { throw null; }
+        public static Forkleans.Hosting.IClientBuilder UseCassandraClustering(this Forkleans.Hosting.IClientBuilder builder, System.Action<CassandraClusteringOptions> configureOptions) { throw null; }
 
-        public static Orleans.Hosting.IClientBuilder UseCassandraClustering(this Orleans.Hosting.IClientBuilder builder, System.Func<System.IServiceProvider, System.Threading.Tasks.Task<global::Cassandra.ISession>> sessionProvider) { throw null; }
+        public static Forkleans.Hosting.IClientBuilder UseCassandraClustering(this Forkleans.Hosting.IClientBuilder builder, System.Func<System.IServiceProvider, System.Threading.Tasks.Task<global::Cassandra.ISession>> sessionProvider) { throw null; }
 
-        public static Orleans.Hosting.IClientBuilder UseCassandraClustering(this Orleans.Hosting.IClientBuilder builder, string connectionString, string keyspace = "orleans") { throw null; }
+        public static Forkleans.Hosting.IClientBuilder UseCassandraClustering(this Forkleans.Hosting.IClientBuilder builder, string connectionString, string keyspace = "orleans") { throw null; }
 
-        public static Orleans.Hosting.IClientBuilder UseCassandraClustering(this Orleans.Hosting.IClientBuilder builder) { throw null; }
+        public static Forkleans.Hosting.IClientBuilder UseCassandraClustering(this Forkleans.Hosting.IClientBuilder builder) { throw null; }
 
-        public static Orleans.Hosting.ISiloBuilder UseCassandraClustering(this Orleans.Hosting.ISiloBuilder builder, System.Action<CassandraClusteringOptions> configureOptions) { throw null; }
+        public static Forkleans.Hosting.ISiloBuilder UseCassandraClustering(this Forkleans.Hosting.ISiloBuilder builder, System.Action<CassandraClusteringOptions> configureOptions) { throw null; }
 
-        public static Orleans.Hosting.ISiloBuilder UseCassandraClustering(this Orleans.Hosting.ISiloBuilder builder, System.Func<System.IServiceProvider, System.Threading.Tasks.Task<global::Cassandra.ISession>> sessionProvider) { throw null; }
+        public static Forkleans.Hosting.ISiloBuilder UseCassandraClustering(this Forkleans.Hosting.ISiloBuilder builder, System.Func<System.IServiceProvider, System.Threading.Tasks.Task<global::Cassandra.ISession>> sessionProvider) { throw null; }
 
-        public static Orleans.Hosting.ISiloBuilder UseCassandraClustering(this Orleans.Hosting.ISiloBuilder builder, string connectionString, string keyspace = "orleans") { throw null; }
+        public static Forkleans.Hosting.ISiloBuilder UseCassandraClustering(this Forkleans.Hosting.ISiloBuilder builder, string connectionString, string keyspace = "orleans") { throw null; }
 
-        public static Orleans.Hosting.ISiloBuilder UseCassandraClustering(this Orleans.Hosting.ISiloBuilder builder) { throw null; }
+        public static Forkleans.Hosting.ISiloBuilder UseCassandraClustering(this Forkleans.Hosting.ISiloBuilder builder) { throw null; }
     }
 }

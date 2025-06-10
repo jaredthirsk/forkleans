@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Orleans.Runtime.Placement
+namespace Forkleans.Runtime.Placement
 {
     internal class StatelessWorkerDirector : IPlacementDirector
     {

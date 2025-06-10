@@ -1,14 +1,14 @@
 using System;
-using Orleans.Providers;
+using Forkleans.Providers;
 using Microsoft.Extensions.Configuration;
-using Orleans;
-using Orleans.Hosting;
+using Forkleans;
+using Forkleans.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: RegisterProvider("ZooKeeper", "Clustering", "Client", typeof(ZooKeeperClusteringProviderBuilder))]
 [assembly: RegisterProvider("ZooKeeper", "Clustering", "Silo", typeof(ZooKeeperClusteringProviderBuilder))]
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 internal sealed class ZooKeeperClusteringProviderBuilder : IProviderBuilder<ISiloBuilder>, IProviderBuilder<IClientBuilder>
 {

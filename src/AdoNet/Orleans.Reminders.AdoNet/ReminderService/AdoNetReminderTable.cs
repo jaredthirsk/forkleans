@@ -1,10 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Reminders.AdoNet.Storage;
+using Forkleans.Configuration;
+using Forkleans.Reminders.AdoNet.Storage;
 
-namespace Orleans.Runtime.ReminderService
+namespace Forkleans.Runtime.ReminderService
 {
     internal sealed class AdoNetReminderTable : IReminderTable
     {

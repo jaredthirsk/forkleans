@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using Orleans.Runtime.Utilities;
+using Forkleans.Runtime.Utilities;
 
 #nullable enable
-namespace Orleans.Runtime.GrainDirectory;
+namespace Forkleans.Runtime.GrainDirectory;
 
 // Read-only, sorted collection of non-overlapping ranges.
 [GenerateSerializer, Immutable, Alias(nameof(RingRangeCollection))]

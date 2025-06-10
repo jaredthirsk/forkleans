@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.GrainDirectory;
-using Orleans.Runtime.Scheduler;
+using Forkleans.Configuration;
+using Forkleans.GrainDirectory;
+using Forkleans.Runtime.Scheduler;
 
 #nullable enable
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     internal sealed class LocalGrainDirectory : ILocalGrainDirectory, ISiloStatusListener, ILifecycleParticipant<ISiloLifecycle>
     {

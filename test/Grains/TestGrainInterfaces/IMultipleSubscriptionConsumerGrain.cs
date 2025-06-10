@@ -1,4 +1,4 @@
-using Orleans.Streams;
+using Forkleans.Streams;
 
 namespace UnitTests.GrainInterfaces
 {

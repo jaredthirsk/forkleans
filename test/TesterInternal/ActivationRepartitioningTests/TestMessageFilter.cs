@@ -1,5 +1,5 @@
-using Orleans.Runtime.Placement;
-using Orleans.Runtime.Placement.Repartitioning;
+using Forkleans.Runtime.Placement;
+using Forkleans.Runtime.Placement.Repartitioning;
 
 namespace UnitTests.ActivationRepartitioningTests;
 

@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using static Orleans.Serialization.Buffers.PooledBuffer;
+using static Forkleans.Serialization.Buffers.PooledBuffer;
 
-namespace Orleans.Serialization.Buffers.Adaptors;
+namespace Forkleans.Serialization.Buffers.Adaptors;
 
 /// <summary>
 /// Input type for <see cref="Reader{TInput}"/> to support <see cref="BufferSlice"/> buffers.

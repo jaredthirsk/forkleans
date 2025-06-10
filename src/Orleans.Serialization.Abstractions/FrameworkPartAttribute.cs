@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Orleans.Metadata;
+namespace Forkleans.Metadata;
 
 /// <summary>
 /// Specifies that an assembly does not contain application code.

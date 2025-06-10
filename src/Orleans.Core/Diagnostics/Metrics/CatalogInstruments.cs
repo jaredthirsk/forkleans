@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 internal static class CatalogInstruments
 {

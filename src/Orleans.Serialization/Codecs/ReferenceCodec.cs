@@ -1,11 +1,11 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Session;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Session;
+using Forkleans.Serialization.WireProtocol;
 using System;
 using System.Buffers;
 using System.Runtime.CompilerServices;
 
-namespace Orleans.Serialization.Codecs
+namespace Forkleans.Serialization.Codecs
 {
     /// <summary>
     /// Functionality for reading and writing object references.

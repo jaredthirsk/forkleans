@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.Internal;
-using Orleans.TestingHost;
+using Forkleans.Runtime;
+using Forkleans.Internal;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.TimerTests;
 using UnitTests.GrainInterfaces;

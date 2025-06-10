@@ -65,7 +65,7 @@ namespace UnitTests.StorageTests.Relational.TestDataSets
             return GetGrainType<TGrainKey, NotApplicable>();
         }
 
-// Orleans.Storage.AdoNetStorageProvider cannot be resolved, because the containing assembly is not referenced since not needed.
+// Forkleans.Storage.AdoNetStorageProvider cannot be resolved, because the containing assembly is not referenced since not needed.
 #pragma warning disable 1574
         /// <summary>
         /// Returns a grain type name.
@@ -73,9 +73,9 @@ namespace UnitTests.StorageTests.Relational.TestDataSets
         /// <typeparam name="TGrainKey">Used to choose the key type interface.</typeparam>
         /// <typeparam name="TGrain">Used to choose the type of grain.</typeparam>
         /// <returns>The class in typeof(T).AssemblyQualifiedName form.</returns>
-        /// <remarks> ASSUMES Orleans give <em>grainType</em> parameters in this form to <see cref="Orleans.Storage.IStorageProvider"/> interface implementing functions.
-        /// In <see cref="Orleans.Storage.AdoNetStorageProvider"/> private function <em>ExtractClassBaseType</em> relies this is in this form. Should be fixed
-        /// if/when this is changed in Orleans.
+        /// <remarks> ASSUMES Orleans give <em>grainType</em> parameters in this form to <see cref="Forkleans.Storage.IStorageProvider"/> interface implementing functions.
+        /// In <see cref="Forkleans.Storage.AdoNetStorageProvider"/> private function <em>ExtractClassBaseType</em> relies this is in this form. Should be fixed
+        /// if/when this is changed in Forkleans.
         /// </remarks>
 #pragma warning restore 1574
         public static string GetGrainType<TGrainKey, TGrain>()

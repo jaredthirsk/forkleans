@@ -2,15 +2,15 @@
   <PropertyGroup>
     <RootNamespace>UnitTests.GrainInterfaces</RootNamespace>
     <TargetFramework>$(MinTestTargetFramework)</TargetFramework>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Streaming\Orleans.Streaming.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Serialization\Orleans.Serialization.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Streaming\Orleans.Streaming.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Serialization\Orleans.Serialization.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Misc\TestInterfaces\TestInterfaces.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Reminders\Orleans.Reminders.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Reminders\Orleans.Reminders.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,10 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Serialization;
-using Orleans.Streaming.EventHubs;
-using Orleans.Streams;
-using Orleans.Statistics;
+using Forkleans.Configuration;
+using Forkleans.Serialization;
+using Forkleans.Streaming.EventHubs;
+using Forkleans.Streams;
+using Forkleans.Statistics;
 
 namespace ServiceBus.Tests.TestStreamProviders.EventHub
 {

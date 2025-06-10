@@ -2,10 +2,10 @@ using System;
 using System.Buffers.Text;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Orleans.Runtime;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Runtime;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans.Utilities
+namespace Forkleans.Utilities
 {
     /// <summary>
     /// Extensions for working with <see cref="TypeConverter"/>.

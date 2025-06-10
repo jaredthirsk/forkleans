@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Orleans.Runtime.Placement
+namespace Forkleans.Runtime.Placement
 {
     /// <summary>
     /// ClientObserversPlacementDirector is used to prevent placement of client observer activations.

@@ -8,14 +8,14 @@ using System.Numerics;
 #endif
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Orleans.Serialization.Buffers.Adaptors;
-using Orleans.Serialization.Session;
-using static Orleans.Serialization.Buffers.PooledBuffer;
+using Forkleans.Serialization.Buffers.Adaptors;
+using Forkleans.Serialization.Session;
+using static Forkleans.Serialization.Buffers.PooledBuffer;
 #if !NETCOREAPP3_1_OR_GREATER
-using Orleans.Serialization.Utilities;
+using Forkleans.Serialization.Utilities;
 #endif
 
-namespace Orleans.Serialization.Buffers
+namespace Forkleans.Serialization.Buffers
 {
     /// <summary>
     /// Functionality for reading binary data.

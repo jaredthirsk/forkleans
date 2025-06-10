@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Places activations on compatible silos by hashing the grain identifier using a stable hash and selecting a silo from a sorted set using a modulo operation.

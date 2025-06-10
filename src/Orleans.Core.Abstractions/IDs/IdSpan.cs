@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using System.Text;
 
 #nullable enable
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Primitive type for identities, representing a sequence of bytes.

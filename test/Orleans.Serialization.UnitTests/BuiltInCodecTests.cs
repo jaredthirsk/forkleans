@@ -1,9 +1,9 @@
 using CsCheck;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.TestKit;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.TestKit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.FSharp.Core;
@@ -19,15 +19,15 @@ using Xunit;
 using Microsoft.FSharp.Collections;
 using Xunit.Abstractions;
 using Microsoft.Extensions.Options;
-using Orleans.Serialization.Configuration;
+using Forkleans.Serialization.Configuration;
 using System.Reflection;
 using System.CodeDom.Compiler;
 using System.Collections;
-using Orleans.Serialization.Invocation;
+using Forkleans.Serialization.Invocation;
 using System.Globalization;
 using System.Threading;
 
-namespace Orleans.Serialization.UnitTests
+namespace Forkleans.Serialization.UnitTests
 {
     internal static class CsCheckAdaptor
     {

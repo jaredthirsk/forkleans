@@ -1,4 +1,4 @@
-using Orleans.Providers.Streams.Common;
+using Forkleans.Providers.Streams.Common;
 using Xunit;
 
 namespace ServiceBus.Tests.StreamingTests

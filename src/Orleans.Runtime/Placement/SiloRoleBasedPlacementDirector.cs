@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Orleans.Runtime.MembershipService;
+using Forkleans.Runtime.MembershipService;
 
-namespace Orleans.Runtime.Placement
+namespace Forkleans.Runtime.Placement
 {
     internal class SiloRoleBasedPlacementDirector : IPlacementDirector
     {

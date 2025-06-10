@@ -1,7 +1,7 @@
 using System;
-using Orleans.Serialization;
+using Forkleans.Serialization;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Grain storage serializer that uses Newtonsoft.Json

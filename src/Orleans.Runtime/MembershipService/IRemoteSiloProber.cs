@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     /// <summary>
     /// Responsible for probing remote silos for responsiveness.

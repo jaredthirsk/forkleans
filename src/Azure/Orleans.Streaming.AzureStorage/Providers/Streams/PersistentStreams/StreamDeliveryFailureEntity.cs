@@ -1,10 +1,10 @@
 using System;
 using Azure;
 using Azure.Data.Tables;
-using Orleans.Serialization;
-using Orleans.Streams;
+using Forkleans.Serialization;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.PersistentStreams
+namespace Forkleans.Providers.Streams.PersistentStreams
 {
     /// <summary>
     /// Delivery failure table storage entity.

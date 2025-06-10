@@ -10,20 +10,20 @@ namespace Microsoft.Extensions.Hosting
 {
     public static partial class RedisClusteringIClientBuilderExtensions
     {
-        public static Orleans.Hosting.IClientBuilder UseRedisClustering(this Orleans.Hosting.IClientBuilder builder, System.Action<Orleans.Clustering.Redis.RedisClusteringOptions> configuration) { throw null; }
+        public static Forkleans.Hosting.IClientBuilder UseRedisClustering(this Forkleans.Hosting.IClientBuilder builder, System.Action<Forkleans.Clustering.Redis.RedisClusteringOptions> configuration) { throw null; }
 
-        public static Orleans.Hosting.IClientBuilder UseRedisClustering(this Orleans.Hosting.IClientBuilder builder, string redisConnectionString) { throw null; }
+        public static Forkleans.Hosting.IClientBuilder UseRedisClustering(this Forkleans.Hosting.IClientBuilder builder, string redisConnectionString) { throw null; }
     }
 
     public static partial class RedisClusteringISiloBuilderExtensions
     {
-        public static Orleans.Hosting.ISiloBuilder UseRedisClustering(this Orleans.Hosting.ISiloBuilder builder, System.Action<Orleans.Clustering.Redis.RedisClusteringOptions> configuration) { throw null; }
+        public static Forkleans.Hosting.ISiloBuilder UseRedisClustering(this Forkleans.Hosting.ISiloBuilder builder, System.Action<Forkleans.Clustering.Redis.RedisClusteringOptions> configuration) { throw null; }
 
-        public static Orleans.Hosting.ISiloBuilder UseRedisClustering(this Orleans.Hosting.ISiloBuilder builder, string redisConnectionString) { throw null; }
+        public static Forkleans.Hosting.ISiloBuilder UseRedisClustering(this Forkleans.Hosting.ISiloBuilder builder, string redisConnectionString) { throw null; }
     }
 }
 
-namespace Orleans.Clustering.Redis
+namespace Forkleans.Clustering.Redis
 {
     public partial class RedisClusteringException : System.Exception
     {

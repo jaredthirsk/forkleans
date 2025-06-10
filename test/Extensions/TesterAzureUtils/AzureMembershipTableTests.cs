@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.AzureUtils;
-using Orleans.Clustering.AzureStorage;
-using Orleans.Messaging;
-using Orleans.Runtime.MembershipService;
+using Forkleans.AzureUtils;
+using Forkleans.Clustering.AzureStorage;
+using Forkleans.Messaging;
+using Forkleans.Runtime.MembershipService;
 using TestExtensions;
 using UnitTests;
 using UnitTests.MembershipTests;
@@ -25,9 +25,9 @@ namespace Tester.AzureUtils
         private static LoggerFilterOptions CreateFilters()
         {
             var filters = new LoggerFilterOptions();
-            filters.AddFilter(typeof(Orleans.Clustering.AzureStorage.AzureTableDataManager<>).FullName, LogLevel.Trace);
+            filters.AddFilter(typeof(Forkleans.Clustering.AzureStorage.AzureTableDataManager<>).FullName, LogLevel.Trace);
             filters.AddFilter(typeof(OrleansSiloInstanceManager).FullName, LogLevel.Trace);
-            filters.AddFilter("Orleans.Storage", LogLevel.Trace);
+            filters.AddFilter("Forkleans.Storage", LogLevel.Trace);
             return filters;
         }
 

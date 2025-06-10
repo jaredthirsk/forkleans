@@ -1,6 +1,6 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.ClientObservers
+namespace Forkleans.ClientObservers
 {
     /// <summary>
     /// Base type for special client-wide observers.

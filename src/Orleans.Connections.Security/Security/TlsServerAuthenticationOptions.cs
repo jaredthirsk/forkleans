@@ -3,7 +3,7 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
-namespace Orleans.Connections.Security
+namespace Forkleans.Connections.Security
 {
     public delegate X509Certificate ServerCertificateSelectionCallback(object sender, string hostName);
 

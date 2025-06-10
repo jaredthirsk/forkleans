@@ -1,4 +1,4 @@
-namespace Orleans.Streaming.AdoNet;
+namespace Forkleans.Streaming.AdoNet;
 
 /// <summary>
 /// The <see cref="IBatchContainer"/> implementation for the ADONET provider.
@@ -8,7 +8,7 @@ namespace Orleans.Streaming.AdoNet;
 /// 2. Though the <see cref="SequenceToken"/> is supported here, it is not yet used, as the ADO.NET provider is not rewindable.
 /// </remarks>
 [GenerateSerializer]
-[Alias("Orleans.Streaming.AdoNet.AdoNetBatchContainer")]
+[Alias("Forkleans.Streaming.AdoNet.AdoNetBatchContainer")]
 internal class AdoNetBatchContainer : IBatchContainer
 {
     public AdoNetBatchContainer(StreamId streamId, List<object> events, Dictionary<string, object> requestContext)

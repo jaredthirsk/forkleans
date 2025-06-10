@@ -3,18 +3,18 @@ using System.Buffers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Orleans.Serialization.Activators;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Configuration;
-using Orleans.Serialization.Internal;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.Session;
-using Orleans.Serialization.TypeSystem;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Activators;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Configuration;
+using Forkleans.Serialization.Internal;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.Session;
+using Forkleans.Serialization.TypeSystem;
+using Forkleans.Serialization.WireProtocol;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     /// <summary>
     /// <see cref="IServiceCollection"/> extensions.

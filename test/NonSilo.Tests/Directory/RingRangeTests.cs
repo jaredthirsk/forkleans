@@ -1,4 +1,4 @@
-using Orleans.Runtime.GrainDirectory;
+using Forkleans.Runtime.GrainDirectory;
 using CsCheck;
 using Xunit;
 

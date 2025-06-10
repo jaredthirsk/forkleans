@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.Serialization;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// This exception indicates that an error has occurred on a stream subscription that has placed the subscription into

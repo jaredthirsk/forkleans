@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Clustering.Cosmos
+namespace Forkleans.Clustering.Cosmos
 {
     public partial class CosmosClusteringOptions : CosmosOptions
     {
@@ -59,7 +59,7 @@ namespace Orleans.Clustering.Cosmos
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class HostingExtensions
     {

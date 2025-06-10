@@ -1,4 +1,4 @@
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 /// <summary>
 /// Provides storage for state machines.

@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal interface IMembershipService : ISystemTarget
     {

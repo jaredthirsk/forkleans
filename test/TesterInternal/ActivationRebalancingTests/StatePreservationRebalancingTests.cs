@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Configuration;
-using Orleans.Configuration;
-using Orleans.Core.Internal;
-using Orleans.Placement.Rebalancing;
-using Orleans.Runtime.Placement;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Core.Internal;
+using Forkleans.Placement.Rebalancing;
+using Forkleans.Runtime.Placement;
+using Forkleans.TestingHost;
 using TestExtensions;
 using Xunit;
 using Xunit.Abstractions;

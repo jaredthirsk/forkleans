@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Immutable;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Represents a cluster membership snapshot and changes from a previous snapshot.

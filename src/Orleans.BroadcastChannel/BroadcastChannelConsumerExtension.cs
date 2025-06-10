@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.BroadcastChannel
+namespace Forkleans.BroadcastChannel
 {
     internal interface IBroadcastChannelConsumerExtension : IGrainExtension
     {

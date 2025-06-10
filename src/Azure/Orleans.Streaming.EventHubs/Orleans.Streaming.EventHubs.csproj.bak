@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Microsoft.Forkleans.Streaming.EventHubs</PackageId>
+    <Title>Microsoft Orleans Azure Event Hubs Streaming Provider</Title>
+    <Description>Microsoft Orleans streaming provider backed by Azure Event Hubs</Description>
+    <PackageTags>$(PackageTags) Azure EventHubs</PackageTags>
+    <DefineConstants>$(DefineConstants);ORLEANS_EVENTHUBS</DefineConstants>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <AssemblyName>Forkleans.Streaming.EventHubs</AssemblyName>
+    <RootNamespace>Forkleans.Streaming.EventHubs</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\Storage\AzureTableDataManager.cs" Link="Storage\AzureTableDataManager.cs" />
+    <Compile Include="..\Shared\Storage\AzureTableUtils.cs" Link="Storage\AzureTableUtils.cs" />
+    <Compile Include="..\Shared\Storage\AzureStorageOperationOptions.cs" Link="Storage\AzureStorageOperationOptions.cs" />
+    <Compile Include="..\Shared\Storage\AzureStoragePolicyOptions.cs" Link="Storage\AzureStoragePolicyOptions.cs" />
+    <Compile Include="..\Shared\Utilities\ErrorCode.cs" Link="Utilities\ErrorCode.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Core" />
+    <PackageReference Include="Azure.Data.Tables" />
+    <PackageReference Include="System.Net.NameResolution" />
+    <PackageReference Include="Azure.Messaging.EventHubs" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Streaming\Forkleans.Streaming.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

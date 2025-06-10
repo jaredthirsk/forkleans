@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Orleans.EventSourcing
+namespace Forkleans.EventSourcing
 {
     /// <summary>
     /// Interface for diagnostics.

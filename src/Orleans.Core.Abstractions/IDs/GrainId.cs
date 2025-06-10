@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 #nullable enable
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Identifies a grain.

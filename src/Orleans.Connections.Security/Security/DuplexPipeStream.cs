@@ -6,7 +6,7 @@ using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Orleans.Connections.Security
+namespace Forkleans.Connections.Security
 {
     internal class DuplexPipeStream : Stream
     {

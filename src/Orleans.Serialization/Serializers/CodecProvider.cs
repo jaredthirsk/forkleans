@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Serialization.Activators;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Configuration;
-using Orleans.Serialization.GeneratedCodeHelpers;
+using Forkleans.Serialization.Activators;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Configuration;
+using Forkleans.Serialization.GeneratedCodeHelpers;
 
-namespace Orleans.Serialization.Serializers
+namespace Forkleans.Serialization.Serializers
 {
     /// <summary>
     /// Provides access to serializers and related objects.

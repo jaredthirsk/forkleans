@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal class AsyncTimerFactory : IAsyncTimerFactory
     {

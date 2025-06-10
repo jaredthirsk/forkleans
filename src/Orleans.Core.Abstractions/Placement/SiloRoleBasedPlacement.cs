@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// The silo role placement strategy specifies that a grain should be placed on a compatible silo which has the role specified by the strategy's placement attribute.

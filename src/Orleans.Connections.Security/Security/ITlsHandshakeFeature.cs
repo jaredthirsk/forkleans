@@ -1,6 +1,6 @@
 using System.Security.Authentication;
 
-namespace Orleans.Connections.Security
+namespace Forkleans.Connections.Security
 {
     public interface ITlsHandshakeFeature
     {

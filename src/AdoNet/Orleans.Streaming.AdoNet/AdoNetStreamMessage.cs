@@ -1,4 +1,4 @@
-namespace Orleans.Streaming.AdoNet;
+namespace Forkleans.Streaming.AdoNet;
 
 /// <summary>
 /// The model that represents a stored message in an ADONET streaming provider.

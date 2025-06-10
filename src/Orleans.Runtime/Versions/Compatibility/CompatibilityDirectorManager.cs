@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Versions.Compatibility;
+using Forkleans.Configuration;
+using Forkleans.Versions.Compatibility;
 
-namespace Orleans.Runtime.Versions.Compatibility
+namespace Forkleans.Runtime.Versions.Compatibility
 {
     internal class CompatibilityDirectorManager
     {

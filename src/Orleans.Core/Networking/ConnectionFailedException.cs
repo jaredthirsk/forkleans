@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     /// <summary>
     /// Indicates that a connection failed.

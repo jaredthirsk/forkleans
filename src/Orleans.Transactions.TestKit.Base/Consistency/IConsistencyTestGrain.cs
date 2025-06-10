@@ -2,7 +2,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace Orleans.Transactions.TestKit.Consistency
+namespace Forkleans.Transactions.TestKit.Consistency
 {
     public interface IConsistencyTestGrain : IGrainWithIntegerKey
     {

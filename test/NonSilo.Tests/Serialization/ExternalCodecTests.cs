@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using System.Reflection;
 using TestExtensions;
 using Xunit;
@@ -7,13 +7,13 @@ using System.Text;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 
-using Orleans.Serialization;
-using Orleans.Runtime;
-using Orleans.Serialization.Serializers;
-using Orleans.Streaming.EventHubs;
+using Forkleans.Serialization;
+using Forkleans.Runtime;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Streaming.EventHubs;
 using Microsoft.Extensions.Options;
-using Orleans.Serialization.Configuration;
-using Orleans.Metadata;
+using Forkleans.Serialization.Configuration;
+using Forkleans.Metadata;
 
 namespace UnitTests.Serialization
 {

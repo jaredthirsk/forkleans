@@ -1,12 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
-using Orleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
 using System.Diagnostics.CodeAnalysis;
-using Orleans.Configuration.Internal;
-using Orleans.Placement.Rebalancing;
-using Orleans.Runtime.Placement.Rebalancing;
+using Forkleans.Configuration.Internal;
+using Forkleans.Placement.Rebalancing;
+using Forkleans.Runtime.Placement.Rebalancing;
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 #nullable enable
 

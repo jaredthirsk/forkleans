@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Clustering.AdoNet.Storage
+namespace Forkleans.Clustering.AdoNet.Storage
 {
     public partial class OrleansRelationalDownloadStream : System.IO.Stream
     {
@@ -42,7 +42,7 @@ namespace Orleans.Clustering.AdoNet.Storage
     }
 }
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class AdoNetClusteringClientOptions
     {
@@ -75,7 +75,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class AdoNetHostingExtensions
     {
@@ -89,11 +89,11 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Runtime.Membership
+namespace Forkleans.Runtime.Membership
 {
-    public partial class AdoNetGatewayListProvider : Orleans.Messaging.IGatewayListProvider
+    public partial class AdoNetGatewayListProvider : Forkleans.Messaging.IGatewayListProvider
     {
-        public AdoNetGatewayListProvider(Microsoft.Extensions.Logging.ILogger<AdoNetGatewayListProvider> logger, System.IServiceProvider serviceProvider, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.AdoNetClusteringClientOptions> options, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.GatewayOptions> gatewayOptions, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.ClusterOptions> clusterOptions) { }
+        public AdoNetGatewayListProvider(Microsoft.Extensions.Logging.ILogger<AdoNetGatewayListProvider> logger, System.IServiceProvider serviceProvider, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.AdoNetClusteringClientOptions> options, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.GatewayOptions> gatewayOptions, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.ClusterOptions> clusterOptions) { }
 
         public bool IsUpdatable { get { throw null; } }
 
@@ -105,11 +105,11 @@ namespace Orleans.Runtime.Membership
     }
 }
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     public partial class AdoNetClusteringTable : IMembershipTable
     {
-        public AdoNetClusteringTable(System.IServiceProvider serviceProvider, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.ClusterOptions> clusterOptions, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.AdoNetClusteringSiloOptions> clusteringOptions, Microsoft.Extensions.Logging.ILogger<AdoNetClusteringTable> logger) { }
+        public AdoNetClusteringTable(System.IServiceProvider serviceProvider, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.ClusterOptions> clusterOptions, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.AdoNetClusteringSiloOptions> clusteringOptions, Microsoft.Extensions.Logging.ILogger<AdoNetClusteringTable> logger) { }
 
         public System.Threading.Tasks.Task CleanupDefunctSiloEntries(System.DateTimeOffset beforeDate) { throw null; }
 

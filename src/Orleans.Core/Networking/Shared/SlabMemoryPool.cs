@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     /// <summary>
     /// Used to allocate and distribute re-usable blocks of memory.

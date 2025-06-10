@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using Azure;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Transactions.TestKit
+namespace Forkleans.Transactions.TestKit
 {
     public class SimpleAzureStorageExceptionInjector : IControlledTransactionFaultInjector
     {

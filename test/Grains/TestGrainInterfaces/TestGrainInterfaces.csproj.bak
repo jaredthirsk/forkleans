@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>UnitTests.GrainInterfaces</RootNamespace>
+    <TargetFramework>$(MinTestTargetFramework)</TargetFramework>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Streaming\Forkleans.Streaming.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Serialization\Forkleans.Serialization.csproj" />
+    <ProjectReference Include="$(SourceRoot)test\Misc\TestInterfaces\TestInterfaces.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Reminders\Forkleans.Reminders.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="protobuf-net" />
+  </ItemGroup>
+</Project>

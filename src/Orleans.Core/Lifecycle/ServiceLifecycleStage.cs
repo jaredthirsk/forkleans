@@ -1,5 +1,5 @@
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Lifecycle stages of an Orleans client or silo.

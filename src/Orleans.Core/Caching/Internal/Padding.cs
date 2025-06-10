@@ -1,4 +1,4 @@
-namespace Orleans.Caching.Internal;
+namespace Forkleans.Caching.Internal;
 
 // Derived from BitFaster.Caching by Alex Peck
 // https://github.com/bitfaster/BitFaster.Caching/blob/5b2d64a1afcc251787fbe231c6967a62820fc93c/BitFaster.Caching/Padding.cs

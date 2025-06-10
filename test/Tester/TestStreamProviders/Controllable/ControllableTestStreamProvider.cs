@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
-using Orleans.Providers;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Configuration;
+using Forkleans.Providers;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 
 namespace Tester.TestStreamProviders.Controllable
 {

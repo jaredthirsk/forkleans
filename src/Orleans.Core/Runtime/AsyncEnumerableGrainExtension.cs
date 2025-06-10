@@ -7,18 +7,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Internal;
-using Orleans.Timers;
+using Forkleans.Configuration;
+using Forkleans.Internal;
+using Forkleans.Timers;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 /// <summary>
 /// Grain-side support for returning <see cref="IAsyncEnumerable{T}"/> from grain methods.
 /// </summary>
 internal sealed class AsyncEnumerableGrainExtension : IAsyncEnumerableGrainExtension, IAsyncDisposable, IDisposable
 {
-    private static readonly DiagnosticListener DiagnosticListener = new("Orleans.Runtime.AsyncEnumerableGrainExtension");
+    private static readonly DiagnosticListener DiagnosticListener = new("Forkleans.Runtime.AsyncEnumerableGrainExtension");
     private readonly Dictionary<Guid, EnumeratorState> _enumerators = [];
     private readonly ILogger<AsyncEnumerableGrainExtension> _logger;
     private readonly MessagingOptions _messagingOptions;

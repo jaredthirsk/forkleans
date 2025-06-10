@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 
-namespace Orleans.Transactions.TestKit
+namespace Forkleans.Transactions.TestKit
 {
     public class ControlledFaultInjectionTransactionTestRunner : TransactionTestRunnerBase
     {

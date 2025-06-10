@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Metrics;
 using System.Diagnostics.Tracing;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Statistics;
+namespace Forkleans.Statistics;
 
 #nullable enable
 internal sealed class EnvironmentStatisticsProvider : IEnvironmentStatisticsProvider, IDisposable

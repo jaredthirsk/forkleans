@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans.Runtime.Placement
+namespace Forkleans.Runtime.Placement
 {
     /// <summary>
     /// Responsible for resolving an <see cref="IPlacementDirector"/> for a <see cref="PlacementStrategy"/>.

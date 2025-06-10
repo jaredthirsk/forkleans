@@ -9,13 +9,13 @@ using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Providers.Azure;
-using Orleans.Runtime;
-using Orleans.Serialization.Serializers;
+using Forkleans.Configuration;
+using Forkleans.Providers.Azure;
+using Forkleans.Runtime;
+using Forkleans.Serialization.Serializers;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Simple storage provider for writing grain state data to Azure blob storage in JSON format.

@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions.State
+namespace Forkleans.Transactions.State
 {
     internal class TransactionalResource<TState> : ITransactionalResource
                where TState : class, new()

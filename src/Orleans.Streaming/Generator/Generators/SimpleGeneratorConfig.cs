@@ -1,8 +1,8 @@
 
 using System;
-using Orleans.Providers.Streams.Generator;
+using Forkleans.Providers.Streams.Generator;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Simple generator configuration class.

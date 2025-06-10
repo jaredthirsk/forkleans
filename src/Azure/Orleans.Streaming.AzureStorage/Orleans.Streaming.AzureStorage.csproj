@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Orleans.Streaming.AzureStorage</PackageId>
+    <PackageId>Microsoft.Forkleans.Streaming.AzureStorage</PackageId>
     <Title>Microsoft Orleans Azure Queue Storage Streaming Provider</Title>
     <Description>Microsoft Orleans streaming provider backed by Azure Queue Storage</Description>
     <PackageTags>$(PackageTags) Azure Table Blob Storage</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <AssemblyName>Orleans.Streaming.AzureStorage</AssemblyName>
-    <RootNamespace>Orleans.Streaming.AzureStorage</RootNamespace>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <AssemblyName>Forkleans.Streaming.AzureStorage</AssemblyName>
+    <RootNamespace>Forkleans.Streaming.AzureStorage</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <DefineConstants>$(DefineConstants);ORLEANS_STREAMING</DefineConstants>
   </PropertyGroup>
 
@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Streaming\Orleans.Streaming.csproj" />
+    <ProjectReference Include="..\..\Orleans.Streaming\Orleans.Streaming.csproj" />
     <PackageReference Include="Azure.Core" />
     <PackageReference Include="Azure.Identity" />
     <PackageReference Include="Azure.Storage.Blobs" />

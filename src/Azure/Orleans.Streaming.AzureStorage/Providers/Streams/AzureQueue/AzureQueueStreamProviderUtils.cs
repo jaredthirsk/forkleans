@@ -2,11 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.AzureUtils;
-using Orleans.Configuration;
-using Orleans.Streams;
+using Forkleans.AzureUtils;
+using Forkleans.Configuration;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.AzureQueue
+namespace Forkleans.Providers.Streams.AzureQueue
 {
     /// <summary>
     /// Utility functions for azure queue Persistent stream provider.

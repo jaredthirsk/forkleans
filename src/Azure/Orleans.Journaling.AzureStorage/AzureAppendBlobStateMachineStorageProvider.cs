@@ -1,9 +1,9 @@
 using Azure.Storage.Blobs.Specialized;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 internal sealed class AzureAppendBlobStateMachineStorageProvider(
     IOptions<AzureAppendBlobStateMachineStorageOptions> options,

@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class AzureTableGrainDirectoryOptions : GrainDirectory.AzureStorage.AzureStorageOperationOptions
     {
@@ -20,7 +20,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.GrainDirectory.AzureStorage
+namespace Forkleans.GrainDirectory.AzureStorage
 {
     public partial class AzureStorageOperationOptions
     {
@@ -101,7 +101,7 @@ namespace Orleans.GrainDirectory.AzureStorage
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class AzureTableGrainDirectoryServiceCollectionExtensions
     {

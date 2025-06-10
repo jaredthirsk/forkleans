@@ -1,4 +1,4 @@
-namespace Orleans.UnitTest.GrainInterfaces
+namespace Forkleans.UnitTest.GrainInterfaces
 {
     [Serializable]
     [GenerateSerializer]

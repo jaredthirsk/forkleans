@@ -1,9 +1,9 @@
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Orleans.Runtime;
-using Orleans.Storage;
-using Orleans.TestingHost;
+using Forkleans.Runtime;
+using Forkleans.Storage;
+using Forkleans.TestingHost;
 using StackExchange.Redis;
 using TestExtensions;
 using TestExtensions.Runners;

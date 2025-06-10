@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using Consul;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime.Host;
+using Forkleans.Configuration;
+using Forkleans.Runtime.Host;
 
-namespace Orleans.Runtime.Membership
+namespace Forkleans.Runtime.Membership
 {
     /// <summary>
     /// A Membership Table implementation using Consul 0.6.0  https://consul.io/

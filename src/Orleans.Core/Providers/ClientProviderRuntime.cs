@@ -1,12 +1,12 @@
 using System;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     /// <summary>
     /// <see cref="IProviderRuntime"/> for clients.
     /// </summary>
-    /// <seealso cref="Orleans.Providers.IProviderRuntime" />
+    /// <seealso cref="Forkleans.Providers.IProviderRuntime" />
     internal class ClientProviderRuntime : IProviderRuntime
     {
         private readonly IInternalGrainFactory grainFactory;

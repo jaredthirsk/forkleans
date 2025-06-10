@@ -1,9 +1,9 @@
 using System;
 using System.Net;
 using Microsoft.Extensions.Options;
-using Orleans.Serialization.Invocation;
+using Forkleans.Serialization.Invocation;
 
-namespace Orleans.Serialization.Configuration
+namespace Forkleans.Serialization.Configuration
 {
     internal class DefaultTypeManifestProvider : TypeManifestProviderBase, IPostConfigureOptions<TypeManifestOptions>
     {

@@ -7,13 +7,13 @@ using Azure.Messaging.EventHubs.Producer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Statistics;
-using Orleans.Streams;
+using Forkleans.Configuration;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Statistics;
+using Forkleans.Streams;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Queue adapter factory which allows the PersistentStreamProvider to use EventHub as its backend persistent event queue.

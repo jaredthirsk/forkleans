@@ -1,4 +1,4 @@
-namespace Orleans.Connections.Security
+namespace Forkleans.Connections.Security
 {
     /// <summary>
     /// Describes the remote certificate requirements for a TLS connection.

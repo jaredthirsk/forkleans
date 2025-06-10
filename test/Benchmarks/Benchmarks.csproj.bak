@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Benchmarks</RootNamespace>
+    <AssemblyName>Benchmarks</AssemblyName>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <DebugSymbols>true</DebugSymbols>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <GenerateProgramFile>false</GenerateProgramFile>
+    <!-- Do not warn on errors caused by Protocol Buffers codegen, eg: "error CS8981: The type name 'pb' only contains lower-cased ascii characters. Such names may become reserved for the language." -->
+    <NoWarn>$(NoWarn);8981</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis" />
+    <!-- Temporarily kept to resolve a conflict between Microsoft.Azure.DocumentDB.Core's dependencies -->
+    <PackageReference Include="System.CodeDom" />
+    <PackageReference Include="System.Data.SqlClient" />
+    <PackageReference Include="MessagePack" />
+    <PackageReference Include="ZeroFormatter" />
+    <PackageReference Include="Utf8Json" />
+    <PackageReference Include="SpanJson" />
+    <PackageReference Include="Hyperion" />
+    <PackageReference Include="Google.Protobuf" />
+    <PackageReference Include="Grpc.Tools">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Azure\Forkleans.Persistence.AzureStorage\Forkleans.Persistence.AzureStorage.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Azure\Forkleans.Transactions.AzureStorage\Forkleans.Transactions.AzureStorage.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\AdoNet\Forkleans.Persistence.AdoNet\Forkleans.Persistence.AdoNet.csproj" />
+    <ProjectReference Include="..\Grains\TestGrainInterfaces\TestGrainInterfaces.csproj" />
+    <ProjectReference Include="..\Grains\BenchmarkGrains\BenchmarkGrains.csproj" />
+    <ProjectReference Include="..\TestInfrastructure\TestExtensions\TestExtensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Serialization\Models\ProtoIntClass.proto" />
+  </ItemGroup>
+
+</Project>

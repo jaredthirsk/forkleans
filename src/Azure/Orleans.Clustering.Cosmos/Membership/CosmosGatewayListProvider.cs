@@ -1,8 +1,8 @@
 using System.Net;
-using Orleans.Messaging;
-using Orleans.Clustering.Cosmos.Models;
+using Forkleans.Messaging;
+using Forkleans.Clustering.Cosmos.Models;
 
-namespace Orleans.Clustering.Cosmos;
+namespace Forkleans.Clustering.Cosmos;
 
 internal partial class CosmosGatewayListProvider : IGatewayListProvider
 {

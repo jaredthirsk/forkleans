@@ -1,4 +1,4 @@
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Stream namespace predicate used for filtering implicit subscriptions using 

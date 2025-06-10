@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Orleans.Metadata;
+using Forkleans.Metadata;
 
-namespace Orleans.CodeGeneration
+namespace Forkleans.CodeGeneration
 {
     /// <summary>
     /// The VersionAttribute allows to specify the version number of the interface

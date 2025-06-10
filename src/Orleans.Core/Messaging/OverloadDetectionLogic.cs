@@ -1,7 +1,7 @@
-using Orleans.Configuration;
-using Orleans.Statistics;
+using Forkleans.Configuration;
+using Forkleans.Statistics;
 
-namespace Orleans.Core.Messaging;
+namespace Forkleans.Core.Messaging;
 
 internal static class OverloadDetectionLogic
 {

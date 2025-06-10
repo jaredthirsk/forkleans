@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Orleans.Runtime.Placement
+namespace Forkleans.Runtime.Placement
 {
     /// <summary>
     /// Provides context for a grain placement operation.

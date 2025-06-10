@@ -1,6 +1,6 @@
-using Orleans.Internal;
+using Forkleans.Internal;
 
-namespace Orleans.Placement.Rebalancing;
+namespace Forkleans.Placement.Rebalancing;
 
 /// <summary>
 /// Determines how long to wait between successive rebalancing sessions, if an aprior session has failed.

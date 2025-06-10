@@ -1,9 +1,9 @@
 using System;
 using System.Globalization;
 using Newtonsoft.Json;
-using Orleans.Streams;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// Stream sequence token that tracks sequence number and event index

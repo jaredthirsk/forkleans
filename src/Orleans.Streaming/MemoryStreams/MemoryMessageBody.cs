@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Serialization;
+using Forkleans.Serialization;
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     /// <summary>
     /// Implementations of this interface are responsible for serializing MemoryMessageBody objects

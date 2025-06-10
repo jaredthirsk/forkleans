@@ -1,4 +1,4 @@
-namespace Orleans;
+namespace Forkleans;
 
 /// <summary>
 /// Interface that receives notifications about the status of the cluster connection.

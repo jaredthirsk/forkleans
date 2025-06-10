@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using Azure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.AzureUtils.Utilities;
-using Orleans.Configuration;
-using Orleans.Reminders.AzureStorage;
+using Forkleans.AzureUtils.Utilities;
+using Forkleans.Configuration;
+using Forkleans.Reminders.AzureStorage;
 
-namespace Orleans.Runtime.ReminderService
+namespace Forkleans.Runtime.ReminderService
 {
     public sealed partial class AzureBasedReminderTable : IReminderTable
     {

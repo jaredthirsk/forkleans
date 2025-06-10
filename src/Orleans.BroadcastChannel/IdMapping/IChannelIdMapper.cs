@@ -1,7 +1,7 @@
-using Orleans.Metadata;
-using Orleans.Runtime;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
 
-namespace Orleans.BroadcastChannel
+namespace Forkleans.BroadcastChannel
 {
     /// <summary>
     /// Common interface for component that map a <see cref="ChannelId"/> to a <see cref="GrainId.Key"/>

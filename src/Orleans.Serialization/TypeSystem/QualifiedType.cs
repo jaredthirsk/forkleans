@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Orleans.Serialization.TypeSystem
+namespace Forkleans.Serialization.TypeSystem
 {
     /// <summary>
     /// Represents an assembly-qualifies type.

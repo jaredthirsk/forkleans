@@ -1,13 +1,13 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.GrainDirectory;
-using Orleans.GrainDirectory.AzureStorage;
-using Orleans.Runtime;
-using Orleans.Runtime.Hosting;
+using Forkleans.Configuration;
+using Forkleans.GrainDirectory;
+using Forkleans.GrainDirectory.AzureStorage;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Hosting;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// <see cref="IServiceCollection"/> extensions.

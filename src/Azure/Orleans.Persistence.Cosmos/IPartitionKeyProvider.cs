@@ -1,4 +1,4 @@
-namespace Orleans.Persistence.Cosmos;
+namespace Forkleans.Persistence.Cosmos;
 
 /// <summary>
 /// Creates a partition key for the provided grain.

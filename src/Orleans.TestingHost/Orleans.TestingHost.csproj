@@ -1,17 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.TestingHost</PackageId>
+    <AssemblyName>Forkleans.TestingHost</AssemblyName>
+    <PackageId>Microsoft.Forkleans.TestingHost</PackageId>
     <Title>Microsoft Orleans Testing Host Library</Title>
     <Description>Microsoft Orleans library for hosting a silo in a testing project.</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Persistence.Memory\Orleans.Persistence.Memory.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Runtime\Orleans.Runtime.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Streaming\Orleans.Streaming.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Reminders\Orleans.Reminders.csproj" />
+    <ProjectReference Include="..\Orleans.Persistence.Memory\Orleans.Persistence.Memory.csproj" />
+    <ProjectReference Include="..\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\Orleans.Streaming\Orleans.Streaming.csproj" />
+    <ProjectReference Include="..\Orleans.Reminders\Orleans.Reminders.csproj" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
   </ItemGroup>
 </Project>

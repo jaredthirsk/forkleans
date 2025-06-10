@@ -6,7 +6,7 @@ using System.Numerics;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Orleans.Serialization.UnitTests;
+namespace Forkleans.Serialization.UnitTests;
 
 /// <summary>
 /// Ensures that numeric fields (integers, floats, etc) can be widened and narrowed in a version tolerant manner.
@@ -251,7 +251,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Orleans.Serialization.UnitTests;
+namespace Forkleans.Serialization.UnitTests;
 
 /// <summary>
 /// Ensures that numeric fields (integers, floats, etc) can be widened and narrowed in a version tolerant manner.

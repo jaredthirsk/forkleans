@@ -1,5 +1,5 @@
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Utilities;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -10,7 +10,7 @@ using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Orleans.Serialization.Session
+namespace Forkleans.Serialization.Session
 {
     /// <summary>
     /// A collection of objects which are referenced while serializing, deserializing, or copying.

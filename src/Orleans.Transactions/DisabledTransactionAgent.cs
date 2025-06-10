@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Orleans.Transactions
+namespace Forkleans.Transactions
 {
     internal class DisabledTransactionAgent : ITransactionAgent
     {

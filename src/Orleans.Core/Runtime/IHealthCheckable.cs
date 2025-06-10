@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Interface for services which can be probed for health status.

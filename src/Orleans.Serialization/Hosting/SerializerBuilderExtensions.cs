@@ -1,10 +1,10 @@
-using Orleans.Serialization.Configuration;
+using Forkleans.Serialization.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
 using Microsoft.Extensions.Options;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     /// <summary>
     /// Extensions for <see cref="ISerializerBuilder"/>.

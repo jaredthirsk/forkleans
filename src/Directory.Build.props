@@ -30,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AssemblyAttribute Include="Orleans.Metadata.FrameworkPartAttribute" />
+    <AssemblyAttribute Include="Forkleans.Metadata.FrameworkPartAttribute" />
   </ItemGroup>
 
   <ItemGroup>

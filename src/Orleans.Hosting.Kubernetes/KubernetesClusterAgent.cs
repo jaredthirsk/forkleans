@@ -3,8 +3,8 @@ using k8s.Autorest;
 using k8s.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Orleans.Hosting.Kubernetes
+namespace Forkleans.Hosting.Kubernetes
 {
     /// <summary>
     /// Reflects cluster configuration changes between Orleans and Kubernetes.

@@ -1,8 +1,8 @@
-using Orleans.Storage;
+using Forkleans.Storage;
 using System;
 using System.Runtime.Serialization;
 
-namespace Orleans.TestingHost
+namespace Forkleans.TestingHost
 {
     /// <summary>
     /// Represents a randomly injected storage exception.

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>Microsoft.Forkleans.Reminders.AdoNet</PackageId>
+    <Title>Microsoft Orleans ADO.NET Reminders Provider</Title>
+    <Description>Microsoft Orleans reminders provider backed by ADO.NET</Description>
+    <PackageTags>$(PackageTags) ADO.NET SQL MySQL PostgreSQL Oracle</PackageTags>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyName>Forkleans.Reminders.AdoNet</AssemblyName>
+    <RootNamespace>Forkleans.Reminders.AdoNet</RootNamespace>
+    <DefineConstants>$(DefineConstants);REMINDERS_ADONET</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\Storage\*.cs" LinkBase="Storage" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Reminders\Forkleans.Reminders.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans.Runtime.MembershipService;
+namespace Forkleans.Runtime.MembershipService;
 
 /// <inheritdoc />
 internal class RemoteSiloProber(IServiceProvider serviceProvider) : IRemoteSiloProber

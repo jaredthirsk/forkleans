@@ -2,10 +2,10 @@ using System;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using System.Threading;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal class FatalErrorHandler : IFatalErrorHandler
     {

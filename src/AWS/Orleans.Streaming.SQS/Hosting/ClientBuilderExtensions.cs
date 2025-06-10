@@ -1,7 +1,7 @@
-﻿using System;
-using Orleans.Configuration;
+using System;
+using Forkleans.Configuration;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static class ClientBuilderExtensions
     {   /// <summary>

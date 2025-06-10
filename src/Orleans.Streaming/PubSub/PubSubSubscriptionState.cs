@@ -1,8 +1,8 @@
 using System;
 using Newtonsoft.Json;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     [Serializable]
     [JsonObject(MemberSerialization.OptIn)]

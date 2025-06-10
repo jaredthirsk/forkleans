@@ -1,7 +1,7 @@
 using System;
-using Orleans.Serialization.Codecs;
+using Forkleans.Serialization.Codecs;
 
-namespace Orleans.Serialization.Serializers
+namespace Forkleans.Serialization.Serializers
 {
     /// <summary>
     /// A codec which supports multiple types.

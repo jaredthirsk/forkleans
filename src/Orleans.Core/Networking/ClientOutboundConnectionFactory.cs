@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Messaging;
+using Forkleans.Configuration;
+using Forkleans.Messaging;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     internal sealed class ClientOutboundConnectionFactory : ConnectionFactory
     {

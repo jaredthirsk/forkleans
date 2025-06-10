@@ -1,13 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.Extensions.Configuration;
-using Orleans.Streams;
-using Orleans.TestingHost;
+using Forkleans.Streams;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using UnitTests.Grains;
 using Xunit;
-using Orleans.Providers;
+using Forkleans.Providers;
 using System.Diagnostics;
 
 namespace UnitTests.General
@@ -420,7 +420,7 @@ namespace UnitTests.General
         }
 
         /// <summary>
-        /// Tests that if a grain call filter sets an incorrect result type for <see cref="Orleans.IGrainCallContext.Result"/>,
+        /// Tests that if a grain call filter sets an incorrect result type for <see cref="Forkleans.IGrainCallContext.Result"/>,
         /// an exception is thrown on the caller.
         /// </summary>
         [Fact]
@@ -684,7 +684,7 @@ namespace UnitTests.General
         }
 
         /// <summary>
-        /// Tests that if a grain call filter sets an incorrect result type for <see cref="Orleans.IGrainCallContext.Result"/>,
+        /// Tests that if a grain call filter sets an incorrect result type for <see cref="Forkleans.IGrainCallContext.Result"/>,
         /// an exception is thrown on the caller.
         /// </summary>
         [Fact]

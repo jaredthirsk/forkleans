@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Orleans.Transactions.TestKit.xUnit
+namespace Forkleans.Transactions.TestKit.xUnit
 {
     public abstract class ScopedTransactionsTestRunnerxUnit : ScopedTransactionsTestRunner
     {

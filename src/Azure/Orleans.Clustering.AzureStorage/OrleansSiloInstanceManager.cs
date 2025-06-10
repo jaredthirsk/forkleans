@@ -7,11 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
-using Orleans.Clustering.AzureStorage;
-using Orleans.Clustering.AzureStorage.Utilities;
-using Orleans.Runtime;
+using Forkleans.Clustering.AzureStorage;
+using Forkleans.Clustering.AzureStorage.Utilities;
+using Forkleans.Runtime;
 
-namespace Orleans.AzureUtils
+namespace Forkleans.AzureUtils
 {
     internal partial class OrleansSiloInstanceManager
     {

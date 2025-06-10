@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 using Azure.Messaging.EventHubs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Providers;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Statistics;
-using Orleans.Streams;
+using Forkleans.Configuration;
+using Forkleans.Providers;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Statistics;
+using Forkleans.Streams;
 
-namespace Orleans.Streaming.EventHubs.Testing
+namespace Forkleans.Streaming.EventHubs.Testing
 {
     /// <summary>
     /// This is a persistent stream provider adapter that generates it's own events rather than reading them from Eventhub.

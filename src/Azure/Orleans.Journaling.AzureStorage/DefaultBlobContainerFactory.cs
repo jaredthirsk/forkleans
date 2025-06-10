@@ -1,7 +1,7 @@
-﻿using Azure.Storage.Blobs;
-using Orleans.Runtime;
+using Azure.Storage.Blobs;
+using Forkleans.Runtime;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 /// <summary>
 /// A default blob container factory that uses the default container name.

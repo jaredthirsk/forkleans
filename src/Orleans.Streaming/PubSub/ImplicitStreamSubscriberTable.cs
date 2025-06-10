@@ -6,10 +6,10 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Metadata;
-using Orleans.Runtime;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     internal class ImplicitStreamSubscriberTable
     {

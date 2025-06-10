@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class DynamoDBReminderStorageOptions : Reminders.DynamoDB.DynamoDBClientOptions
     {
@@ -35,7 +35,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class DynamoDBServiceCollectionReminderExtensions
     {
@@ -48,7 +48,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Reminders.DynamoDB
+namespace Forkleans.Reminders.DynamoDB
 {
     public partial class DynamoDBClientOptions
     {

@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Orleans.Serialization.Invocation
+namespace Forkleans.Serialization.Invocation
 {
     [GenerateSerializer]
     public abstract class UnitTestRequestBase : IInvokable

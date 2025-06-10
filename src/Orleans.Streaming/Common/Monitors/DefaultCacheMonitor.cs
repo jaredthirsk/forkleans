@@ -1,11 +1,11 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Threading;
 
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// cache monitor used as a default option in GeneratorStreamprovider and MemoryStreamProvider

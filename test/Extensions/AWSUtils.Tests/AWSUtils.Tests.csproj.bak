@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);AWSUTILS_TESTS</DefineConstants>
+    <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(SourceRoot)src\AWS\Shared\AWSUtils.cs" Link="AWSUtils.cs" />
+    <Compile Include="$(SourceRoot)src\AWS\Shared\Storage\DynamoDBStorage.cs" Link="Storage\DynamoDBStorage.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\AWS\Forkleans.Clustering.DynamoDB\Forkleans.Clustering.DynamoDB.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\AWS\Forkleans.Persistence.DynamoDB\Forkleans.Persistence.DynamoDB.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\AWS\Forkleans.Reminders.DynamoDB\Forkleans.Reminders.DynamoDB.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\AWS\Forkleans.Streaming.SQS\Forkleans.Streaming.SQS.csproj" />
+    <ProjectReference Include="$(SourceRoot)test\TesterInternal\TesterInternal.csproj" />
+  </ItemGroup>
+</Project>

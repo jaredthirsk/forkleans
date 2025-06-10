@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 #nullable enable
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// The Utils class contains a variety of utility methods for use in application and grain code.

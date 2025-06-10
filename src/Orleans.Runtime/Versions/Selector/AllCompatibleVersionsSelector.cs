@@ -1,8 +1,8 @@
 using System.Linq;
-using Orleans.Versions.Compatibility;
-using Orleans.Versions.Selector;
+using Forkleans.Versions.Compatibility;
+using Forkleans.Versions.Selector;
 
-namespace Orleans.Runtime.Versions.Selector
+namespace Forkleans.Runtime.Versions.Selector
 {
     internal class AllCompatibleVersionsSelector : IVersionSelector
     {

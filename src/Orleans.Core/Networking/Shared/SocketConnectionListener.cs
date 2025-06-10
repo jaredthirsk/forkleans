@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     internal sealed class SocketConnectionListener : IConnectionListener
     {

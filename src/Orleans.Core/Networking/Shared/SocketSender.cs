@@ -6,7 +6,7 @@ using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     internal sealed class SocketSender : SocketSenderReceiverBase
     {

@@ -5,13 +5,13 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Placement.Repartitioning;
-using Orleans.Runtime.GrainDirectory;
-using Orleans.Runtime.Placement;
-using Orleans.Serialization.Invocation;
+using Forkleans.Configuration;
+using Forkleans.Placement.Repartitioning;
+using Forkleans.Runtime.GrainDirectory;
+using Forkleans.Runtime.Placement;
+using Forkleans.Serialization.Invocation;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     internal class MessageCenter : IMessageCenter, IAsyncDisposable
     {

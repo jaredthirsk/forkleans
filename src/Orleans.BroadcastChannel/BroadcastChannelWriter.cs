@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.BroadcastChannel.SubscriberTable;
-using Orleans.Runtime;
+using Forkleans.BroadcastChannel.SubscriberTable;
+using Forkleans.Runtime;
 
-namespace Orleans.BroadcastChannel
+namespace Forkleans.BroadcastChannel
 {
     /// <summary>
     /// Interface to allow writing to a channel.

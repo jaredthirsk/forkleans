@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Orleans.CodeGenerator.SyntaxGeneration
+namespace Forkleans.CodeGenerator.SyntaxGeneration
 {
     internal static class Identifier
     {

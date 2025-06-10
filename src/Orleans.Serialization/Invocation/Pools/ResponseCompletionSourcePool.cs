@@ -1,4 +1,4 @@
-namespace Orleans.Serialization.Invocation
+namespace Forkleans.Serialization.Invocation
 {
     /// <summary>
     /// Object pool for <see cref="ResponseCompletionSource"/> and <see cref="ResponseCompletionSource{TResult}"/>.

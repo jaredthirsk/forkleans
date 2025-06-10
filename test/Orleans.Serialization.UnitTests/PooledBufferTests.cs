@@ -2,11 +2,11 @@ using System;
 using System.Buffers;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Session;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Session;
 using Xunit;
 
-namespace Orleans.Serialization.UnitTests
+namespace Forkleans.Serialization.UnitTests
 {
     [Trait("Category", "BVT")]
     public class PooledBufferTests

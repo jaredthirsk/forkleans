@@ -1,11 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>Forkleans.Serialization.MessagePack</AssemblyName>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Orleans.Serialization.MessagePack</PackageId>
+    <PackageId>Microsoft.Forkleans.Serialization.MessagePack</PackageId>
     <TargetFrameworks>$(DefaultTargetFrameworks);netstandard2.1</TargetFrameworks>
-    <PackageDescription>MessagePack integration for Orleans.Serialization</PackageDescription>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <PackageDescription>MessagePack integration for Forkleans.Serialization</PackageDescription>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>

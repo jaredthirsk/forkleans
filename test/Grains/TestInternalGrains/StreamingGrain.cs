@@ -1,11 +1,11 @@
 using System.Buffers.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Concurrency;
-using Orleans.Providers;
-using Orleans.Runtime;
-using Orleans.Streams;
-using Orleans.Streams.Core;
+using Forkleans.Concurrency;
+using Forkleans.Providers;
+using Forkleans.Runtime;
+using Forkleans.Streams;
+using Forkleans.Streams.Core;
 using UnitTests.GrainInterfaces;
 using UnitTests.TestHelper;
 

@@ -5,12 +5,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Internal;
-using Orleans.Runtime.Scheduler;
-using Orleans.Statistics;
+using Forkleans.Configuration;
+using Forkleans.Internal;
+using Forkleans.Runtime.Scheduler;
+using Forkleans.Statistics;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// This class collects runtime statistics for all silos in the current deployment for use by placement.

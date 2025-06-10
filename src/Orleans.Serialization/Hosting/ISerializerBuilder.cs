@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     /// <summary>
     /// Builder interface for configuring serialization.

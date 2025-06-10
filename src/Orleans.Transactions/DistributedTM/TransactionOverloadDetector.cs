@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.Options;
-using Orleans.Internal.Trasactions;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Internal.Trasactions;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions
+namespace Forkleans.Transactions
 {
     public interface ITransactionOverloadDetector
     {

@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     internal class SiloMessagingOptionsValidator : IValidateOptions<SiloMessagingOptions>
     {

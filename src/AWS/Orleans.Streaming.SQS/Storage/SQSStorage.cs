@@ -6,11 +6,11 @@ using Amazon.Runtime;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Microsoft.Extensions.Logging;
-using Orleans;
-using Orleans.Streaming.SQS;
+using Forkleans;
+using Forkleans.Streaming.SQS;
 using SQSMessage = Amazon.SQS.Model.Message;
 
-namespace OrleansAWSUtils.Storage
+namespace ForkleansAWSUtils.Storage
 {
     /// <summary>
     /// Wrapper/Helper class around AWS SQS queue service

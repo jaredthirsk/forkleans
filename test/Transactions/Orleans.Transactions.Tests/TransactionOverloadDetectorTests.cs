@@ -1,10 +1,10 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Microsoft.Extensions.Options;
 using Xunit.Abstractions;
 using Xunit;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions.Tests
+namespace Forkleans.Transactions.Tests
 {
     [TestCategory("BVT"), TestCategory("Transactions")]
     public class TransactionOverloadDetectorTests

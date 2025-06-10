@@ -2,7 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Orleans.Serialization.WireProtocol
+namespace Forkleans.Serialization.WireProtocol
 {
     /// <summary>
     /// Represents a field header.

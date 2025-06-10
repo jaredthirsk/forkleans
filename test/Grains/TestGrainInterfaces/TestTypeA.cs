@@ -1,10 +1,10 @@
-﻿namespace UnitTests.GrainInterfaces
+namespace UnitTests.GrainInterfaces
 {
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class TestTypeA
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public ICollection<TestTypeA> Collection { get; set; }
     }
 }

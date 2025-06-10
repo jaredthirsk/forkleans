@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Clustering.DynamoDB
+namespace Forkleans.Clustering.DynamoDB
 {
     public partial class DynamoDBClientOptions
     {
@@ -33,7 +33,7 @@ namespace Orleans.Clustering.DynamoDB
     }
 }
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class DynamoDBClusteringOptions : Clustering.DynamoDB.DynamoDBClientOptions
     {
@@ -72,7 +72,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class AwsUtilsHostingExtensions
     {

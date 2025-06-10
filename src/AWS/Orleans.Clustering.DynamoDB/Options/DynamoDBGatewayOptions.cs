@@ -1,6 +1,6 @@
-using Orleans.Clustering.DynamoDB;
+using Forkleans.Clustering.DynamoDB;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public class DynamoDBGatewayOptions : DynamoDBClientOptions
     {

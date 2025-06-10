@@ -4,14 +4,14 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Orleans.CodeGenerator.Diagnostics;
-using Orleans.CodeGenerator.SyntaxGeneration;
+using Forkleans.CodeGenerator.Diagnostics;
+using Forkleans.CodeGenerator.SyntaxGeneration;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static Orleans.CodeGenerator.CopierGenerator;
-using static Orleans.CodeGenerator.InvokableGenerator;
-using static Orleans.CodeGenerator.SerializerGenerator;
+using static Forkleans.CodeGenerator.CopierGenerator;
+using static Forkleans.CodeGenerator.InvokableGenerator;
+using static Forkleans.CodeGenerator.SerializerGenerator;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     /// <summary>
     /// Generates RPC stub objects called invokers.

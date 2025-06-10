@@ -1,9 +1,9 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Orleans.Streams.Core
+namespace Forkleans.Streams.Core
 {
     /// <summary>
     /// Functionality for managing stream subscriptions.

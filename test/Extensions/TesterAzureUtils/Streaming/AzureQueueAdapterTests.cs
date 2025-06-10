@@ -2,15 +2,15 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Providers.Streams.AzureQueue;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Configuration;
+using Forkleans.Providers.Streams.AzureQueue;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 using TestExtensions;
 using Xunit;
 using Xunit.Abstractions;
-using Orleans.Serialization;
+using Forkleans.Serialization;
 
 namespace Tester.AzureUtils.Streaming
 {

@@ -1,5 +1,5 @@
-using Orleans.Runtime;
-using Orleans;
+using Forkleans.Runtime;
+using Forkleans;
 using System.Collections.Immutable;
 
 namespace NonSilo.Tests.Membership

@@ -1,4 +1,4 @@
-namespace Orleans.EventSourcing
+namespace Forkleans.EventSourcing
 {
     /// <summary>
     /// Interface implemented by all grains which use log-view consistency

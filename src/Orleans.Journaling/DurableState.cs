@@ -1,12 +1,12 @@
 using System.Buffers;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Core;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Session;
+using Forkleans.Core;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Session;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 [DebuggerDisplay("{Value}")]
 internal sealed class DurableState<T> : IPersistentState<T>, IDurableStateMachine

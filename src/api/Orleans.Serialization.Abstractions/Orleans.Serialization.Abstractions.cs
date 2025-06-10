@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans
+namespace Forkleans
 {
     [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct | System.AttributeTargets.Enum | System.AttributeTargets.Method | System.AttributeTargets.Interface, AllowMultiple = true)]
     public sealed partial class AliasAttribute : System.Attribute
@@ -239,7 +239,7 @@ namespace Orleans
     }
 }
 
-namespace Orleans.Invocation
+namespace Forkleans.Invocation
 {
     [System.AttributeUsage(System.AttributeTargets.Class)]
     public sealed partial class ReturnValueProxyAttribute : System.Attribute
@@ -250,7 +250,7 @@ namespace Orleans.Invocation
     }
 }
 
-namespace Orleans.Metadata
+namespace Forkleans.Metadata
 {
     [System.AttributeUsage(System.AttributeTargets.Assembly)]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]

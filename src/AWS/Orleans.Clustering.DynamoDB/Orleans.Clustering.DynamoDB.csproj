@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Orleans.Clustering.DynamoDB</PackageId>
+    <PackageId>Microsoft.Forkleans.Clustering.DynamoDB</PackageId>
     <Title>Microsoft Orleans AWS DynamoDB Clustering Provider</Title>
     <Description>Microsoft Orleans clustering provider backed by AWS DynamoDB</Description>
     <PackageTags>$(PackageTags) AWS DynamoDB</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <PropertyGroup>
-    <AssemblyName>Orleans.Clustering.DynamoDB</AssemblyName>
-    <RootNamespace>Orleans.Clustering.DynamoDB</RootNamespace>
+    <AssemblyName>Forkleans.Clustering.DynamoDB</AssemblyName>
+    <RootNamespace>Forkleans.Clustering.DynamoDB</RootNamespace>
     <DefineConstants>$(DefineConstants);CLUSTERING_DYNAMODB</DefineConstants>
   </PropertyGroup>
 
@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
     <PackageReference Include="AWSSDK.DynamoDBv2" />
   </ItemGroup>
 

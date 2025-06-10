@@ -1,6 +1,6 @@
-using Orleans.Core;
+using Forkleans.Core;
 
-namespace Orleans.Persistence.Cosmos;
+namespace Forkleans.Persistence.Cosmos;
 
 /// <summary>
 /// Options for Azure Cosmos DB grain persistence.

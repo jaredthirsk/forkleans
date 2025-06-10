@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
-using Orleans.Internal;
+using Forkleans.Internal;
 
-namespace Orleans.Runtime.Utilities
+namespace Forkleans.Runtime.Utilities
 {
     internal static class AsyncEnumerable
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Buffers;
 
-namespace Orleans.Connections.Security
+namespace Forkleans.Connections.Security
 {
     internal static class MemoryPoolExtensions
     {

@@ -1,9 +1,9 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Runtime;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions
+namespace Forkleans.Transactions
 {
     public class TransactionalStateAttributeMapper : TransactionalStateAttributeMapper<TransactionalStateAttribute>
     {

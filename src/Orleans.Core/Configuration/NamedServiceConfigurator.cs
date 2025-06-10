@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Functionality for configuring a named service.

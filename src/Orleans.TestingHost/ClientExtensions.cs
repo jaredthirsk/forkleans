@@ -1,7 +1,7 @@
-using Orleans.Runtime;
-using Orleans.Runtime.TestHooks;
+using Forkleans.Runtime;
+using Forkleans.Runtime.TestHooks;
 
-namespace Orleans.TestingHost
+namespace Forkleans.TestingHost
 {
     /// <summary>
     /// Extension methods for <see cref="IClusterClient"/>.

@@ -1,8 +1,8 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.TypeSystem;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.TypeSystem;
+using Forkleans.Serialization.WireProtocol;
 using System;
 using System.Buffers;
 using System.Collections.Concurrent;
@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Security;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     /// <summary>
     /// Serializer for types which implement the <see cref="ISerializable"/> pattern.

@@ -5,10 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.GrainDirectory;
-using Orleans.Runtime.GrainDirectory;
+using Forkleans.GrainDirectory;
+using Forkleans.Runtime.GrainDirectory;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal sealed partial class Catalog : SystemTarget, ICatalog, ILifecycleParticipant<ISiloLifecycle>
     {

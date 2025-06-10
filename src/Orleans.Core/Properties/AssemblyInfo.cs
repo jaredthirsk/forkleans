@@ -1,11 +1,11 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Orleans.BroadcastChannel")]
-[assembly: InternalsVisibleTo("Orleans.CodeGeneration")]
-[assembly: InternalsVisibleTo("Orleans.CodeGeneration.Build")]
-[assembly: InternalsVisibleTo("Orleans.Runtime")]
-[assembly: InternalsVisibleTo("Orleans.Streaming")]
-[assembly: InternalsVisibleTo("Orleans.TestingHost")]
+[assembly: InternalsVisibleTo("Forkleans.BroadcastChannel")]
+[assembly: InternalsVisibleTo("Forkleans.CodeGeneration")]
+[assembly: InternalsVisibleTo("Forkleans.CodeGeneration.Build")]
+[assembly: InternalsVisibleTo("Forkleans.Runtime")]
+[assembly: InternalsVisibleTo("Forkleans.Streaming")]
+[assembly: InternalsVisibleTo("Forkleans.TestingHost")]
 
 [assembly: InternalsVisibleTo("AWSUtils.Tests")]
 [assembly: InternalsVisibleTo("DefaultCluster.Tests")]
@@ -24,7 +24,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("TestInternalGrains")]
 [assembly: InternalsVisibleTo("CodeGenerator.Tests")]
 
-[assembly: InternalsVisibleTo("Orleans.Reminders")]
+[assembly: InternalsVisibleTo("Forkleans.Reminders")]
 
 // Mocking libraries
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

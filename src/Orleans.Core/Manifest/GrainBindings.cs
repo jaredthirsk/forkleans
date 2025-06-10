@@ -2,9 +2,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Metadata
+namespace Forkleans.Metadata
 {
     /// <summary>
     /// Describes the bindings for a given grain type.

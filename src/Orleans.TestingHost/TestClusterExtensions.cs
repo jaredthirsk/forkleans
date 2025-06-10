@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Orleans.Hosting;
+using Forkleans.Hosting;
 
-namespace Orleans.TestingHost
+namespace Forkleans.TestingHost
 {
     /// <summary>
     /// Extension methods for test clusters.

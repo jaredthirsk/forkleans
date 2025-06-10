@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     /// <summary>
     /// Memory stream queue grain. This grain works as a storage queue of event data. Enqueue and Dequeue operations are supported.

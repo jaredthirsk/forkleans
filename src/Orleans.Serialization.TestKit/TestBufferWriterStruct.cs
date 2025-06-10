@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Linq;
 
-namespace Orleans.Serialization.TestKit
+namespace Forkleans.Serialization.TestKit
 {
     [ExcludeFromCodeCoverage]
     public struct TestBufferWriterStruct : IBufferWriter<byte>, IOutputBuffer

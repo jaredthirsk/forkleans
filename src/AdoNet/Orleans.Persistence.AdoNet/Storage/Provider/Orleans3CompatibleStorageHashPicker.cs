@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Orleans v3-compatible hash picker implementation for Orleans v3 -> v7+ migration scenarios.

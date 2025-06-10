@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Orleans.TestingHost;
-using Orleans.Tests.SqlUtils;
+using Forkleans.TestingHost;
+using Forkleans.Tests.SqlUtils;
 using TestExtensions;
 using TestExtensions.Runners;
 using UnitTests.General;

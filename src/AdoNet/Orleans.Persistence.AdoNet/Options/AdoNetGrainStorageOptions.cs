@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Options;
-using Orleans.Persistence.AdoNet.Storage;
-using Orleans.Runtime;
-using Orleans.Storage;
+using Forkleans.Persistence.AdoNet.Storage;
+using Forkleans.Runtime;
+using Forkleans.Storage;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Options for ADO.NET grain storage.

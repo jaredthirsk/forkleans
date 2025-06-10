@@ -1,7 +1,7 @@
-using Orleans.Core.Internal;
+using Forkleans.Core.Internal;
 using Xunit;
 
-namespace Orleans.Journaling.Tests;
+namespace Forkleans.Journaling.Tests;
 
 [TestCategory("BVT")]
 public class DurableGrainTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>

@@ -7,12 +7,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.Runtime.Messaging;
-using static Orleans.Internal.StandardExtensions;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Messaging;
+using static Forkleans.Internal.StandardExtensions;
 
-namespace Orleans.Messaging
+namespace Forkleans.Messaging
 {
     /// <summary>
     /// The GatewayManager class holds the list of known gateways, as well as maintaining the list of "dead" gateways.

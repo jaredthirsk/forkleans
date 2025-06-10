@@ -13,7 +13,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 #nullable enable
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Data class encapsulating the details of silo addresses.

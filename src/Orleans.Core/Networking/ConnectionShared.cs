@@ -1,7 +1,7 @@
 using System;
-using Orleans.Placement.Repartitioning;
+using Forkleans.Placement.Repartitioning;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     internal sealed class ConnectionCommon(
         IServiceProvider serviceProvider,

@@ -7,21 +7,21 @@ namespace TestGrainInterfaces
     }
 
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class PersonAttributes
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public string FirstName { get; set; }
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public string LastName { get; set; }
-        [Orleans.Id(2)]
+        [Forkleans.Id(2)]
         public GenderType Gender { get; set; }
     }
 
     /// <summary>
     /// Orleans grain communication interface IPerson
     /// </summary>
-    public interface IPersonGrain : Orleans.IGrainWithGuidKey
+    public interface IPersonGrain : Forkleans.IGrainWithGuidKey
     {
         Task RegisterBirth(PersonAttributes person);
         Task Marry(IPersonGrain spouse);

@@ -1,4 +1,4 @@
-using Orleans.EventSourcing;
+using Forkleans.EventSourcing;
 using UnitTests.GrainInterfaces;
 
 namespace TestGrains
@@ -10,14 +10,14 @@ namespace TestGrains
     /// it started from SimpleGrain, but a lot of stuff got added over time 
     /// </summary>
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class MyGrainState
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public int A;
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public int B;
-        [Orleans.Id(2)]
+        [Forkleans.Id(2)]
         public Dictionary<string, int> Reservations;
 
         public MyGrainState()
@@ -41,20 +41,20 @@ namespace TestGrains
  
 
     [Serializable]
-    [Orleans.GenerateSerializer]
-    public class UpdateA {[Orleans.Id(0)] public int Val; }
+    [Forkleans.GenerateSerializer]
+    public class UpdateA {[Forkleans.Id(0)] public int Val; }
     [Serializable]
-    [Orleans.GenerateSerializer]
-    public class UpdateB  {[Orleans.Id(0)] public int Val; }
+    [Forkleans.GenerateSerializer]
+    public class UpdateB  {[Forkleans.Id(0)] public int Val; }
     [Serializable]
-    [Orleans.GenerateSerializer]
-    public class IncrementA  {[Orleans.Id(0)] public int Val; }
+    [Forkleans.GenerateSerializer]
+    public class IncrementA  {[Forkleans.Id(0)] public int Val; }
     [Serializable]
-    [Orleans.GenerateSerializer]
-    public class AddReservation {[Orleans.Id(0)] public int Val; }
+    [Forkleans.GenerateSerializer]
+    public class AddReservation {[Forkleans.Id(0)] public int Val; }
     [Serializable]
-    [Orleans.GenerateSerializer]
-    public class RemoveReservation {[Orleans.Id(0)] public int Val; }
+    [Forkleans.GenerateSerializer]
+    public class RemoveReservation {[Forkleans.Id(0)] public int Val; }
 
 
 

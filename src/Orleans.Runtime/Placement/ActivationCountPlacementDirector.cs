@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
-namespace Orleans.Runtime.Placement
+namespace Forkleans.Runtime.Placement
 {
 
     internal class ActivationCountPlacementDirector : RandomPlacementDirector, ISiloStatisticsChangeListener, IPlacementDirector

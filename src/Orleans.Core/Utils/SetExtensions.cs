@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Orleans
+namespace Forkleans
 {
     internal static class SetExtensions
     {

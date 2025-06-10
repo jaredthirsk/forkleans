@@ -6,10 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
 #nullable enable
-namespace Orleans.Runtime.MembershipService.SiloMetadata;
+namespace Forkleans.Runtime.MembershipService.SiloMetadata;
 
 internal partial class SiloMetadataCache(
     ISiloMetadataClient siloMetadataClient,

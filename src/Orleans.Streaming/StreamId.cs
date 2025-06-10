@@ -3,10 +3,10 @@ using System.Buffers.Text;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
-using Orleans.Streams;
+using Forkleans.Streams;
 
 #nullable enable
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Identifies a Stream within a provider

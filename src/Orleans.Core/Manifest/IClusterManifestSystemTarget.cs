@@ -1,9 +1,9 @@
 #nullable enable
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using Orleans.Metadata;
+using Forkleans.Metadata;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Internal interface for exposing the cluster manifest.

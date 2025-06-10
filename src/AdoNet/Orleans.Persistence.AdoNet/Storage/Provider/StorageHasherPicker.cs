@@ -1,11 +1,11 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// <see cref="IStorageHasherPicker"/>.

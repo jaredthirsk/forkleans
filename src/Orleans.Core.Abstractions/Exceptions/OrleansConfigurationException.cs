@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Represents a configuration exception.

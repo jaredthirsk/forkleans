@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Runtime;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Runtime;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans.Metadata
+namespace Forkleans.Metadata
 {
     /// <summary>
     /// Populates type names on grain properties and grain interface properties.

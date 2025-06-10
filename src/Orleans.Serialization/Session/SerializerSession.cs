@@ -1,8 +1,8 @@
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.TypeSystem;
 using System;
 
-namespace Orleans.Serialization.Session
+namespace Forkleans.Serialization.Session
 {
     /// <summary>
     /// Contextual information for a serializer operation.

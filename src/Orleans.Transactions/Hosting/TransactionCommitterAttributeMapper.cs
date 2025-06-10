@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Runtime;
+using Forkleans.Transactions.Abstractions;
 using System.Reflection;
 
-namespace Orleans.Transactions
+namespace Forkleans.Transactions
 {
     internal class TransactionCommitterAttributeMapper : IAttributeToFactoryMapper<TransactionCommitterAttribute>
     {

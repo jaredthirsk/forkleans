@@ -2,9 +2,9 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Configuration.Overrides
+namespace Forkleans.Configuration.Overrides
 {
     /// <summary>
     /// Functionality for overriding options using named options, falling back to the default (unnamed) value.

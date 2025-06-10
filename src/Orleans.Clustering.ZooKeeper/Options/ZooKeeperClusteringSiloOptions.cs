@@ -1,4 +1,4 @@
-﻿namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Option to configure ZooKeeperMembership

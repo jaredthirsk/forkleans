@@ -1,5 +1,5 @@
 
-namespace Orleans.Serialization.Activators
+namespace Forkleans.Serialization.Activators
 {
     /// <summary>
     /// Functionality for creating object instances.

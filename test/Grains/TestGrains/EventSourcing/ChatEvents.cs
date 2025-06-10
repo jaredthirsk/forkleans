@@ -1,4 +1,4 @@
-﻿using System.Xml.Linq;
+using System.Xml.Linq;
 
 namespace TestGrains
 {
@@ -11,12 +11,12 @@ namespace TestGrains
     }
 
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class CreatedEvent : IChatEvent
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public DateTime Timestamp { get; set; }
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public string Origin { get; set; }
 
         public void Update(XDocument document)
@@ -27,16 +27,16 @@ namespace TestGrains
 
 
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class PostedEvent : IChatEvent
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public Guid Guid { get; set; }
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public string User { get; set; }
-        [Orleans.Id(2)]
+        [Forkleans.Id(2)]
         public DateTime Timestamp { get; set; }
-        [Orleans.Id(3)]
+        [Forkleans.Id(3)]
         public string Text { get; set; }
 
         public void Update(XDocument document)
@@ -48,10 +48,10 @@ namespace TestGrains
     }
 
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class DeletedEvent : IChatEvent
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public Guid Guid { get; set; }
 
         public void Update(XDocument document)
@@ -61,12 +61,12 @@ namespace TestGrains
     }
 
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class EditedEvent : IChatEvent
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public Guid Guid { get; set; }
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public string Text { get; set; }
 
         public void Update(XDocument document)

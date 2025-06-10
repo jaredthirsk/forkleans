@@ -4,10 +4,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Providers.Streams.AzureQueue;
-using Orleans.Runtime;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Providers.Streams.AzureQueue;
+using Forkleans.Runtime;
+using Forkleans.TestingHost;
 using Tester;
 using Tester.AzureUtils.Streaming;
 using TestExtensions;
@@ -17,9 +17,9 @@ using UnitTests.StreamingTests;
 using Xunit;
 using Xunit.Abstractions;
 using Tester.AzureUtils;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Serialization.TypeSystem;
 using Microsoft.Extensions.Logging;
-using Orleans.Providers;
+using Forkleans.Providers;
 
 // ReSharper disable ConvertToConstant.Local
 // ReSharper disable CheckNamespace

@@ -5,16 +5,16 @@ using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.GrainDirectory;
-using Orleans.GrainReferences;
-using Orleans.Metadata;
-using Orleans.Runtime.GrainDirectory;
-using Orleans.Runtime.Placement;
-using Orleans.Serialization.Session;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Configuration;
+using Forkleans.GrainDirectory;
+using Forkleans.GrainReferences;
+using Forkleans.Metadata;
+using Forkleans.Runtime.GrainDirectory;
+using Forkleans.Runtime.Placement;
+using Forkleans.Serialization.Session;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 /// <summary>
 /// Functionality which is shared between all instances of a grain type.
@@ -47,7 +47,7 @@ public sealed class GrainTypeSharedContext
 
         SerializerSessionPool = serializerSessionPool;
         GrainTypeName = RuntimeTypeNameFormatter.Format(grainClass);
-        Logger = loggerFactory.CreateLogger("Orleans.Grain");
+        Logger = loggerFactory.CreateLogger("Forkleans.Grain");
         MessagingOptions = messagingOptions.Value;
         GrainReferenceActivator = grainReferenceActivator;
         _serviceProvider = serviceProvider;

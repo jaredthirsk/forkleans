@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <AssemblyName>Forkleans.TestingHost.Tests</AssemblyName>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
 
@@ -20,7 +21,7 @@
 
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Orleans.TestingHost.Tests.xunit.runner.json">
+    <None Include="Forkleans.TestingHost.Tests.xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

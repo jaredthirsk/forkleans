@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Grain interface for internal memory storage grain used by Orleans in-memory storage provider.

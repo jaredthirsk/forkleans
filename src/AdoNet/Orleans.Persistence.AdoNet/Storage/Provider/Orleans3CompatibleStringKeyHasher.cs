@@ -2,7 +2,7 @@ using System;
 using System.Buffers;
 using System.Text;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Orleans v3-compatible hasher implementation for string-only grain key ids.

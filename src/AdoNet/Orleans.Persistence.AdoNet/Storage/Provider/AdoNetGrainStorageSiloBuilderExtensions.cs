@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Providers;
+using Forkleans.Configuration;
+using Forkleans.Providers;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static class AdoNetGrainStorageSiloBuilderExtensions
     {

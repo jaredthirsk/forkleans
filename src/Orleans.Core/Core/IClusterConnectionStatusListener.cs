@@ -1,4 +1,4 @@
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Interface for notifying observers that connection to the cluster has been lost.

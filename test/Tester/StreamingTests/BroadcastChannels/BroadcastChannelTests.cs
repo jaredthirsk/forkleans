@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
-using Orleans.BroadcastChannel;
-using Orleans.TestingHost;
+using Forkleans.BroadcastChannel;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.Grains.BroadcastChannel;
 using Xunit;

@@ -1,8 +1,8 @@
-﻿using Orleans.Streams;
+using Forkleans.Streams;
 using System;
 using System.Threading.Tasks;
 
-namespace Orleans.Streaming.EventHubs.Testing
+namespace Forkleans.Streaming.EventHubs.Testing
 {
     public class NoOpCheckpointerFactory : IStreamQueueCheckpointerFactory
     {

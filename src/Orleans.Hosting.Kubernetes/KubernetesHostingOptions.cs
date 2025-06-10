@@ -1,7 +1,7 @@
 using k8s;
 using System;
 
-namespace Orleans.Hosting.Kubernetes
+namespace Forkleans.Hosting.Kubernetes
 {
     /// <summary>
     /// Options for hosting in Kubernetes.
@@ -26,22 +26,22 @@ namespace Orleans.Hosting.Kubernetes
         public const string PodIPEnvironmentVariable = "POD_IP";
 
         /// <summary>
-        /// The environment variable for specifying <see cref="Orleans.Configuration.ClusterOptions.ClusterId"/>.
+        /// The environment variable for specifying <see cref="Forkleans.Configuration.ClusterOptions.ClusterId"/>.
         /// </summary>
         public const string ClusterIdEnvironmentVariable = "ORLEANS_CLUSTER_ID";
 
         /// <summary>
-        /// The environment variable for specifying <see cref="Orleans.Configuration.ClusterOptions.ServiceId"/>.
+        /// The environment variable for specifying <see cref="Forkleans.Configuration.ClusterOptions.ServiceId"/>.
         /// </summary>
         public const string ServiceIdEnvironmentVariable = "ORLEANS_SERVICE_ID";
 
         /// <summary>
-        /// The name of the <see cref="Orleans.Configuration.ClusterOptions.ServiceId"/> label on the pod.
+        /// The name of the <see cref="Forkleans.Configuration.ClusterOptions.ServiceId"/> label on the pod.
         /// </summary>
         public const string ServiceIdLabel = "orleans/serviceId";
 
         /// <summary>
-        /// The name of the <see cref="Orleans.Configuration.ClusterOptions.ClusterId"/> label on the pod.
+        /// The name of the <see cref="Forkleans.Configuration.ClusterOptions.ClusterId"/> label on the pod.
         /// </summary>
         public const string ClusterIdLabel = "orleans/clusterId";
 

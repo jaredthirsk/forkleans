@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Orleans.Clustering.Cosmos;
+namespace Forkleans.Clustering.Cosmos;
 
 internal class ClusterVersionEntity : BaseClusterEntity
 {

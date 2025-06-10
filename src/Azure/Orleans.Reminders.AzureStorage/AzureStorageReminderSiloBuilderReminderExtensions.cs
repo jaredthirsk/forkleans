@@ -1,8 +1,8 @@
 using System;
 using Microsoft.Extensions.Options;
-using Orleans.Reminders.AzureStorage;
+using Forkleans.Reminders.AzureStorage;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Silo host builder extensions.

@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Internal
+namespace Forkleans.Internal
 {
     /// <summary>
     /// Extensions for working with <see cref="Task"/> and <see cref="Task{TResult}"/>.

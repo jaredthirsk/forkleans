@@ -1,9 +1,9 @@
-﻿using Orleans.Transactions.TestKit.xUnit;
+using Forkleans.Transactions.TestKit.xUnit;
 using Xunit;
 using Xunit.Abstractions;
 using TestExtensions;
 
-namespace Orleans.Transactions.Tests
+namespace Forkleans.Transactions.Tests
 {
     [TestCategory("BVT"), TestCategory("Transactions")]
     public class DisabledTransactionsTests : DisabledTransactionsTestRunnerxUnit, IClassFixture<DefaultClusterFixture>

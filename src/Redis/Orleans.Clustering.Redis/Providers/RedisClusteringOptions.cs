@@ -1,12 +1,12 @@
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using StackExchange.Redis;
 using System;
 using System.Text;
 using System.Threading.Tasks;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
-namespace Orleans.Clustering.Redis
+namespace Forkleans.Clustering.Redis
 {
     /// <summary>
     /// Options for Redis clustering.

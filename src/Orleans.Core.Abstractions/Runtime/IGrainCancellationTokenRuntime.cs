@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Functionality required by <see cref="GrainCancellationToken"/> and <see cref="GrainCancellationTokenSource"/>.

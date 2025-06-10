@@ -5,10 +5,10 @@ using System.Linq;
 using System.Net;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Orleans.Concurrency;
-using Orleans.Runtime;
+using Forkleans.Concurrency;
+using Forkleans.Runtime;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Interface for Membership Table.

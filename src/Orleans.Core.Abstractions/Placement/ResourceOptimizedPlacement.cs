@@ -1,4 +1,4 @@
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 /// <summary>
 /// A placement strategy which attempts to optimize resource distribution across the cluster.

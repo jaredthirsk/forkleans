@@ -1,9 +1,9 @@
 using System.Buffers;
 using System.Collections;
-using Orleans.Serialization.Buffers;
+using Forkleans.Serialization.Buffers;
 using System.Diagnostics;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 /// <summary>
 /// Represents a log segment which has been sealed and is no longer mutable.

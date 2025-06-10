@@ -1,4 +1,4 @@
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using Xunit;
 
 namespace Consul.Tests

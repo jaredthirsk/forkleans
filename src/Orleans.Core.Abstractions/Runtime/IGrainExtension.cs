@@ -1,4 +1,4 @@
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Marker interface for grain extensions, used by internal runtime extension endpoints.

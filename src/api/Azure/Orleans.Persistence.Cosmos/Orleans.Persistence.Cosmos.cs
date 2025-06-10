@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class HostingExtensions
     {
@@ -48,7 +48,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Persistence.Cosmos
+namespace Forkleans.Persistence.Cosmos
 {
     [GenerateSerializer]
     public partial class CosmosConditionNotSatisfiedException : Storage.InconsistentStateException
@@ -156,33 +156,33 @@ namespace Orleans.Persistence.Cosmos
     }
 }
 
-namespace OrleansCodeGen.Orleans.Persistence.Cosmos
+namespace ForkleansCodeGen.Forkleans.Persistence.Cosmos
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_CosmosConditionNotSatisfiedException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IBaseCodec<global::Orleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException>, global::Orleans.Serialization.Serializers.IBaseCodec
+    public sealed partial class Codec_CosmosConditionNotSatisfiedException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException>, global::Forkleans.Serialization.Serializers.IBaseCodec
     {
-        public Codec_CosmosConditionNotSatisfiedException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_CosmosConditionNotSatisfiedException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException instance) { }
 
-        public global::Orleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_CosmosConditionNotSatisfiedException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException, global::Orleans.Storage.InconsistentStateException>
+    public sealed partial class Copier_CosmosConditionNotSatisfiedException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException, global::Forkleans.Storage.InconsistentStateException>
     {
-        public Copier_CosmosConditionNotSatisfiedException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public Copier_CosmosConditionNotSatisfiedException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
 
-        public override void DeepCopy(global::Orleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException input, global::Orleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException output, global::Orleans.Serialization.Cloning.CopyContext context) { }
+        public override void DeepCopy(global::Forkleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException input, global::Forkleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 }

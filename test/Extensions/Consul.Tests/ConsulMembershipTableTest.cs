@@ -1,8 +1,8 @@
-using Orleans.Messaging;
+using Forkleans.Messaging;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime.Membership;
+using Forkleans.Configuration;
+using Forkleans.Runtime.Membership;
 using TestExtensions;
 using UnitTests;
 using UnitTests.MembershipTests;

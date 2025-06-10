@@ -7,7 +7,7 @@ using System.Composition;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
 
-namespace Orleans.Analyzers;
+namespace Forkleans.Analyzers;
 
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(IncorrectAttributeUseCodeFix)), Shared]
 public class IncorrectAttributeUseCodeFix : CodeFixProvider

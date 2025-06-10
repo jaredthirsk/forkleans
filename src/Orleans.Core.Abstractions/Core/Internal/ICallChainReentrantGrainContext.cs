@@ -1,7 +1,7 @@
 using System;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Core.Internal
+namespace Forkleans.Core.Internal
 {
     /// <summary>
     /// Provides functionality for entering and exiting sections of code within a grain during which requests bearing the same <see cref="RequestContext.ReentrancyId"/> are allowed to re-enter the grain.

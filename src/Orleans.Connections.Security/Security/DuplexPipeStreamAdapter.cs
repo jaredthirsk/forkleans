@@ -3,7 +3,7 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
 
-namespace Orleans.Connections.Security
+namespace Forkleans.Connections.Security
 {
     /// <summary>
     /// A helper for wrapping a Stream decorator from an <see cref="IDuplexPipe"/>.

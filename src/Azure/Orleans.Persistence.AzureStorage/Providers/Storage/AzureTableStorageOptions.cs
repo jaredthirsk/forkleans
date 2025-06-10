@@ -1,7 +1,7 @@
-using Orleans.Persistence.AzureStorage;
-using Orleans.Storage;
+using Forkleans.Persistence.AzureStorage;
+using Forkleans.Storage;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Configuration for AzureTableGrainStorage

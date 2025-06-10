@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Orleans.Metadata;
-using Orleans.Runtime;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
 
 #nullable enable
-namespace Orleans.Placement;
+namespace Forkleans.Placement;
 
 /// <summary>
 /// Represents a strategy for filtering silos which a grain can be placed on.

@@ -1,7 +1,7 @@
-using Orleans.Metadata;
-using Orleans.Runtime;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Common interface for components that map a <see cref="StreamId"/> to a <see cref="GrainId.Key"/>

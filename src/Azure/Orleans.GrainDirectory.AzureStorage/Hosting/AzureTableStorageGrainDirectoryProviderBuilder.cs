@@ -3,14 +3,14 @@ using Azure.Data.Tables;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans;
-using Orleans.Configuration;
-using Orleans.Hosting;
-using Orleans.Providers;
+using Forkleans;
+using Forkleans.Configuration;
+using Forkleans.Hosting;
+using Forkleans.Providers;
 
 [assembly: RegisterProvider("AzureTableStorage", "GrainDirectory", "Silo", typeof(AzureTableStorageGrainDirectoryProviderBuilder))]
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 internal sealed class AzureTableStorageGrainDirectoryProviderBuilder : IProviderBuilder<ISiloBuilder>
 {

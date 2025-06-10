@@ -1,6 +1,6 @@
-using Orleans.Runtime;
-using Orleans.Streams;
-using Orleans.TestingHost;
+using Forkleans.Runtime;
+using Forkleans.Streams;
+using Forkleans.TestingHost;
 using Xunit;
 using Xunit.Abstractions;
 using Microsoft.Extensions.Logging;

@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.Runtime.GrainDirectory;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.Runtime.GrainDirectory;
 using Xunit;
 
 namespace UnitTests;

@@ -8,9 +8,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Orleans.Caching.Internal;
+using Forkleans.Caching.Internal;
 
-namespace Orleans.Caching;
+namespace Forkleans.Caching;
 
 /// <summary>
 /// A pseudo LRU based on the TU-Q eviction policy. The LRU list is composed of 3 segments: hot, warm and cold.

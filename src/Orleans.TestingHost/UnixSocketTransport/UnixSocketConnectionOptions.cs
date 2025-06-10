@@ -3,9 +3,9 @@ using System.Buffers;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
-using Orleans.Networking.Shared;
+using Forkleans.Networking.Shared;
 
-namespace Orleans.TestingHost.UnixSocketTransport;
+namespace Forkleans.TestingHost.UnixSocketTransport;
 
 public partial class UnixSocketConnectionOptions
 {

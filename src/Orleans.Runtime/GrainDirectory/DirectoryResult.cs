@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 #nullable enable
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 internal static class DirectoryResult
 {

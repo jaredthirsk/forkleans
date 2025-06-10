@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Hosting;
-using Orleans.Networking.Shared;
-using Orleans.Runtime.Messaging;
+using Forkleans.Hosting;
+using Forkleans.Networking.Shared;
+using Forkleans.Runtime.Messaging;
 
-namespace Orleans.TestingHost.InMemoryTransport;
+namespace Forkleans.TestingHost.InMemoryTransport;
 
 internal static class InMemoryTransportExtensions
 {

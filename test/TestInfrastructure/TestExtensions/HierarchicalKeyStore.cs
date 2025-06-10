@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     internal class HierarchicalKeyStore : ILocalDataStore
     {

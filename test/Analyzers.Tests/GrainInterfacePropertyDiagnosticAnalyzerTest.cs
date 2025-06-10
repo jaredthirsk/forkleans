@@ -1,5 +1,5 @@
 using Microsoft.CodeAnalysis;
-using Orleans.Analyzers;
+using Forkleans.Analyzers;
 using Xunit;
 
 namespace Analyzers.Tests;
@@ -14,7 +14,7 @@ public class GrainInterfacePropertyDiagnosticAnalyzerTest : DiagnosticAnalyzerTe
     public async Task GrainInterfacePropertyNoError()
     {
         var code = """
-                    public interface I : Orleans.IGrain
+                    public interface I : Forkleans.IGrain
                     {
                         Task GetSomeOtherThing(int a);
                     }
@@ -28,7 +28,7 @@ public class GrainInterfacePropertyDiagnosticAnalyzerTest : DiagnosticAnalyzerTe
     public async Task NoPropertiesAllowedInGrainInterface()
     {
         var code = """
-                    public interface I : Orleans.IGrain
+                    public interface I : Forkleans.IGrain
                     {
                         int MyProperty { get; set; }
                     }
@@ -49,7 +49,7 @@ public class GrainInterfacePropertyDiagnosticAnalyzerTest : DiagnosticAnalyzerTe
     public async Task NoPropertiesAllowedInIAddressableInterface()
     {
         var code = """
-                    public interface I : Orleans.Runtime.IAddressable
+                    public interface I : Forkleans.Runtime.IAddressable
                     {
                         int MyProperty { get; set; }
                     }
@@ -70,7 +70,7 @@ public class GrainInterfacePropertyDiagnosticAnalyzerTest : DiagnosticAnalyzerTe
     public async Task NoPropertiesAllowedInIGrainObserverInterface()
     {
         var code = """
-                    public interface I : Orleans.IGrainObserver
+                    public interface I : Forkleans.IGrainObserver
                     {
                         int MyProperty { get; set; }
                     }
@@ -91,7 +91,7 @@ public class GrainInterfacePropertyDiagnosticAnalyzerTest : DiagnosticAnalyzerTe
     public async Task StaticInterfacePropertiesAllowedInGrainInterface()
     {
         var code = """
-                    public interface I : Orleans.IGrain
+                    public interface I : Forkleans.IGrain
                     {
                         public static int MyProperty => 0;
                         public static virtual int MyVirtualProperty => 0;
@@ -106,7 +106,7 @@ public class GrainInterfacePropertyDiagnosticAnalyzerTest : DiagnosticAnalyzerTe
     public async Task StaticInterfacePropertiesAllowedInAddressableInterface()
     {
         var code = """
-                    public interface I : Orleans.Runtime.IAddressable
+                    public interface I : Forkleans.Runtime.IAddressable
                     {
                         public static int MyProperty => 0;
                         public static virtual int MyVirtualProperty => 0;

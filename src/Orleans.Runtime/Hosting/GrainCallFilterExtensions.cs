@@ -1,4 +1,4 @@
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Extension methods for configuring <see cref="IIncomingGrainCallFilter"/> and <see cref="IOutgoingGrainCallFilter"/> implementations.

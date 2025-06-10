@@ -3,7 +3,7 @@ using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 
 namespace TestExtensions
 {
@@ -95,7 +95,7 @@ namespace TestExtensions
             {
                 TryAddJsonFileInAncestorFolder(builder, "OrleansTestSecrets.json");
             }
-            builder.AddEnvironmentVariables("Orleans");
+            builder.AddEnvironmentVariables("Forkleans");
         }
 
         /// <summary>

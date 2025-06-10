@@ -1,4 +1,4 @@
-﻿namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Options for ADO.NET clustering

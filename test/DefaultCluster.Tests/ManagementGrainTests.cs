@@ -1,5 +1,5 @@
-using Orleans.Concurrency;
-using Orleans.Runtime;
+using Forkleans.Concurrency;
+using Forkleans.Runtime;
 using TestExtensions;
 using Xunit;
 

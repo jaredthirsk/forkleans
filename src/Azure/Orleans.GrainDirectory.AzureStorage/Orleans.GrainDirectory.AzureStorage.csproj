@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Orleans.GrainDirectory.AzureStorage</PackageId>
+    <PackageId>Microsoft.Forkleans.GrainDirectory.AzureStorage</PackageId>
     <Title>Microsoft Orleans Azure Storage Grain Directory Provider</Title>
     <Description>Microsoft Orleans Grain Directory provider backed by Azure Storage</Description>
     <PackageTags>$(PackageTags) Azure Grain Directory</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <AssemblyName>Orleans.GrainDirectory.AzureStorage</AssemblyName>
-    <RootNamespace>Orleans.GrainDirectory.AzureStorage</RootNamespace>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <AssemblyName>Forkleans.GrainDirectory.AzureStorage</AssemblyName>
+    <RootNamespace>Forkleans.GrainDirectory.AzureStorage</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <DefineConstants>$(DefineConstants);ORLEANS_DIRECTORY</DefineConstants>
   </PropertyGroup>
 
@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
     <PackageReference Include="Azure.Core" />
     <PackageReference Include="Azure.Data.Tables" />
     <PackageReference Include="System.Net.NameResolution" />

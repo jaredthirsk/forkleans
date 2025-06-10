@@ -1,6 +1,6 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Extensions for <see cref="IGrainContext"/> related to <see cref="IGrainExtension"/>.

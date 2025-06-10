@@ -4,10 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Storage;
-using Orleans.EventSourcing.Common;
+using Forkleans.Storage;
+using Forkleans.EventSourcing.Common;
 
-namespace Orleans.EventSourcing.CustomStorage
+namespace Forkleans.EventSourcing.CustomStorage
 {
     /// <summary>
     /// A log consistency adaptor that uses the user-provided storage interface <see cref="ICustomStorageInterface{T,E}"/>. 

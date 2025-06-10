@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 #nullable enable
-namespace Orleans
+namespace Forkleans
 {
     public static class StableHash
     {

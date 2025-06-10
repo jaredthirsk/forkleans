@@ -1,10 +1,10 @@
 namespace UnitTests.TestHelper
 {
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public sealed class InterlockedFlag
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         private int _value;
 
         public InterlockedFlag()

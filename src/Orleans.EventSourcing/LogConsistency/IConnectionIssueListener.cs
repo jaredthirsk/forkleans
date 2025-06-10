@@ -1,4 +1,4 @@
-namespace Orleans.EventSourcing
+namespace Forkleans.EventSourcing
 {
     /// <summary>
     /// An interface that is implemented by log-consistent grains using virtual protected methods

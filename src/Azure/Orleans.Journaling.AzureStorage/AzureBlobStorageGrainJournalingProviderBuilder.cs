@@ -1,13 +1,13 @@
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans;
-using Orleans.Hosting;
-using Orleans.Journaling;
-using Orleans.Providers;
+using Forkleans;
+using Forkleans.Hosting;
+using Forkleans.Journaling;
+using Forkleans.Providers;
 
 [assembly: RegisterProvider("AzureBlobStorage", "GrainJournaling", "Silo", typeof(AzureBlobStorageGrainJournalingProviderBuilder))]
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 internal sealed class AzureBlobStorageGrainJournalingProviderBuilder : IProviderBuilder<ISiloBuilder>
 {

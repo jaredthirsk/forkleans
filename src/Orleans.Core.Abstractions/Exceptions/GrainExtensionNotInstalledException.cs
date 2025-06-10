@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Signifies that an attempt was made to invoke a grain extension method on a grain where that extension was not installed.

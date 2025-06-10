@@ -15,7 +15,7 @@ namespace UnitTests.Grains
     /// <summary>
     /// A simple grain that allows to set two arguments and then multiply them.
     /// </summary>
-    [Orleans.Providers.StorageProvider(ProviderName = "MemoryStore")]
+    [Forkleans.Providers.StorageProvider(ProviderName = "MemoryStore")]
     public class PromiseForwardGrain : Grain<SimpleGrainState>, IPromiseForwardGrain
     {
         protected  ISimpleGrain MySimpleGrain { get; set; }

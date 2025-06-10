@@ -1,9 +1,9 @@
 #nullable enable
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.GrainDirectory
+namespace Forkleans.GrainDirectory
 {
     /// <summary>
     /// Used to locate Grain activation in the cluster

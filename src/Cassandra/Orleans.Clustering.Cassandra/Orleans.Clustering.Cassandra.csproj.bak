@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Microsoft.Forkleans.Clustering.Cassandra</PackageId>
+    <Title>Microsoft Orleans Cassandra Clustering Provider</Title>
+    <Description>Microsoft Orleans clustering provider backed by Cassandra</Description>
+    <PackageTags>$(PackageTags) Cassandra</PackageTags>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <AssemblyName>Forkleans.Clustering.Cassandra</AssemblyName>
+    <RootNamespace>Forkleans.Clustering.Cassandra</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <DefineConstants>$(DefineConstants);ORLEANS_CLUSTERING</DefineConstants>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <PackageReference Include="CassandraCSharpDriver" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Tester.Cassandra"/>
+  </ItemGroup>
+
+</Project>

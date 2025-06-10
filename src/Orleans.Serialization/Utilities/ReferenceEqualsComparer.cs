@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Orleans.Serialization.Utilities
+namespace Forkleans.Serialization.Utilities
 {
     internal sealed class ReferenceEqualsComparer : IEqualityComparer<object>, IEqualityComparer
     {

@@ -3,12 +3,12 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.Storage;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.Storage;
 using StackExchange.Redis;
 
-namespace Orleans.Persistence
+namespace Forkleans.Persistence
 {
     /// <summary>
     /// Redis grain storage options.

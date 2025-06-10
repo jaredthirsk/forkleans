@@ -1,7 +1,7 @@
 using System;
 
 #nullable enable
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Identifier of a durable queue.

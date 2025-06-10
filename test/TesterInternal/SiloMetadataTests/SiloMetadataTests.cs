@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime.MembershipService.SiloMetadata;
-using Orleans.TestingHost;
+using Forkleans.Runtime.MembershipService.SiloMetadata;
+using Forkleans.TestingHost;
 using Xunit;
 
 namespace UnitTests.SiloMetadataTests;

@@ -1,4 +1,4 @@
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     internal interface IInternalStreamProvider
     {

@@ -1,4 +1,4 @@
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Aids in the construction of a consistent hash ring by maintaining an up-to-date reference to the next silo in the ring.

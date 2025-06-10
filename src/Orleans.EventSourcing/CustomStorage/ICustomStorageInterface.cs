@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Orleans.EventSourcing.CustomStorage
+namespace Forkleans.EventSourcing.CustomStorage
 {
     /// <summary>
     /// The storage interface exposed by grains that want to use the CustomStorage log-consistency provider

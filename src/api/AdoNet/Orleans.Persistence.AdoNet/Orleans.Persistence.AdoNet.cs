@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class AdoNetGrainStorageOptions : Storage.IStorageProviderSerializerOptions
     {
@@ -39,7 +39,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class AdoNetGrainStorageServiceCollectionExtensions
     {
@@ -64,7 +64,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Persistence.AdoNet.Storage
+namespace Forkleans.Persistence.AdoNet.Storage
 {
     public partial class OrleansRelationalDownloadStream : System.IO.Stream
     {
@@ -100,7 +100,7 @@ namespace Orleans.Persistence.AdoNet.Storage
     }
 }
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     [System.Diagnostics.DebuggerDisplay("Name = {Name}, ConnectionString = {Storage.ConnectionString}")]
     public partial class AdoNetGrainStorage : IGrainStorage, ILifecycleParticipant<Runtime.ISiloLifecycle>

@@ -1,10 +1,10 @@
 using Azure.Data.Tables;
 using Azure.Identity;
 using Microsoft.Extensions.Logging.Abstractions;
-using Orleans.Providers.Streams.PersistentStreams;
-using Orleans.Serialization;
-using Orleans.Streaming.EventHubs;
-using Orleans.Streams;
+using Forkleans.Providers.Streams.PersistentStreams;
+using Forkleans.Serialization;
+using Forkleans.Streaming.EventHubs;
+using Forkleans.Streams;
 using TestExtensions;
 using Tester.AzureUtils;
 
@@ -50,9 +50,9 @@ namespace ServiceBus.Tests.TestStreamProviders.EventHub
             return options;
         }
 
-        private static Orleans.Streaming.AzureStorage.AzureStorageOperationOptions GetStreamingAzureStorageOperationOptions()
+        private static Forkleans.Streaming.AzureStorage.AzureStorageOperationOptions GetStreamingAzureStorageOperationOptions()
         {
-            var options = new Orleans.Streaming.AzureStorage.AzureStorageOperationOptions { TableName = TableName };
+            var options = new Forkleans.Streaming.AzureStorage.AzureStorageOperationOptions { TableName = TableName };
             options.TableServiceClient = AzureStorageOperationOptionsExtensions.GetTableServiceClient();
 
             return options;

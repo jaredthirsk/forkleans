@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     [GenerateSerializer, Immutable]
     internal sealed class MembershipTableSnapshot

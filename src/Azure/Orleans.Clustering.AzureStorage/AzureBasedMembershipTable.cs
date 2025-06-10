@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 using Azure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.AzureUtils;
-using Orleans.Clustering.AzureStorage;
-using Orleans.Clustering.AzureStorage.Utilities;
-using Orleans.Configuration;
+using Forkleans.AzureUtils;
+using Forkleans.Clustering.AzureStorage;
+using Forkleans.Clustering.AzureStorage.Utilities;
+using Forkleans.Configuration;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     internal partial class AzureBasedMembershipTable : IMembershipTable
     {

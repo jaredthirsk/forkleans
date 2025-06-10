@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
-using Orleans.GrainDirectory;
-using Orleans.Metadata;
+using Forkleans.GrainDirectory;
+using Forkleans.Metadata;
 
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     /// <summary>
     /// Associates an <see cref="IGrainDirectory"/> instance with a <see cref="GrainType"/>.

@@ -5,7 +5,7 @@ using BenchmarkGrains.Ping;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
 namespace Benchmarks.Ping
 {
@@ -33,7 +33,7 @@ namespace Benchmarks.Ping
                     siloBuilder.ConfigureLogging(l =>
                     {
                         l.AddConsole();
-                        l.AddFilter("Orleans.Runtime.Placement.Repartitioning", LogLevel.Debug);
+                        l.AddFilter("Forkleans.Runtime.Placement.Repartitioning", LogLevel.Debug);
                     });
                     siloBuilder.Configure<ActivationRepartitionerOptions>(o =>
                     {

@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Clustering.AdoNet</PackageId>
+    <PackageId>Microsoft.Forkleans.Clustering.AdoNet</PackageId>
     <Title>Microsoft Orleans ADO.NET Clustering Provider</Title>
     <Description>Microsoft Orleans clustering provider backed by ADO.NET</Description>
     <PackageTags>$(PackageTags) ADO.NET SQL MySQL PostgreSQL Oracle</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup>
-    <AssemblyName>Orleans.Clustering.AdoNet</AssemblyName>
-    <RootNamespace>Orleans.Clustering.AdoNet</RootNamespace>
+    <AssemblyName>Forkleans.Clustering.AdoNet</AssemblyName>
+    <RootNamespace>Forkleans.Clustering.AdoNet</RootNamespace>
     <DefineConstants>$(DefineConstants);CLUSTERING_ADONET</DefineConstants>
   </PropertyGroup>
 
@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
   </ItemGroup>
 
   <ItemGroup>

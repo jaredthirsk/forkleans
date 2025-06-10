@@ -1,11 +1,11 @@
 using System.Threading.Tasks;
 using System.Collections.Immutable;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System;
 
-namespace Orleans.Placement.Repartitioning;
+namespace Forkleans.Placement.Repartitioning;
 
 [Alias("IActivationRepartitionerSystemTarget")]
 internal interface IActivationRepartitionerSystemTarget : ISystemTarget

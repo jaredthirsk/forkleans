@@ -1,10 +1,10 @@
-using Orleans.CodeGenerator.SyntaxGeneration;
+using Forkleans.CodeGenerator.SyntaxGeneration;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     internal interface IPropertyDescription : IMemberDescription 
     {

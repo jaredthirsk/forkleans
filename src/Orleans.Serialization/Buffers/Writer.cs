@@ -6,14 +6,14 @@ using System.IO;
 #if NETCOREAPP3_1_OR_GREATER
 using System.Numerics;
 #else
-using Orleans.Serialization.Utilities;
+using Forkleans.Serialization.Utilities;
 #endif
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Orleans.Serialization.Buffers.Adaptors;
-using Orleans.Serialization.Session;
+using Forkleans.Serialization.Buffers.Adaptors;
+using Forkleans.Serialization.Session;
 
-namespace Orleans.Serialization.Buffers
+namespace Forkleans.Serialization.Buffers
 {
     /// <summary>
     /// Helper methods for creating <see cref="Writer{TBufferWriter}"/> instances.

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime.Placement;
-using Orleans.TestingHost;
+using Forkleans.Runtime.Placement;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using Xunit;

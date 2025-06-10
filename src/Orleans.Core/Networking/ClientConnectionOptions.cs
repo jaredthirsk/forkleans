@@ -1,7 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Connections;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Options for clients connections.

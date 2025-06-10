@@ -2,27 +2,27 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using System.Text;
 using Microsoft.Extensions.Logging.Abstractions;
-using Orleans.AWSUtils.Tests;
+using Forkleans.AWSUtils.Tests;
 
 namespace AWSUtils.Tests.StorageTests
 {
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     internal class UnitTestDynamoDBTableData
     {
         private const string DATA_FIELD = "Data";
         private const string STRING_DATA_FIELD = "StringData";
 
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public string PartitionKey { get; set; }
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public string RowKey { get; set; }
-        [Orleans.Id(2)]
+        [Forkleans.Id(2)]
         public int ETag { get; set; }
-        [Orleans.Id(3)]
+        [Forkleans.Id(3)]
         public byte[] BinaryData { get; set; }
 
-        [Orleans.Id(4)]
+        [Forkleans.Id(4)]
         public string StringData { get; set; }
 
         public UnitTestDynamoDBTableData()

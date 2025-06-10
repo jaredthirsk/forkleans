@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans
+namespace Forkleans
 {
     public static partial class TlsConnectionBuilderExtensions
     {
@@ -16,7 +16,7 @@ namespace Orleans
     }
 }
 
-namespace Orleans.Connections.Security
+namespace Forkleans.Connections.Security
 {
     public static partial class CertificateLoader
     {
@@ -120,7 +120,7 @@ namespace Orleans.Connections.Security
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class OrleansConnectionSecurityHostingExtensions
     {

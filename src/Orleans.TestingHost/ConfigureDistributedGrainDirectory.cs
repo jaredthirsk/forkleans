@@ -1,6 +1,6 @@
-using Orleans.Hosting;
+using Forkleans.Hosting;
 
-namespace Orleans.TestingHost;
+namespace Forkleans.TestingHost;
 
 internal class ConfigureDistributedGrainDirectory : ISiloConfigurator
 {

@@ -3,12 +3,12 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Orleans.CodeGenerator.SyntaxGeneration;
+using Forkleans.CodeGenerator.SyntaxGeneration;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static Orleans.CodeGenerator.InvokableGenerator;
-using static Orleans.CodeGenerator.SerializerGenerator;
+using static Forkleans.CodeGenerator.InvokableGenerator;
+using static Forkleans.CodeGenerator.SerializerGenerator;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     internal class CopierGenerator
     {
@@ -67,7 +67,7 @@ namespace Orleans.CodeGenerator
 
             var isExceptionType = type.IsExceptionType && type.SerializationHooks.Count == 0;
 
-            var baseType = isExceptionType ? QualifiedName(AliasQualifiedName("global", IdentifierName("Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper")), GenericName(Identifier("ExceptionCopier"), TypeArgumentList(SeparatedList(new[] { type.TypeSyntax, type.BaseType.ToTypeSyntax() }))))
+            var baseType = isExceptionType ? QualifiedName(AliasQualifiedName("global", IdentifierName("Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper")), GenericName(Identifier("ExceptionCopier"), TypeArgumentList(SeparatedList(new[] { type.TypeSyntax, type.BaseType.ToTypeSyntax() }))))
                 : (isShallowCopyable ? LibraryTypes.ShallowCopier : LibraryTypes.DeepCopier_1).ToTypeSyntax(type.TypeSyntax);
 
             var classDeclaration = ClassDeclaration(simpleClassName)

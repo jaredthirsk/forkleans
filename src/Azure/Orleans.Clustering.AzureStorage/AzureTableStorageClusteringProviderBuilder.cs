@@ -4,15 +4,15 @@ using Azure.Data.Tables;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans;
-using Orleans.Clustering.AzureStorage;
-using Orleans.Hosting;
-using Orleans.Providers;
+using Forkleans;
+using Forkleans.Clustering.AzureStorage;
+using Forkleans.Hosting;
+using Forkleans.Providers;
 
 [assembly: RegisterProvider("AzureTableStorage", "Clustering", "Silo", typeof(AzureTableStorageClusteringProviderBuilder))]
 [assembly: RegisterProvider("AzureTableStorage", "Clustering", "Client", typeof(AzureTableStorageClusteringProviderBuilder))]
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 internal sealed class AzureTableStorageClusteringProviderBuilder : IProviderBuilder<ISiloBuilder>, IProviderBuilder<IClientBuilder>
 {

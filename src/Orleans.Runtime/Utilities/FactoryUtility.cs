@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans.Runtime.Utilities
+namespace Forkleans.Runtime.Utilities
 {
     /// <summary>
     /// Utility methods for creating factories which construct instances of objects using an <see cref="IServiceProvider"/>.

@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
 
-namespace Orleans.Serialization.Invocation
+namespace Forkleans.Serialization.Invocation
 {
     /// <summary>
     /// A fulfillable promise.

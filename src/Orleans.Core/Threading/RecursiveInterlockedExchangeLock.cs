@@ -2,7 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace Orleans.Threading
+namespace Forkleans.Threading
 {
     /// <summary>
     /// Lightweight recursive lock.

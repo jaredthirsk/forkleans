@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
-using Orleans.Concurrency;
-using Orleans.Streams;
+using Forkleans.Concurrency;
+using Forkleans.Streams;
 using UnitTests.GrainInterfaces;
 
 namespace UnitTests.Grains

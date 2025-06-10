@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Persistence.Memory</PackageId>
+    <PackageId>Microsoft.Forkleans.Persistence.Memory</PackageId>
     <Title>Microsoft Orleans grain persistence provider which holds state only in memory.</Title>
     <Description>In-memory storage for Microsoft Orleans</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <AssemblyName>Orleans.Persistence.Memory</AssemblyName>
-    <RootNamespace>Orleans.Persistence.Memory</RootNamespace>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <AssemblyName>Forkleans.Persistence.Memory</AssemblyName>
+    <RootNamespace>Forkleans.Persistence.Memory</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>

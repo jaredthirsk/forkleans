@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Versions.Compatibility
+namespace Forkleans.Versions.Compatibility
 {
     /// <summary>
     /// Functionality for grain interface compatibility directors.

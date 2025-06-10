@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>Microsoft.Forkleans.Streaming.AdoNet</PackageId>
+    <Title>Microsoft Orleans ADO.NET Streaming Provider</Title>
+    <Description>Microsoft Orleans streaming provider backed by ADO.NET</Description>
+    <PackageTags>$(PackageTags) ADO.NET SQL</PackageTags>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <VersionSuffix Condition="$(VersionSuffix) == ''">alpha.1</VersionSuffix>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyName>Forkleans.Streaming.AdoNet</AssemblyName>
+    <RootNamespace>Forkleans.Streaming.AdoNet</RootNamespace>
+    <DefineConstants>$(DefineConstants);STREAMING_ADONET</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Tester.AdoNet" />
+    <InternalsVisibleTo Include="Benchmarks.AdoNet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\Storage\*.cs" LinkBase="Storage" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Streaming\Forkleans.Streaming.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

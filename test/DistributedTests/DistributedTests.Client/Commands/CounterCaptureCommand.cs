@@ -6,7 +6,7 @@ using Microsoft.Crank.EventSources;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
 namespace DistributedTests.Client.Commands
 {

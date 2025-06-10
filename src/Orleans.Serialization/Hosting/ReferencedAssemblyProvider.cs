@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 #endif
 
-namespace Orleans.Serialization.Internal
+namespace Forkleans.Serialization.Internal
 {
     public static class ReferencedAssemblyProvider
     {
@@ -122,7 +122,7 @@ namespace Orleans.Serialization.Internal
 
             foreach (var lib in dependencyContext.RuntimeLibraries)
             {
-                if (!lib.Name.Contains("Orleans.Serialization", StringComparison.Ordinal) && !lib.Dependencies.Any(dep => dep.Name.Contains("Orleans.Serialization", StringComparison.Ordinal)))
+                if (!lib.Name.Contains("Forkleans.Serialization", StringComparison.Ordinal) && !lib.Dependencies.Any(dep => dep.Name.Contains("Forkleans.Serialization", StringComparison.Ordinal)))
                 {
                     continue;
                 }

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Metadata;
-using Orleans.Runtime;
-using static Orleans.Placement.ImmovableAttribute;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
+using static Forkleans.Placement.ImmovableAttribute;
 
-namespace Orleans.Placement
+namespace Forkleans.Placement
 {
     /// <summary>
     /// Base for all placement policy marker attributes.

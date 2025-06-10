@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Orleans.CodeGenerator.SyntaxGeneration
+namespace Forkleans.CodeGenerator.SyntaxGeneration
 {
     internal static class SymbolExtensions
     {

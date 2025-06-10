@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans
+namespace Forkleans
 {
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
     public partial class ImplicitChannelSubscriptionAttribute : System.Attribute, Metadata.IGrainBindingsProviderAttribute
@@ -33,7 +33,7 @@ namespace Orleans
     }
 }
 
-namespace Orleans.BroadcastChannel
+namespace Forkleans.BroadcastChannel
 {
     public partial class BroadcastChannelOptions
     {
@@ -153,7 +153,7 @@ namespace Orleans.BroadcastChannel
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class ChannelHostingExtensions
     {
@@ -169,21 +169,21 @@ namespace Orleans.Hosting
     }
 }
 
-namespace OrleansCodeGen.Orleans.BroadcastChannel
+namespace ForkleansCodeGen.Forkleans.BroadcastChannel
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_ChannelId : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.BroadcastChannel.ChannelId>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IValueSerializer<global::Orleans.BroadcastChannel.ChannelId>, global::Orleans.Serialization.Serializers.IValueSerializer
+    public sealed partial class Codec_ChannelId : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.BroadcastChannel.ChannelId>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IValueSerializer<global::Forkleans.BroadcastChannel.ChannelId>, global::Forkleans.Serialization.Serializers.IValueSerializer
     {
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Orleans.BroadcastChannel.ChannelId instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, scoped ref global::Forkleans.BroadcastChannel.ChannelId instance) { }
 
-        public global::Orleans.BroadcastChannel.ChannelId ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.BroadcastChannel.ChannelId ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Orleans.BroadcastChannel.ChannelId instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, scoped ref global::Forkleans.BroadcastChannel.ChannelId instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.BroadcastChannel.ChannelId value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.BroadcastChannel.ChannelId value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 }

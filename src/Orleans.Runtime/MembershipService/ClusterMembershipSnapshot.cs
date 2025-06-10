@@ -2,7 +2,7 @@ using System;
 using System.Collections.Immutable;
 using System.Text;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Represents a snapshot of cluster membership.

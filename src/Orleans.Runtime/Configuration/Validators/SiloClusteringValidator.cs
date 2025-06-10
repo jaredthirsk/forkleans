@@ -2,10 +2,10 @@ using System;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Configuration.Validators;
+using Forkleans.Configuration;
+using Forkleans.Configuration.Validators;
 
-namespace Orleans.Runtime.Configuration
+namespace Forkleans.Runtime.Configuration
 {
     /// <summary>
     /// Validates basic cluster membership configuration.

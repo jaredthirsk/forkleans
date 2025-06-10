@@ -1,7 +1,7 @@
 using DashboardToy.Frontend.Data;
 using Microsoft.AspNetCore.Mvc;
-using Orleans.Configuration;
-using Orleans.Placement.Repartitioning;
+using Forkleans.Configuration;
+using Forkleans.Placement.Repartitioning;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddKeyedRedisClient("orleans-redis");

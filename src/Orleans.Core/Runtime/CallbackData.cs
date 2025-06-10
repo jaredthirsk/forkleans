@@ -3,9 +3,9 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using Microsoft.Extensions.Logging;
-using Orleans.Serialization.Invocation;
+using Forkleans.Serialization.Invocation;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal sealed partial class CallbackData
     {

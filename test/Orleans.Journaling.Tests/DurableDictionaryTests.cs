@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Orleans.Journaling.Tests;
+namespace Forkleans.Journaling.Tests;
 
 [TestCategory("BVT")]
 public class DurableDictionaryTests : StateMachineTestBase

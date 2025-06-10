@@ -5,11 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Internal;
-using Orleans.Runtime;
-using Orleans.Runtime.Internal;
+using Forkleans.Internal;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Internal;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Base class for StreamQueueBalancer

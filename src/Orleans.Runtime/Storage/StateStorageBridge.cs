@@ -6,12 +6,12 @@ using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.Serialization.Activators;
-using Orleans.Serialization.Serializers;
-using Orleans.Storage;
+using Forkleans.Runtime;
+using Forkleans.Serialization.Activators;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Storage;
 
-namespace Orleans.Core
+namespace Forkleans.Core
 {
     /// <summary>
     /// Provides functionality for operating on grain state.

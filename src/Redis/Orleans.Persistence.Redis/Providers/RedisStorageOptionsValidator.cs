@@ -1,6 +1,6 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Persistence
+namespace Forkleans.Persistence
 {
     internal class RedisStorageOptionsValidator : IConfigurationValidator
     {

@@ -3,7 +3,7 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Net.Security;
 
-namespace Orleans.Connections.Security
+namespace Forkleans.Connections.Security
 {
     internal class TlsDuplexPipe : DuplexPipeStreamAdapter<SslStream>
     {

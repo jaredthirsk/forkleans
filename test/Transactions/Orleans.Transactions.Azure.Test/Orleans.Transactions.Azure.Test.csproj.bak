@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Forkleans.Transactions.Azure.Tests</RootNamespace>
+    <AssemblyName>Forkleans.Transactions.Azure.Tests</AssemblyName>
+    <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)test\Transactions\Forkleans.Transactions.Tests\Forkleans.Transactions.Tests.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Azure\Forkleans.Clustering.AzureStorage\Forkleans.Clustering.AzureStorage.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Azure\Forkleans.Transactions.AzureStorage\Forkleans.Transactions.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\Extensions\TesterAzureUtils\Tester.AzureUtils.csproj" />
+  </ItemGroup>
+</Project>

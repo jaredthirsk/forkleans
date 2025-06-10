@@ -1,9 +1,9 @@
 using Azure.Storage.Queues.Models;
 using Microsoft.Extensions.Logging;
-using Orleans.AzureUtils;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.TestingHost.Utils;
+using Forkleans.AzureUtils;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.TestingHost.Utils;
 using Xunit;
 
 namespace Tester.AzureUtils

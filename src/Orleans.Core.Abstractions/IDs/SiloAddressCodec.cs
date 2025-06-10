@@ -1,14 +1,14 @@
 using System;
 using System.Buffers;
 using System.Runtime.CompilerServices;
-using Orleans.Serialization;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.GeneratedCodeHelpers;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.GeneratedCodeHelpers;
+using Forkleans.Serialization.WireProtocol;
 
 #nullable enable
-namespace Orleans.Runtime.Serialization
+namespace Forkleans.Runtime.Serialization
 {
     /// <summary>
     /// Serializer and deserializer for <see cref="SiloAddress"/> instances.

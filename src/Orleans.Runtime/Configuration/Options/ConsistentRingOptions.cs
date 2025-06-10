@@ -1,4 +1,4 @@
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Configuration options for consistent hashing algorithm, used to balance resource allocations across the cluster.

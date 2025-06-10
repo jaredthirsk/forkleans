@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-using Orleans.Reminders;
-using Orleans.Runtime;
+using Forkleans.Reminders;
+using Forkleans.Runtime;
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 /// <summary>
 /// Options for the reminder service.

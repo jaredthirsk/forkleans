@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Numerics;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 public sealed partial class LogExtentBuilder
 {

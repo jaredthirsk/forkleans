@@ -1,8 +1,8 @@
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration.Internal;
+using Forkleans.Configuration.Internal;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Extension methods on <see cref="IServiceCollection"/>, to provider better usability to IOptionFormatter.

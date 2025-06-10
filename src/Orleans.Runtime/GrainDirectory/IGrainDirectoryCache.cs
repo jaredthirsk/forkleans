@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     /// <summary>
     /// Caches grain directory entries.

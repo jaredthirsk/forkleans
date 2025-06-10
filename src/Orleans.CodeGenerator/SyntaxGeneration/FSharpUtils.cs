@@ -2,11 +2,11 @@ using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Orleans.CodeGenerator.SyntaxGeneration;
-using static Orleans.CodeGenerator.SerializerGenerator;
+using Forkleans.CodeGenerator.SyntaxGeneration;
+using static Forkleans.CodeGenerator.SerializerGenerator;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     internal static class FSharpUtilities
     {

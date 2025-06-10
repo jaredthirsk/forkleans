@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// IResourceSelector selects a certain amount of resources from a resource list

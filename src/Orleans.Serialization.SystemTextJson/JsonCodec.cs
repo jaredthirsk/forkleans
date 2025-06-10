@@ -6,15 +6,15 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
-using Orleans.Metadata;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Buffers.Adaptors;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Metadata;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Buffers.Adaptors;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.WireProtocol;
 
-namespace Orleans.Serialization;
+namespace Forkleans.Serialization;
 
 /// <summary>
 /// A serialization codec which uses <see cref="JsonSerializer"/>.

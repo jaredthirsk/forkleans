@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 #nullable enable
-namespace Orleans.Runtime.GrainDirectory;
+namespace Forkleans.Runtime.GrainDirectory;
 
 /// <summary>
 /// Represents a contiguous range of zero or more values on a ring.

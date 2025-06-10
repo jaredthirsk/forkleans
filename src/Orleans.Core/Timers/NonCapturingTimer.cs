@@ -1,8 +1,8 @@
 using System;
 using System.Threading;
-using Orleans.Runtime.Internal;
+using Forkleans.Runtime.Internal;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// A convenience API for interacting with System.Threading.Timer in a way

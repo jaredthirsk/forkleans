@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using UnitTests.Grains;

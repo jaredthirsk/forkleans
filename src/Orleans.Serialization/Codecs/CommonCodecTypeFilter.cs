@@ -3,9 +3,9 @@ using System.CodeDom.Compiler;
 using System.Linq;
 using System.Reflection;
 
-using Orleans.Metadata;
+using Forkleans.Metadata;
 
-namespace Orleans.Serialization.Codecs;
+namespace Forkleans.Serialization.Codecs;
 
 /// <summary>
 /// Defines common type filtering operations.

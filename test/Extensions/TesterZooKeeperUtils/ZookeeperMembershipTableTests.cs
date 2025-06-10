@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Messaging;
-using Orleans.Runtime.Membership;
-using Orleans.Configuration;
+using Forkleans.Messaging;
+using Forkleans.Runtime.Membership;
+using Forkleans.Configuration;
 using TestExtensions;
 using Xunit;
 using Tester.ZooKeeperUtils;

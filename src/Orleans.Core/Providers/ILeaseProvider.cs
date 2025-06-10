@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Orleans.LeaseProviders
+namespace Forkleans.LeaseProviders
 {
     /// <summary>
     /// Acquired lease

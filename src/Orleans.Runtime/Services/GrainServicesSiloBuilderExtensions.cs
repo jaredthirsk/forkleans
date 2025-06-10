@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.CodeGeneration;
-using Orleans.Runtime;
-using Orleans.Services;
+using Forkleans.CodeGeneration;
+using Forkleans.Runtime;
+using Forkleans.Services;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Extension methods for registering grain services.

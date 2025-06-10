@@ -3,7 +3,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Orleans.Runtime.Messaging;
+namespace Forkleans.Runtime.Messaging;
 
 /// <summary>
 /// Indicates that a message frame is invalid, either when sending a message or receiving a message.

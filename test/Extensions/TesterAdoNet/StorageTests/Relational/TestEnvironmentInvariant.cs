@@ -1,6 +1,6 @@
 using Newtonsoft.Json.Linq;
-using Orleans.Tests.SqlUtils;
-using Orleans.TestingHost.Utils;
+using Forkleans.Tests.SqlUtils;
+using Forkleans.TestingHost.Utils;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
@@ -11,24 +11,24 @@ namespace UnitTests.StorageTests.Relational
 {
     [Serializable]
     [DebuggerDisplay("StorageInvariant = {StorageInvariant}, ConnectionString = {ConnectionString}")]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public struct StorageConnection
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public string StorageInvariant { get; set; }
 
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public string ConnectionString { get; set; }
     }
 
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class TestEnvironmentSettings
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public ICollection<StorageConnection> ConnectionStrings { get; set; }
 
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public string EnvironmentId { get; set; }
     }
 

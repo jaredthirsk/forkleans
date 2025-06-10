@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Orleans.Providers.Streams.Common;
+using Forkleans.Providers.Streams.Common;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Default EventHub receiver monitor that tracks metrics using loggers PKI support.

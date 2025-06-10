@@ -1,7 +1,7 @@
 using System;
 using System.Text.Json;
 
-namespace Orleans.Serialization;
+namespace Forkleans.Serialization;
 
 /// <summary>
 /// Options for <see cref="JsonCodec"/>.

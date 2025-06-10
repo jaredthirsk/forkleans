@@ -1,9 +1,9 @@
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans;
-using Orleans.GrainReferences;
-using Orleans.Runtime;
+using Forkleans;
+using Forkleans.GrainReferences;
+using Forkleans.Runtime;
 using TestExtensions;
 using Xunit;
 using Xunit.Abstractions;

@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using Orleans.Concurrency;
-using Orleans.Runtime;
+using Forkleans.Concurrency;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     // This is the extension interface for stream consumers
     internal interface IStreamConsumerExtension : IGrainExtension

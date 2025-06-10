@@ -1,7 +1,7 @@
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using System;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Silo host builder extensions.

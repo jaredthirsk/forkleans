@@ -3,10 +3,10 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Orleans.Hosting;
-using Orleans.Runtime;
+using Forkleans.Hosting;
+using Forkleans.Runtime;
 
-namespace Orleans.TestingHost;
+namespace Forkleans.TestingHost;
 
 /// <summary>Configuration builder for starting a <see cref="InProcessTestCluster"/>.</summary>
 public sealed class InProcessTestClusterBuilder

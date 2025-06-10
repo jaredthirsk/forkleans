@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Text;
 
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// This is an internal helper class that collects grain key information

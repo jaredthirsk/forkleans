@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using System.Collections.Concurrent;
 
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// Simple object pool that uses a stack to store available objects.

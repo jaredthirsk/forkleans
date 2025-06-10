@@ -10,12 +10,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
-using Orleans.Configuration;
-using Orleans.Persistence.DynamoDB;
-using Orleans.Runtime;
-using Orleans.Serialization.Serializers;
+using Forkleans.Configuration;
+using Forkleans.Persistence.DynamoDB;
+using Forkleans.Runtime;
+using Forkleans.Serialization.Serializers;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Dynamo DB storage Provider.

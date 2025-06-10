@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// A container class for the queries currently used by the <see cref="AdoNetGrainStorage"/>.

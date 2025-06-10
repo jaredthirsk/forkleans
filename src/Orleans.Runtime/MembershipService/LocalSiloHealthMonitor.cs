@@ -8,11 +8,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Internal;
-using Orleans.Runtime.Messaging;
+using Forkleans.Configuration;
+using Forkleans.Internal;
+using Forkleans.Runtime.Messaging;
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     internal interface ILocalSiloHealthMonitor
     {

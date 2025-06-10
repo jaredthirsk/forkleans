@@ -8,11 +8,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Internal;
-using Orleans.Metadata;
-using Orleans.Runtime.Utilities;
+using Forkleans.Internal;
+using Forkleans.Metadata;
+using Forkleans.Runtime.Utilities;
 
-namespace Orleans.Runtime.Metadata
+namespace Forkleans.Runtime.Metadata
 {
     internal partial class ClusterManifestProvider : IClusterManifestProvider, IAsyncDisposable, IDisposable, ILifecycleParticipant<ISiloLifecycle>
     {

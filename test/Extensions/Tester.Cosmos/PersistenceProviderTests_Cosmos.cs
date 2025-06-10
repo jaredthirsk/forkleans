@@ -4,11 +4,11 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 using TestExtensions;
-using Orleans.Runtime;
-using Orleans.Storage;
-using Orleans.Providers;
-using Orleans.Configuration;
-using Orleans.Persistence.Cosmos;
+using Forkleans.Runtime;
+using Forkleans.Storage;
+using Forkleans.Providers;
+using Forkleans.Configuration;
+using Forkleans.Persistence.Cosmos;
 using UnitTests.Persistence;
 using Microsoft.Extensions.Options;
 

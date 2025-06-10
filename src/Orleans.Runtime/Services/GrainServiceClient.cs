@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.CodeGeneration;
-using Orleans.Runtime.ConsistentRing;
-using Orleans.Services;
+using Forkleans.CodeGeneration;
+using Forkleans.Runtime.ConsistentRing;
+using Forkleans.Services;
 
-namespace Orleans.Runtime.Services
+namespace Forkleans.Runtime.Services
 {
     /// <summary>
     /// Proxies requests to the appropriate GrainService based on the appropriate Ring partitioning strategy.
@@ -25,7 +25,7 @@ namespace Orleans.Runtime.Services
             grainFactory = serviceProvider.GetRequiredService<IInternalGrainFactory>();
             ringProvider = serviceProvider.GetRequiredService<IConsistentRingProvider>();
 
-            // GrainInterfaceMap only holds IGrain types, not ISystemTarget types, so resolved via Orleans.CodeGeneration.
+            // GrainInterfaceMap only holds IGrain types, not ISystemTarget types, so resolved via Forkleans.CodeGeneration.
             // Resolve this before merge.
             var grainTypeCode = GrainInterfaceUtils.GetGrainClassTypeCode(typeof(TGrainService));
             grainType = SystemTargetGrainId.CreateGrainServiceGrainType(grainTypeCode, null);

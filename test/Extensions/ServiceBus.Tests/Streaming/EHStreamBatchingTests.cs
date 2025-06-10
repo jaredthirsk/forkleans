@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
-using Orleans.Streams;
-using Orleans.TestingHost;
+using Forkleans.Streams;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using UnitTests.StreamingTests;

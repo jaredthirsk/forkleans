@@ -1,6 +1,6 @@
 using System.Globalization;
-using Orleans.Runtime;
-using Orleans.Storage;
+using Forkleans.Runtime;
+using Forkleans.Storage;
 using UnitTests.StorageTests.Relational.TestDataSets;
 using Xunit;
 
@@ -173,7 +173,7 @@ namespace UnitTests.StorageTests.Relational
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="grainTypeName">The type of the grain.</param>
-        /// <param name="grainReference">The grain reference as would be given by Orleans.</param>
+        /// <param name="grainReference">The grain reference as would be given by Forkleans.</param>
         /// <param name="grainState">The grain state the grain would hold and Orleans pass.</param>
         /// <returns></returns>
         internal async Task Store_WriteClearRead<T>(string grainTypeName, GrainId grainId, GrainState<T> grainState) where T : new()
@@ -203,7 +203,7 @@ namespace UnitTests.StorageTests.Relational
         /// </summary>
         /// <typeparam name="T">The grain state type.</typeparam>
         /// <param name="grainTypeName">The type of the grain.</param>
-        /// <param name="grainReference">The grain reference as would be given by Orleans.</param>
+        /// <param name="grainReference">The grain reference as would be given by Forkleans.</param>
         /// <param name="grainState">The grain state the grain would hold and Orleans pass.</param>
         /// <returns></returns>
         internal async Task Store_WriteRead<T>(string grainTypeName, GrainId grainId, GrainState<T> grainState) where T : new()

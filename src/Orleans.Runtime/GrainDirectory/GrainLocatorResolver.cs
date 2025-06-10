@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.GrainDirectory;
+using Forkleans.GrainDirectory;
 
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     internal class GrainLocatorResolver
     {

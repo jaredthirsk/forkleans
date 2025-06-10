@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     /// <summary>
     /// Creates <see cref="IGrainDirectoryCache"/> instances.

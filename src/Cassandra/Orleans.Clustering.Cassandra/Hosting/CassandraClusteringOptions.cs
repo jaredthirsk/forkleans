@@ -2,9 +2,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Cassandra;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
-namespace Orleans.Clustering.Cassandra.Hosting;
+namespace Forkleans.Clustering.Cassandra.Hosting;
 
 /// <summary>
 /// Options for configuring Cassandra clustering.

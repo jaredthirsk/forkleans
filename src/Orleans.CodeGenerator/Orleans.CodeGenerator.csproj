@@ -1,9 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.CodeGenerator</PackageId>
+    <AssemblyName>Forkleans.CodeGenerator</AssemblyName>
+    <PackageId>Microsoft.Forkleans.CodeGenerator</PackageId>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageDescription>Code generation library for Orleans.Serialization</PackageDescription>
+    <PackageDescription>Code generation library for Forkleans.Serialization</PackageDescription>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <IncludeBuildOutput>false</IncludeBuildOutput>
@@ -29,17 +30,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="buildTransitive\Microsoft.Orleans.CodeGenerator.props">
+    <Content Include="buildTransitive\Microsoft.Forkleans.CodeGenerator.props">
       <PackagePath>%(Identity)</PackagePath>
       <Visible>true</Visible>
       <Pack>true</Pack>
     </Content>
-    <Content Include="build\Microsoft.Orleans.CodeGenerator.props">
+    <Content Include="build\Microsoft.Forkleans.CodeGenerator.props">
       <Pack>true</Pack>
       <PackagePath>%(Identity)</PackagePath>
       <Visible>true</Visible>
     </Content>
-    <Content Include="buildMultiTargeting\Microsoft.Orleans.CodeGenerator.props">
+    <Content Include="buildMultiTargeting\Microsoft.Forkleans.CodeGenerator.props">
       <Pack>true</Pack>
       <PackagePath>%(Identity)</PackagePath>
       <Visible>true</Visible>
@@ -62,10 +63,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AssemblyAttribute Remove="Orleans.Metadata.FrameworkPartAttribute"/>
+    <AssemblyAttribute Remove="Forkleans.Metadata.FrameworkPartAttribute"/>
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="Orleans.CodeGenerator.Tests"/>
+    <InternalsVisibleTo Include="Forkleans.CodeGenerator.Tests"/>
   </ItemGroup>
 </Project>

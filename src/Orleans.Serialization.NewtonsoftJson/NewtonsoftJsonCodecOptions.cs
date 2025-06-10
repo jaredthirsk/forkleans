@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 
-namespace Orleans.Serialization;
+namespace Forkleans.Serialization;
 
 /// <summary>
 /// Options for <see cref="NewtonsoftJsonCodec"/>.

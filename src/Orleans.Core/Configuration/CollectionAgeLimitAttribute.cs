@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Metadata;
-using Orleans.Runtime;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Specifies the period of inactivity before a grain is available for collection and deactivation.

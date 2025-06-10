@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     [GenerateSerializer]
     internal struct SerializationEntrySurrogate

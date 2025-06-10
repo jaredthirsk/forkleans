@@ -1,8 +1,8 @@
 using System.Runtime.Serialization;
-using Orleans.Providers;
-using Orleans.Runtime;
+using Forkleans.Providers;
+using Forkleans.Runtime;
 using Microsoft.Extensions.Logging;
-using Orleans.Serialization;
+using Forkleans.Serialization;
 
 namespace UnitTests.StorageTests
 {

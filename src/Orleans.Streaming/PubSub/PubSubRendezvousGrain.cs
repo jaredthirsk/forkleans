@@ -7,15 +7,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Core;
-using Orleans.Providers;
-using Orleans.Runtime;
-using Orleans.Serialization.Serializers;
-using Orleans.Storage;
-using Orleans.Streams.Core;
+using Forkleans.Core;
+using Forkleans.Providers;
+using Forkleans.Runtime;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Storage;
+using Forkleans.Streams.Core;
 
 #nullable enable
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     internal sealed partial class PubSubGrainStateStorageFactory
     {

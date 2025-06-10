@@ -1,4 +1,4 @@
-﻿using UnitTests.GrainInterfaces;
+using UnitTests.GrainInterfaces;
 
 namespace UnitTests.Grains
 {
@@ -12,7 +12,7 @@ namespace UnitTests.Grains
         public IMultifacetWriter Writer { get; set; }
     }
 
-    [Orleans.Providers.StorageProvider(ProviderName = "MemoryStore")]
+    [Forkleans.Providers.StorageProvider(ProviderName = "MemoryStore")]
     public class MultifacetFactoryTestGrain : Grain<MultifacetFactoryTestGrainState>, IMultifacetFactoryTestGrain
     {
         public Task<IMultifacetReader> GetReader(IMultifacetTestGrain grain)

@@ -3,10 +3,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Placement.Repartitioning;
-using Orleans.Runtime.Internal;
+using Forkleans.Placement.Repartitioning;
+using Forkleans.Runtime.Internal;
 
-namespace Orleans.Runtime.Placement.Repartitioning;
+namespace Forkleans.Runtime.Placement.Repartitioning;
 
 internal sealed partial class ActivationRepartitioner : IMessageStatisticsSink
 {

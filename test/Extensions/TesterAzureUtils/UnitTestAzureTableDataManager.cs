@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Orleans.Internal;
-using Orleans.Clustering.AzureStorage;
+using Forkleans.Internal;
+using Forkleans.Clustering.AzureStorage;
 using Microsoft.Extensions.Logging.Abstractions;
 using Azure.Data.Tables;
 using Azure;

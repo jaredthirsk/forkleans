@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 using Xunit;
 
-namespace Orleans.Connections.Security.Tests
+namespace Forkleans.Connections.Security.Tests
 {
     [Trait("Category", "BVT")]
     public class TlsConnectionTests

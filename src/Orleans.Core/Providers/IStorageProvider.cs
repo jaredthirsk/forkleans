@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.Serialization;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Exception thrown whenever a grain call is attempted with a bad / missing storage provider configuration settings for that grain.

@@ -1,4 +1,4 @@
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// A <see cref="ILifecycleObservable"/> marker type for client lifecycles.

@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Caching.Internal;
+namespace Forkleans.Caching.Internal;
 
 // https://source.dot.net/#System.Collections.Concurrent/System/Collections/Concurrent/ConcurrentDictionary.cs,2293
 internal static class TypeProps<T>

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Clustering.AzureStorage;
-using Orleans.Configuration;
-using Orleans.Messaging;
+using Forkleans.Clustering.AzureStorage;
+using Forkleans.Configuration;
+using Forkleans.Messaging;
 
-namespace Orleans.AzureUtils
+namespace Forkleans.AzureUtils
 {
     internal class AzureGatewayListProvider : IGatewayListProvider
     {

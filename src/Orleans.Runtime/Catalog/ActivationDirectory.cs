@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 internal sealed class ActivationDirectory : IEnumerable<KeyValuePair<GrainId, IGrainContext>>, IAsyncDisposable, IDisposable
 {

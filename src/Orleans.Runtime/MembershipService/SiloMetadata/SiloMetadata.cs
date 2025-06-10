@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 
 #nullable enable
-namespace Orleans.Runtime.MembershipService.SiloMetadata;
+namespace Forkleans.Runtime.MembershipService.SiloMetadata;
 
 [GenerateSerializer]
-[Alias("Orleans.Runtime.MembershipService.SiloMetadata.SiloMetadata")]
+[Alias("Forkleans.Runtime.MembershipService.SiloMetadata.SiloMetadata")]
 public record SiloMetadata
 {
     public static SiloMetadata Empty { get; } = new SiloMetadata();

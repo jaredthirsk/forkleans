@@ -1,5 +1,5 @@
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Extensions for <see cref="ILifecycleParticipant{TLifecycleObservable}"/>.

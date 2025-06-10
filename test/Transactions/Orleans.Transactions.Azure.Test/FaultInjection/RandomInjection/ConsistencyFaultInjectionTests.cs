@@ -1,8 +1,8 @@
-using Orleans.Transactions.TestKit.xUnit;
+using Forkleans.Transactions.TestKit.xUnit;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Orleans.Transactions.AzureStorage.Tests
+namespace Forkleans.Transactions.AzureStorage.Tests
 {
     [TestCategory("AzureStorage"), TestCategory("Transactions-dev")]
     public class ConsistencyFaultInjectionTests: ConsistencyTransactionTestRunnerxUnit, IClassFixture<RandomFaultInjectedTestFixture>

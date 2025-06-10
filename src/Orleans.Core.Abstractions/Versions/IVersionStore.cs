@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.Runtime;
-using Orleans.Versions.Compatibility;
-using Orleans.Versions.Selector;
+using Forkleans.Runtime;
+using Forkleans.Versions.Compatibility;
+using Forkleans.Versions.Selector;
 
-namespace Orleans.Versions
+namespace Forkleans.Versions
 {
     /// <summary>
     /// Functionality for accessing runtime-modifiable grain interface version strategies.

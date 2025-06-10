@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Metadata
+namespace Forkleans.Metadata
 {
     /// <summary>
     /// Responsible for resolving <see cref="GrainProperties"/> for <see cref="GrainType"/> values.

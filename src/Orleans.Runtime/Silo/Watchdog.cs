@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Monitors runtime and component health periodically, reporting complaints.
@@ -47,7 +47,7 @@ namespace Orleans.Runtime
             _platformWatchdogThread = new Thread(RunPlatformWatchdog)
             {
                 IsBackground = true,
-                Name = "Orleans.Runtime.Watchdog.Platform",
+                Name = "Forkleans.Runtime.Watchdog.Platform",
             };
             _platformWatchdogThread.Start();
 
@@ -57,7 +57,7 @@ namespace Orleans.Runtime
             _componentWatchdogThread = new Thread(RunComponentWatchdog)
             {
                 IsBackground = true,
-                Name = "Orleans.Runtime.Watchdog.Component",
+                Name = "Forkleans.Runtime.Watchdog.Component",
             };
 
             _componentWatchdogThread.Start();

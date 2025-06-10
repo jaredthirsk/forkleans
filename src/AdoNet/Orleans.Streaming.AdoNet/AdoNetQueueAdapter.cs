@@ -1,4 +1,4 @@
-namespace Orleans.Streaming.AdoNet;
+namespace Forkleans.Streaming.AdoNet;
 
 /// <summary>
 /// Stream queue storage adapter for ADO.NET providers.

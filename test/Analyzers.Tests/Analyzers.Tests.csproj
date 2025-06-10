@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Runtime\Orleans.Runtime.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Core\Orleans.Core.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Analyzers\Orleans.Analyzers.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Core\Orleans.Core.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Analyzers\Orleans.Analyzers.csproj" />
     <ProjectReference Include="$(SourceRoot)test\TestInfrastructure\TestExtensions\TestExtensions.csproj" />
   </ItemGroup>
 </Project>

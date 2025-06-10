@@ -1,7 +1,7 @@
 using System;
-using Orleans.Providers;
+using Forkleans.Providers;
 
-namespace Orleans.Runtime.Providers
+namespace Forkleans.Runtime.Providers
 {
     internal class SiloProviderRuntime : IProviderRuntime
     {

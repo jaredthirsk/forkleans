@@ -1,12 +1,12 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using TestExtensions;
 using Xunit.Abstractions;
-using Orleans.Internal;
-using Orleans.Configuration;
-using Orleans.TestingHost.Utils;
-using Orleans.Reminders.Cosmos;
+using Forkleans.Internal;
+using Forkleans.Configuration;
+using Forkleans.TestingHost.Utils;
+using Forkleans.Reminders.Cosmos;
 
 namespace Tester.Cosmos.Reminders;
 

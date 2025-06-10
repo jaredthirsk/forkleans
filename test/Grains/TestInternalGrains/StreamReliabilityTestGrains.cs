@@ -1,8 +1,8 @@
 //#define USE_GENERICS
 
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 using UnitTests.GrainInterfaces;
 using UnitTests.StreamingTests;
 
@@ -47,7 +47,7 @@ namespace UnitTests.Grains
 #endif
     }
 
-    [Orleans.Providers.StorageProvider(ProviderName = "AzureStore")]
+    [Forkleans.Providers.StorageProvider(ProviderName = "AzureStore")]
 #if USE_GENERICS
     public class StreamReliabilityTestGrain<T> : Grain<IStreamReliabilityTestGrainState>, IStreamReliabilityTestGrain<T>
 #else
@@ -350,7 +350,7 @@ namespace UnitTests.Grains
     //}
 
 
-    [Orleans.Providers.StorageProvider(ProviderName = "AzureStore")]
+    [Forkleans.Providers.StorageProvider(ProviderName = "AzureStore")]
     public class StreamUnsubscribeTestGrain : Grain<StreamReliabilityTestGrainState>, IStreamUnsubscribeTestGrain
     {
         [NonSerialized]

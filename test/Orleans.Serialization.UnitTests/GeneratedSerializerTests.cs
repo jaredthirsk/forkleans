@@ -1,8 +1,8 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.Session;
-using Orleans.Serialization.Utilities;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.Session;
+using Forkleans.Serialization.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
@@ -12,14 +12,14 @@ using System.IO.Pipelines;
 using Xunit;
 using System.Linq;
 using UnitTests.SerializerExternalModels;
-using Orleans;
+using Forkleans;
 
 [assembly: GenerateCodeForDeclaringAssembly(typeof(Person2ExternalStruct))]
 #if NET6_0_OR_GREATER
 [assembly: GenerateCodeForDeclaringAssembly(typeof(Person2External))]
 #endif
 
-namespace Orleans.Serialization.UnitTests;
+namespace Forkleans.Serialization.UnitTests;
 
 [Trait("Category", "BVT")]
 public class GeneratedSerializerTests : IDisposable

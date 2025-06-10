@@ -1,12 +1,12 @@
 using System;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
-using Orleans.Serialization;
+using Forkleans.Serialization;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     internal partial class PersistentStreamProducer<T> : IInternalAsyncBatchObserver<T>
     {

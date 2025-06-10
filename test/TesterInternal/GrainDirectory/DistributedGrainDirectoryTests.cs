@@ -1,8 +1,8 @@
 #nullable enable
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.GrainDirectory;
-using Orleans.Runtime.GrainDirectory;
-using Orleans.TestingHost;
+using Forkleans.GrainDirectory;
+using Forkleans.Runtime.GrainDirectory;
+using Forkleans.TestingHost;
 using Tester.Directories;
 using TestExtensions;
 using Xunit;

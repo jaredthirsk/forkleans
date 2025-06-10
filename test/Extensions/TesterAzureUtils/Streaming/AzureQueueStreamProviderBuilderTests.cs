@@ -1,7 +1,7 @@
-﻿using System.Text;
+using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using Xunit;
 
 namespace Tester.AzureUtils;
@@ -13,7 +13,7 @@ public class AzureQueueStreamProviderBuilderTests
 	{
 		string json = """
 		{
-			"Orleans": {
+			"Forkleans": {
 				"Streaming": {
 					"AzureQueueProvider": {
 						"ProviderType": "AzureQueueStorage",
@@ -36,7 +36,7 @@ public class AzureQueueStreamProviderBuilderTests
 	{
 		string json = """
 		{
-			"Orleans": {
+			"Forkleans": {
 				"Streaming": {
 					"AzureQueueProvider": {
 						"ProviderType": "AzureQueueStorage",
@@ -63,7 +63,7 @@ public class AzureQueueStreamProviderBuilderTests
 	{
 		string json = """
 		{
-			"Orleans": {
+			"Forkleans": {
 				"Streaming": {
 					"AzureQueueProvider": {
 						"ProviderType": "AzureQueueStorage",

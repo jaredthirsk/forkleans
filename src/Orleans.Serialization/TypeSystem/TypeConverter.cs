@@ -7,13 +7,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Options;
-using Orleans.Serialization.Activators;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Configuration;
-using Orleans.Serialization.Serializers;
+using Forkleans.Serialization.Activators;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Configuration;
+using Forkleans.Serialization.Serializers;
 
-namespace Orleans.Serialization.TypeSystem
+namespace Forkleans.Serialization.TypeSystem
 {
     /// <summary>
     /// Formats and parses <see cref="Type"/> instances using configured rules.

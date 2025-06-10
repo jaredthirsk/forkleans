@@ -1,8 +1,8 @@
 using System.Net;
 using Microsoft.Extensions.Configuration;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Configures the Silo endpoint options

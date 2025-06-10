@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Placement;
+using Forkleans.Placement;
 
 #nullable enable
-namespace Orleans.Runtime.Placement.Filtering;
+namespace Forkleans.Runtime.Placement.Filtering;
 
 /// <summary>
 /// Responsible for resolving an <see cref="IPlacementFilterDirector"/> for a <see cref="PlacementFilterStrategy"/>.

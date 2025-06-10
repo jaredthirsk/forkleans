@@ -1,6 +1,6 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams.Filtering
+namespace Forkleans.Streams.Filtering
 {
     /// <summary>
     /// Functionality for filtering streams.

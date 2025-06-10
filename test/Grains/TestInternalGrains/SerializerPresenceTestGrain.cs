@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Serialization;
+using Forkleans.Serialization;
 using UnitTests.GrainInterfaces;
 
 namespace UnitTests.Grains

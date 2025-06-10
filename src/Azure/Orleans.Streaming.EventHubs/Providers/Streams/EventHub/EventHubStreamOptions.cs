@@ -2,11 +2,11 @@ using Azure;
 using Azure.Core;
 using Azure.Messaging.EventHubs;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 using System;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// EventHub settings for a specific hub

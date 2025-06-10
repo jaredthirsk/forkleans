@@ -1,7 +1,7 @@
-﻿using Xunit.Abstractions;
+using Xunit.Abstractions;
 using Xunit;
 
-namespace Orleans.Transactions.Tests
+namespace Forkleans.Transactions.Tests
 {
     [TestCategory("BVT"), TestCategory("Transactions")]
     public class TransactionAttributionTest : TransactionAttributionTestRunner, IClassFixture<MemoryTransactionsFixture>

@@ -1,7 +1,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Implementation of <see cref="IClusterClientLifecycle"/>.

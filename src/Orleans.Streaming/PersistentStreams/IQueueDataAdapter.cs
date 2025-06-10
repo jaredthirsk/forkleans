@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Converts event data to queue message

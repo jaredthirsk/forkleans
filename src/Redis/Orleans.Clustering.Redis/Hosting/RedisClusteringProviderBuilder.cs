@@ -1,9 +1,9 @@
-using Orleans.Providers;
+using Forkleans.Providers;
 using Microsoft.Extensions.Configuration;
-using Orleans;
-using Orleans.Hosting;
+using Forkleans;
+using Forkleans.Hosting;
 using StackExchange.Redis;
-using Orleans.Clustering.Redis.Hosting;
+using Forkleans.Clustering.Redis.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 [assembly: RegisterProvider("Redis", "Clustering", "Client", typeof(RedisClusteringProviderBuilder))]
 [assembly: RegisterProvider("AzureRedisCache", "Clustering", "Client", typeof(RedisClusteringProviderBuilder))]
 
-namespace Orleans.Clustering.Redis.Hosting;
+namespace Forkleans.Clustering.Redis.Hosting;
 
 internal sealed class RedisClusteringProviderBuilder : IProviderBuilder<ISiloBuilder>, IProviderBuilder<IClientBuilder>
 {

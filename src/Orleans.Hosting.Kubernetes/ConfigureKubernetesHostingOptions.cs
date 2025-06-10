@@ -1,7 +1,7 @@
 #nullable enable
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,7 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Orleans.Hosting.Kubernetes
+namespace Forkleans.Hosting.Kubernetes
 {
     internal class ConfigureKubernetesHostingOptions :
         IConfigureOptions<ClusterOptions>,

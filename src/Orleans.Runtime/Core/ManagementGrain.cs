@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Concurrency;
-using Orleans.Metadata;
-using Orleans.Placement.Repartitioning;
-using Orleans.Providers;
-using Orleans.Runtime.GrainDirectory;
-using Orleans.Runtime.MembershipService;
-using Orleans.Versions;
-using Orleans.Versions.Compatibility;
-using Orleans.Versions.Selector;
+using Forkleans.Concurrency;
+using Forkleans.Metadata;
+using Forkleans.Placement.Repartitioning;
+using Forkleans.Providers;
+using Forkleans.Runtime.GrainDirectory;
+using Forkleans.Runtime.MembershipService;
+using Forkleans.Versions;
+using Forkleans.Versions.Compatibility;
+using Forkleans.Versions.Selector;
 
-namespace Orleans.Runtime.Management
+namespace Forkleans.Runtime.Management
 {
     /// <summary>
     /// Implementation class for the Orleans management grain.

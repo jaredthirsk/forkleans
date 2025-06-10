@@ -1,15 +1,15 @@
 using Newtonsoft.Json;
 
 #if ORLEANS_CLUSTERING
-namespace Orleans.Clustering.Cosmos;
+namespace Forkleans.Clustering.Cosmos;
 #elif ORLEANS_PERSISTENCE
-namespace Orleans.Persistence.Cosmos;
+namespace Forkleans.Persistence.Cosmos;
 #elif ORLEANS_REMINDERS
-namespace Orleans.Reminders.Cosmos;
+namespace Forkleans.Reminders.Cosmos;
 #elif ORLEANS_STREAMING
-namespace Orleans.Streaming.Cosmos;
+namespace Forkleans.Streaming.Cosmos;
 #elif ORLEANS_DIRECTORY
-namespace Orleans.GrainDirectory.Cosmos;
+namespace Forkleans.GrainDirectory.Cosmos;
 #else
 // No default namespace intentionally to cause compile errors if something is not defined
 #endif

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace Orleans.Providers;
+namespace Forkleans.Providers;
 
 /// <summary>
 /// Interface for providers which configure Orleans services.

@@ -1,4 +1,4 @@
-namespace Orleans.Services
+namespace Forkleans.Services
 {
     /// <summary>
     /// Base interface for grain services.

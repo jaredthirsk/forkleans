@@ -8,7 +8,7 @@ using System.Text.Json.Nodes;
 using MessagePack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Orleans;
+using Forkleans;
 
 [Alias("test.person.alias"), GenerateSerializer]
 public record Person([property: Id(0)] int Age, [property: Id(1)] string Name)
@@ -236,7 +236,7 @@ public class SomeClassWithSerializers
     public override string ToString() => $"{nameof(IntField)}: {IntField}, {nameof(IntProperty)}: {IntProperty}";
 }
 
-namespace Orleans.Serialization.UnitTests
+namespace Forkleans.Serialization.UnitTests
 {
     public class MyForeignLibraryType
     {
@@ -687,13 +687,13 @@ namespace Orleans.Serialization.UnitTests
     public sealed class Outer<T>
     {
         [GenerateSerializer]
-        [Alias("Orleans.Serialization.UnitTests.Outer.InnerNonGen`1")]
+        [Alias("Forkleans.Serialization.UnitTests.Outer.InnerNonGen`1")]
         public class InnerNonGen
         {
         }
 
         [GenerateSerializer]
-        [Alias("Orleans.Serialization.UnitTests.Outer.InnerGen`2")]
+        [Alias("Forkleans.Serialization.UnitTests.Outer.InnerGen`2")]
         public class InnerGen<U>
         {
         }

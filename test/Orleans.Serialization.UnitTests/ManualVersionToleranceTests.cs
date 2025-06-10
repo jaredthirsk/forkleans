@@ -1,8 +1,8 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.GeneratedCodeHelpers;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.Session;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.GeneratedCodeHelpers;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.Session;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Buffers;
@@ -12,11 +12,11 @@ using Xunit;
 using Xunit.Abstractions;
 using System.Threading.Tasks;
 
-namespace Orleans.Serialization.UnitTests
+namespace Forkleans.Serialization.UnitTests
 {
     public class ManualVersionToleranceTests
     {
-        private const string TestString = "hello, Orleans.Serialization";
+        private const string TestString = "hello, Forkleans.Serialization";
         private readonly ITestOutputHelper _log;
         private readonly IServiceProvider _serviceProvider;
         private readonly CodecProvider _codecProvider;

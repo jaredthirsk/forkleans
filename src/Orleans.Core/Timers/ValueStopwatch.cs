@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Non-allocating stopwatch for timing durations.

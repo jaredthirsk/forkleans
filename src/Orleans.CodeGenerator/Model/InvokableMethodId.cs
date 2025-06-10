@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using System;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     /// <summary>
     /// Identifies an invokable method.

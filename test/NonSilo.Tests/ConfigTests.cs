@@ -1,4 +1,4 @@
-using Orleans.Runtime.Configuration;
+using Forkleans.Runtime.Configuration;
 using Xunit;
 using Xunit.Abstractions;
 

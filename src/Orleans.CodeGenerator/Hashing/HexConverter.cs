@@ -5,7 +5,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace Orleans.CodeGenerator.Hashing
+namespace Forkleans.CodeGenerator.Hashing
 {
     internal static class HexConverter
     {

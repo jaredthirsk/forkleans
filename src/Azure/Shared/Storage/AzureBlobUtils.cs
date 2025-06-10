@@ -3,9 +3,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 
 #if ORLEANS_PERSISTENCE
-namespace Orleans.Persistence.AzureStorage
+namespace Forkleans.Persistence.AzureStorage
 #elif ORLEANS_STREAMING
-namespace Orleans.Streaming.AzureStorage
+namespace Forkleans.Streaming.AzureStorage
 #else
 // No default namespace intentionally to cause compile errors if something is not defined
 #endif

@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using Orleans.GrainDirectory;
-using Orleans.Runtime.Scheduler;
+using Forkleans.GrainDirectory;
+using Forkleans.Runtime.Scheduler;
 
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     /// <summary>
     /// Implementation of <see cref="IGrainLocator"/> that uses the in memory distributed directory of Orleans

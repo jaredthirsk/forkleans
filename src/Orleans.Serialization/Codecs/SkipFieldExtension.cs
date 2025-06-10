@@ -1,9 +1,9 @@
 using System;
 using System.Buffers;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.WireProtocol;
 
-namespace Orleans.Serialization.Codecs
+namespace Forkleans.Serialization.Codecs
 {
     /// <summary>
     /// A serializer which skips all fields which it encounters.

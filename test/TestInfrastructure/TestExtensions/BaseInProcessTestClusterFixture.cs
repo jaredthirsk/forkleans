@@ -2,8 +2,8 @@ using System.Runtime.ExceptionServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.TestingHost;
 
 namespace TestExtensions;
 

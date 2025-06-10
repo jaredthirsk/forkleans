@@ -1,6 +1,6 @@
 using static System.String;
 
-namespace Orleans.Configuration;
+namespace Forkleans.Configuration;
 
 /// <summary>
 /// Validates <see cref="AdoNetStreamOptions"/> configuration.

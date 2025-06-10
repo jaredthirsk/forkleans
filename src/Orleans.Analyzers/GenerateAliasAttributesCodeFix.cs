@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Simplification;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Orleans.Analyzers;
+namespace Forkleans.Analyzers;
 
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(GenerateAliasAttributesCodeFix)), Shared]
 public class GenerateAliasAttributesCodeFix : CodeFixProvider

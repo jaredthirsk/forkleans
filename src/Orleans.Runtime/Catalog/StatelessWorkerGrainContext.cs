@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 internal partial class StatelessWorkerGrainContext : IGrainContext, IAsyncDisposable, IActivationLifecycleObserver
 {
@@ -198,7 +198,7 @@ internal partial class StatelessWorkerGrainContext : IGrainContext, IAsyncDispos
     private void CollectIdleWorkers()
     {
         // These parameter values were tuned using a genetic algorithm, for potential re-tuning see:
-        // https://github.com/ledjon-behluli/Orleans.FullyAdaptiveStatelessWorkerSimulations/blob/main/Orleans.FullyAdaptiveStatelessWorkerSimulations/Program.cs
+        // https://github.com/ledjon-behluli/Forkleans.FullyAdaptiveStatelessWorkerSimulations/blob/main/Forkleans.FullyAdaptiveStatelessWorkerSimulations/Program.cs
 
         // For more info see:
         // https://www.ledjonbehluli.com/posts/orleans_adaptive_stateless_worker/

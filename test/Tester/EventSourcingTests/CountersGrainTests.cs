@@ -1,7 +1,7 @@
 using TestGrainInterfaces;
 using Xunit;
 using Assert = Xunit.Assert;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
 namespace Tester.EventSourcingTests
 {

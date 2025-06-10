@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Metadata
+namespace Forkleans.Metadata
 {
     /// <summary>
     /// Populates grain interface properties with the grain interfaces implemented by a grain class.

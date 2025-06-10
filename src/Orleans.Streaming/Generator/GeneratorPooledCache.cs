@@ -1,13 +1,13 @@
 
 using System;
 using System.Collections.Generic;
-using Orleans.Providers.Streams.Common;
-using Orleans.Streams;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Streams;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Providers.Streams.Generator
+namespace Forkleans.Providers.Streams.Generator
 {
     /// <summary>
     /// Pooled cache for generator stream provider.

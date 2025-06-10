@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class RedisGrainDirectoryOptions
     {
@@ -27,7 +27,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.GrainDirectory.Redis
+namespace Forkleans.GrainDirectory.Redis
 {
     public partial class RedisGrainDirectory : IGrainDirectory, ILifecycleParticipant<Runtime.ISiloLifecycle>
     {
@@ -49,7 +49,7 @@ namespace Orleans.GrainDirectory.Redis
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class RedisGrainDirectoryExtensions
     {

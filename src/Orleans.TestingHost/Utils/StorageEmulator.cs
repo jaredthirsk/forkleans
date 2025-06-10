@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Orleans.TestingHost.Utils
+namespace Forkleans.TestingHost.Utils
 {
     /// <summary>
     /// A wrapper on Azure Storage Emulator.

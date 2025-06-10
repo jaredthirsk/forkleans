@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
-using Orleans.Runtime.ReminderService;
+using Forkleans.Runtime;
+using Forkleans.Runtime.ReminderService;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Validates <see cref="AdoNetReminderTableOptions"/> configuration.

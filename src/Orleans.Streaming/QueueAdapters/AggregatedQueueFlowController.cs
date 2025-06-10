@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// A <see cref="IQueueFlowController"/> which aggregates multiple other <see cref="IQueueFlowController"/> values.

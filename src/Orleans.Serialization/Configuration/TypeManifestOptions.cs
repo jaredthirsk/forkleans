@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans.Serialization.Configuration
+namespace Forkleans.Serialization.Configuration
 {
     /// <summary>
     /// Configuration of all types which are known to the code generator.

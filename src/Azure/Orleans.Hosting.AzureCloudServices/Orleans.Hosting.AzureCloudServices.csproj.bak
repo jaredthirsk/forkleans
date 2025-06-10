@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>Microsoft.Forkleans.Hosting.AzureCloudServices</PackageId>
+    <Title>Microsoft Orleans Hosting on Azure Cloud Services</Title>
+    <Description>Hosting utilities for Azure Cloud Services of Microsoft Forkleans.</Description>
+    <PackageTags>$(PackageTags) Azure Cloud Services</PackageTags>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <AssemblyName>Forkleans.Hosting.AzureCloudServices</AssemblyName>
+    <RootNamespace>Forkleans.Hosting.AzureCloudServices</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Streaming\Forkleans.Streaming.csproj" />
+    <PackageReference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

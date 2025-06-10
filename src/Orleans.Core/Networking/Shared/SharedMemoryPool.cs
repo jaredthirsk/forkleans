@@ -1,6 +1,6 @@
 using System.Buffers;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     internal sealed class SharedMemoryPool
     {

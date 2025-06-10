@@ -1,4 +1,4 @@
-namespace Orleans.Streaming.AdoNet;
+namespace Forkleans.Streaming.AdoNet;
 
 /// <summary>
 /// Maps Orleans streams and queues identifiers to ADO.NET queue identifiers.

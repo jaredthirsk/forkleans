@@ -3,10 +3,10 @@ using System.Buffers.Text;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
 #nullable enable
-namespace Orleans.BroadcastChannel
+namespace Forkleans.BroadcastChannel
 {
     /// <summary>
     /// Identifies a Channel within a provider

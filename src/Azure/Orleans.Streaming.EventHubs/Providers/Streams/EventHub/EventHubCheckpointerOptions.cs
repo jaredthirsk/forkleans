@@ -1,7 +1,7 @@
-using Orleans.Streaming.EventHubs;
+using Forkleans.Streaming.EventHubs;
 using System;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public class AzureTableStreamCheckpointerOptions : AzureStorageOperationOptions
     {

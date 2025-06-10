@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Represents a reason for initiating grain deactivation.

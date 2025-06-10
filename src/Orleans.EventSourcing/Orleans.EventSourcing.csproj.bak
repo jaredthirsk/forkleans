@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Microsoft.Forkleans.EventSourcing</PackageId>
+    <Title>Microsoft Orleans Event-Sourcing</Title>
+    <Description>Base types for creating Microsoft Orleans grains with event-sourced state.</Description>
+    <PackageTags>$(PackageTags) EventSourcing</PackageTags>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <AssemblyName>Forkleans.EventSourcing</AssemblyName>
+    <RootNamespace>ForkleansEventSourcing</RootNamespace>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <PackageReference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

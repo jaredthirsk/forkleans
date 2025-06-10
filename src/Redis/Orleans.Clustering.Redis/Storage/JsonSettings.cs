@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 using System.Net;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
 
-namespace Orleans.Clustering.Redis
+namespace Forkleans.Clustering.Redis
 {
     internal static class JsonSettings
     {

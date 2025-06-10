@@ -1,12 +1,12 @@
-using Orleans.CodeGenerator.SyntaxGeneration;
+using Forkleans.CodeGenerator.SyntaxGeneration;
 using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
-using Orleans.CodeGenerator.Diagnostics;
+using Forkleans.CodeGenerator.Diagnostics;
 using System.Linq;
 using System.Diagnostics;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     [DebuggerDisplay("{InterfaceType} (proxy base {ProxyBaseType})")]
     internal class ProxyInterfaceDescription : IEquatable<ProxyInterfaceDescription>

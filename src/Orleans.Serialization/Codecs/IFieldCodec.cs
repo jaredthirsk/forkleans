@@ -1,9 +1,9 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.WireProtocol;
 using System;
 using System.Buffers;
 
-namespace Orleans.Serialization.Codecs
+namespace Forkleans.Serialization.Codecs
 {
     /// <summary>
     /// Marker type for field codecs.
@@ -23,10 +23,10 @@ namespace Orleans.Serialization.Codecs
 
     /// <summary>
     /// Provides functionality for reading and writing values of a specified type.
-    /// Implements the <see cref="Orleans.Serialization.Codecs.IFieldCodec" />
+    /// Implements the <see cref="Forkleans.Serialization.Codecs.IFieldCodec" />
     /// </summary>
     /// <typeparam name="T">The type which this implementation can read and write.</typeparam>
-    /// <seealso cref="Orleans.Serialization.Codecs.IFieldCodec" />
+    /// <seealso cref="Forkleans.Serialization.Codecs.IFieldCodec" />
     public interface IFieldCodec<T> : IFieldCodec
     {
         /// <summary>

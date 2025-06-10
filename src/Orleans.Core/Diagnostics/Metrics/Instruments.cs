@@ -1,6 +1,6 @@
 using System.Diagnostics.Metrics;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 public static class Instruments
 {

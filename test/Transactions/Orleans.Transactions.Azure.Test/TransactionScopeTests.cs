@@ -1,11 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
 
-using Orleans.Transactions.TestKit.xUnit;
+using Forkleans.Transactions.TestKit.xUnit;
 
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Orleans.Transactions.AzureStorage.Tests
+namespace Forkleans.Transactions.AzureStorage.Tests
 {
     [TestCategory("AzureStorage"), TestCategory("Transactions"), TestCategory("Functional")]
     public class TransactionScopeTests : ScopedTransactionsTestRunnerxUnit, IClassFixture<TestFixture>

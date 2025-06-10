@@ -3,10 +3,10 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Orleans.CodeGenerator.SyntaxGeneration;
+using Forkleans.CodeGenerator.SyntaxGeneration;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     [DebuggerDisplay("{MethodDescription}")]
     internal sealed class GeneratedInvokableDescription : ISerializableTypeDescription

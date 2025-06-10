@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.Providers;
-using Orleans.Runtime;
-using Orleans.Streams.Core;
+using Forkleans.Providers;
+using Forkleans.Runtime;
+using Forkleans.Streams.Core;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Provider-facing interface for manager of streaming providers

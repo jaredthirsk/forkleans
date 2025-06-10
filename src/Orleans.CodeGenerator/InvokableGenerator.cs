@@ -1,15 +1,15 @@
-using Orleans.CodeGenerator.SyntaxGeneration;
+using Forkleans.CodeGenerator.SyntaxGeneration;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Orleans.CodeGenerator.Diagnostics;
+using Forkleans.CodeGenerator.Diagnostics;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using System.Linq.Expressions;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     /// <summary>
     /// Generates RPC stub objects called invokers.

@@ -2,11 +2,11 @@ using System;
 using MessagePack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.Utilities.Internal;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.Utilities.Internal;
 
-namespace Orleans.Serialization;
+namespace Forkleans.Serialization;
 
 /// <summary>
 /// Extension method for <see cref="ISerializerBuilder"/>.

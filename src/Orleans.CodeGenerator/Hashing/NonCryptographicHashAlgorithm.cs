@@ -10,7 +10,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Orleans.CodeGenerator.Hashing
+namespace Forkleans.CodeGenerator.Hashing
 {
     /// <summary>
     ///   Represents a non-cryptographic hash algorithm.

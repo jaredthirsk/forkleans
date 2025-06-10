@@ -4,12 +4,12 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace Orleans.Analyzers
+namespace Forkleans.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AlwaysInterleaveDiagnosticAnalyzer : DiagnosticAnalyzer
     {
-        private const string AlwaysInterleaveAttributeName = "Orleans.Concurrency.AlwaysInterleaveAttribute";
+        private const string AlwaysInterleaveAttributeName = "Forkleans.Concurrency.AlwaysInterleaveAttribute";
 
         public const string DiagnosticId = "ORLEANS0001";
         public const string Title = "[AlwaysInterleave] must only be used on the grain interface method and not the grain class method";

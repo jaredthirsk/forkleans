@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Configuration;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions.State
+namespace Forkleans.Transactions.State
 {
     internal partial class ReadWriteLock<TState>
        where TState : class, new()

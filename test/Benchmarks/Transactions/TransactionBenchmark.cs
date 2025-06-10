@@ -1,8 +1,8 @@
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 using BenchmarkGrainInterfaces.Transaction;
 using TestExtensions;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Transactions;
+using Forkleans.Transactions;
 
 namespace Benchmarks.Transactions
 {

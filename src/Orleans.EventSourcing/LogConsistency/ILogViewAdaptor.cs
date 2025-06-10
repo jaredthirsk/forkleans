@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Orleans.EventSourcing
+namespace Forkleans.EventSourcing
 {
     /// <summary>
     /// A log view adaptor is the storage interface for <see cref="LogConsistentGrain{T}"/>, whose state is defined as a log view. 

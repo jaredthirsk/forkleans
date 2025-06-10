@@ -1,11 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>Forkleans.Serialization.SystemTextJson</AssemblyName>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Orleans.Serialization.SystemTextJson</PackageId>
+    <PackageId>Microsoft.Forkleans.Serialization.SystemTextJson</PackageId>
     <TargetFrameworks>$(DefaultTargetFrameworks);netstandard2.1</TargetFrameworks>
-    <PackageDescription>System.Text.Json integration for Orleans.Serialization</PackageDescription>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <PackageDescription>System.Text.Json integration for Forkleans.Serialization</PackageDescription>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
   </PropertyGroup>
 

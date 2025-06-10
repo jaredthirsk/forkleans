@@ -1,6 +1,6 @@
 
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Functionality for controlling the flow of retrieved queue items.

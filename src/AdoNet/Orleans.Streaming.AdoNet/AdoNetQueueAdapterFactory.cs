@@ -1,7 +1,7 @@
 using System.Threading;
 using Microsoft.Extensions.Hosting;
 
-namespace Orleans.Streaming.AdoNet;
+namespace Forkleans.Streaming.AdoNet;
 
 internal class AdoNetQueueAdapterFactory : IQueueAdapterFactory
 {

@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.Transactions.Abstractions;
-using Orleans.Transactions.State;
+using Forkleans.Runtime;
+using Forkleans.Transactions.Abstractions;
+using Forkleans.Transactions.State;
 
-namespace Orleans.Transactions.TestKit
+namespace Forkleans.Transactions.TestKit
 {
     internal class FaultInjectionTransactionManager<TState> : ITransactionManager
         where TState : class, new()

@@ -1,8 +1,8 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System.Collections.Generic;
 
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// A picker to choose from provided hash functions. Provides agility to update or change hashing functionality for both built-in and custom operations.

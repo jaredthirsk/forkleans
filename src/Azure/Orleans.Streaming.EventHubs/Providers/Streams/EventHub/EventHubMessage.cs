@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Replication of EventHub EventData class, reconstructed from cached data CachedEventHubMessage

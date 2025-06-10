@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Hosting;
+using Forkleans.Configuration;
+using Forkleans.Hosting;
 
-namespace Orleans.TestingHost
+namespace Forkleans.TestingHost
 {
     /// <summary>
     /// Extension methods for <see cref="ISiloBuilder"/>.

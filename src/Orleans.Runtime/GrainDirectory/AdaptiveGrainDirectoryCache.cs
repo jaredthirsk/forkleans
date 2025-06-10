@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Orleans.Caching;
-using Orleans.Internal;
+using Forkleans.Caching;
+using Forkleans.Internal;
 
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     internal class AdaptiveGrainDirectoryCache : IGrainDirectoryCache
     {

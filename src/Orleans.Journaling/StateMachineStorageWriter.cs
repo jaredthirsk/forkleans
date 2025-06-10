@@ -1,6 +1,6 @@
 using System.Buffers;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 public readonly struct StateMachineStorageWriter
 {

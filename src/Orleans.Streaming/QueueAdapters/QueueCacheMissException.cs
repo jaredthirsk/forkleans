@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Runtime.Serialization;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Exception indicates that the requested message is not in the queue cache.

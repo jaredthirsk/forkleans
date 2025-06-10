@@ -1,4 +1,4 @@
-namespace Orleans.Concurrency
+namespace Forkleans.Concurrency
 {
     /// <summary>
     /// Wrapper class for carrying immutable data.

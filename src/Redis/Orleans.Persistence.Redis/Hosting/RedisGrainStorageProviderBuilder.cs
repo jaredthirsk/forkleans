@@ -1,19 +1,19 @@
-using Orleans.Providers;
+using Forkleans.Providers;
 using Microsoft.Extensions.Configuration;
-using Orleans;
-using Orleans.Hosting;
+using Forkleans;
+using Forkleans.Hosting;
 using StackExchange.Redis;
 using Microsoft.Extensions.Options;
-using Orleans.Persistence;
+using Forkleans.Persistence;
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Storage;
+using Forkleans.Storage;
 
 [assembly: RegisterProvider("Redis", "GrainStorage", "Silo", typeof(RedisGrainStorageProviderBuilder))]
 [assembly: RegisterProvider("AzureRedisCache", "GrainStorage", "Silo", typeof(RedisGrainStorageProviderBuilder))]
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 internal sealed class RedisGrainStorageProviderBuilder : IProviderBuilder<ISiloBuilder>
 {

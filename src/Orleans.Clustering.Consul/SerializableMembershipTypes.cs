@@ -5,7 +5,7 @@ using System.Text;
 using Consul;
 using Newtonsoft.Json;
 
-namespace Orleans.Runtime.Host
+namespace Forkleans.Runtime.Host
 {
     /// <summary>
     /// JSON Serializable Object that when serialized and Base64 encoded, forms the Value part of a Silo's Consul KVPair

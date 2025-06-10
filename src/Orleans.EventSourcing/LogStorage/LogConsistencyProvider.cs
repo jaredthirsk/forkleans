@@ -1,7 +1,7 @@
-using Orleans.Storage;
+using Forkleans.Storage;
 
 
-namespace Orleans.EventSourcing.LogStorage
+namespace Forkleans.EventSourcing.LogStorage
 {
     /// <summary>
     /// A log-consistency provider that stores the latest view in primary storage, using any standard storage provider.

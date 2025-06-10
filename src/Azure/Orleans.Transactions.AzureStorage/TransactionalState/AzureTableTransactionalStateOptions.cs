@@ -1,6 +1,6 @@
-using Orleans.Transactions.AzureStorage;
+using Forkleans.Transactions.AzureStorage;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public class AzureTableTransactionalStateOptions : AzureStorageOperationOptions
     {

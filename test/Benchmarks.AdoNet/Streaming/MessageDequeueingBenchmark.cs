@@ -1,8 +1,8 @@
 using System.Data.SqlClient;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
-using Orleans.Streaming.AdoNet;
-using Orleans.Tests.SqlUtils;
+using Forkleans.Streaming.AdoNet;
+using Forkleans.Tests.SqlUtils;
 using UnitTests.General;
 using static System.String;
 

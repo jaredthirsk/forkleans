@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// An async mutual exclusion mechanism that supports scoping via ‘using’.

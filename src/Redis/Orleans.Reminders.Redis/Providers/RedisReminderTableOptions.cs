@@ -1,11 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Orleans.Reminders.Redis;
-using Orleans.Runtime;
+using Forkleans.Reminders.Redis;
+using Forkleans.Runtime;
 using StackExchange.Redis;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Redis reminder options.

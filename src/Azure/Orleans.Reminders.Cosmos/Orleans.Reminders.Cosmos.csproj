@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Reminders.Cosmos</PackageId>
+    <PackageId>Microsoft.Forkleans.Reminders.Cosmos</PackageId>
     <Title>Microsoft Orleans Reminders Azure Cosmos DB</Title>
     <Description>Microsoft Orleans reminders provider for Azure Cosmos DB</Description>
     <PackageTags>$(PackageTags) Azure Cosmos DB</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <AssemblyName>Orleans.Reminders.Cosmos</AssemblyName>
-    <RootNamespace>Orleans.Reminders.Cosmos</RootNamespace>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <AssemblyName>Forkleans.Reminders.Cosmos</AssemblyName>
+    <RootNamespace>Forkleans.Reminders.Cosmos</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <DefineConstants>$(DefineConstants);ORLEANS_REMINDERS</DefineConstants>
     <Nullable>enable</Nullable>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Reminders\Orleans.Reminders.csproj" />
+    <ProjectReference Include="..\..\Orleans.Reminders\Orleans.Reminders.csproj" />
     <PackageReference Include="Azure.Core" />
     <PackageReference Include="Microsoft.Azure.Cosmos" />
   </ItemGroup>

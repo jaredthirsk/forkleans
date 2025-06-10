@@ -6,9 +6,9 @@ using Azure;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions.AzureStorage
+namespace Forkleans.Transactions.AzureStorage
 {
     public partial class AzureTableTransactionalStateStorage<TState> : ITransactionalStateStorage<TState>
         where TState : class, new()
@@ -30,7 +30,7 @@ namespace Orleans.Transactions.AzureStorage
 
             // default values must be included
             // otherwise, we get errors for explicitly specified default values
-            // (e.g.  Orleans.Transactions.Azure.Tests.TestState.state)
+            // (e.g.  Forkleans.Transactions.Azure.Tests.TestState.state)
             this.jsonSettings.DefaultValueHandling = DefaultValueHandling.Include;
         }
 

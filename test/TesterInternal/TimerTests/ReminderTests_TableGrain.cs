@@ -1,10 +1,10 @@
 //#define USE_SQL_SERVER
 
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using Xunit;
-using Orleans.Internal;
+using Forkleans.Internal;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedVariable

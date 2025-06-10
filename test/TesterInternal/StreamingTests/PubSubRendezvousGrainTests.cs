@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.Streams;
-using Orleans.TestingHost;
+using Forkleans.Runtime;
+using Forkleans.Streams;
+using Forkleans.TestingHost;
 using TestExtensions;
 using Xunit;
 
@@ -178,10 +178,10 @@ namespace UnitTests.StreamingTests
         }
 
         [Serializable]
-        [Orleans.GenerateSerializer]
+        [Forkleans.GenerateSerializer]
         public class DummyStreamProducerExtension : IStreamProducerExtension
         {
-            [Orleans.Id(0)]
+            [Forkleans.Id(0)]
             private readonly Guid id;
 
             public DummyStreamProducerExtension()

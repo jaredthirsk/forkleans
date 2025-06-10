@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsTestProject>true</IsTestProject>
+    <TargetFrameworks>$(TestTargetFrameworks);netcoreapp3.1</TargetFrameworks>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CsCheck" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.extensibility.core" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="FSharp.Core" />
+    <PackageReference Include="Google.Protobuf" />
+    <PackageReference Include="Grpc.Tools" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Serialization.TestKit\Forkleans.Serialization.TestKit.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Serialization.FSharp\Forkleans.Serialization.FSharp.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Serialization\Forkleans.Serialization.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Serialization.SystemTextJson\Forkleans.Serialization.SystemTextJson.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Serialization.NewtonsoftJson\Forkleans.Serialization.NewtonsoftJson.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Serialization.MessagePack\Forkleans.Serialization.MessagePack.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Serializers\Forkleans.Serialization.Protobuf\Forkleans.Serialization.Protobuf.csproj" />
+    <ProjectReference Include="..\Misc\TestSerializerExternalModels\TestSerializerExternalModels.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="protobuf-model.proto" GrpcServices="None" />
+  </ItemGroup>
+
+</Project>

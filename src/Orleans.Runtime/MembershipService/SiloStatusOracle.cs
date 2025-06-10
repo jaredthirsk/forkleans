@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Collections.Immutable;
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     internal class SiloStatusOracle : ISiloStatusOracle
     {

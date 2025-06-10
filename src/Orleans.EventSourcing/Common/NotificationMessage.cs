@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Orleans.EventSourcing.Common
+namespace Forkleans.EventSourcing.Common
 {
     /// <summary>
     /// Base class for notification messages that are sent by log view adaptors to other 

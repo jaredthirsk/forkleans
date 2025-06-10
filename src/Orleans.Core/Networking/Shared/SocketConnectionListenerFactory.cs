@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     internal sealed class SocketConnectionListenerFactory : IConnectionListenerFactory
     {
@@ -25,7 +25,7 @@ namespace Orleans.Networking.Shared
             }
 
             this.socketConnectionOptions = socketConnectionOptions.Value;
-            var logger = loggerFactory.CreateLogger("Orleans.Sockets");
+            var logger = loggerFactory.CreateLogger("Forkleans.Sockets");
             this.trace = new SocketsTrace(logger);
             this.schedulers = schedulers;
         }

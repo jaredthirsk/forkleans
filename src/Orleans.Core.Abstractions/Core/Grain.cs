@@ -3,11 +3,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Core;
-using Orleans.Runtime;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Core;
+using Forkleans.Runtime;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans;
+namespace Forkleans;
 
 /// <summary>
 /// The abstract base class for all grain classes.

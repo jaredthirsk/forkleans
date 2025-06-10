@@ -9,10 +9,10 @@ using Azure;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
 
-namespace Orleans.GrainDirectory.AzureStorage
+namespace Forkleans.GrainDirectory.AzureStorage
 {
     public class AzureTableGrainDirectory : IGrainDirectory, ILifecycleParticipant<ISiloLifecycle>
     {

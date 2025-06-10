@@ -1,10 +1,10 @@
-using Orleans.Providers.Streams.Common;
+using Forkleans.Providers.Streams.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Aggregated cache pressure monitor

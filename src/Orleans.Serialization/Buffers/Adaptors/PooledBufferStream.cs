@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.ObjectPool;
 
-namespace Orleans.Serialization.Buffers.Adaptors
+namespace Forkleans.Serialization.Buffers.Adaptors
 {
     /// <summary>
     /// A <see cref="IBufferWriter{T}"/> implementation which boxes another buffer writer.

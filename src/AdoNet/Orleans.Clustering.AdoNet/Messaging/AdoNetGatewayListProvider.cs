@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Clustering.AdoNet.Storage;
-using Orleans.Messaging;
-using Orleans.Configuration;
+using Forkleans.Clustering.AdoNet.Storage;
+using Forkleans.Messaging;
+using Forkleans.Configuration;
 
-namespace Orleans.Runtime.Membership
+namespace Forkleans.Runtime.Membership
 {
     public partial class AdoNetGatewayListProvider : IGatewayListProvider
     {

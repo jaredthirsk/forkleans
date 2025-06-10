@@ -1,6 +1,6 @@
-using Orleans.Reminders.DynamoDB;
+using Forkleans.Reminders.DynamoDB;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Configuration for Amazon DynamoDB reminder storage.

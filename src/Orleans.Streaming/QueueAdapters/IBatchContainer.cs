@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Each queue message is allowed to be a heterogeneous, ordered set of events.

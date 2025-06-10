@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using OrleansAWSUtils.Streams;
+using Forkleans.Configuration;
+using ForkleansAWSUtils.Streams;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public class SiloSqsStreamConfigurator : SiloPersistentStreamConfigurator
     {

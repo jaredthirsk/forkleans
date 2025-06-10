@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration.Internal;
-using Orleans.Runtime;
-using Orleans.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Forkleans.Configuration.Internal;
+using Forkleans.Runtime;
+using Forkleans.Hosting;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 public static class AzureBlobStorageHostingExtensions
 {

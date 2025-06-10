@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Indicates a lifecycle was canceled, either by request or due to observer error.

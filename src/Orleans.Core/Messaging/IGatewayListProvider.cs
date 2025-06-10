@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Orleans.Messaging
+namespace Forkleans.Messaging
 {
     /// <summary>
     /// Interface that provides Orleans gateways information.

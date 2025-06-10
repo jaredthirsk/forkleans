@@ -1,5 +1,5 @@
-using Orleans.Providers;
-using Orleans.Serialization;
+using Forkleans.Providers;
+using Forkleans.Serialization;
 using UnitTests.GrainInterfaces;
 
 namespace TestGrains
@@ -34,7 +34,7 @@ namespace TestGrains
     // use the explictly specified "CustomStorage" log-consistency provider with symmetric access from all clusters
     [LogConsistencyProvider(ProviderName = "CustomStorage")]
     public class LogTestGrainCustomStorage : LogTestGrain,
-        Orleans.EventSourcing.CustomStorage.ICustomStorageInterface<MyGrainState, object>
+        Forkleans.EventSourcing.CustomStorage.ICustomStorageInterface<MyGrainState, object>
     {
 
         // we use another impl of this grain as the primary.
@@ -65,7 +65,7 @@ namespace TestGrains
     // use the explictly specified "CustomStorage" log-consistency provider with access from primary cluster only
     [LogConsistencyProvider(ProviderName = "CustomStoragePrimaryCluster")]
     public class LogTestGrainCustomStoragePrimaryCluster : LogTestGrain,
-        Orleans.EventSourcing.CustomStorage.ICustomStorageInterface<MyGrainState, object>
+        Forkleans.EventSourcing.CustomStorage.ICustomStorageInterface<MyGrainState, object>
     {
         private readonly DeepCopier<MyGrainState> copier;
 

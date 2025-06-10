@@ -1,7 +1,7 @@
 using MySql.Data.MySqlClient;
 using Npgsql;
-using Orleans.TestingHost;
-using Orleans.Tests.SqlUtils;
+using Forkleans.TestingHost;
+using Forkleans.Tests.SqlUtils;
 using Tester.Directories;
 using UnitTests.General;
 using UnitTests.Grains.Directories;

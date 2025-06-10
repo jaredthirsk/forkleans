@@ -1,5 +1,5 @@
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// The observable silo lifecycle.
@@ -8,7 +8,7 @@ namespace Orleans.Runtime
     /// This type is usually used as the generic parameter in <see cref="ILifecycleParticipant{ISiloLifecycle}"/> as
     /// a means of participating in the lifecycle stages of a silo.
     /// </remarks>
-    /// <seealso cref="Orleans.ILifecycleObservable" />
+    /// <seealso cref="Forkleans.ILifecycleObservable" />
     public interface ISiloLifecycle : ILifecycleObservable
     {
         /// <summary>

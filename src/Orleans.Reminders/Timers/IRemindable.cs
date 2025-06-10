@@ -2,7 +2,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Callback interface that grains must implement in order to be able to register and receive Reminders.

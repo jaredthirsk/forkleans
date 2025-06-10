@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Orleans.Transactions.AzureStorage</PackageId>
+    <PackageId>Microsoft.Forkleans.Transactions.AzureStorage</PackageId>
     <Title>Microsoft Orleans Azure Storage Transactions Provider</Title>
     <Description>Microsoft Orleans transactions storage provider backed by Azure Storage</Description>
     <PackageTags>$(PackageTags) Azure Transactions</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <AssemblyName>Orleans.Transactions.AzureStorage</AssemblyName>
-    <RootNamespace>Orleans.Transactions.AzureStorage</RootNamespace>
+    <AssemblyName>Forkleans.Transactions.AzureStorage</AssemblyName>
+    <RootNamespace>Forkleans.Transactions.AzureStorage</RootNamespace>
     <DefineConstants>$(DefineConstants);ORLEANS_TRANSACTIONS</DefineConstants>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>

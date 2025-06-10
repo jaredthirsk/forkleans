@@ -1,11 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Orleans.Storage;
-using Orleans.Providers;
-using Orleans.Persistence.Cosmos;
-using Orleans.Runtime.Hosting;
+using Forkleans.Storage;
+using Forkleans.Providers;
+using Forkleans.Persistence.Cosmos;
+using Forkleans.Runtime.Hosting;
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 /// <summary>
 /// Extension methods for configuring Azure Cosmos DB persistence.

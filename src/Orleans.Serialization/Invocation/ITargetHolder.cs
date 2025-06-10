@@ -1,5 +1,5 @@
 #nullable enable
-namespace Orleans.Serialization.Invocation;
+namespace Forkleans.Serialization.Invocation;
 
 /// <summary>
 /// Represents an object which holds an invocation target as well as target extensions.

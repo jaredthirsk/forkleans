@@ -3,11 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.GrainDirectory;
-using Orleans.Metadata;
-using Orleans.Runtime.Hosting;
+using Forkleans.GrainDirectory;
+using Forkleans.Metadata;
+using Forkleans.Runtime.Hosting;
 
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     internal class GrainDirectoryResolver
     {

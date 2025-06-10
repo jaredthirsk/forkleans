@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Orleans.Serialization;
+using Forkleans.Serialization;
 
 namespace TestExtensions
 {

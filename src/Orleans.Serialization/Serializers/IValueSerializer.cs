@@ -1,7 +1,7 @@
-using Orleans.Serialization.Buffers;
+using Forkleans.Serialization.Buffers;
 using System.Buffers;
 
-namespace Orleans.Serialization.Serializers
+namespace Forkleans.Serialization.Serializers
 {
     /// <summary>
     /// Functionality for serializing a value type.

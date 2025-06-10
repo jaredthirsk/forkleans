@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Immutable;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Metadata
+namespace Forkleans.Metadata
 {
     /// <summary>
     /// Information about types which are available in the cluster.

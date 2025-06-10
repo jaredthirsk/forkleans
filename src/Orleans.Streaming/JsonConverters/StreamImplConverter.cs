@@ -5,10 +5,10 @@ using System.Runtime.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 
-namespace Orleans.Streaming.JsonConverters
+namespace Forkleans.Streaming.JsonConverters
 {
     internal class StreamImplConverter : JsonConverter
     {

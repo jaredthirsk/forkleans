@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Orleans.Transactions.TestKit.Consistency;
+using Forkleans.Transactions.TestKit.Consistency;
 
-namespace Orleans.Transactions.TestKit
+namespace Forkleans.Transactions.TestKit
 {
     public abstract class ConsistencyTransactionTestRunner : TransactionTestRunnerBase
     {

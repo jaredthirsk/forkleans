@@ -1,7 +1,7 @@
-﻿using System;
-using Orleans.Metadata;
+using System;
+using Forkleans.Metadata;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal class ConfigureDefaultGrainActivator : IConfigureGrainTypeComponents
     {

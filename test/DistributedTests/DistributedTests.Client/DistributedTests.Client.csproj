@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <OutputPath Condition=" '$(DistributedTestsOutputPath)'!='' ">$(DistributedTestsOutputPath)/DistributedTests.Client</OutputPath>
   </PropertyGroup>
 

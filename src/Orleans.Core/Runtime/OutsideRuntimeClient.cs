@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.ClientObservers;
-using Orleans.CodeGeneration;
-using Orleans.Configuration;
-using Orleans.Messaging;
-using Orleans.Runtime;
-using Orleans.Serialization;
-using Orleans.Serialization.Invocation;
-using static Orleans.Internal.StandardExtensions;
+using Forkleans.ClientObservers;
+using Forkleans.CodeGeneration;
+using Forkleans.Configuration;
+using Forkleans.Messaging;
+using Forkleans.Runtime;
+using Forkleans.Serialization;
+using Forkleans.Serialization.Invocation;
+using static Forkleans.Internal.StandardExtensions;
 
-namespace Orleans
+namespace Forkleans
 {
     internal partial class OutsideRuntimeClient : IRuntimeClient, IDisposable, IClusterConnectionStatusListener
     {

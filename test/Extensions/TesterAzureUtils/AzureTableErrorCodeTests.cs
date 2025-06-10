@@ -1,5 +1,5 @@
 using System.Net;
-using Orleans.Persistence.AzureStorage;
+using Forkleans.Persistence.AzureStorage;
 using Xunit;
 
 namespace Tester.AzureUtils

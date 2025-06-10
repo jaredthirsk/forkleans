@@ -6,7 +6,7 @@ using System.Threading;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Http.Features;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     internal abstract partial class TransportConnection : ConnectionContext
     {

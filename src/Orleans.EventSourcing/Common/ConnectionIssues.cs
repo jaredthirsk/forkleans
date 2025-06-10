@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.EventSourcing.Common
+namespace Forkleans.EventSourcing.Common
 {
     /// <summary>
     /// Describes a connection issue that occurred when communicating with primary storage.

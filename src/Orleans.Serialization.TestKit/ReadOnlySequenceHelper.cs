@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-namespace Orleans.Serialization.TestKit
+namespace Forkleans.Serialization.TestKit
 {
     [ExcludeFromCodeCoverage]
     public static class ReadOnlySequenceHelper

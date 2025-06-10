@@ -2,7 +2,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Security;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     /// <summary>
     /// Thrown when a type has no serialization constructor.

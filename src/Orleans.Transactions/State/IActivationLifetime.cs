@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace Orleans.Transactions.State
+namespace Forkleans.Transactions.State
 {
     internal interface IActivationLifetime
     {

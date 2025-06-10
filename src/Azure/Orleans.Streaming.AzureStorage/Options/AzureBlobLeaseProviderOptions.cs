@@ -5,10 +5,10 @@ using Azure.Core;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
-using Orleans.Streaming.AzureStorage;
+using Forkleans.Runtime;
+using Forkleans.Streaming.AzureStorage;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Options for configuring a lease provider backed by Azure Blob Storage leases.

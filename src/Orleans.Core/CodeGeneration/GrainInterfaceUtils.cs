@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Orleans.Runtime;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Runtime;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans.CodeGeneration
+namespace Forkleans.CodeGeneration
 {
     /// <summary>
     /// Utilities for grain interface types.

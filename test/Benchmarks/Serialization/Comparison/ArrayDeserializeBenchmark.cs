@@ -8,9 +8,9 @@ using Benchmarks.Serialization.Models;
 using Benchmarks.Utilities;
 using MessagePack;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Serialization;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Session;
+using Forkleans.Serialization;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Session;
 using Xunit;
 
 namespace Benchmarks.Serialization.Comparison;

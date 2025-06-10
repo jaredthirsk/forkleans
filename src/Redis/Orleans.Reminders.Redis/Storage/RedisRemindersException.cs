@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Orleans.Reminders.Redis
+namespace Forkleans.Reminders.Redis
 {
     /// <summary>
     /// Exception thrown from <see cref="RedisReminderTable"/>.

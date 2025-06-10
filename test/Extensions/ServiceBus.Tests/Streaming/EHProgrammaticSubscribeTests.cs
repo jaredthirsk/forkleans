@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Configuration;
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 using Tester.StreamingTests;
 using TestExtensions;
 using Xunit;

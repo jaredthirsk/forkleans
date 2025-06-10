@@ -3,9 +3,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Timers;
+namespace Forkleans.Timers;
 
 internal class TimerRegistry(ILoggerFactory loggerFactory, TimeProvider timeProvider, MessageFactory messageFactory, ILocalSiloDetails localSiloDetails) : ITimerRegistry
 {

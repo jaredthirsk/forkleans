@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 using Xunit;
 
-namespace Orleans.Journaling.Tests;
+namespace Forkleans.Journaling.Tests;
 
 /// <summary>
 /// Base class for journaling tests with common setup using InProcessTestCluster

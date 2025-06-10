@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Hosting;
-using Orleans.Configuration;
-using Orleans.Hosting;
+using Forkleans.Configuration;
+using Forkleans.Hosting;
 
-namespace Orleans.TestingHost;
+namespace Forkleans.TestingHost;
 
 /// <summary>
 /// Configuration options for test clusters.

@@ -5,12 +5,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Internal;
-using Orleans.Runtime;
-using Orleans.Runtime.Messaging;
+using Forkleans.Configuration;
+using Forkleans.Internal;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Messaging;
 
-namespace Orleans.Messaging
+namespace Forkleans.Messaging
 {
     // <summary>
     // This class is used on the client only.

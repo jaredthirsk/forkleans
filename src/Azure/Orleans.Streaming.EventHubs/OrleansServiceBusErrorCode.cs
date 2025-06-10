@@ -1,4 +1,4 @@
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Orleans ServiceBus error codes

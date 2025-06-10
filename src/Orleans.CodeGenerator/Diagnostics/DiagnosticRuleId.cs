@@ -1,5 +1,5 @@
-// Centralized diagnostic rule IDs for Orleans.CodeGenerator
-namespace Orleans.CodeGenerator.Diagnostics;
+// Centralized diagnostic rule IDs for Forkleans.CodeGenerator
+namespace Forkleans.CodeGenerator.Diagnostics;
 
 internal static class DiagnosticRuleId
 {

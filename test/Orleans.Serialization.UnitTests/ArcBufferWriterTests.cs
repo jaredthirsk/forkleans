@@ -2,10 +2,10 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
-using Orleans.Serialization.Buffers;
+using Forkleans.Serialization.Buffers;
 using Xunit;
 
-namespace Orleans.Serialization.UnitTests;
+namespace Forkleans.Serialization.UnitTests;
 
 [Trait("Category", "BVT")]
 public class ArcBufferWriterTests

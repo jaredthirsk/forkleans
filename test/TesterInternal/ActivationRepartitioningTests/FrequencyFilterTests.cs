@@ -1,5 +1,5 @@
 using System.Text;
-using Orleans.Runtime.Placement.Repartitioning;
+using Forkleans.Runtime.Placement.Repartitioning;
 using Xunit;
 
 namespace UnitTests.ActivationRepartitioningTests;

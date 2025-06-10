@@ -1,8 +1,8 @@
 using System;
-using Orleans.Streams;
-using Orleans.Streams.Filtering;
+using Forkleans.Streams;
+using Forkleans.Streams.Filtering;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Extension methods for configuring streaming on silos.

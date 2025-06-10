@@ -1,4 +1,4 @@
-namespace Orleans.Runtime.ConsistentRing
+namespace Forkleans.Runtime.ConsistentRing
 {
     // someday, this will be the only provider for the ring, i.e., directory service will use this
 

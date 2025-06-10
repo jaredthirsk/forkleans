@@ -1,10 +1,10 @@
 using System;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Runtime;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions.TestKit
+namespace Forkleans.Transactions.TestKit
 {
     public interface IFaultInjectionTransactionalStateConfiguration : ITransactionalStateConfiguration
     {

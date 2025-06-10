@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans.Runtime.Utilities
+namespace Forkleans.Runtime.Utilities
 {
     /// <summary>
     /// Utility methods for aiding debugger sessions.

@@ -1,12 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
-using Orleans.Runtime;
-using Orleans.TestingHost;
+using Forkleans.Runtime;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using UnitTests.Grains;
 using Xunit;
-using Orleans.Metadata;
+using Forkleans.Metadata;
 
 namespace UnitTests.General
 {

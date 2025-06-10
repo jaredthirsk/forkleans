@@ -2,13 +2,13 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Orleans.Reminders.DynamoDB
+namespace Forkleans.Reminders.DynamoDB
 {
     /// <summary>
     /// Implementation for IReminderTable using DynamoDB as underlying storage.

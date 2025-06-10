@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class AzureTableStreamCheckpointerOptions : Streaming.EventHubs.AzureStorageOperationOptions
     {
@@ -78,7 +78,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class ClientBuilderExtensions
     {
@@ -136,7 +136,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Hosting.Developer
+namespace Forkleans.Hosting.Developer
 {
     public static partial class EventDataGeneratorConfiguratorExtensions
     {
@@ -160,7 +160,7 @@ namespace Orleans.Hosting.Developer
     }
 }
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     public partial class AggregatedCachePressureMonitor : System.Collections.Generic.List<ICachePressureMonitor>, ICachePressureMonitor
     {
@@ -579,7 +579,7 @@ namespace Orleans.Streaming.EventHubs
     }
 }
 
-namespace Orleans.Streaming.EventHubs.StatisticMonitors
+namespace Forkleans.Streaming.EventHubs.StatisticMonitors
 {
     public partial class DefaultEventHubBlockPoolMonitor : Providers.Streams.Common.DefaultBlockPoolMonitor
     {
@@ -592,7 +592,7 @@ namespace Orleans.Streaming.EventHubs.StatisticMonitors
     }
 }
 
-namespace Orleans.Streaming.EventHubs.Testing
+namespace Forkleans.Streaming.EventHubs.Testing
 {
     public partial class EventDataGeneratorAdapterFactory : EventHubAdapterFactory, Providers.IControllable
     {
@@ -712,158 +712,158 @@ namespace Orleans.Streaming.EventHubs.Testing
     }
 }
 
-namespace OrleansCodeGen.Orleans.Streaming.EventHubs
+namespace ForkleansCodeGen.Forkleans.Streaming.EventHubs
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_EventHubBatchContainer : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Streaming.EventHubs.EventHubBatchContainer>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IBaseCodec<global::Orleans.Streaming.EventHubs.EventHubBatchContainer>, global::Orleans.Serialization.Serializers.IBaseCodec
+    public sealed partial class Codec_EventHubBatchContainer : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Streaming.EventHubs.EventHubBatchContainer>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Streaming.EventHubs.EventHubBatchContainer>, global::Forkleans.Serialization.Serializers.IBaseCodec
     {
-        public Codec_EventHubBatchContainer(global::Orleans.Serialization.Activators.IActivator<global::Orleans.Streaming.EventHubs.EventHubBatchContainer> _activator, global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_EventHubBatchContainer(global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Streaming.EventHubs.EventHubBatchContainer> _activator, global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Streaming.EventHubs.EventHubBatchContainer instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Streaming.EventHubs.EventHubBatchContainer instance) { }
 
-        public global::Orleans.Streaming.EventHubs.EventHubBatchContainer ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Streaming.EventHubs.EventHubBatchContainer ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Streaming.EventHubs.EventHubBatchContainer instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Streaming.EventHubs.EventHubBatchContainer instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Streaming.EventHubs.EventHubBatchContainer value)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_EventHubMessage : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Streaming.EventHubs.EventHubMessage>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IBaseCodec<global::Orleans.Streaming.EventHubs.EventHubMessage>, global::Orleans.Serialization.Serializers.IBaseCodec
-    {
-        public Codec_EventHubMessage(global::Orleans.Serialization.Activators.IActivator<global::Orleans.Streaming.EventHubs.EventHubMessage> _activator, global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
-
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Streaming.EventHubs.EventHubMessage instance) { }
-
-        public global::Orleans.Streaming.EventHubs.EventHubMessage ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Streaming.EventHubs.EventHubMessage instance)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Streaming.EventHubs.EventHubMessage value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Streaming.EventHubs.EventHubBatchContainer value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_EventHubSequenceToken : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Streaming.EventHubs.EventHubSequenceToken>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IBaseCodec<global::Orleans.Streaming.EventHubs.EventHubSequenceToken>, global::Orleans.Serialization.Serializers.IBaseCodec
+    public sealed partial class Codec_EventHubMessage : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Streaming.EventHubs.EventHubMessage>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Streaming.EventHubs.EventHubMessage>, global::Forkleans.Serialization.Serializers.IBaseCodec
     {
-        public Codec_EventHubSequenceToken(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_EventHubMessage(global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Streaming.EventHubs.EventHubMessage> _activator, global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Streaming.EventHubs.EventHubSequenceToken instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Streaming.EventHubs.EventHubMessage instance) { }
 
-        public global::Orleans.Streaming.EventHubs.EventHubSequenceToken ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Streaming.EventHubs.EventHubMessage ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Streaming.EventHubs.EventHubSequenceToken instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Streaming.EventHubs.EventHubMessage instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Streaming.EventHubs.EventHubSequenceToken value)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_EventHubSequenceTokenV2 : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Streaming.EventHubs.EventHubSequenceTokenV2>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IBaseCodec<global::Orleans.Streaming.EventHubs.EventHubSequenceTokenV2>, global::Orleans.Serialization.Serializers.IBaseCodec
-    {
-        public Codec_EventHubSequenceTokenV2(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
-
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Streaming.EventHubs.EventHubSequenceTokenV2 instance) { }
-
-        public global::Orleans.Streaming.EventHubs.EventHubSequenceTokenV2 ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
-
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Streaming.EventHubs.EventHubSequenceTokenV2 instance)
-            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
-
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Streaming.EventHubs.EventHubSequenceTokenV2 value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Streaming.EventHubs.EventHubMessage value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_EventHubBatchContainer : global::Orleans.Serialization.Cloning.IDeepCopier<global::Orleans.Streaming.EventHubs.EventHubBatchContainer>, global::Orleans.Serialization.Cloning.IDeepCopier, global::Orleans.Serialization.Cloning.IBaseCopier<global::Orleans.Streaming.EventHubs.EventHubBatchContainer>, global::Orleans.Serialization.Cloning.IBaseCopier
+    public sealed partial class Codec_EventHubSequenceToken : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Streaming.EventHubs.EventHubSequenceToken>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Streaming.EventHubs.EventHubSequenceToken>, global::Forkleans.Serialization.Serializers.IBaseCodec
     {
-        public Copier_EventHubBatchContainer(global::Orleans.Serialization.Activators.IActivator<global::Orleans.Streaming.EventHubs.EventHubBatchContainer> _activator, global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_EventHubSequenceToken(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public global::Orleans.Streaming.EventHubs.EventHubBatchContainer DeepCopy(global::Orleans.Streaming.EventHubs.EventHubBatchContainer original, global::Orleans.Serialization.Cloning.CopyContext context) { throw null; }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Streaming.EventHubs.EventHubSequenceToken instance) { }
 
-        public void DeepCopy(global::Orleans.Streaming.EventHubs.EventHubBatchContainer input, global::Orleans.Streaming.EventHubs.EventHubBatchContainer output, global::Orleans.Serialization.Cloning.CopyContext context) { }
+        public global::Forkleans.Streaming.EventHubs.EventHubSequenceToken ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Streaming.EventHubs.EventHubSequenceToken instance)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
+
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Streaming.EventHubs.EventHubSequenceToken value)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_EventHubMessage : global::Orleans.Serialization.Cloning.IDeepCopier<global::Orleans.Streaming.EventHubs.EventHubMessage>, global::Orleans.Serialization.Cloning.IDeepCopier, global::Orleans.Serialization.Cloning.IBaseCopier<global::Orleans.Streaming.EventHubs.EventHubMessage>, global::Orleans.Serialization.Cloning.IBaseCopier
+    public sealed partial class Codec_EventHubSequenceTokenV2 : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Streaming.EventHubs.EventHubSequenceTokenV2>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Streaming.EventHubs.EventHubSequenceTokenV2>, global::Forkleans.Serialization.Serializers.IBaseCodec
     {
-        public Copier_EventHubMessage(global::Orleans.Serialization.Activators.IActivator<global::Orleans.Streaming.EventHubs.EventHubMessage> _activator, global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_EventHubSequenceTokenV2(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public global::Orleans.Streaming.EventHubs.EventHubMessage DeepCopy(global::Orleans.Streaming.EventHubs.EventHubMessage original, global::Orleans.Serialization.Cloning.CopyContext context) { throw null; }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Streaming.EventHubs.EventHubSequenceTokenV2 instance) { }
 
-        public void DeepCopy(global::Orleans.Streaming.EventHubs.EventHubMessage input, global::Orleans.Streaming.EventHubs.EventHubMessage output, global::Orleans.Serialization.Cloning.CopyContext context) { }
+        public global::Forkleans.Streaming.EventHubs.EventHubSequenceTokenV2 ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
+
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Streaming.EventHubs.EventHubSequenceTokenV2 instance)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
+
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Streaming.EventHubs.EventHubSequenceTokenV2 value)
+            where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_EventHubSequenceToken : global::Orleans.Serialization.Cloning.IDeepCopier<global::Orleans.Streaming.EventHubs.EventHubSequenceToken>, global::Orleans.Serialization.Cloning.IDeepCopier, global::Orleans.Serialization.Cloning.IBaseCopier<global::Orleans.Streaming.EventHubs.EventHubSequenceToken>, global::Orleans.Serialization.Cloning.IBaseCopier
+    public sealed partial class Copier_EventHubBatchContainer : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Streaming.EventHubs.EventHubBatchContainer>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Streaming.EventHubs.EventHubBatchContainer>, global::Forkleans.Serialization.Cloning.IBaseCopier
     {
-        public Copier_EventHubSequenceToken(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Copier_EventHubBatchContainer(global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Streaming.EventHubs.EventHubBatchContainer> _activator, global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public global::Orleans.Streaming.EventHubs.EventHubSequenceToken DeepCopy(global::Orleans.Streaming.EventHubs.EventHubSequenceToken original, global::Orleans.Serialization.Cloning.CopyContext context) { throw null; }
+        public global::Forkleans.Streaming.EventHubs.EventHubBatchContainer DeepCopy(global::Forkleans.Streaming.EventHubs.EventHubBatchContainer original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
 
-        public void DeepCopy(global::Orleans.Streaming.EventHubs.EventHubSequenceToken input, global::Orleans.Streaming.EventHubs.EventHubSequenceToken output, global::Orleans.Serialization.Cloning.CopyContext context) { }
+        public void DeepCopy(global::Forkleans.Streaming.EventHubs.EventHubBatchContainer input, global::Forkleans.Streaming.EventHubs.EventHubBatchContainer output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_EventHubSequenceTokenV2 : global::Orleans.Serialization.Cloning.IDeepCopier<global::Orleans.Streaming.EventHubs.EventHubSequenceTokenV2>, global::Orleans.Serialization.Cloning.IDeepCopier, global::Orleans.Serialization.Cloning.IBaseCopier<global::Orleans.Streaming.EventHubs.EventHubSequenceTokenV2>, global::Orleans.Serialization.Cloning.IBaseCopier
+    public sealed partial class Copier_EventHubMessage : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Streaming.EventHubs.EventHubMessage>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Streaming.EventHubs.EventHubMessage>, global::Forkleans.Serialization.Cloning.IBaseCopier
     {
-        public Copier_EventHubSequenceTokenV2(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Copier_EventHubMessage(global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Streaming.EventHubs.EventHubMessage> _activator, global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public global::Orleans.Streaming.EventHubs.EventHubSequenceTokenV2 DeepCopy(global::Orleans.Streaming.EventHubs.EventHubSequenceTokenV2 original, global::Orleans.Serialization.Cloning.CopyContext context) { throw null; }
+        public global::Forkleans.Streaming.EventHubs.EventHubMessage DeepCopy(global::Forkleans.Streaming.EventHubs.EventHubMessage original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
 
-        public void DeepCopy(global::Orleans.Streaming.EventHubs.EventHubSequenceTokenV2 input, global::Orleans.Streaming.EventHubs.EventHubSequenceTokenV2 output, global::Orleans.Serialization.Cloning.CopyContext context) { }
+        public void DeepCopy(global::Forkleans.Streaming.EventHubs.EventHubMessage input, global::Forkleans.Streaming.EventHubs.EventHubMessage output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public sealed partial class Copier_EventHubSequenceToken : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Streaming.EventHubs.EventHubSequenceToken>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Streaming.EventHubs.EventHubSequenceToken>, global::Forkleans.Serialization.Cloning.IBaseCopier
+    {
+        public Copier_EventHubSequenceToken(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+
+        public global::Forkleans.Streaming.EventHubs.EventHubSequenceToken DeepCopy(global::Forkleans.Streaming.EventHubs.EventHubSequenceToken original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
+
+        public void DeepCopy(global::Forkleans.Streaming.EventHubs.EventHubSequenceToken input, global::Forkleans.Streaming.EventHubs.EventHubSequenceToken output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public sealed partial class Copier_EventHubSequenceTokenV2 : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Streaming.EventHubs.EventHubSequenceTokenV2>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Streaming.EventHubs.EventHubSequenceTokenV2>, global::Forkleans.Serialization.Cloning.IBaseCopier
+    {
+        public Copier_EventHubSequenceTokenV2(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+
+        public global::Forkleans.Streaming.EventHubs.EventHubSequenceTokenV2 DeepCopy(global::Forkleans.Streaming.EventHubs.EventHubSequenceTokenV2 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
+
+        public void DeepCopy(global::Forkleans.Streaming.EventHubs.EventHubSequenceTokenV2 input, global::Forkleans.Streaming.EventHubs.EventHubSequenceTokenV2 output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 }
 
-namespace OrleansCodeGen.Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory
+namespace ForkleansCodeGen.Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_StreamRandomPlacementArg : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IBaseCodec<global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg>, global::Orleans.Serialization.Serializers.IBaseCodec
+    public sealed partial class Codec_StreamRandomPlacementArg : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg>, global::Forkleans.Serialization.Serializers.IBaseCodec
     {
-        public Codec_StreamRandomPlacementArg(global::Orleans.Serialization.Activators.IActivator<global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg> _activator, global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_StreamRandomPlacementArg(global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg> _activator, global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg instance) { }
 
-        public global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_StreamRandomPlacementArg : global::Orleans.Serialization.Cloning.IDeepCopier<global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg>, global::Orleans.Serialization.Cloning.IDeepCopier, global::Orleans.Serialization.Cloning.IBaseCopier<global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg>, global::Orleans.Serialization.Cloning.IBaseCopier
+    public sealed partial class Copier_StreamRandomPlacementArg : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg>, global::Forkleans.Serialization.Cloning.IBaseCopier
     {
-        public Copier_StreamRandomPlacementArg(global::Orleans.Serialization.Activators.IActivator<global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg> _activator) { }
+        public Copier_StreamRandomPlacementArg(global::Forkleans.Serialization.Activators.IActivator<global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg> _activator) { }
 
-        public global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg DeepCopy(global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg original, global::Orleans.Serialization.Cloning.CopyContext context) { throw null; }
+        public global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg DeepCopy(global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
 
-        public void DeepCopy(global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg input, global::Orleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg output, global::Orleans.Serialization.Cloning.CopyContext context) { }
+        public void DeepCopy(global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg input, global::Forkleans.Streaming.EventHubs.Testing.EventDataGeneratorAdapterFactory.StreamRandomPlacementArg output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 }

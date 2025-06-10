@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Text;
-using Orleans.Runtime;
-using Orleans.Storage;
+using Forkleans.Runtime;
+using Forkleans.Storage;
 using TestExtensions;
 using UnitTests.Persistence;
 using Xunit;

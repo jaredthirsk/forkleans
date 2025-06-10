@@ -1,9 +1,9 @@
 using System;
-using Orleans.Persistence.DynamoDB;
-using Orleans.Runtime;
-using Orleans.Storage;
+using Forkleans.Persistence.DynamoDB;
+using Forkleans.Runtime;
+using Forkleans.Storage;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public class DynamoDBStorageOptions : DynamoDBClientOptions, IStorageProviderSerializerOptions
     {

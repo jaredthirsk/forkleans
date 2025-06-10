@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Formats values for logging purposes.

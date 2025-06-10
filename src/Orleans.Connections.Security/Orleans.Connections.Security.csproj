@@ -1,12 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Connections.Security</PackageId>
+    <AssemblyName>Forkleans.Connections.Security</AssemblyName>
+    <PackageId>Microsoft.Forkleans.Connections.Security</PackageId>
     <Title>Microsoft Orleans TLS support</Title>
-    <Description>Support for security communication using TLS in Microsoft Orleans.</Description>
+    <Description>Support for security communication using TLS in Microsoft Forkleans.</Description>
     <PackageTags>$(PackageTags) TLS SSL</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>

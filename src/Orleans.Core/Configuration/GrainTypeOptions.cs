@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
-using Orleans.Serialization.Configuration;
+using Forkleans.Runtime;
+using Forkleans.Serialization.Configuration;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Contains grain type descriptions.
@@ -99,7 +99,7 @@ namespace Orleans.Configuration
         {
             if (_options.Value.Interfaces is not { Count: > 0 })
             {
-                throw new OrleansConfigurationException($"No grain interfaces have been configured. Either add some grain interfaces and reference the Orleans.Sdk package, or remove {nameof(GrainTypeOptionsValidator)} from the services collection.");
+                throw new OrleansConfigurationException($"No grain interfaces have been configured. Either add some grain interfaces and reference the Forkleans.Sdk package, or remove {nameof(GrainTypeOptionsValidator)} from the services collection.");
             }
 
             var isSilo = _serviceProvider.GetService(typeof(ILocalSiloDetails)) != null;
@@ -107,7 +107,7 @@ namespace Orleans.Configuration
             {
                 if (_options.Value.Classes is not { Count: > 0 })
                 {
-                    throw new OrleansConfigurationException($"No grain classes have been configured. Either add some grain classes and reference the Orleans.Sdk package, or remove {nameof(GrainTypeOptionsValidator)} from the services collection.");
+                    throw new OrleansConfigurationException($"No grain classes have been configured. Either add some grain classes and reference the Forkleans.Sdk package, or remove {nameof(GrainTypeOptionsValidator)} from the services collection.");
                 }
             }
         }

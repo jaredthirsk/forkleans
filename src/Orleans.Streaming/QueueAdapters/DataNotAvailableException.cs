@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.Serialization;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Exception indicates that the requested data is not available.

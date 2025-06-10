@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.Options;
-using Orleans.Persistence;
-using Orleans.Providers;
+using Forkleans.Persistence;
+using Forkleans.Providers;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// <see cref="ISiloBuilder"/> extensions.

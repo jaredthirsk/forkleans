@@ -1,6 +1,6 @@
-using Orleans.Hosting;
+using Forkleans.Hosting;
 
-namespace Orleans;
+namespace Forkleans;
 
 internal static class ReminderOptionsDefaults
 {

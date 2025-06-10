@@ -1,4 +1,4 @@
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Functionality for creating an <see cref="IQueueCache"/> for a given queue.

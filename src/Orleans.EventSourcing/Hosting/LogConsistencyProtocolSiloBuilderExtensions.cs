@@ -1,11 +1,11 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Orleans.EventSourcing;
-using Orleans.Runtime;
-using Orleans.Runtime.LogConsistency;
+using Forkleans.EventSourcing;
+using Forkleans.Runtime;
+using Forkleans.Runtime.LogConsistency;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     internal static class LogConsistencyProtocolSiloBuilderExtensions
     {

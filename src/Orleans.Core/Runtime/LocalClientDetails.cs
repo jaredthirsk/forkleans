@@ -1,10 +1,10 @@
 using System.Net;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.Runtime.Configuration;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Configuration;
 
-namespace Orleans
+namespace Forkleans
 {
     internal class LocalClientDetails
     {

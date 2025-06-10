@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.Providers;
-using Orleans.Runtime;
+using Forkleans.Providers;
+using Forkleans.Runtime;
 
-namespace Orleans
+namespace Forkleans
 {
     internal interface ISiloControl : ISystemTarget, IVersionManager
     {

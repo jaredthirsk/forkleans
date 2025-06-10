@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Caching;
+using Forkleans.Caching;
 
-namespace Orleans.Runtime.GrainDirectory;
+namespace Forkleans.Runtime.GrainDirectory;
 
 internal sealed class LruGrainDirectoryCache(int maxCacheSize) : ConcurrentLruCache<GrainId, (GrainAddress ActivationAddress, int Version)>(capacity: maxCacheSize), IGrainDirectoryCache
 {

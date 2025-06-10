@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
-namespace Orleans.TestingHost
+namespace Forkleans.TestingHost
 {
     /// <summary>
     /// A silo handle and factory which spawns a separate process for each silo.
@@ -82,11 +82,11 @@ namespace Orleans.TestingHost
                     {
                         if (e.Data.StartsWith(StandaloneSiloHost.SiloAddressLog, StringComparison.Ordinal))
                         {
-                            SiloAddress = Orleans.Runtime.SiloAddress.FromParsableString(e.Data[StandaloneSiloHost.SiloAddressLog.Length..]);
+                            SiloAddress = Forkleans.Runtime.SiloAddress.FromParsableString(e.Data[StandaloneSiloHost.SiloAddressLog.Length..]);
                         }
                         else if (e.Data.StartsWith(StandaloneSiloHost.GatewayAddressLog, StringComparison.Ordinal))
                         {
-                            GatewayAddress = Orleans.Runtime.SiloAddress.FromParsableString(e.Data[StandaloneSiloHost.GatewayAddressLog.Length..]);
+                            GatewayAddress = Forkleans.Runtime.SiloAddress.FromParsableString(e.Data[StandaloneSiloHost.GatewayAddressLog.Length..]);
                         }
                         else if (e.Data.StartsWith(StandaloneSiloHost.StartedLog, StringComparison.Ordinal))
                         {

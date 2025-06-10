@@ -1,16 +1,16 @@
 using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Orleans.Transactions.Abstractions;
-using Orleans.Transactions.AzureStorage;
-using Orleans.Transactions.AzureStorage.Tests;
-using Orleans.Transactions.TestKit.xUnit;
+using Forkleans.Transactions.Abstractions;
+using Forkleans.Transactions.AzureStorage;
+using Forkleans.Transactions.AzureStorage.Tests;
+using Forkleans.Transactions.TestKit.xUnit;
 using Tester.AzureUtils;
 using TestExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Orleans.Transactions.Azure.Tests
+namespace Forkleans.Transactions.Azure.Tests
 {
     public class TestState : IEquatable<TestState>
     {

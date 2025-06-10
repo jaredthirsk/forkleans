@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Transactions.TestKit.xUnit
+namespace Forkleans.Transactions.TestKit.xUnit
 {
     public abstract partial class ConsistencyTransactionTestRunnerxUnit : ConsistencyTransactionTestRunner
     {

@@ -1,4 +1,4 @@
-namespace Orleans.TestingHost;
+namespace Forkleans.TestingHost;
 
 /// <summary>
 /// Configuration overrides for individual silos.

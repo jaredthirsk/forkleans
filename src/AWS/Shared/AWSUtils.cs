@@ -2,17 +2,17 @@ using Amazon;
 using System;
 
 #if CLUSTERING_DYNAMODB
-namespace Orleans.Clustering.DynamoDB
+namespace Forkleans.Clustering.DynamoDB
 #elif PERSISTENCE_DYNAMODB
-namespace Orleans.Persistence.DynamoDB
+namespace Forkleans.Persistence.DynamoDB
 #elif REMINDERS_DYNAMODB
-namespace Orleans.Reminders.DynamoDB
+namespace Forkleans.Reminders.DynamoDB
 #elif STREAMING_SQS
-namespace Orleans.Streaming.SQS
+namespace Forkleans.Streaming.SQS
 #elif AWSUTILS_TESTS
-namespace Orleans.AWSUtils.Tests
+namespace Forkleans.AWSUtils.Tests
 #elif TRANSACTIONS_DYNAMODB
-namespace Orleans.Transactions.DynamoDB
+namespace Forkleans.Transactions.DynamoDB
 #else
 // No default namespace intentionally to cause compile errors if something is not defined
 #endif

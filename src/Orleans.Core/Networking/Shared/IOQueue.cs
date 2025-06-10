@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.IO.Pipelines;
 using System.Threading;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     internal sealed class IOQueue : PipeScheduler,  IThreadPoolWorkItem
     {

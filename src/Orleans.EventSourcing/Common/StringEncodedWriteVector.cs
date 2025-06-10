@@ -1,4 +1,4 @@
-﻿namespace Orleans.EventSourcing.Common
+namespace Forkleans.EventSourcing.Common
 {
     public static class StringEncodedWriteVector
     {

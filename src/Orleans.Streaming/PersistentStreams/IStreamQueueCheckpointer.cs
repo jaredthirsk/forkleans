@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Factory for creating <see cref="IStreamQueueCheckpointer{TCheckpoint}"/> instances.

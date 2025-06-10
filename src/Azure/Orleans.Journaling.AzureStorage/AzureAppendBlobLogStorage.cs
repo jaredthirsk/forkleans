@@ -3,10 +3,10 @@ using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Blobs.Models;
 using System.Runtime.CompilerServices;
 using Azure.Storage.Sas;
-using Orleans.Serialization.Buffers;
+using Forkleans.Serialization.Buffers;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 internal sealed partial class AzureAppendBlobLogStorage : IStateMachineStorage
 {

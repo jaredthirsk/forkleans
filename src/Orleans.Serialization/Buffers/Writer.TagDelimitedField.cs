@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.CompilerServices;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.WireProtocol;
 
-namespace Orleans.Serialization.Buffers
+namespace Forkleans.Serialization.Buffers
 {
     public ref partial struct Writer<TBufferWriter>
     {

@@ -1,7 +1,7 @@
-﻿using Orleans.Providers.Streams.Common;
+using Forkleans.Providers.Streams.Common;
 using System;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Cache pressure monitor records pressure contribution to the cache, and determine if the cache is under pressure based on its 

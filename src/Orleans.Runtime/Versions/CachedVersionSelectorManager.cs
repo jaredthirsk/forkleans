@@ -2,11 +2,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Orleans.Metadata;
-using Orleans.Runtime.Versions.Compatibility;
-using Orleans.Runtime.Versions.Selector;
+using Forkleans.Metadata;
+using Forkleans.Runtime.Versions.Compatibility;
+using Forkleans.Runtime.Versions.Selector;
 
-namespace Orleans.Runtime.Versions
+namespace Forkleans.Runtime.Versions
 {
     internal class CachedVersionSelectorManager
     {

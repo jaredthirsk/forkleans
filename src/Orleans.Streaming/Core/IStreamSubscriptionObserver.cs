@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Orleans.Streams.Core
+namespace Forkleans.Streams.Core
 {
     /// <summary>
     /// When implemented by a grain, notifies the grain of any new or resuming subscriptions.

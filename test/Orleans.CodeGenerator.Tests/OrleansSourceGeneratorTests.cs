@@ -3,16 +3,16 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.CodeGenerator.Diagnostics;
-using Orleans.Serialization;
+using Forkleans.CodeGenerator.Diagnostics;
+using Forkleans.Serialization;
 
-namespace Orleans.CodeGenerator.Tests;
+namespace Forkleans.CodeGenerator.Tests;
 
 public class OrleansSourceGeneratorTests
 {
     [Fact]
     public Task TestBasicClass() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 
 namespace TestProject;
 
@@ -25,7 +25,7 @@ public class DemoData
 
     [Fact]
     public Task TestBasicClassWithFields() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 
 namespace TestProject;
 
@@ -51,7 +51,7 @@ public class DemoDataWithFields
 
     [Fact]
     public Task TestBasicStruct() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 
 namespace TestProject;
 
@@ -64,7 +64,7 @@ public struct DemoData
 
     [Fact]
     public Task TestRecords() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 
 namespace TestProject;
 
@@ -79,7 +79,7 @@ public record DemoDataRecord([property: Id(0)] string Value);");
 
     [Fact]
     public Task TestGenericClass() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 
 namespace TestProject;
 
@@ -107,7 +107,7 @@ public class ConcreteUsage
     [Fact]
     public Task TestClassReferenceProperties() => AssertSuccessfulSourceGeneration(
 @"#nullable enable
-using Orleans;
+using Forkleans;
 
 namespace TestProject;
 
@@ -129,7 +129,7 @@ public class DemoData
 
     [Fact]
     public Task TestClassPrimitiveTypes() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 using System;
 
 namespace TestProject;
@@ -194,7 +194,7 @@ public class DemoData
 
     [Fact]
     public Task TestClassPrimitiveTypesUsingFullName() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 
 namespace TestProject;
 
@@ -258,7 +258,7 @@ public class DemoData
 
     [Fact]
     public Task TestClassNestedTypes() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 using System.Collections.Generic;
 
 namespace TestProject;
@@ -306,7 +306,7 @@ public class CyclicClass
 
     [Fact]
     public Task TestAlias() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 
 namespace TestProject;
 
@@ -327,7 +327,7 @@ public struct MyTypeAliasStruct
 
     [Fact]
     public Task TestCompoundTypeAlias() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 
 namespace TestProject;
 
@@ -356,7 +356,7 @@ public class MyCompoundTypeAliasClass : MyCompoundTypeAliasBaseClass
 
     [Fact]
     public Task TestClassWithParameterizedConstructor() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 
 namespace TestProject;
 
@@ -390,7 +390,7 @@ public class RootType
 
     [Fact]
     public Task TestBasicGrain() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 using System.Threading.Tasks;
 
 namespace TestProject;
@@ -411,7 +411,7 @@ public class BasicGrain : Grain, IBasicGrain
 
     [Fact]
     public Task TestGrainWithDifferentKeyTypes() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 using System;
 using System.Threading.Tasks;
 
@@ -471,7 +471,7 @@ public class GrainWithIntegerCompoundKey : Grain, IMyGrainWithIntegerCompoundKey
 
     [Fact]
     public Task TestGrainComplexGrain() => AssertSuccessfulSourceGeneration(
-@"using Orleans;
+@"using Forkleans;
 using System.Threading.Tasks;
 
 namespace TestProject;
@@ -509,7 +509,7 @@ public class ComplexGrain : Grain, IComplexGrain
     public async Task EmitsWarningForGenerateSerializerInReferenceAssembly()
     {
         var code = """
-            using Orleans;
+            using Forkleans;
 
             namespace TestProject;
 
@@ -574,17 +574,17 @@ public class ComplexGrain : Grain, IComplexGrain
     {
         var references = await ReferenceAssemblies.Net.Net80.ResolveAsync(LanguageNames.CSharp, default);
 
-        // Add the Orleans Orleans.Core.Abstractions assembly
+        // Add the Orleans Forkleans.Core.Abstractions assembly
         references = references.AddRange(
-            // Orleans.Core.Abstractions
+            // Forkleans.Core.Abstractions
             MetadataReference.CreateFromFile(typeof(GrainId).Assembly.Location),
-            // Orleans.Core
+            // Forkleans.Core
             MetadataReference.CreateFromFile(typeof(IClusterClientLifecycle).Assembly.Location),
-            // Orleans.Runtime
+            // Forkleans.Runtime
             MetadataReference.CreateFromFile(typeof(IGrainActivator).Assembly.Location),
-            // Orleans.Serialization
+            // Forkleans.Serialization
             MetadataReference.CreateFromFile(typeof(Serializer).Assembly.Location),
-            // Orleans.Serialization.Abstractions
+            // Forkleans.Serialization.Abstractions
             MetadataReference.CreateFromFile(typeof(GenerateFieldIds).Assembly.Location),
             // Microsoft.Extensions.DependencyInjection.Abstractions
             MetadataReference.CreateFromFile(typeof(ActivatorUtilitiesConstructorAttribute).Assembly.Location)

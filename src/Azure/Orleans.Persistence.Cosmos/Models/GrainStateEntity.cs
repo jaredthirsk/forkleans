@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Orleans.Persistence.Cosmos;
+namespace Forkleans.Persistence.Cosmos;
 
 internal class GrainStateEntity<TState> : BaseEntity
 {

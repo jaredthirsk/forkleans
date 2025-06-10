@@ -1,7 +1,7 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Session;
-using Orleans.Serialization.Utilities;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Session;
+using Forkleans.Serialization.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Buffers;
@@ -12,11 +12,11 @@ using System.IO.Pipelines;
 using System.Linq;
 using System.Text;
 using Xunit;
-using Orleans.Serialization.Serializers;
+using Forkleans.Serialization.Serializers;
 using Xunit.Abstractions;
-using Orleans.Serialization.GeneratedCodeHelpers;
+using Forkleans.Serialization.GeneratedCodeHelpers;
 
-namespace Orleans.Serialization.TestKit
+namespace Forkleans.Serialization.TestKit
 {
     /// <summary>
     /// Methods for testing field codecs.

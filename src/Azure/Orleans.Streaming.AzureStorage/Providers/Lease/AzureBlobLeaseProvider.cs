@@ -8,9 +8,9 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
-namespace Orleans.LeaseProviders
+namespace Forkleans.LeaseProviders
 {
     public class AzureBlobLeaseProvider : ILeaseProvider
     {

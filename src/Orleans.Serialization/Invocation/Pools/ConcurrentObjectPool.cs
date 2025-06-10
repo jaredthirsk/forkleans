@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.ObjectPool;
 
-namespace Orleans.Serialization.Invocation
+namespace Forkleans.Serialization.Invocation
 {
     internal sealed class ConcurrentObjectPool<T> : ConcurrentObjectPool<T, DefaultConcurrentObjectPoolPolicy<T>> where T : class, new()
     {

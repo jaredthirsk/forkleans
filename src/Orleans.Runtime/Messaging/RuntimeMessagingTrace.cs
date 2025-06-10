@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal sealed class RuntimeMessagingTrace : MessagingTrace
     {

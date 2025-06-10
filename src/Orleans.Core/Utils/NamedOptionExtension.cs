@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Extensions for working with named option classes.

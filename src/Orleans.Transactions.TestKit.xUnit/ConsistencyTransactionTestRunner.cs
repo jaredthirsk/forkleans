@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
-using Orleans.Transactions.TestKit.Consistency;
+using Forkleans.Transactions.TestKit.Consistency;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Orleans.Transactions.TestKit.xUnit
+namespace Forkleans.Transactions.TestKit.xUnit
 {
     public abstract class ConsistencyTransactionTestRunnerxUnit : ConsistencyTransactionTestRunner
     {

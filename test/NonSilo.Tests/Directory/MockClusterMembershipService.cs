@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
-using Orleans.Runtime;
-using Orleans.Runtime.Utilities;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Utilities;
 
 namespace UnitTests.Directory
 {

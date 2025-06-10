@@ -1,5 +1,5 @@
 syntax = "proto3";
-option csharp_namespace = "Orleans.Serialization.UnitTests";
+option csharp_namespace = "Forkleans.Serialization.UnitTests";
 
 message MyProtobufClass {
     int32 int_property = 1;

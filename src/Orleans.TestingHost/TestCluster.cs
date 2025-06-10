@@ -7,19 +7,19 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.TestingHost.Utils;
+using Forkleans.Runtime;
+using Forkleans.TestingHost.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Hosting;
-using Orleans.TestingHost.InMemoryTransport;
-using Orleans.TestingHost.UnixSocketTransport;
+using Forkleans.TestingHost.InMemoryTransport;
+using Forkleans.TestingHost.UnixSocketTransport;
 using System.Net;
-using Orleans.Statistics;
+using Forkleans.Statistics;
 
-namespace Orleans.TestingHost
+namespace Forkleans.TestingHost
 {
     /// <summary>
     /// A host class for local testing with Orleans using in-process silos. 

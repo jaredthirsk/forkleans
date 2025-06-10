@@ -8,11 +8,11 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Internal;
-using Orleans.Runtime.Internal;
-using Orleans.Runtime.Scheduler;
+using Forkleans.Internal;
+using Forkleans.Runtime.Internal;
+using Forkleans.Runtime.Scheduler;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 /// <summary>
 /// Remote interface for cancelling grain calls.

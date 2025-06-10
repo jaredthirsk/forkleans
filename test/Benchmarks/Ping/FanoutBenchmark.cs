@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
 namespace Benchmarks.Ping
 {
@@ -39,7 +39,7 @@ namespace Benchmarks.Ping
                             o.TimestampFormat = "HH:mm:ss ";
                             o.ColorBehavior = LoggerColorBehavior.Enabled;
                         });
-                        l.AddFilter("Orleans.Runtime.Placement.Repartitioning", LogLevel.Debug);
+                        l.AddFilter("Forkleans.Runtime.Placement.Repartitioning", LogLevel.Debug);
                     });
                     siloBuilder.Configure<ActivationRepartitionerOptions>(o =>
                     {

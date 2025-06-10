@@ -1,4 +1,4 @@
-﻿namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Extension methods for grains implicitly subscribed to streams.

@@ -2,7 +2,7 @@ using System;
 using Azure;
 using Azure.Data.Tables;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     internal class EventHubPartitionCheckpointEntity : ITableEntity
     {

@@ -1,6 +1,6 @@
-using Orleans.Metadata;
+using Forkleans.Metadata;
 
-namespace Orleans.Runtime.Placement
+namespace Forkleans.Runtime.Placement
 {
     /// <summary>
     /// Associates a <see cref="PlacementStrategy"/> with a <see cref="GrainType"/>.

@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 using MySql.Data.MySqlClient;
 using Npgsql;
-using Orleans.Configuration;
-using Orleans.Streaming.AdoNet;
-using Orleans.Streaming.AdoNet.Storage;
+using Forkleans.Configuration;
+using Forkleans.Streaming.AdoNet;
+using Forkleans.Streaming.AdoNet.Storage;
 using UnitTests.General;
 using static System.String;
 

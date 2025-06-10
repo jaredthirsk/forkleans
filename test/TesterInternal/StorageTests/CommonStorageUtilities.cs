@@ -9,7 +9,7 @@ namespace UnitTests.StorageTests.Relational
     public static class CommonStorageUtilities
     {
         /// <summary>
-        /// Asserts certain information is present in the <see cref="Orleans.Storage.InconsistentStateException"/>.
+        /// Asserts certain information is present in the <see cref="Forkleans.Storage.InconsistentStateException"/>.
         /// </summary>
         /// <param name="exceptionMessage">The exception message to assert.</param>
         public static void AssertRelationalInconsistentExceptionMessage(string exceptionMessage)

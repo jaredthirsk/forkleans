@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.EventSourcing.Common
+namespace Forkleans.EventSourcing.Common
 {
     /// <summary>
     /// A general template for constructing log view adaptors that are based on

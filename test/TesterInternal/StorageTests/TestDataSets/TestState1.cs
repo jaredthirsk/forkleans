@@ -1,19 +1,19 @@
-﻿namespace UnitTests.StorageTests.Relational.TestDataSets
+namespace UnitTests.StorageTests.Relational.TestDataSets
 {
     /// <summary>
     /// A state used to test if saving, reading and clearing of the storage functions as expected.
     /// </summary>
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class TestState1: IEquatable<TestState1>
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public string A { get; set; }
 
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public int B { get; set; }
 
-        [Orleans.Id(2)]
+        [Forkleans.Id(2)]
         public long C { get; set; }
 
         public override bool Equals(object obj)

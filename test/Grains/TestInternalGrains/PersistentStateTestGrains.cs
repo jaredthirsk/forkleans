@@ -1,4 +1,4 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using UnitTests.GrainInterfaces;
 using UnitTests.Grains;
 
@@ -50,7 +50,7 @@ namespace UnitTests.PersistentState.Grains
         }
     }
 
-    [Orleans.Providers.StorageProvider(ProviderName = "GrainStorageForTest")]
+    [Forkleans.Providers.StorageProvider(ProviderName = "GrainStorageForTest")]
     [GrainType("new-test-storage-grain-with-extended-key")]
     public class GrainStorageTestGrainExtendedKey : Grain,
         IGrainStorageTestGrain_GuidExtendedKey, IGrainStorageTestGrain_LongExtendedKey

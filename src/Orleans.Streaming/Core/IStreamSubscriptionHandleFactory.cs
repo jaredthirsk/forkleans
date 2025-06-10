@@ -1,6 +1,6 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams.Core
+namespace Forkleans.Streams.Core
 {
     /// <summary>
     /// Functionality for creating a stream subscription handle for a particular stream and subscription.

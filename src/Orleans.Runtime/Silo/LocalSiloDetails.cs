@@ -1,9 +1,9 @@
 using System;
 using System.Net;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal class LocalSiloDetails : ILocalSiloDetails
     {

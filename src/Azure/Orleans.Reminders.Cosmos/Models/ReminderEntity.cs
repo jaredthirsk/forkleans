@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
-using static Orleans.Reminders.Cosmos.CosmosIdSanitizer;
+using static Forkleans.Reminders.Cosmos.CosmosIdSanitizer;
 
-namespace Orleans.Reminders.Cosmos.Models;
+namespace Forkleans.Reminders.Cosmos.Models;
 
 internal class ReminderEntity : BaseEntity
 {

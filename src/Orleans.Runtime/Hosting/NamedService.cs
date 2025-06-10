@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Runtime.Hosting
+namespace Forkleans.Runtime.Hosting
 {
     internal class NamedService<TService>(string name)
     {

@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Networking.Shared;
+using Forkleans.Networking.Shared;
 
-namespace Orleans.TestingHost.UnixSocketTransport;
+namespace Forkleans.TestingHost.UnixSocketTransport;
 
 internal class UnixSocketConnectionListenerFactory : IConnectionListenerFactory
 {
@@ -21,7 +21,7 @@ internal class UnixSocketConnectionListenerFactory : IConnectionListenerFactory
         SocketSchedulers schedulers)
     {
         this.socketConnectionOptions = socketConnectionOptions.Value;
-        var logger = loggerFactory.CreateLogger("Orleans.UnixSockets");
+        var logger = loggerFactory.CreateLogger("Forkleans.UnixSockets");
         this.trace = new SocketsTrace(logger);
         this.schedulers = schedulers;
     }

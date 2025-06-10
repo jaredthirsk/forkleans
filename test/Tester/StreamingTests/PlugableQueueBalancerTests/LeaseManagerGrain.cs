@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 
 namespace Tester.StreamingTests
 {

@@ -1,4 +1,4 @@
-using Orleans.Providers.Streams.Common;
+using Forkleans.Providers.Streams.Common;
 
 namespace ServiceBus.Tests.MonitorTests
 {
@@ -28,16 +28,16 @@ namespace ServiceBus.Tests.MonitorTests
     }
 
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class EventHubReceiverMonitorCounters 
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public int TrackInitializationCallCounter;
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public int TrackReadCallCounter;
-        [Orleans.Id(2)]
+        [Forkleans.Id(2)]
         public int TrackMessagesReceivedCallCounter;
-        [Orleans.Id(3)]
+        [Forkleans.Id(3)]
         public int TrackShutdownCallCounter;
     }
 }

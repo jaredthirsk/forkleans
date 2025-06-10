@@ -1,8 +1,8 @@
 using System.Collections.Concurrent;
 using System.Reflection;
 using FluentAssertions;
-using Orleans.Caching;
-using Orleans.Caching.Internal;
+using Forkleans.Caching;
+using Forkleans.Caching.Internal;
 using Xunit;
 using Xunit.Abstractions;
 

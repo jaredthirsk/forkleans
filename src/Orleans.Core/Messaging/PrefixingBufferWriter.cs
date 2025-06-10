@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     /// <summary>
     /// An <see cref="IBufferWriter{T}"/> that reserves some fixed size for a header.

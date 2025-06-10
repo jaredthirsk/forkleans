@@ -1,7 +1,7 @@
 using System.Diagnostics;
-using Orleans.Core.Internal;
-using Orleans.Runtime;
-using Orleans.Runtime.Placement;
+using Forkleans.Core.Internal;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Placement;
 using TestExtensions;
 using Xunit;
 

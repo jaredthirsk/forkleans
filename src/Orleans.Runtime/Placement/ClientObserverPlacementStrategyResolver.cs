@@ -1,6 +1,6 @@
-using Orleans.Metadata;
+using Forkleans.Metadata;
 
-namespace Orleans.Runtime.Placement
+namespace Forkleans.Runtime.Placement
 {
     internal class ClientObserverPlacementStrategyResolver : IPlacementStrategyResolver
     {

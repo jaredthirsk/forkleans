@@ -1,5 +1,5 @@
 // ReSharper disable InconsistentNaming
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// The set of error codes used by the Orleans runtime libraries for logging errors.
@@ -1045,7 +1045,7 @@ namespace Orleans
         LogConsistency_ProtocolFatalError = LogConsistencyBase + 4,
 
         // Note: individual Service Fabric error codes are defined in
-        // Microsoft.Orleans.ServiceFabric.Utilities.ErrorCode.
+        // Microsoft.Forkleans.ServiceFabric.Utilities.ErrorCode.
         ServiceFabricBase = Runtime + 4400,
 
         TransactionsBase = Runtime + 4500,

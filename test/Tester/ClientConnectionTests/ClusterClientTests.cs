@@ -2,10 +2,10 @@ using System.Collections.ObjectModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Messaging;
-using Orleans.Runtime;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Messaging;
+using Forkleans.Runtime;
+using Forkleans.TestingHost;
 using TestExtensions;
 using Xunit;
 

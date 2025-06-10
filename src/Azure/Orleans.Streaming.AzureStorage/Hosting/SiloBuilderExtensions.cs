@@ -1,11 +1,11 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Configuration.Internal;
-using Orleans.LeaseProviders;
+using Forkleans.Configuration;
+using Forkleans.Configuration.Internal;
+using Forkleans.LeaseProviders;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static class SiloBuilderExtensions
     {

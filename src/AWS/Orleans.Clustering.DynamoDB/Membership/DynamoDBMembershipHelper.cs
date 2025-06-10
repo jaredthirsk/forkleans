@@ -1,8 +1,8 @@
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using System;
 using System.Linq;
 
-namespace Orleans.Clustering.DynamoDB
+namespace Forkleans.Clustering.DynamoDB
 {
     /// <inheritdoc />
     public class DynamoDBMembershipHelper

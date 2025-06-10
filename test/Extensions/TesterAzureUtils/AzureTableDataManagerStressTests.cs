@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using System.Globalization;
-using Orleans.TestingHost.Utils;
+using Forkleans.TestingHost.Utils;
 using Xunit;
 using Xunit.Abstractions;
-using Orleans.Internal;
-using AzureStoragePolicyOptions = Orleans.Clustering.AzureStorage.AzureStoragePolicyOptions;
+using Forkleans.Internal;
+using AzureStoragePolicyOptions = Forkleans.Clustering.AzureStorage.AzureStoragePolicyOptions;
 
 namespace Tester.AzureUtils
 {

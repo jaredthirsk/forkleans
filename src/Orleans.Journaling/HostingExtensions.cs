@@ -1,7 +1,8 @@
+using Forkleans.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 public static class HostingExtensions
 {
     public static ISiloBuilder AddStateMachineStorage(this ISiloBuilder builder)

@@ -1,7 +1,7 @@
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Invocation;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.UnitTests;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Invocation;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.UnitTests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ public interface IHasNoNamespace : IMyInvokableBaseType
 {
 }
 
-namespace Orleans.Serialization.UnitTests
+namespace Forkleans.Serialization.UnitTests
 {
     [Alias("_my_proxy_base_")]
     [DefaultInvokableBaseType(typeof(ValueTask<>), typeof(UnitTestRequest<>))]

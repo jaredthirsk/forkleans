@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Configuration;
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 using TestExtensions;
 using Xunit.Abstractions;
-using Orleans.Streaming.EventHubs;
+using Forkleans.Streaming.EventHubs;
 using Tester;
 using Microsoft.Extensions.DependencyInjection;
 using Tester.StreamingTests;

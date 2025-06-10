@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
-using Orleans.Networking.Shared;
+using Forkleans.Networking.Shared;
 
-namespace Orleans.TestingHost.InMemoryTransport;
+namespace Forkleans.TestingHost.InMemoryTransport;
 
 internal class InMemoryTransportConnection : TransportConnection
 {

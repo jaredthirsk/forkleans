@@ -1,8 +1,8 @@
-using Orleans.Serialization.Buffers;
+using Forkleans.Serialization.Buffers;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 public sealed class VolatileStateMachineStorageProvider : IStateMachineStorageProvider
 {

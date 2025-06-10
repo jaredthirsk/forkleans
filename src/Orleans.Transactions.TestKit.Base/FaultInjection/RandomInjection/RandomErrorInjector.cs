@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.Serialization;
-using Orleans.Storage;
+using Forkleans.Storage;
 
-namespace Orleans.Transactions.TestKit
+namespace Forkleans.Transactions.TestKit
 {
     public class RandomErrorInjector : ITransactionFaultInjector
     {

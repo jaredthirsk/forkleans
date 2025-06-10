@@ -1,6 +1,6 @@
 using System.IO.Pipelines;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     internal class DuplexPipe : IDuplexPipe
     {

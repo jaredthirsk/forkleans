@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class AzureStorageReminderServiceCollectionExtensions
     {
@@ -27,7 +27,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Reminders.AzureStorage
+namespace Forkleans.Reminders.AzureStorage
 {
     public partial class AzureStorageOperationOptions
     {
@@ -98,11 +98,11 @@ namespace Orleans.Reminders.AzureStorage
     }
 }
 
-namespace Orleans.Runtime.ReminderService
+namespace Forkleans.Runtime.ReminderService
 {
     public sealed partial class AzureBasedReminderTable : IReminderTable
     {
-        public AzureBasedReminderTable(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.ClusterOptions> clusterOptions, Microsoft.Extensions.Options.IOptions<Reminders.AzureStorage.AzureTableReminderStorageOptions> storageOptions) { }
+        public AzureBasedReminderTable(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.ClusterOptions> clusterOptions, Microsoft.Extensions.Options.IOptions<Reminders.AzureStorage.AzureTableReminderStorageOptions> storageOptions) { }
 
         public System.Threading.Tasks.Task<ReminderEntry> ReadRow(GrainId grainId, string reminderName) { throw null; }
 

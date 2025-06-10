@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Orleans.Reminders")]
+[assembly: InternalsVisibleTo("Forkleans.Reminders")]
 [assembly: InternalsVisibleTo("TestInternalGrains")]
 [assembly: InternalsVisibleTo("NonSilo.Tests")]
 [assembly: InternalsVisibleTo("Tester.AzureUtils")]

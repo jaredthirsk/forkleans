@@ -13,10 +13,10 @@ using System.Collections;
 #if NET6_0_OR_GREATER
 using System.Numerics;
 #else
-using Orleans.Serialization.Utilities;
+using Forkleans.Serialization.Utilities;
 #endif
 
-namespace Orleans.Serialization.Buffers;
+namespace Forkleans.Serialization.Buffers;
 
 /// <summary>
 /// A <see cref="IBufferWriter{T}"/> implementation implemented using pooled arrays which is specialized for creating <see cref="ReadOnlySequence{T}"/> instances.

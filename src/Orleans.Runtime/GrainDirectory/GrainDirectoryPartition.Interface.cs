@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 #nullable enable
 
-namespace Orleans.Runtime.GrainDirectory;
+namespace Forkleans.Runtime.GrainDirectory;
 
 internal sealed partial class GrainDirectoryPartition
 {

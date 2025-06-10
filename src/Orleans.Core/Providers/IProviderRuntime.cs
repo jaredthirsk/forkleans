@@ -1,7 +1,7 @@
 using System;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     /// <summary>
     /// Interface to allow callbacks from providers into their assigned provider-manager.

@@ -2,12 +2,12 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.Storage;
+using Forkleans.Runtime;
+using Forkleans.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Orleans.TestingHost
+namespace Forkleans.TestingHost
 {
     /// <summary>
     /// Options for fault injection grain storage

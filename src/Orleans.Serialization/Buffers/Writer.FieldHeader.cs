@@ -1,10 +1,10 @@
 using System;
 using System.Runtime.CompilerServices;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.TypeSystem;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.TypeSystem;
+using Forkleans.Serialization.WireProtocol;
 
-namespace Orleans.Serialization.Buffers
+namespace Forkleans.Serialization.Buffers
 {
     public ref partial struct Writer<TBufferWriter>
     {
@@ -81,7 +81,7 @@ namespace Orleans.Serialization.Buffers
     }
 }
 
-namespace Orleans.Serialization.Codecs
+namespace Forkleans.Serialization.Codecs
 {
     /// <summary>
     /// Codec for operating with the wire format.

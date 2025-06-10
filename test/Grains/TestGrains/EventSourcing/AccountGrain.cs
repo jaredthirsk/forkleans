@@ -1,5 +1,5 @@
-using Orleans.EventSourcing;
-using Orleans.Providers;
+using Forkleans.EventSourcing;
+using Forkleans.Providers;
 using TestGrainInterfaces;
 
 namespace TestGrains
@@ -22,10 +22,10 @@ namespace TestGrains
         /// The state of this grain is just the current balance.
         /// </summary>
         [Serializable]
-        [Orleans.GenerateSerializer]
+        [Forkleans.GenerateSerializer]
         public class GrainState
         {
-            [Orleans.Id(0)]
+            [Forkleans.Id(0)]
             public uint Balance { get; set; }
 
             public void Apply(DepositTransaction d)

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// A batch of queue messages (see IBatchContainer for description of batch contents)

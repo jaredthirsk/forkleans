@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Hosting;
-using Orleans.LeaseProviders;
+using Forkleans.Hosting;
+using Forkleans.LeaseProviders;
 
-namespace Orleans.Runtime.Development
+namespace Forkleans.Runtime.Development
 {
     /// <summary>
     /// <see cref="ISiloBuilder"/> extensions to configure an in-memory lease provider.

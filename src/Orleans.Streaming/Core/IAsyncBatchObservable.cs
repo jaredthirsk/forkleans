@@ -1,7 +1,7 @@
 #nullable enable
 using System.Threading.Tasks;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// This interface generalizes the IAsyncObserver interface to allow production and consumption of batches of items.

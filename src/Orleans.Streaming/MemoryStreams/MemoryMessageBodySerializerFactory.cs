@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     internal static class MemoryMessageBodySerializerFactory<TSerializer>
         where TSerializer : class, IMemoryMessageBodySerializer

@@ -1,6 +1,6 @@
 using FluentAssertions.Common;
-using Orleans;
-using Orleans.Runtime;
+using Forkleans;
+using Forkleans.Runtime;
 using Xunit;
 
 namespace NonSilo.Tests.Membership

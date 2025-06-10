@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Microsoft.Extensions.Logging;
-using Orleans.Providers.Streams.Common;
-using Orleans.Configuration;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Configuration;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Cache pressure monitor whose back pressure algorithm is based on averaging pressure value

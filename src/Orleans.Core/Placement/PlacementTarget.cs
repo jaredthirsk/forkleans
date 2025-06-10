@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Orleans.Runtime.Placement
+namespace Forkleans.Runtime.Placement
 {
     /// <summary>
     /// Describes a placement target, which is a grain as well as context regarding the request which is triggering grain placement.

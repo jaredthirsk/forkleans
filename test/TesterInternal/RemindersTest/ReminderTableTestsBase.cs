@@ -1,11 +1,11 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using TestExtensions;
 using UnitTests.MembershipTests;
 using Xunit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.TestingHost.Utils;
+using Forkleans.Configuration;
+using Forkleans.TestingHost.Utils;
 
 namespace UnitTests.RemindersTest
 {

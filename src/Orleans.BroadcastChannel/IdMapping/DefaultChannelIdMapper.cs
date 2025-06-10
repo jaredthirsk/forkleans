@@ -1,10 +1,10 @@
 using System;
 using System.Buffers.Text;
-using Orleans.Metadata;
-using Orleans.Runtime;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
 
 #nullable enable
-namespace Orleans.BroadcastChannel
+namespace Forkleans.BroadcastChannel
 {
     /// <summary>
     /// The default <see cref="IChannelIdMapper"/> implementation.

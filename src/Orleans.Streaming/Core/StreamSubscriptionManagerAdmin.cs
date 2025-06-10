@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Orleans.Streams.Core
+namespace Forkleans.Streams.Core
 {
     internal class StreamSubscriptionManagerAdmin : IStreamSubscriptionManagerAdmin
     {

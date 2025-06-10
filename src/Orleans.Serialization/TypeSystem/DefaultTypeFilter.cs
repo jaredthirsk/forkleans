@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Serialization.TypeSystem
+namespace Forkleans.Serialization.TypeSystem
 {
     /// <summary>
     /// Type which allows any exception type to be resolved.
@@ -10,7 +10,7 @@ namespace Orleans.Serialization.TypeSystem
         /// <inheritdoc/>
         public bool? IsTypeNameAllowed(string typeName, string assemblyName)
         {
-            if (assemblyName is { } && assemblyName.Contains("Orleans.Serialization", StringComparison.Ordinal))
+            if (assemblyName is { } && assemblyName.Contains("Forkleans.Serialization", StringComparison.Ordinal))
             {
                 return true;
             }

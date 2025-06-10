@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Messaging;
-using Orleans.Clustering.Cosmos;
+using Forkleans.Messaging;
+using Forkleans.Clustering.Cosmos;
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 /// <summary>
 /// Extension methods for configuring Azure Cosmos DB clustering.

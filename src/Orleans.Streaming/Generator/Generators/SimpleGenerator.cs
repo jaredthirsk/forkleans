@@ -1,12 +1,12 @@
 
 using System;
 using System.Collections.Generic;
-using Orleans.Hosting;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Hosting;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.Generator
+namespace Forkleans.Providers.Streams.Generator
 {
     /// <summary>
     /// Simple Generator

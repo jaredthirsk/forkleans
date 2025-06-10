@@ -1,7 +1,7 @@
 
 using System;
 
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// Manages a contiguous block of memory.

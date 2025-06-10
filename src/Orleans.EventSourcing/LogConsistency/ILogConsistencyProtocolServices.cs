@@ -1,9 +1,9 @@
 using System;
 using System.Runtime.Serialization;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.EventSourcing
+namespace Forkleans.EventSourcing
 {
     /// <summary>
     /// Functionality for use by log view adaptors that use custom consistency or replication protocols.

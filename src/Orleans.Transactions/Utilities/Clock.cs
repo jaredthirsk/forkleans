@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace Orleans.Transactions
+namespace Forkleans.Transactions
 {
     public class Clock : IClock
     {

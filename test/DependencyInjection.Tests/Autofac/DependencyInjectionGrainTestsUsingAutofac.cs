@@ -1,6 +1,6 @@
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using Xunit;

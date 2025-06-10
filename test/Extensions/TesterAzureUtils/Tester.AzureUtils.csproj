@@ -1,6 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <DefineConstants>TRACE;TESTER_AZUREUTILS;ORLEANS_PERSISTENCE</DefineConstants>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
@@ -19,9 +19,9 @@
 
   <ItemGroup>
     <ProjectReference Include="$(SourceRoot)test\TesterInternal\TesterInternal.csproj" />
-    <ProjectReference Include="$(SourceRoot)\src\Azure\Orleans.Reminders.AzureStorage\Orleans.Reminders.AzureStorage.csproj" />
-    <ProjectReference Include="$(SourceRoot)\src\Azure\Orleans.GrainDirectory.AzureStorage\Orleans.GrainDirectory.AzureStorage.csproj" />
-    <ProjectReference Include="$(SourceRoot)\src\Azure\Orleans.Streaming.AzureStorage\Orleans.Streaming.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\..\src\Azure\Orleans.Reminders.AzureStorage\Orleans.Reminders.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\..\src\Azure\Orleans.GrainDirectory.AzureStorage\Orleans.GrainDirectory.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\..\src\Azure\Orleans.Streaming.AzureStorage\Orleans.Streaming.AzureStorage.csproj" />
   </ItemGroup>
 
   <ItemGroup>

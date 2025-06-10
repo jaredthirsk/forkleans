@@ -4,11 +4,11 @@ using System.Linq;
 using Azure.Messaging.EventHubs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.Serialization;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.Serialization;
 
-namespace Orleans.Streaming.EventHubs.Testing
+namespace Forkleans.Streaming.EventHubs.Testing
 {
     /// <summary>
     /// Generate data for one stream

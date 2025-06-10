@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class RedisGrainStorageServiceCollectionExtensions
     {
@@ -35,7 +35,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Persistence
+namespace Forkleans.Persistence
 {
     public partial class RedisGrainStorage : Storage.IGrainStorage, ILifecycleParticipant<Runtime.ISiloLifecycle>
     {
@@ -80,7 +80,7 @@ namespace Orleans.Persistence
     }
 }
 
-namespace Orleans.Persistence.Redis
+namespace Forkleans.Persistence.Redis
 {
     [GenerateSerializer]
     public partial class RedisStorageException : System.Exception
@@ -96,31 +96,31 @@ namespace Orleans.Persistence.Redis
     }
 }
 
-namespace OrleansCodeGen.Orleans.Persistence.Redis
+namespace ForkleansCodeGen.Forkleans.Persistence.Redis
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_RedisStorageException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Persistence.Redis.RedisStorageException>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IBaseCodec<global::Orleans.Persistence.Redis.RedisStorageException>, global::Orleans.Serialization.Serializers.IBaseCodec
+    public sealed partial class Codec_RedisStorageException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Persistence.Redis.RedisStorageException>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Persistence.Redis.RedisStorageException>, global::Forkleans.Serialization.Serializers.IBaseCodec
     {
-        public Codec_RedisStorageException(global::Orleans.Serialization.Serializers.IBaseCodec<System.Exception> _baseTypeSerializer) { }
+        public Codec_RedisStorageException(global::Forkleans.Serialization.Serializers.IBaseCodec<System.Exception> _baseTypeSerializer) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Persistence.Redis.RedisStorageException instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Persistence.Redis.RedisStorageException instance) { }
 
-        public global::Orleans.Persistence.Redis.RedisStorageException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Persistence.Redis.RedisStorageException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Persistence.Redis.RedisStorageException instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Persistence.Redis.RedisStorageException instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Persistence.Redis.RedisStorageException value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Persistence.Redis.RedisStorageException value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_RedisStorageException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Persistence.Redis.RedisStorageException, System.Exception>
+    public sealed partial class Copier_RedisStorageException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Persistence.Redis.RedisStorageException, System.Exception>
     {
-        public Copier_RedisStorageException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public Copier_RedisStorageException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
     }
 }

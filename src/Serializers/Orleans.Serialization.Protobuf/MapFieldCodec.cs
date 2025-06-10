@@ -1,13 +1,13 @@
 using System;
 using System.Buffers;
 using Google.Protobuf.Collections;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.GeneratedCodeHelpers;
-using Orleans.Serialization.Session;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.GeneratedCodeHelpers;
+using Forkleans.Serialization.Session;
+using Forkleans.Serialization.WireProtocol;
 
-namespace Orleans.Serialization;
+namespace Forkleans.Serialization;
 
 /// <summary>
 /// Serializer for <see cref="MapField{TKey,TValue}"/>.

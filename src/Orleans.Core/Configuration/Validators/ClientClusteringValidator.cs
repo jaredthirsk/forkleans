@@ -1,10 +1,10 @@
 using System;
 
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Messaging;
-using Orleans.Runtime;
+using Forkleans.Messaging;
+using Forkleans.Runtime;
 
-namespace Orleans.Configuration.Validators
+namespace Forkleans.Configuration.Validators
 {
     /// <summary>
     /// Validator for client-side clustering.
@@ -16,12 +16,12 @@ namespace Orleans.Configuration.Validators
         /// </summary>
         internal const string ClusteringNotConfigured =
             "Clustering has not been configured. Configure clustering using one of the clustering packages, such as:"
-            + "\n  * Microsoft.Orleans.Clustering.AzureStorage"
-            + "\n  * Microsoft.Orleans.Clustering.AdoNet for ADO.NET systems such as SQL Server, MySQL, PostgreSQL, and Oracle"
-            + "\n  * Microsoft.Orleans.Clustering.DynamoDB"
-            + "\n  * Microsoft.Orleans.Clustering.Consul"
-            + "\n  * Microsoft.Orleans.Clustering.ZooKeeper"
-            + "\n  * Others, see: https://www.nuget.org/packages?q=Microsoft.Orleans.Clustering.";
+            + "\n  * Microsoft.Forkleans.Clustering.AzureStorage"
+            + "\n  * Microsoft.Forkleans.Clustering.AdoNet for ADO.NET systems such as SQL Server, MySQL, PostgreSQL, and Oracle"
+            + "\n  * Microsoft.Forkleans.Clustering.DynamoDB"
+            + "\n  * Microsoft.Forkleans.Clustering.Consul"
+            + "\n  * Microsoft.Forkleans.Clustering.ZooKeeper"
+            + "\n  * Others, see: https://www.nuget.org/packages?q=Microsoft.Forkleans.Clustering.";
 
         /// <summary>
         /// The service provider.

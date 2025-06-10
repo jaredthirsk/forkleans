@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.TestingHost.Logging
+namespace Forkleans.TestingHost.Logging
 {
     /// <summary>
     /// <see cref="ILoggerProvider"/> which outputs to a log file.

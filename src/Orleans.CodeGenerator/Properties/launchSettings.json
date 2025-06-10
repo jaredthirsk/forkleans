@@ -2,7 +2,7 @@
   "profiles": {
     "Roslyn": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\..\\test\\Orleans.Serialization.UnitTests\\Orleans.Serialization.UnitTests.csproj"
+      "targetProject": "..\\..\\test\\Forkleans.Serialization.UnitTests\\Forkleans.Serialization.UnitTests.csproj"
     }
   }
 }

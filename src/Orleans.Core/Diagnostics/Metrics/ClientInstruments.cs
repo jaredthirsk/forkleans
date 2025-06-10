@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.Metrics;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 public static class ClientInstruments
 {

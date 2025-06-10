@@ -5,16 +5,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.CodeGeneration;
-using Orleans.GrainReferences;
-using Orleans.Hosting;
-using Orleans.Internal;
-using Orleans.Metadata;
-using Orleans.Runtime.ConsistentRing;
-using Orleans.Runtime.Internal;
-using Orleans.Runtime.Scheduler;
+using Forkleans.CodeGeneration;
+using Forkleans.GrainReferences;
+using Forkleans.Hosting;
+using Forkleans.Internal;
+using Forkleans.Metadata;
+using Forkleans.Runtime.ConsistentRing;
+using Forkleans.Runtime.Internal;
+using Forkleans.Runtime.Scheduler;
 
-namespace Orleans.Runtime.ReminderService
+namespace Forkleans.Runtime.ReminderService
 {
     internal sealed partial class LocalReminderService : GrainService, IReminderService, ILifecycleParticipant<ISiloLifecycle>
     {

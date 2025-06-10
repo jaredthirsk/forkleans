@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Versions.Selector
+namespace Forkleans.Versions.Selector
 {
     /// <summary>
     /// Grain interface version selector which always selects the highest compatible version.

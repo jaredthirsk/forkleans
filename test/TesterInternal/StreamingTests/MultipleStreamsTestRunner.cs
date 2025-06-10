@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
-using Orleans.TestingHost;
-using Orleans.TestingHost.Utils;
+using Forkleans.TestingHost;
+using Forkleans.TestingHost.Utils;
 using UnitTests.StreamingTests;
 
 namespace UnitTests.Streaming

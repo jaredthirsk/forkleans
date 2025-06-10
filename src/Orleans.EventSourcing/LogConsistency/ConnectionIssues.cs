@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.EventSourcing
+namespace Forkleans.EventSourcing
 {
 
     /// <summary>

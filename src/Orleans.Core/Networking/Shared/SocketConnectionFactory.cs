@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     internal class SocketConnectionFactory : IConnectionFactory
     {
@@ -21,7 +21,7 @@ namespace Orleans.Networking.Shared
 
         public SocketConnectionFactory(ILoggerFactory loggerFactory, SocketSchedulers schedulers, SharedMemoryPool memoryPool, IOptions<SocketConnectionOptions> options)
         {
-            var logger = loggerFactory.CreateLogger("Orleans.Sockets");
+            var logger = loggerFactory.CreateLogger("Forkleans.Sockets");
             this.trace = new SocketsTrace(logger);
             this.schedulers = schedulers;
             this.memoryPool = memoryPool.Pool;

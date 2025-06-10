@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>UnitTests.GrainInterfaces</RootNamespace>
     <AssemblyName>TestInternalGrainInterfaces</AssemblyName>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <TargetFramework>$(MinTestTargetFramework)</TargetFramework>
   </PropertyGroup>
 

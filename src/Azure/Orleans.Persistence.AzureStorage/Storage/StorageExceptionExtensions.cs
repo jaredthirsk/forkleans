@@ -2,7 +2,7 @@ using System.Net;
 using Azure;
 using Azure.Storage.Blobs.Models;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     internal static class StorageExceptionExtensions
     {

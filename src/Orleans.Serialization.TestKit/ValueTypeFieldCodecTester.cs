@@ -1,12 +1,12 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO.Pipelines;
 using Xunit;
-using Orleans.Serialization.Serializers;
+using Forkleans.Serialization.Serializers;
 using Xunit.Abstractions;
 
-namespace Orleans.Serialization.TestKit
+namespace Forkleans.Serialization.TestKit
 {
     public abstract class ValueTypeFieldCodecTester<TField, TCodec> : FieldCodecTester<TField, TCodec> where TField : struct where TCodec : class, IFieldCodec<TField>
     {

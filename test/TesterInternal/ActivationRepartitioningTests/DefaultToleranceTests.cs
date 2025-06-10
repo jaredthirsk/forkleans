@@ -1,11 +1,11 @@
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
-using Orleans.Placement;
-using Orleans.Runtime.Placement;
-using Orleans.Runtime.Placement.Repartitioning;
-using Orleans.Streams;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Placement;
+using Forkleans.Runtime.Placement;
+using Forkleans.Runtime.Placement.Repartitioning;
+using Forkleans.Streams;
+using Forkleans.TestingHost;
 using TestExtensions;
 using Xunit;
 

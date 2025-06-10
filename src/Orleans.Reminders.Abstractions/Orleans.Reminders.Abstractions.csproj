@@ -1,14 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Reminders.Abstractions</PackageId>
+    <AssemblyName>Forkleans.Reminders.Abstractions</AssemblyName>
+    <PackageId>Microsoft.Forkleans.Reminders.Abstractions</PackageId>
     <Title>Microsoft Orleans Reminders Abstractions</Title>
     <Description>Reminders abstractions library for Microsoft Orleans</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <RootNamespace>Orleans</RootNamespace>
+    <RootNamespace>Forkleans</RootNamespace>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <DefineConstants>$(DefineConstants);ORLEANS_REMINDERS_PROVIDER</DefineConstants>
   </PropertyGroup>
 
@@ -18,8 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Sdk\Orleans.Sdk.csproj" />
+    <ProjectReference Include="..\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
+    <ProjectReference Include="..\Orleans.Sdk\Orleans.Sdk.csproj" />
   </ItemGroup>
 
 </Project>

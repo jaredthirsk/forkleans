@@ -2,9 +2,9 @@
 using System;
 using System.Globalization;
 using Newtonsoft.Json;
-using Orleans.Providers.Streams.Common;
+using Forkleans.Providers.Streams.Common;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Location of a message within an EventHub partition

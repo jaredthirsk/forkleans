@@ -1,10 +1,10 @@
-using Orleans.Storage;
-using Orleans.Configuration;
+using Forkleans.Storage;
+using Forkleans.Configuration;
 using System;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans.EventSourcing.CustomStorage
+namespace Forkleans.EventSourcing.CustomStorage
 {
     /// <summary>
     /// A log-consistency provider that relies on grain-specific custom code for 

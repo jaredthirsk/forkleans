@@ -1,31 +1,31 @@
 using Amazon.SQS.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Serialization;
-using Orleans.Streams;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Serialization;
+using Forkleans.Streams;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using SQSMessage = Amazon.SQS.Model.Message;
 
-namespace OrleansAWSUtils.Streams
+namespace ForkleansAWSUtils.Streams
 {
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     internal class SQSBatchContainer : IBatchContainer
     {
         [JsonProperty]
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         private EventSequenceTokenV2 sequenceToken;
 
         [JsonProperty]
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         private readonly List<object> events;
 
         [JsonProperty]
-        [Orleans.Id(2)]
+        [Forkleans.Id(2)]
         private readonly Dictionary<string, object> requestContext;
 
         [NonSerialized]
@@ -33,7 +33,7 @@ namespace OrleansAWSUtils.Streams
         // Don't need to serialize it, since we are never interested in sending it to stream consumers.
         internal SQSMessage Message;
 
-        [Orleans.Id(3)]
+        [Forkleans.Id(3)]
         public StreamId StreamId { get; private set; }
 
         public StreamSequenceToken SequenceToken

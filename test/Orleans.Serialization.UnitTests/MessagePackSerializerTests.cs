@@ -1,14 +1,14 @@
 #nullable enable
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.TestKit;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.TestKit;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Orleans.Serialization.UnitTests;
+namespace Forkleans.Serialization.UnitTests;
 
 [Trait("Category", "BVT")]
 public class MessagePackCodecTests : FieldCodecTester<MyMessagePackClass?, IFieldCodec<MyMessagePackClass?>>

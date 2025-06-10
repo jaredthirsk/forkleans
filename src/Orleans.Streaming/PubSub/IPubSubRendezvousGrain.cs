@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.Runtime;
-using Orleans.Streams.Core;
+using Forkleans.Runtime;
+using Forkleans.Streams.Core;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     internal interface IPubSubRendezvousGrain : IGrainWithStringKey
     {

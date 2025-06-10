@@ -1,12 +1,12 @@
 using System.Diagnostics.Metrics;
 using System.Threading;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions
+namespace Forkleans.Transactions
 {
     public class TransactionAgentStatistics : ITransactionAgentStatistics
     {
-        private static readonly Meter Meter = new("Orleans");
+        private static readonly Meter Meter = new("Forkleans");
 
         private const string TRANSACTIONS_STARTED = "orleans-transactions-started";
         private const string TRANSACTIONS_SUCCESSFUL = "orleans-transactions-successful";

@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Transactions</PackageId>
+    <PackageId>Microsoft.Forkleans.Transactions</PackageId>
     <Title>Microsoft Orleans Transactions support</Title>
     <Description>Core Transaction library of Microsoft Orleans used on the server.</Description>
     <PackageTags>$(PackageTags) Transactions</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <AssemblyName>Orleans.Transactions</AssemblyName>
-    <RootNamespace>Orleans.Transactions</RootNamespace>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <AssemblyName>Forkleans.Transactions</AssemblyName>
+    <RootNamespace>Forkleans.Transactions</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,11 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Serialization</PackageId>
+    <AssemblyName>Forkleans.Serialization</AssemblyName>
+    <PackageId>Microsoft.Forkleans.Serialization</PackageId>
     <PackageDescription>Fast, flexible, and version-tolerant serializer for .NET</PackageDescription>
     <TargetFrameworks>$(DefaultTargetFrameworks);netstandard2.1</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
@@ -26,11 +27,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Serialization.Abstractions\Orleans.Serialization.Abstractions.csproj" />
+    <ProjectReference Include="..\Orleans.Serialization.Abstractions\Orleans.Serialization.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="Orleans.Serialization.UnitTests" />
+    <InternalsVisibleTo Include="Forkleans.Serialization.UnitTests" />
   </ItemGroup>
 
   <ItemGroup>

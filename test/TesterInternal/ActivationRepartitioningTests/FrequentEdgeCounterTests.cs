@@ -1,5 +1,5 @@
-using Orleans.Placement.Repartitioning;
-using Orleans.Runtime.Placement.Repartitioning;
+using Forkleans.Placement.Repartitioning;
+using Forkleans.Runtime.Placement.Repartitioning;
 using Xunit;
 
 namespace UnitTests.ActivationRepartitioningTests;

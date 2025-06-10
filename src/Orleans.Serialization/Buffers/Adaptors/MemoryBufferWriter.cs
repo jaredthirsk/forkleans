@@ -1,7 +1,7 @@
 using System;
 using System.Buffers;
 
-namespace Orleans.Serialization.Buffers.Adaptors
+namespace Forkleans.Serialization.Buffers.Adaptors
 {
     /// <summary>
     /// A <see cref="IBufferWriter{T}"/> implementation for <see cref="Memory{T}"/>

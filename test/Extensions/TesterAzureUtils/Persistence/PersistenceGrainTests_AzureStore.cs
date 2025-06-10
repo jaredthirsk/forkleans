@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Xunit.Abstractions;
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 using TestExtensions;
 using TestExtensions.Runners;
 

@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     /// <summary>
     /// A general interface for controllable components inside Orleans runtime.

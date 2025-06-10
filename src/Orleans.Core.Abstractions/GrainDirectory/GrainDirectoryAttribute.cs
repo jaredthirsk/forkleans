@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Metadata;
-using Orleans.Runtime;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
 
-namespace Orleans.GrainDirectory
+namespace Forkleans.GrainDirectory
 {
     /// <summary>
     /// Specifies the name of the grain directory provider to use for the grain class which this attribute is applied to.

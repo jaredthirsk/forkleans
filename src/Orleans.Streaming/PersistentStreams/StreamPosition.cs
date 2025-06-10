@@ -1,8 +1,8 @@
 
 using System;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Stream position uniquely identifies the position of an event in a stream.

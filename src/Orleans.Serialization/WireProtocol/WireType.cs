@@ -1,4 +1,4 @@
-namespace Orleans.Serialization.WireProtocol
+namespace Forkleans.Serialization.WireProtocol
 {
     /// <summary>
     /// Represents a 3-bit wire type, shifted into position 

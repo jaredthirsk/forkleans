@@ -1,5 +1,5 @@
-using Orleans.GrainDirectory;
-using Orleans.Runtime;
+using Forkleans.GrainDirectory;
+using Forkleans.Runtime;
 using UnitTests.GrainInterfaces.Directories;
 
 namespace UnitTests.Grains.Directories

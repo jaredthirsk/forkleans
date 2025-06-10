@@ -1,4 +1,4 @@
-namespace Orleans.Journaling.Tests;
+namespace Forkleans.Journaling.Tests;
 
 /// <summary>
 /// Interface for the test multi-collection grain

@@ -2,11 +2,11 @@ using System.Buffers;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime.Internal;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Session;
+using Forkleans.Runtime.Internal;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Session;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 internal sealed partial class StateMachineManager : IStateMachineManager, ILifecycleParticipant<IGrainLifecycle>, ILifecycleObserver, IDisposable
 {

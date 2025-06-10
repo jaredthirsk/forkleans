@@ -18,6 +18,6 @@ namespace UnitTests.Grains
             await this.UnregisterReminder(r);
         }
 
-        public Task ReceiveReminder(string reminderName, Orleans.Runtime.TickStatus status) => throw new NotSupportedException();
+        public Task ReceiveReminder(string reminderName, Forkleans.Runtime.TickStatus status) => throw new NotSupportedException();
     }
 }

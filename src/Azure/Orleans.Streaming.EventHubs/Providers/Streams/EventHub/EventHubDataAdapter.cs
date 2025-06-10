@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Azure.Messaging.EventHubs;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Default event hub data adapter.  Users may subclass to override event data to stream mapping.

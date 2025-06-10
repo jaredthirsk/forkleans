@@ -1,8 +1,8 @@
-﻿using UnitTests.GrainInterfaces;
+using UnitTests.GrainInterfaces;
 
 namespace UnitTests.Grains
 {
-    [Orleans.Providers.StorageProvider(ProviderName = "MemoryStore")]
+    [Forkleans.Providers.StorageProvider(ProviderName = "MemoryStore")]
     public class ValueTypeTestGrain : Grain<ValueTypeTestData>, IValueTypeTestGrain
     {
         public ValueTypeTestGrain()

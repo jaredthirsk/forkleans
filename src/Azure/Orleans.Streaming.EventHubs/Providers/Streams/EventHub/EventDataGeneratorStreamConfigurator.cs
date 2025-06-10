@@ -2,11 +2,11 @@
 using System;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
-using Orleans.Streaming.EventHubs;
-using Orleans.Streaming.EventHubs.Testing;
+using Forkleans.Configuration;
+using Forkleans.Streaming.EventHubs;
+using Forkleans.Streaming.EventHubs.Testing;
 
-namespace Orleans.Hosting.Developer
+namespace Forkleans.Hosting.Developer
 {
     public interface IEventDataGeneratorStreamConfigurator : ISiloRecoverableStreamConfigurator { }
 

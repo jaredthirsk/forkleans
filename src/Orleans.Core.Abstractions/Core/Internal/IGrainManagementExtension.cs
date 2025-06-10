@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Core.Internal
+namespace Forkleans.Core.Internal
 {
     /// <summary>
     /// Provides functionality for performing management operations on a grain activation.

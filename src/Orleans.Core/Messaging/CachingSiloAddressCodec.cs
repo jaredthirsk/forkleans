@@ -3,11 +3,11 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Orleans.Caching;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
+using Forkleans.Caching;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     /// <summary>
     /// A serializer for <see cref="SiloAddress"/> which caches values and avoids re-encoding and unnecessary allocations.

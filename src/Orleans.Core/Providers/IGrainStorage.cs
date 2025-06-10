@@ -1,10 +1,10 @@
 using System;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System.Net;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Interface to be implemented for a storage able to read and write Orleans grain state data.

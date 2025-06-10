@@ -1,4 +1,4 @@
-namespace Orleans.Streaming.AdoNet;
+namespace Forkleans.Streaming.AdoNet;
 
 /// <summary>
 /// An <see cref="IStreamFailureHandler"/> that attempts to move the message to dead letters.

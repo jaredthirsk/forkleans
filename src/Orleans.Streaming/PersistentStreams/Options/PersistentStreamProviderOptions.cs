@@ -1,8 +1,8 @@
 
 using System;
-using Orleans.Streams;
+using Forkleans.Streams;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Options for managing stream system lifecycle.

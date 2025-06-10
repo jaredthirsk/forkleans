@@ -1,33 +1,33 @@
 #nullable enable
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration.Internal;
-using Orleans.Configuration.Validators;
-using Orleans.GrainReferences;
-using Orleans.Messaging;
-using Orleans.Metadata;
-using Orleans.Networking.Shared;
-using Orleans.Providers;
-using Orleans.Runtime;
-using Orleans.Runtime.Messaging;
-using Orleans.Runtime.Versions;
-using Orleans.Serialization;
-using Orleans.Statistics;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.Cloning;
+using Forkleans.Configuration.Internal;
+using Forkleans.Configuration.Validators;
+using Forkleans.GrainReferences;
+using Forkleans.Messaging;
+using Forkleans.Metadata;
+using Forkleans.Networking.Shared;
+using Forkleans.Providers;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Messaging;
+using Forkleans.Runtime.Versions;
+using Forkleans.Serialization;
+using Forkleans.Statistics;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.Cloning;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
-using Orleans.Serialization.Internal;
+using Forkleans.Serialization.Internal;
 using System;
-using Orleans.Hosting;
+using Forkleans.Hosting;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
-using Orleans.Placement.Repartitioning;
+using Forkleans.Placement.Repartitioning;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Configures the default services for a client.
@@ -170,7 +170,7 @@ namespace Orleans
         private static void ApplyConfiguration(IClientBuilder builder)
         {
             var services = builder.Services;
-            var cfg = builder.Configuration.GetSection("Orleans");
+            var cfg = builder.Configuration.GetSection("Forkleans");
             var knownProviderTypes = GetRegisteredProviders();
 
             services.Configure<ClusterOptions>(cfg);
@@ -210,7 +210,7 @@ namespace Orleans
                         ?? throw new InvalidOperationException($"{kind} provider, '{name}', of type {type}, does not implement {typeof(IProviderBuilder<IClientBuilder>)}.");
                 }
 
-                throw new InvalidOperationException($"Could not find {kind} provider named '{name}'. This can indicate that either the 'Microsoft.Orleans.Sdk' package the provider's package are not referenced by your application.");
+                throw new InvalidOperationException($"Could not find {kind} provider named '{name}'. This can indicate that either the 'Microsoft.Forkleans.Sdk' package the provider's package are not referenced by your application.");
             }
 
             static Dictionary<(string Kind, string Name), Type> GetRegisteredProviders()
@@ -256,14 +256,14 @@ namespace Orleans
         }
 
         /// <summary>
-        /// A <see cref="ITypeNameFilter"/> which allows any type from an assembly containing "Orleans" in its name to be allowed for the purposes of serialization and deserialization.
+        /// A <see cref="ITypeNameFilter"/> which allows any type from an assembly containing "Forkleans" in its name to be allowed for the purposes of serialization and deserialization.
         /// </summary>
         private class AllowOrleansTypes : ITypeNameFilter
         {
             /// <inheritdoc />
             public bool? IsTypeNameAllowed(string typeName, string assemblyName)
             {
-                if (assemblyName is { Length: > 0} && assemblyName.Contains("Orleans"))
+                if (assemblyName is { Length: > 0} && assemblyName.Contains("Forkleans"))
                 {
                     return true;
                 }

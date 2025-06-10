@@ -1,7 +1,7 @@
-using Orleans.Serialization.Serializers;
+using Forkleans.Serialization.Serializers;
 using System;
 
-namespace Orleans.Serialization.Codecs
+namespace Forkleans.Serialization.Codecs
 {
     /// <summary>
     /// Serializer for <see cref="Version"/>.

@@ -2,15 +2,15 @@ using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans;
-using Orleans.Configuration;
-using Orleans.Hosting;
-using Orleans.Providers;
+using Forkleans;
+using Forkleans.Configuration;
+using Forkleans.Hosting;
+using Forkleans.Providers;
 
 [assembly: RegisterProvider("AdoNet", "Clustering", "Silo", typeof(AdoNetClusteringProviderBuilder))]
 [assembly: RegisterProvider("AdoNet", "Clustering", "Client", typeof(AdoNetClusteringProviderBuilder))]
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 internal sealed class AdoNetClusteringProviderBuilder : IProviderBuilder<ISiloBuilder>, IProviderBuilder<IClientBuilder>
 {

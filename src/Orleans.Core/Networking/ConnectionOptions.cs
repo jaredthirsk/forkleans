@@ -1,7 +1,7 @@
 using System;
-using Orleans.Runtime.Messaging;
+using Forkleans.Runtime.Messaging;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Connection options.

@@ -1,7 +1,7 @@
 using System;
-using Orleans.Versions.Compatibility;
+using Forkleans.Versions.Compatibility;
 
-namespace Orleans.Versions.Selector
+namespace Forkleans.Versions.Selector
 {
     /// <summary>
     /// Functionality for selecting which versions of a grain interface should be preferred when performing grain placement.

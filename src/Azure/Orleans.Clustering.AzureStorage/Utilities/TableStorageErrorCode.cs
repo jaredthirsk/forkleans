@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace Orleans.Clustering.AzureStorage.Utilities
+namespace Forkleans.Clustering.AzureStorage.Utilities
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal enum TableStorageErrorCode

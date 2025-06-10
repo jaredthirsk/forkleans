@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     internal class SiloConnectionMaintainer : ILifecycleParticipant<ISiloLifecycle>, ISiloStatusListener, ILifecycleObserver
     {

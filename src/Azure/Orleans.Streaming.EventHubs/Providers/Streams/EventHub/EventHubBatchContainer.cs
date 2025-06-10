@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.Messaging.EventHubs;
 using Newtonsoft.Json;
-using Orleans.Runtime;
-using Orleans.Serialization;
-using Orleans.Streams;
+using Forkleans.Runtime;
+using Forkleans.Serialization;
+using Forkleans.Streams;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Batch container that is delivers payload and stream position information for a set of events in an EventHub EventData.

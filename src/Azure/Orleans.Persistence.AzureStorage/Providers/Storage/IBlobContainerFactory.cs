@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
-using Orleans.Configuration;
-using Orleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
 
-namespace Orleans.Storage;
+namespace Forkleans.Storage;
 
 /// <summary>
 /// A factory for building container clients for blob storage using grainType and grainId

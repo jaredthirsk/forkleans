@@ -5,13 +5,13 @@ using System.Linq;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Serialization.Configuration;
-using Orleans.Serialization.Invocation;
-using Orleans.Serialization.Session;
-using Orleans.Serialization.Utilities;
+using Forkleans.Serialization.Configuration;
+using Forkleans.Serialization.Invocation;
+using Forkleans.Serialization.Session;
+using Forkleans.Serialization.Utilities;
 using Xunit;
 
-namespace Orleans.Serialization.UnitTests
+namespace Forkleans.Serialization.UnitTests
 {
     public class TypeEncodingTests
     {

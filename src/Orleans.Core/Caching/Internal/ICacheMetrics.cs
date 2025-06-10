@@ -1,4 +1,4 @@
-namespace Orleans.Caching.Internal;
+namespace Forkleans.Caching.Internal;
 
 /// <summary>
 /// Represents cache metrics collected over the lifetime of the cache.

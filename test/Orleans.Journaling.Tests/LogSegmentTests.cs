@@ -3,14 +3,14 @@ using Azure.Storage.Blobs.Specialized;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration.Internal;
-using Orleans.Serialization;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.Session;
+using Forkleans.Configuration.Internal;
+using Forkleans.Serialization;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.Session;
 using TestExtensions;
 using Xunit;
 
-namespace Orleans.Journaling.Tests;
+namespace Forkleans.Journaling.Tests;
 
 [TestCategory("AzureStorage"), TestCategory("Functional")]
 public sealed class AzureStorageLogSegmentTests : LogSegmentTests

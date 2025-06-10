@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Orleans
+namespace Forkleans
 {
     internal class ReferenceEqualsComparer : IEqualityComparer<object>
     {

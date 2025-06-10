@@ -1,8 +1,8 @@
 using System.Net;
 using Azure;
 using Azure.Data.Tables.Models;
-using Orleans.Clustering.AzureStorage;
-using Orleans.TestingHost.Utils;
+using Forkleans.Clustering.AzureStorage;
+using Forkleans.TestingHost.Utils;
 using Xunit;
 
 namespace Tester.AzureUtils

@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Exception thrown when a storage provider detects an Etag inconsistency when attempting to perform a WriteStateAsync operation.

@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
-using Orleans.Reminders.DynamoDB;
+using Forkleans.Configuration;
+using Forkleans.Reminders.DynamoDB;
 using System;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// <see cref="IServiceCollection"/> extensions.

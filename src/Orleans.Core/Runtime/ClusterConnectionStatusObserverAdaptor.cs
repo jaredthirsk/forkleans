@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 internal sealed partial class ClusterConnectionStatusObserverAdaptor(
     IEnumerable<GatewayCountChangedHandler> gatewayCountChangedHandlers,

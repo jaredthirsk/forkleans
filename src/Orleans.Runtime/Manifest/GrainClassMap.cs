@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using Orleans.Runtime;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Runtime;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans.Metadata
+namespace Forkleans.Metadata
 {
     /// <summary>
     /// Mapping between <see cref="GrainType"/> and implementing <see cref="Type"/>.

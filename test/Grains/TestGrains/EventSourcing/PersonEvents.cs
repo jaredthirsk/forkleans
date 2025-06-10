@@ -9,14 +9,14 @@ namespace TestGrains
     public interface IPersonEvent { } 
 
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class PersonRegistered : IPersonEvent
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public string FirstName { get; set; }
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public string LastName { get; set; }
-        [Orleans.Id(2)]
+        [Forkleans.Id(2)]
         public GenderType Gender { get; set; }
 
         public PersonRegistered(string firstName, string lastName, GenderType gender)
@@ -28,14 +28,14 @@ namespace TestGrains
     }
 
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class PersonMarried : IPersonEvent
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public Guid SpouseId { get; set; }
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public string SpouseFirstName { get; set; }
-        [Orleans.Id(2)]
+        [Forkleans.Id(2)]
         public string SpouseLastName { get; set; }
         
         public PersonMarried(Guid spouseId, string spouseFirstName, string spouseLastName)
@@ -47,10 +47,10 @@ namespace TestGrains
     }
 
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class PersonLastNameChanged : IPersonEvent
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public string LastName { get; set; }
 
         public PersonLastNameChanged(string lastName)

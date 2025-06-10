@@ -1,9 +1,9 @@
-﻿using System.Threading.Tasks;
-using Orleans.TestingHost;
+using System.Threading.Tasks;
+using Forkleans.TestingHost;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Orleans.Transactions.TestKit.xUnit
+namespace Forkleans.Transactions.TestKit.xUnit
 {
     public class TransactionRecoveryTestsRunnerxUnit : TransactionRecoveryTestsRunner
     {

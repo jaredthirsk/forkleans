@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     /// <summary>
     /// Indicates that a class is to be notified when it has been deserialized.

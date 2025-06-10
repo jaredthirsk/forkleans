@@ -1,8 +1,8 @@
 
 using System;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     /// <summary>
     /// Represents the event sent and received from an In-Memory queue grain. 

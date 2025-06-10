@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Server</PackageId>
+    <AssemblyName>Forkleans.Server</AssemblyName>
+    <PackageId>Microsoft.Forkleans.Server</PackageId>
     <Title>Microsoft Orleans Server Libraries</Title>
     <Description>Collection of Microsoft Orleans libraries and files needed on the server.</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>

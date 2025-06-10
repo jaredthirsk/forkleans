@@ -2,7 +2,7 @@ using System;
 using System.Buffers;
 using System.Runtime.CompilerServices;
 
-namespace Orleans.Serialization.Buffers.Adaptors;
+namespace Forkleans.Serialization.Buffers.Adaptors;
 
 internal static class BufferWriterExtensions
 {

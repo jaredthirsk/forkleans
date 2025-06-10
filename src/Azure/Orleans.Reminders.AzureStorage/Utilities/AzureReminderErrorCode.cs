@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace Orleans.AzureUtils.Utilities
+namespace Forkleans.AzureUtils.Utilities
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal enum AzureReminderErrorCode

@@ -1,12 +1,12 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Orleans.EventSourcing;
-using Orleans.Providers;
-using Orleans.Runtime;
-using Orleans.EventSourcing.LogStorage;
+using Forkleans.EventSourcing;
+using Forkleans.Providers;
+using Forkleans.Runtime;
+using Forkleans.EventSourcing.LogStorage;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static class LogStorageSiloBuilderExtensions
     {

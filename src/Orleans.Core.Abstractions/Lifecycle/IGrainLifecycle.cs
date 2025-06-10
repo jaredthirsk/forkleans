@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// The observable grain lifecycle.
@@ -72,7 +72,7 @@ namespace Orleans.Runtime
         void AddBytes<T>(string key, Action<T, IBufferWriter<byte>> valueWriter, T value);
 
         /// <summary>
-        /// Attempts to a value to the dehydration context, associated with the provided key, serializing it using <see cref="Orleans.Serialization.Serializer"/>.
+        /// Attempts to a value to the dehydration context, associated with the provided key, serializing it using <see cref="Forkleans.Serialization.Serializer"/>.
         /// If a serializer is found for the value, and the key has not already been added, then the value is added and the method returns <see langword="true"/>.
         /// If no serializer exists or the key has already been added, then the value is not added and the method returns <see langword="false"/>.
         /// </summary>
@@ -100,7 +100,7 @@ namespace Orleans.Runtime
         bool TryGetBytes(string key, out ReadOnlySequence<byte> value);
 
         /// <summary>
-        /// Tries to get a value from the rehydration context, associated with the provided key, deserializing it using <see cref="Orleans.Serialization.Serializer"/>.
+        /// Tries to get a value from the rehydration context, associated with the provided key, deserializing it using <see cref="Forkleans.Serialization.Serializer"/>.
         /// If a serializer is found for the value, and the key is present, then the value is deserialized and the method returns <see langword="true"/>.
         /// If no serializer exists or the key has already been added, then the value is not added and the method returns <see langword="false"/>.
         /// </summary>

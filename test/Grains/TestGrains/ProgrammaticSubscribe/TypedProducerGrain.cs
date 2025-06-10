@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Orleans.Streams;
+using Forkleans.Streams;
 using System.Runtime.CompilerServices;
 using UnitTests.GrainInterfaces;
 

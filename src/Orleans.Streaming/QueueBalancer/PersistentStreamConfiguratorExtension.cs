@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Streams;
+using Forkleans.Configuration;
+using Forkleans.Streams;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Extension methods for <see cref="ISiloPersistentStreamConfigurator"/>.

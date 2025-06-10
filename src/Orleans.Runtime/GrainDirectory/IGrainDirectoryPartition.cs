@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.Concurrency;
+using Forkleans.Concurrency;
 
 #nullable enable
-namespace Orleans.Runtime.GrainDirectory;
+namespace Forkleans.Runtime.GrainDirectory;
 
 [Alias("IGrainDirectoryPartition")]
 internal interface IGrainDirectoryPartition : ISystemTarget

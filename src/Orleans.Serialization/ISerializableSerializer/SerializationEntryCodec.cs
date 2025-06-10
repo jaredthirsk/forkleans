@@ -1,11 +1,11 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.WireProtocol;
 using System;
 using System.Buffers;
 using System.Security;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     internal sealed class SerializationEntryCodec : IFieldCodec<SerializationEntrySurrogate>
     {

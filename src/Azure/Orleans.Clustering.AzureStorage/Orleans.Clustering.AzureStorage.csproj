@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Clustering.AzureStorage</PackageId>
+    <PackageId>Microsoft.Forkleans.Clustering.AzureStorage</PackageId>
     <Title>Microsoft Orleans Azure Table Storage Clustering Provider</Title>
     <Description>Microsoft Orleans clustering provider backed by Azure Table Storage</Description>
     <PackageTags>$(PackageTags) Azure Table Storage</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <AssemblyName>Orleans.Clustering.AzureStorage</AssemblyName>
-    <RootNamespace>Orleans.Clustering.AzureStorage</RootNamespace>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <AssemblyName>Forkleans.Clustering.AzureStorage</AssemblyName>
+    <RootNamespace>Forkleans.Clustering.AzureStorage</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <DefineConstants>$(DefineConstants);ORLEANS_CLUSTERING</DefineConstants>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
     <PackageReference Include="Azure.Core" />
     <PackageReference Include="Azure.Data.Tables" />
     <PackageReference Include="System.Net.NameResolution" />

@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class SiloPersistentStreamConfiguratorExtension
     {
@@ -16,7 +16,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Runtime.Host
+namespace Forkleans.Runtime.Host
 {
     public partial interface IServiceRuntimeWrapper
     {

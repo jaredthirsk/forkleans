@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
-namespace Orleans.Clustering.DynamoDB
+namespace Forkleans.Clustering.DynamoDB
 {
     /// <inheritdoc/>
     public class DynamoDBGatewayListProviderHelper

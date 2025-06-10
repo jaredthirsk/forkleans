@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Configuration;
+namespace Forkleans.Configuration;
 
 /// <summary>
 /// Options that apply globally to stateless worker grains.

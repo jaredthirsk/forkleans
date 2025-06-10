@@ -1,6 +1,6 @@
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.WireProtocol;
 
-namespace Orleans.Serialization.Codecs
+namespace Forkleans.Serialization.Codecs
 {
     /// <summary>
     /// Marker object used to denote an unknown field and its position into a stream of data.

@@ -1,12 +1,12 @@
-using Orleans.Runtime;
-using Orleans.TestingHost;
+using Forkleans.Runtime;
+using Forkleans.TestingHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Streams.Core;
+using Forkleans.Streams.Core;
 using TestExtensions;
 using Xunit;
 using UnitTests.GrainInterfaces;
-using Orleans.TestingHost.Utils;
+using Forkleans.TestingHost.Utils;
 using UnitTests.Grains.ProgrammaticSubscribe;
 
 namespace Tester.StreamingTests
@@ -160,7 +160,7 @@ namespace Tester.StreamingTests
 
             //get subscription count now, should be all removed/unsubscribed 
             var subscriptions = await subscriptionManager.GetSubscriptions(streamId);
-            Assert.True( subscriptions.Count<Orleans.Streams.Core.StreamSubscription>()== 0);
+            Assert.True( subscriptions.Count<Forkleans.Streams.Core.StreamSubscription>()== 0);
             // clean up tests
         }
 

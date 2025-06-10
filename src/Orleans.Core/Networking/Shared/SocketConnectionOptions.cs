@@ -1,7 +1,7 @@
 using System;
 using System.Buffers;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     /// <summary>
     /// Options for configuring socket connections.

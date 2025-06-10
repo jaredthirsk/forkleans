@@ -7,15 +7,15 @@ using System.Reflection;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Orleans.Metadata;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Buffers.Adaptors;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Metadata;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Buffers.Adaptors;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.WireProtocol;
 
-namespace Orleans.Serialization;
+namespace Forkleans.Serialization;
 
 [Alias(WellKnownAlias)]
 public class NewtonsoftJsonCodec : IGeneralizedCodec, IGeneralizedCopier, ITypeFilter

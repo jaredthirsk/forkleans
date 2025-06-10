@@ -2,9 +2,9 @@ using System;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Internal
+namespace Forkleans.Internal
 {
     /// <summary>
     /// This class is a convenient utility class to execute a certain asynchronous function with retries,

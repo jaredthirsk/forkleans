@@ -1,10 +1,10 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
-using Orleans.Configuration;
-using Orleans.Runtime.Configuration;
+using Forkleans.Configuration;
+using Forkleans.Runtime.Configuration;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Extension methods for configuring <see cref="EndpointOptions"/>.

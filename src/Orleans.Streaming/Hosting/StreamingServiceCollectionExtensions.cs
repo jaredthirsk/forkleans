@@ -2,17 +2,17 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration.Internal;
-using Orleans.Providers;
-using Orleans.Runtime;
-using Orleans.Runtime.Providers;
-using Orleans.Serialization;
-using Orleans.Streaming.JsonConverters;
-using Orleans.Streams;
-using Orleans.Streams.Core;
-using Orleans.Streams.Filtering;
+using Forkleans.Configuration.Internal;
+using Forkleans.Providers;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Providers;
+using Forkleans.Serialization;
+using Forkleans.Streaming.JsonConverters;
+using Forkleans.Streams;
+using Forkleans.Streams.Core;
+using Forkleans.Streams.Filtering;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Extension methods for configuring streaming on silos.

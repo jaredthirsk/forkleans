@@ -1,6 +1,6 @@
 using System.Globalization;
-using Orleans.Internal;
-using Orleans.Runtime;
+using Forkleans.Internal;
+using Forkleans.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 

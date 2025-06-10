@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using Xunit;

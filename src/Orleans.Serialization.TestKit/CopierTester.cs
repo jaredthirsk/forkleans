@@ -1,5 +1,5 @@
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Serializers;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Serializers;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using Xunit;
 using Xunit.Abstractions;
 using System.Linq;
 
-namespace Orleans.Serialization.TestKit
+namespace Forkleans.Serialization.TestKit
 {
     /// <summary>
     /// Test methods for copiers.

@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class AzureBlobStorageOptions : Storage.IStorageProviderSerializerOptions
     {
@@ -73,7 +73,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class AzureBlobGrainStorageServiceCollectionExtensions
     {
@@ -109,7 +109,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Persistence.AzureStorage
+namespace Forkleans.Persistence.AzureStorage
 {
     public partial class AzureStorageOperationOptions
     {
@@ -169,7 +169,7 @@ namespace Orleans.Persistence.AzureStorage
     }
 }
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     public partial class AzureBlobGrainStorage : IGrainStorage, ILifecycleParticipant<Runtime.ISiloLifecycle>
     {
@@ -245,33 +245,33 @@ namespace Orleans.Storage
     }
 }
 
-namespace OrleansCodeGen.Orleans.Storage
+namespace ForkleansCodeGen.Forkleans.Storage
 {
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Codec_TableStorageUpdateConditionNotSatisfiedException : global::Orleans.Serialization.Codecs.IFieldCodec<global::Orleans.Storage.TableStorageUpdateConditionNotSatisfiedException>, global::Orleans.Serialization.Codecs.IFieldCodec, global::Orleans.Serialization.Serializers.IBaseCodec<global::Orleans.Storage.TableStorageUpdateConditionNotSatisfiedException>, global::Orleans.Serialization.Serializers.IBaseCodec
+    public sealed partial class Codec_TableStorageUpdateConditionNotSatisfiedException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Storage.TableStorageUpdateConditionNotSatisfiedException>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Storage.TableStorageUpdateConditionNotSatisfiedException>, global::Forkleans.Serialization.Serializers.IBaseCodec
     {
-        public Codec_TableStorageUpdateConditionNotSatisfiedException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) { }
+        public Codec_TableStorageUpdateConditionNotSatisfiedException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) { }
 
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Storage.TableStorageUpdateConditionNotSatisfiedException instance) { }
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Storage.TableStorageUpdateConditionNotSatisfiedException instance) { }
 
-        public global::Orleans.Storage.TableStorageUpdateConditionNotSatisfiedException ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field) { throw null; }
+        public global::Forkleans.Storage.TableStorageUpdateConditionNotSatisfiedException ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field) { throw null; }
 
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Orleans.Storage.TableStorageUpdateConditionNotSatisfiedException instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::Forkleans.Storage.TableStorageUpdateConditionNotSatisfiedException instance)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
 
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Orleans.Storage.TableStorageUpdateConditionNotSatisfiedException value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, System.Type expectedType, global::Forkleans.Storage.TableStorageUpdateConditionNotSatisfiedException value)
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_TableStorageUpdateConditionNotSatisfiedException : global::Orleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Orleans.Storage.TableStorageUpdateConditionNotSatisfiedException, global::Orleans.Storage.InconsistentStateException>
+    public sealed partial class Copier_TableStorageUpdateConditionNotSatisfiedException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Storage.TableStorageUpdateConditionNotSatisfiedException, global::Forkleans.Storage.InconsistentStateException>
     {
-        public Copier_TableStorageUpdateConditionNotSatisfiedException(global::Orleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
+        public Copier_TableStorageUpdateConditionNotSatisfiedException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
 
-        public override void DeepCopy(global::Orleans.Storage.TableStorageUpdateConditionNotSatisfiedException input, global::Orleans.Storage.TableStorageUpdateConditionNotSatisfiedException output, global::Orleans.Serialization.Cloning.CopyContext context) { }
+        public override void DeepCopy(global::Forkleans.Storage.TableStorageUpdateConditionNotSatisfiedException input, global::Forkleans.Storage.TableStorageUpdateConditionNotSatisfiedException output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 }

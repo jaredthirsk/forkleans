@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Connections.Security
+namespace Forkleans.Connections.Security
 {
     public interface ITlsApplicationProtocolFeature
     {

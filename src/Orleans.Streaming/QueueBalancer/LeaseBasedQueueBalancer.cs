@@ -5,12 +5,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.LeaseProviders;
-using Orleans.Runtime;
-using Orleans.Runtime.Internal;
+using Forkleans.Configuration;
+using Forkleans.LeaseProviders;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Internal;
 
-namespace Orleans.Streams;
+namespace Forkleans.Streams;
 
 /// <summary>
 /// LeaseBasedQueueBalancer. This balancer supports queue balancing in cluster auto-scale scenarios,

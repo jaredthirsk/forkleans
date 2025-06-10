@@ -1,6 +1,6 @@
-using Orleans.Versions.Compatibility;
+using Forkleans.Versions.Compatibility;
 
-namespace Orleans.Runtime.Versions.Compatibility
+namespace Forkleans.Runtime.Versions.Compatibility
 {
     internal class AllVersionsCompatibilityDirector : ICompatibilityDirector
     {

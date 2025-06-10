@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
 #nullable enable
-namespace Orleans.Runtime.GrainDirectory;
+namespace Forkleans.Runtime.GrainDirectory;
 
 [GenerateSerializer, Alias(nameof(GrainDirectoryPartitionSnapshot)), Immutable]
 internal sealed class GrainDirectoryPartitionSnapshot(

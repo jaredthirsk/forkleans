@@ -1,9 +1,9 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
-using Orleans.Configuration;
-using Orleans.Connections.Security;
+using Forkleans.Configuration;
+using Forkleans.Connections.Security;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class OrleansConnectionSecurityHostingExtensions
     {

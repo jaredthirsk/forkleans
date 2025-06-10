@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Attribute mapper which maps persistent state attributes to a corresponding factory instance.

@@ -1,10 +1,10 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Orleans.GrainDirectory;
+using Forkleans.GrainDirectory;
 
 #nullable enable
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     internal interface ILocalGrainDirectory : IDhtGrainDirectory
     {

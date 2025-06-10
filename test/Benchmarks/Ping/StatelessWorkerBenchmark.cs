@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Orleans.Concurrency;
+using Forkleans.Concurrency;
 
 namespace Benchmarks.Ping;
 

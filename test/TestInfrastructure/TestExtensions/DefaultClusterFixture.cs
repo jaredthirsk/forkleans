@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.TestingHost;
 
 namespace TestExtensions
 {

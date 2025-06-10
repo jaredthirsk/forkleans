@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 public abstract class DurableGrain : Grain, IGrainBase
 {

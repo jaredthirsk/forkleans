@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using Xunit;
 
 namespace UnitTests.ActivationRebalancingTests;

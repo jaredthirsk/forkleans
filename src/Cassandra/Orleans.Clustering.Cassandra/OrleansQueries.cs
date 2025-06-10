@@ -1,10 +1,10 @@
 using System;
 using Cassandra;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Orleans.Clustering.Cassandra;
+namespace Forkleans.Clustering.Cassandra;
 
 /// <summary>
 /// This class is responsible for keeping a list of prepared queries and

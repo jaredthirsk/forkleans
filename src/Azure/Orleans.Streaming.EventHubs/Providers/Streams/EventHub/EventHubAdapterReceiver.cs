@@ -5,15 +5,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Streams;
-using Orleans.Streaming.EventHubs.Testing;
+using Forkleans.Configuration;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Streams;
+using Forkleans.Streaming.EventHubs.Testing;
 using Azure.Messaging.EventHubs;
-using Orleans.Statistics;
+using Forkleans.Statistics;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Event Hub Partition settings

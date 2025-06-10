@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     /// <summary>
     /// Converts between <see cref="Type"/> and <see cref="string"/> representations.

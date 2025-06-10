@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// The stream queue mapper is responsible for mapping ring ranges from the load balancing ring provider to stream queues.

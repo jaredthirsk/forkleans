@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Statistics
+namespace Forkleans.Statistics
 {
     /// <summary>
     /// Provides functionality for accessing statistics relating to the application environment.

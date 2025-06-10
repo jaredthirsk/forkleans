@@ -3,17 +3,17 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.GeneratedCodeHelpers;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.GeneratedCodeHelpers;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.WireProtocol;
 
 #if !NET6_0_OR_GREATER
 using System.Runtime.Serialization;
 #endif
 
-namespace Orleans.Serialization.Codecs
+namespace Forkleans.Serialization.Codecs
 {
     /// <summary>
     /// Serializer for well-known <see cref="StringComparer"/> types.

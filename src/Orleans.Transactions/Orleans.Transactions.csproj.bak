@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Microsoft.Forkleans.Transactions</PackageId>
+    <Title>Microsoft Orleans Transactions support</Title>
+    <Description>Core Transaction library of Microsoft Orleans used on the server.</Description>
+    <PackageTags>$(PackageTags) Transactions</PackageTags>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <AssemblyName>Forkleans.Transactions</AssemblyName>
+    <RootNamespace>Forkleans.Transactions</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+  </ItemGroup>
+</Project>

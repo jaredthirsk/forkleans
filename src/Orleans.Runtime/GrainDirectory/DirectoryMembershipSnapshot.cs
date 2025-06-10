@@ -8,11 +8,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
-using Orleans.Configuration;
-using Orleans.Runtime.Utilities;
+using Forkleans.Configuration;
+using Forkleans.Runtime.Utilities;
 
 #nullable enable
-namespace Orleans.Runtime.GrainDirectory;
+namespace Forkleans.Runtime.GrainDirectory;
 
 internal sealed class DirectoryMembershipSnapshot
 {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Interface for controlling how fatal errors (such as a silo being declared defunct) are handled.

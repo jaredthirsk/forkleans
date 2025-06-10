@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions
+namespace Forkleans.Transactions
 {
     internal partial class TransactionAgent : ITransactionAgent
     {

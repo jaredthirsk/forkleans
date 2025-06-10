@@ -1,9 +1,9 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Threading;
 
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// Block pool monitor used as a default option in GeneratorStreamProvider and MemoryStreamProvider.

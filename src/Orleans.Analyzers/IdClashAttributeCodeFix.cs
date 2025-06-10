@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Orleans.Analyzers;
+namespace Forkleans.Analyzers;
 
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(IdClashAttributeCodeFix)), Shared]
 public class IdClashAttributeCodeFix : CodeFixProvider

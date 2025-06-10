@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Streaming.EventHubs</PackageId>
+    <PackageId>Microsoft.Forkleans.Streaming.EventHubs</PackageId>
     <Title>Microsoft Orleans Azure Event Hubs Streaming Provider</Title>
     <Description>Microsoft Orleans streaming provider backed by Azure Event Hubs</Description>
     <PackageTags>$(PackageTags) Azure EventHubs</PackageTags>
     <DefineConstants>$(DefineConstants);ORLEANS_EVENTHUBS</DefineConstants>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <AssemblyName>Orleans.Streaming.EventHubs</AssemblyName>
-    <RootNamespace>Orleans.Streaming.EventHubs</RootNamespace>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <AssemblyName>Forkleans.Streaming.EventHubs</AssemblyName>
+    <RootNamespace>Forkleans.Streaming.EventHubs</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
@@ -25,7 +25,7 @@
     <PackageReference Include="Azure.Data.Tables" />
     <PackageReference Include="System.Net.NameResolution" />
     <PackageReference Include="Azure.Messaging.EventHubs" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Streaming\Orleans.Streaming.csproj" />
+    <ProjectReference Include="..\..\Orleans.Streaming\Orleans.Streaming.csproj" />
   </ItemGroup>
 
   <ItemGroup>

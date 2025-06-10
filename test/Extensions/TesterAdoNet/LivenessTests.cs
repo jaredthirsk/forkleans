@@ -1,5 +1,5 @@
-using Orleans.Tests.SqlUtils;
-using Orleans.TestingHost;
+using Forkleans.Tests.SqlUtils;
+using Forkleans.TestingHost;
 using UnitTests.General;
 using Xunit.Abstractions;
 using Microsoft.Extensions.Hosting;

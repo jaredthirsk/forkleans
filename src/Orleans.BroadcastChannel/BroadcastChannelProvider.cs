@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.BroadcastChannel.SubscriberTable;
+using Forkleans.BroadcastChannel.SubscriberTable;
 
-namespace Orleans.BroadcastChannel
+namespace Forkleans.BroadcastChannel
 {
     /// <summary>
     /// Functionality for providing broadcast channel to producers.

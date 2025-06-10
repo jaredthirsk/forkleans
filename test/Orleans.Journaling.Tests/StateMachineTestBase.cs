@@ -1,11 +1,11 @@
 using System.Collections.Immutable;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Serialization;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.Session;
+using Forkleans.Serialization;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.Session;
 
-namespace Orleans.Journaling.Tests;
+namespace Forkleans.Journaling.Tests;
 
 /// <summary>
 /// Base class for journaling tests with common setup

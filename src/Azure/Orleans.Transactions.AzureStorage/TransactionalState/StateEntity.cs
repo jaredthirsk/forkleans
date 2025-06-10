@@ -5,9 +5,9 @@ using System.Linq;
 using Azure;
 using Azure.Data.Tables;
 using Newtonsoft.Json;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions.AzureStorage
+namespace Forkleans.Transactions.AzureStorage
 {
     internal readonly struct StateEntity
     {

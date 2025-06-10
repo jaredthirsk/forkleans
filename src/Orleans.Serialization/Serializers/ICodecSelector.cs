@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Serialization.Serializers;
+namespace Forkleans.Serialization.Serializers;
 
 /// <summary>
 /// Functionality used by general-purpose codecs (such as a JSON codec) to allow types to opt-in to using them.

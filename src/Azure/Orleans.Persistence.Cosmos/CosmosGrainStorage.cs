@@ -2,11 +2,11 @@ using System.Net;
 using System.Threading;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Storage;
-using static Orleans.Persistence.Cosmos.CosmosIdSanitizer;
-using Orleans.Serialization.Serializers;
+using Forkleans.Storage;
+using static Forkleans.Persistence.Cosmos.CosmosIdSanitizer;
+using Forkleans.Serialization.Serializers;
 
-namespace Orleans.Persistence.Cosmos;
+namespace Forkleans.Persistence.Cosmos;
 
 public sealed partial class CosmosGrainStorage : IGrainStorage, ILifecycleParticipant<ISiloLifecycle>
 {

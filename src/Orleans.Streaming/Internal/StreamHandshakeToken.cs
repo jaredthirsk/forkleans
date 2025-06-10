@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     [Serializable]
     [GenerateSerializer]

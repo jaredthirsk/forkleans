@@ -1,11 +1,11 @@
 using System;
 
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
-using Orleans.Hosting;
-using Orleans.Reminders.Redis;
+using Forkleans.Configuration;
+using Forkleans.Hosting;
+using Forkleans.Reminders.Redis;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Silo host builder extensions.

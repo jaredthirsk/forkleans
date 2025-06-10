@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Adapter factory. This should create an adapter from the stream provider configuration

@@ -2,16 +2,16 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Providers;
-using Orleans.Runtime;
-using Orleans.Serialization;
-using Orleans.Storage;
+using Forkleans.Configuration;
+using Forkleans.Providers;
+using Forkleans.Runtime;
+using Forkleans.Serialization;
+using Forkleans.Storage;
 using TestExtensions;
 using UnitTests.Persistence;
 using Xunit;
 using Xunit.Abstractions;
-using static Orleans.Storage.DynamoDBGrainStorage;
+using static Forkleans.Storage.DynamoDBGrainStorage;
 
 namespace AWSUtils.Tests.StorageTests
 {

@@ -1,8 +1,8 @@
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.WireProtocol;
 using System.Runtime.CompilerServices;
 
-namespace Orleans.Serialization.Buffers
+namespace Forkleans.Serialization.Buffers
 {
     /// <summary>
     /// Extension method for working with variable-width integers.

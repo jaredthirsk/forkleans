@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Orleans.Streams;
+using Forkleans.Streams;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Deployment configuration that reads from orleans cluster configuration

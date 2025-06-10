@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Providers.Streams.AzureQueue;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Providers.Streams.AzureQueue;
+using Forkleans.TestingHost;
 using Tester.StreamingTests;
 using TestExtensions;
 using Xunit;

@@ -3,9 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Orleans.Placement.Repartitioning;
+using Forkleans.Placement.Repartitioning;
 
-namespace Orleans.Runtime.Placement.Repartitioning;
+namespace Forkleans.Runtime.Placement.Repartitioning;
 
 internal sealed class FrequentEdgeCounter(int capacity) : FrequentItemCollection<ulong, Edge>(capacity)
 {

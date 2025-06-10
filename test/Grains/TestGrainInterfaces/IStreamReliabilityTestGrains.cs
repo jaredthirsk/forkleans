@@ -1,7 +1,7 @@
-﻿//#define USE_GENERICS
+//#define USE_GENERICS
 
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 
 namespace UnitTests.GrainInterfaces
 {

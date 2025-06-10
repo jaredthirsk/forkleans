@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class AzureTableTransactionalStateOptions : Transactions.AzureStorage.AzureStorageOperationOptions
     {
@@ -22,7 +22,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class AzureTableTransactionServicecollectionExtensions
     {
@@ -40,7 +40,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Transactions.AzureStorage
+namespace Forkleans.Transactions.AzureStorage
 {
     public partial class AzureStorageOperationOptions
     {

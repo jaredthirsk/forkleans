@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Extension methods for accessing stream providers from a <see cref="Grain"/> or <see cref="IGrainBase"/> implementation.

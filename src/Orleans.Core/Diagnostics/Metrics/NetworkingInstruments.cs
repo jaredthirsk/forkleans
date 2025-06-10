@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
-using Orleans.Messaging;
+using Forkleans.Messaging;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 internal static class NetworkingInstruments
 {

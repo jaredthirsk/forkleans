@@ -1,6 +1,6 @@
 using System.IO.Pipelines;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     /// <summary>
     /// Holds the underlying transport used by a connection.

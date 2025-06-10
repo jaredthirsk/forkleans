@@ -1,12 +1,12 @@
 using Microsoft.CodeAnalysis;
-using Orleans.CodeGenerator.SyntaxGeneration;
+using Forkleans.CodeGenerator.SyntaxGeneration;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     /// <summary>
     /// Describes an invokable method.

@@ -1,12 +1,12 @@
-using Orleans.CodeGeneration;
-using Orleans.Metadata;
-using Orleans.Placement;
-using Orleans.Runtime;
+using Forkleans.CodeGeneration;
+using Forkleans.Metadata;
+using Forkleans.Placement;
+using Forkleans.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace Orleans.Concurrency
+namespace Forkleans.Concurrency
 {
     /// <summary>
     /// The ReadOnly attribute is used to mark methods that do not modify the state of a grain.

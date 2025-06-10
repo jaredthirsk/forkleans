@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Internal;
-using Orleans.Messaging;
-using Orleans.Metadata;
-using Orleans.Runtime.Utilities;
+using Forkleans.Configuration;
+using Forkleans.Internal;
+using Forkleans.Messaging;
+using Forkleans.Metadata;
+using Forkleans.Runtime.Utilities;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// <see cref="IClusterManifestProvider"/> implementation for external clients.

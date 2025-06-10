@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
-using Orleans.Configuration;
-using Orleans.Messaging;
-using Orleans.Serialization.Invocation;
+using Forkleans.Configuration;
+using Forkleans.Messaging;
+using Forkleans.Serialization.Invocation;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     internal abstract class Connection
     {

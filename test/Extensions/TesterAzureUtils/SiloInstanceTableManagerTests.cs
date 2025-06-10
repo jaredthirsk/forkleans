@@ -1,15 +1,15 @@
 using System.Globalization;
 using System.Net;
 using Microsoft.Extensions.Logging;
-using Orleans.AzureUtils;
-using Orleans.Runtime;
-using Orleans.TestingHost.Utils;
+using Forkleans.AzureUtils;
+using Forkleans.Runtime;
+using Forkleans.TestingHost.Utils;
 using TestExtensions;
 using UnitTests.MembershipTests;
 using Xunit;
 using Xunit.Abstractions;
-using Orleans.Internal;
-using Orleans.Clustering.AzureStorage;
+using Forkleans.Internal;
+using Forkleans.Clustering.AzureStorage;
 
 namespace Tester.AzureUtils
 {

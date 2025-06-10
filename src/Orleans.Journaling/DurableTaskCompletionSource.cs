@@ -1,13 +1,13 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Serialization;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Session;
+using Forkleans.Serialization;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Session;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 public interface IDurableTaskCompletionSource<T>
 {

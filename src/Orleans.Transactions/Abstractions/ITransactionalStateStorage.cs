@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Orleans.Transactions.Abstractions
+namespace Forkleans.Transactions.Abstractions
 {
     /// <summary>
     /// Storage interface for transactional state

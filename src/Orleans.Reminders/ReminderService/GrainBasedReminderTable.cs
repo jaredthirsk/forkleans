@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Concurrency;
-using Orleans.Reminders;
+using Forkleans.Concurrency;
+using Forkleans.Reminders;
 
-namespace Orleans.Runtime.ReminderService
+namespace Forkleans.Runtime.ReminderService
 {
     [Reentrant]
     [KeepAlive]

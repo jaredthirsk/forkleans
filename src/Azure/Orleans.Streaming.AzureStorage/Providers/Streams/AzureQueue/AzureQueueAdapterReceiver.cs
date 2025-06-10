@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Azure.Storage.Queues.Models;
 using Microsoft.Extensions.Logging;
-using Orleans.AzureUtils;
-using Orleans.AzureUtils.Utilities;
-using Orleans.Configuration;
-using Orleans.Streams;
+using Forkleans.AzureUtils;
+using Forkleans.AzureUtils.Utilities;
+using Forkleans.Configuration;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.AzureQueue
+namespace Forkleans.Providers.Streams.AzureQueue
 {
     /// <summary>
     /// Receives batches of messages from a single partition of a message queue.

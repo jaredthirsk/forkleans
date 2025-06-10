@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Extensions for working with lifecycle observers.

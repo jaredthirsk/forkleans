@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Storage;
+using Forkleans.Storage;
 using System;
 
-namespace Orleans.Persistence
+namespace Forkleans.Persistence
 {
     /// <summary>
     /// Factory used to create instances of Redis grain storage.

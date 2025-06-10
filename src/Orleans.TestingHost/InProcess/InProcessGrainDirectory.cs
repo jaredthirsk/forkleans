@@ -3,10 +3,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.GrainDirectory;
-using Orleans.Runtime;
+using Forkleans.GrainDirectory;
+using Forkleans.Runtime;
 
-namespace Orleans.TestingHost.InProcess;
+namespace Forkleans.TestingHost.InProcess;
 internal sealed class InProcessGrainDirectory(Func<SiloAddress, SiloStatus> getSiloStatus) : IGrainDirectory
 {
     private readonly ConcurrentDictionary<GrainId, GrainAddress> _entries = [];

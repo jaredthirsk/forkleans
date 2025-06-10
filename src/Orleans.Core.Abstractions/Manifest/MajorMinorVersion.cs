@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Metadata
+namespace Forkleans.Metadata
 {
     /// <summary>
     /// Represents a version with two components, a major (most-significant) component, and a minor (least-significant) component.

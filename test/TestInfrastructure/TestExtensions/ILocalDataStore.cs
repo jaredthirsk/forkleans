@@ -1,4 +1,4 @@
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     public interface ILocalDataStore
     {

@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>Forkleans.Serialization.UnitTests</AssemblyName>
     <IsTestProject>true</IsTestProject>
     <TargetFrameworks>$(TestTargetFrameworks);netcoreapp3.1</TargetFrameworks>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <ImplicitUsings>disable</ImplicitUsings>
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
@@ -22,13 +23,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Serialization.TestKit\Orleans.Serialization.TestKit.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Serialization.FSharp\Orleans.Serialization.FSharp.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Serialization\Orleans.Serialization.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Serialization.SystemTextJson\Orleans.Serialization.SystemTextJson.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Serialization.NewtonsoftJson\Orleans.Serialization.NewtonsoftJson.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Serialization.MessagePack\Orleans.Serialization.MessagePack.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Serializers\Orleans.Serialization.Protobuf\Orleans.Serialization.Protobuf.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Serialization.TestKit\Orleans.Serialization.TestKit.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Serialization.FSharp\Orleans.Serialization.FSharp.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Serialization\Orleans.Serialization.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Serialization.SystemTextJson\Orleans.Serialization.SystemTextJson.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Serialization.NewtonsoftJson\Orleans.Serialization.NewtonsoftJson.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Serialization.MessagePack\Orleans.Serialization.MessagePack.csproj" />
+    <ProjectReference Include="..\..\src\Serializers\Orleans.Serialization.Protobuf\Orleans.Serialization.Protobuf.csproj" />
     <ProjectReference Include="..\Misc\TestSerializerExternalModels\TestSerializerExternalModels.csproj" />
   </ItemGroup>
 

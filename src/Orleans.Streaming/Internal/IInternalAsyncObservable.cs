@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     internal interface IInternalAsyncObservable<T> : IAsyncObservable<T>, IAsyncBatchObservable<T>
     {

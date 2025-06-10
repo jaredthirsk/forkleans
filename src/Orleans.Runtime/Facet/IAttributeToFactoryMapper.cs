@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Responsible for mapping a facet metadata to a cachable factory.

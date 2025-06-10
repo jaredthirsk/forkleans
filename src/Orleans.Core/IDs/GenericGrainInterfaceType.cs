@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Orleans.Serialization.TypeSystem;
-using Orleans.Utilities;
+using Forkleans.Serialization.TypeSystem;
+using Forkleans.Utilities;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Represents a <see cref="GrainInterfaceType"/> that is parameterized using type parameters.

@@ -1,7 +1,7 @@
 using MySql.Data.MySqlClient;
 using Npgsql;
-using Orleans.GrainDirectory.AdoNet;
-using Orleans.GrainDirectory.AdoNet.Storage;
+using Forkleans.GrainDirectory.AdoNet;
+using Forkleans.GrainDirectory.AdoNet.Storage;
 using UnitTests.General;
 using static System.String;
 

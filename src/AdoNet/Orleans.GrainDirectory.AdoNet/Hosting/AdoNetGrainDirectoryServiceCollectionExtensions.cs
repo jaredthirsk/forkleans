@@ -1,6 +1,6 @@
-using Orleans.Runtime.Hosting;
+using Forkleans.Runtime.Hosting;
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 /// <summary>
 /// <see cref="IServiceCollection"/> extensions.

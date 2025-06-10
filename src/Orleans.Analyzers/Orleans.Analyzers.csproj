@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Analyzers</PackageId>
+    <AssemblyName>Forkleans.Analyzers</AssemblyName>
+    <PackageId>Microsoft.Forkleans.Analyzers</PackageId>
     <Title>Microsoft Orleans Analyzers</Title>
-    <Description>C# Analyzers for Microsoft Orleans.</Description>
+    <Description>C# Analyzers for Microsoft Forkleans.</Description>
     <TargetFramework>netstandard2.0</TargetFramework>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <IncludeBuildOutput>false</IncludeBuildOutput>
@@ -39,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AssemblyAttribute Remove="Orleans.Metadata.FrameworkPartAttribute"/>
+    <AssemblyAttribute Remove="Forkleans.Metadata.FrameworkPartAttribute"/>
   </ItemGroup>
 
 </Project>

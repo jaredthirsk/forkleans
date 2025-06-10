@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Orleans.Transactions.TestKit.xUnit
+namespace Forkleans.Transactions.TestKit.xUnit
 {
     public class GrainFaultTransactionTestRunnerxUnit : GrainFaultTransactionTestRunner
     {

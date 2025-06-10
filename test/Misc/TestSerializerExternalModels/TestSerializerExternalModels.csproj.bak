@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>UnitTests.SerializerExternalModels</RootNamespace>
+    <AssemblyName>SerializerExternalModels</AssemblyName>
+    <TargetFrameworks>$(TestTargetFrameworks);netcoreapp3.1</TargetFrameworks>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <SuppressTfmSupportBuildWarnings Condition="'$(TargetFramework)' == 'netcoreapp3.1'">true</SuppressTfmSupportBuildWarnings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Forkleans.Serialization.Abstractions\Forkleans.Serialization.Abstractions.csproj" />
+  </ItemGroup>
+</Project>

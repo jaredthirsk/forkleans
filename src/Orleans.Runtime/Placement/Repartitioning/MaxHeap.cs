@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Orleans.Placement.Repartitioning;
+using Forkleans.Placement.Repartitioning;
 
-namespace Orleans.Runtime.Placement.Repartitioning;
+namespace Forkleans.Runtime.Placement.Repartitioning;
 
 internal enum VertexLocation
 {

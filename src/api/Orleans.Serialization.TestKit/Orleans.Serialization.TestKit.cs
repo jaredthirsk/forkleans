@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Serialization.TestKit
+namespace Forkleans.Serialization.TestKit
 {
     [Xunit.Trait("Category", "BVT")]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]

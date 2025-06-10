@@ -5,10 +5,10 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.GrainDirectory;
-using Orleans.Runtime.Scheduler;
+using Forkleans.GrainDirectory;
+using Forkleans.Runtime.Scheduler;
 
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     internal sealed partial class AdaptiveDirectoryCacheMaintainer
     {

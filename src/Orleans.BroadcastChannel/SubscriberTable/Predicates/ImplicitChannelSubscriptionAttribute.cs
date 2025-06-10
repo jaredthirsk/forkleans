@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Orleans.BroadcastChannel;
-using Orleans.Metadata;
-using Orleans.Runtime;
+using Forkleans.BroadcastChannel;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
-    /// The [Orleans.ImplicitStreamSubscription] attribute is used to mark grains as implicit stream subscriptions.
+    /// The [Forkleans.ImplicitStreamSubscription] attribute is used to mark grains as implicit stream subscriptions.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ImplicitChannelSubscriptionAttribute : Attribute, IGrainBindingsProviderAttribute
@@ -101,7 +101,7 @@ namespace Orleans
     }
 
     /// <summary>
-    /// The [Orleans.RegexImplicitStreamSubscription] attribute is used to mark grains as implicit stream
+    /// The [Forkleans.RegexImplicitStreamSubscription] attribute is used to mark grains as implicit stream
     /// subscriptions by filtering stream namespaces to subscribe using a regular expression.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]

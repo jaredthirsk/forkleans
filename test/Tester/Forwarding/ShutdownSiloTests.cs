@@ -1,8 +1,8 @@
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using Xunit;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Azure.Data.Tables;

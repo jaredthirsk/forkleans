@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using Orleans.Concurrency;
+using Forkleans.Concurrency;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal interface IDeploymentLoadPublisher : ISystemTarget
     {

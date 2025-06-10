@@ -1,7 +1,7 @@
-using Orleans.Runtime;
-using Orleans.Streams.Core;
+using Forkleans.Runtime;
+using Forkleans.Streams.Core;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Installs an <see cref="IStreamConsumerExtension"/> extension on a <see cref="IGrainContext"/> for grains which implement <see cref="IStreamSubscriptionObserver"/>.

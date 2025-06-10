@@ -1,7 +1,7 @@
 using System;
-using Orleans.Providers;
+using Forkleans.Providers;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// <see cref="ISiloBuilder"/> extension methods for configuring in-memory streams. 

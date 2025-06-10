@@ -4,9 +4,9 @@ using System.Buffers.Binary;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
-using Orleans.Serialization;
+using Forkleans.Serialization;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     [GenerateSerializer, Immutable]
     internal sealed class ConnectionPreamble

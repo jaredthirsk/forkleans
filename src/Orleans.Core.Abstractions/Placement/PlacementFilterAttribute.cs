@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Metadata;
-using Orleans.Runtime;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
 
 #nullable enable
-namespace Orleans.Placement;
+namespace Forkleans.Placement;
 
 /// <summary>
 /// Base for all placement filter marker attributes.

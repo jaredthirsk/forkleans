@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Streaming.EventHubs;
-using Orleans.TestingHost;
+using Forkleans.Streaming.EventHubs;
+using Forkleans.TestingHost;
 using Tester;
 using Tester.StreamingTests;
 using TestExtensions;

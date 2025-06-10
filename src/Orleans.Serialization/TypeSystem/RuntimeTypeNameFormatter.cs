@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Orleans.Serialization.TypeSystem;
+namespace Forkleans.Serialization.TypeSystem;
 
 /// <summary>
 /// Utility methods for formatting <see cref="Type"/> and <see cref="TypeInfo"/> instances in a way which can be parsed by

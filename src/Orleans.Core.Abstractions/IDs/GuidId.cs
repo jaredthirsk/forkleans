@@ -2,7 +2,7 @@ using System;
 using System.Runtime.Serialization;
 
 #nullable enable
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// A unique identifier based on a <see cref="Guid"/>.

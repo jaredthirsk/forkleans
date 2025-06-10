@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Orleans.Concurrency;
-using Orleans.Runtime;
+using Forkleans.Concurrency;
+using Forkleans.Runtime;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Interface for implementations of the underlying storage for reminder data:

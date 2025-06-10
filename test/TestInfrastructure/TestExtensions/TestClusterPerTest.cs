@@ -1,7 +1,7 @@
 using System.Runtime.ExceptionServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 
 namespace TestExtensions
 {

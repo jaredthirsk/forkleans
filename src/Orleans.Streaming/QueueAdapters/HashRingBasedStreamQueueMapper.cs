@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Configuration;
-using Orleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// A <see cref="IConsistentRingStreamQueueMapper"/> and hence <see cref="IStreamQueueMapper"/> which balances queues by mapping them onto a hash ring consisting of silos.

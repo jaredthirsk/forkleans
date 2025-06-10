@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Orleans.Caching.Internal;
+namespace Forkleans.Caching.Internal;
 
 /// <summary>
 /// A capacity partitioning scheme that favors frequently accessed items by allocating 80%

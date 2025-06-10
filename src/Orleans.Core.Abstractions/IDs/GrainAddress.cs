@@ -2,10 +2,10 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
-using Orleans.GrainDirectory;
+using Forkleans.GrainDirectory;
 
 #nullable enable
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Represents an entry in a <see cref="IGrainDirectory"/>

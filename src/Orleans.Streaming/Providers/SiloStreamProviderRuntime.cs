@@ -1,14 +1,14 @@
 using System;
 using System.Threading.Tasks;
-using Orleans.Runtime.ConsistentRing;
-using Orleans.Streams;
+using Forkleans.Runtime.ConsistentRing;
+using Forkleans.Streams;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Streams.Filtering;
-using Orleans.Internal;
+using Forkleans.Configuration;
+using Forkleans.Streams.Filtering;
+using Forkleans.Internal;
 
-namespace Orleans.Runtime.Providers
+namespace Forkleans.Runtime.Providers
 {
     internal partial class SiloStreamProviderRuntime : ISiloSideStreamProviderRuntime
     {

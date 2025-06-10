@@ -1,10 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.TestingHost;
-using Orleans.Transactions.TestKit;
+using Forkleans.Runtime;
+using Forkleans.TestingHost;
+using Forkleans.Transactions.TestKit;
 using TestExtensions;
 
-namespace Orleans.Transactions.Tests
+namespace Forkleans.Transactions.Tests
 {
     public class MemoryTransactionsFixture : BaseTestClusterFixture
     {

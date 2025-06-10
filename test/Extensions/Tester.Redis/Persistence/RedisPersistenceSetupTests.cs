@@ -1,8 +1,8 @@
 using System.Net;
 using Microsoft.Extensions.Hosting;
 using Xunit;
-using Orleans.Configuration;
-using Orleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
 using StackExchange.Redis;
 using TestExtensions;
 

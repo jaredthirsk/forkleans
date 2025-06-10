@@ -1,12 +1,12 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.Serialization;
-using Orleans.Streaming.AzureStorage;
-using Orleans.Streams;
+using Forkleans.Runtime;
+using Forkleans.Serialization;
+using Forkleans.Streaming.AzureStorage;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.PersistentStreams
+namespace Forkleans.Providers.Streams.PersistentStreams
 {
     /// <summary>
     /// Delivery failure handler that writes failures to azure table storage.

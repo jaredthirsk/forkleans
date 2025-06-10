@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Orleans.Persistence.Redis
+namespace Forkleans.Persistence.Redis
 {
     /// <summary>
     /// Exception for throwing from Redis grain storage.

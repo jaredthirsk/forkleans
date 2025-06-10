@@ -1,12 +1,12 @@
 using System;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Azure.Messaging.EventHubs;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// EventHub queue cache

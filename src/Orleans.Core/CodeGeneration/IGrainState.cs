@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Defines the state of a grain

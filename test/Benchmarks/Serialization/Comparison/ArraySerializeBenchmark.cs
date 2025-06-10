@@ -7,7 +7,7 @@ using Benchmarks.Serialization.Models;
 using Benchmarks.Utilities;
 using MessagePack;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Serialization;
+using Forkleans.Serialization;
 
 namespace Benchmarks.Serialization.Comparison;
 

@@ -2,9 +2,9 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage;
 using Azure.Core;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 /// <summary>
 /// Options for configuring the Azure Append Blob state machine storage provider.

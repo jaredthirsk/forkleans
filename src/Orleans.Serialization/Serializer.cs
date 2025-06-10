@@ -1,15 +1,15 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Buffers.Adaptors;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.GeneratedCodeHelpers;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.Session;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Buffers.Adaptors;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.GeneratedCodeHelpers;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.Session;
 using System;
 using System.Buffers;
 using System.IO;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     /// <summary>
     /// Serializes and deserializes values.

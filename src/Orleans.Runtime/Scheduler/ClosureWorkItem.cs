@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Orleans.Runtime.Scheduler
+namespace Forkleans.Runtime.Scheduler
 {
     internal sealed class AsyncClosureWorkItem : WorkItemBase
     {

@@ -1,14 +1,14 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans;
-using Orleans.Clustering.Cosmos;
-using Orleans.Hosting;
-using Orleans.Providers;
+using Forkleans;
+using Forkleans.Clustering.Cosmos;
+using Forkleans.Hosting;
+using Forkleans.Providers;
 
 [assembly: RegisterProvider("AzureCosmosDB", "Clustering", "Silo", typeof(CosmosClusteringProviderBuilder))]
 [assembly: RegisterProvider("AzureCosmosDB", "Clustering", "Client", typeof(CosmosClusteringProviderBuilder))]
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 internal sealed class CosmosClusteringProviderBuilder : IProviderBuilder<ISiloBuilder>, IProviderBuilder<IClientBuilder>
 {

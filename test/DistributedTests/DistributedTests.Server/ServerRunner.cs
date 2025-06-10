@@ -1,6 +1,6 @@
 using DistributedTests.Server.Configurator;
 using Microsoft.Extensions.Hosting;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using DistributedTests.Common.MessageChannel;
 using Microsoft.Extensions.Logging;
 using Azure.Identity;
@@ -42,7 +42,7 @@ namespace DistributedTests.Server
                     .CreateDefaultBuilder()
                     .ConfigureLogging(logging =>
                     {
-                        logging.AddFilter("Orleans.Runtime.Placement.Repartitioning", LogLevel.Debug);
+                        logging.AddFilter("Forkleans.Runtime.Placement.Repartitioning", LogLevel.Debug);
                     })
                     .UseOrleans((ctx, siloBuilder) => ConfigureOrleans(siloBuilder, commonParameters, configuratorParameters))
                     .Build();

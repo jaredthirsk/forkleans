@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     internal interface IRemoteClientDirectory : ISystemTarget
     {

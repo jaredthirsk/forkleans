@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Observable lifecycle.

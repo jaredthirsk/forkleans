@@ -2,9 +2,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// An analogue to <see cref="CancellationToken"/> which can be sent between grains.
@@ -31,7 +31,7 @@ namespace Orleans
         private IGrainCancellationTokenRuntime _cancellationTokenRuntime;
 
         /// <summary>
-        /// Initializes the <see cref="T:Orleans.GrainCancellationToken"/>.
+        /// Initializes the <see cref="T:Forkleans.GrainCancellationToken"/>.
         /// </summary>
         /// <param name="id">
         /// The token id.
@@ -44,7 +44,7 @@ namespace Orleans
         }
 
         /// <summary>
-        /// Initializes the <see cref="T:Orleans.GrainCancellationToken"/>.
+        /// Initializes the <see cref="T:Forkleans.GrainCancellationToken"/>.
         /// </summary>
         /// <param name="id">
         /// The token id.

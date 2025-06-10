@@ -5,23 +5,23 @@ using System.Diagnostics.CodeAnalysis;
 //
 
 #if ORLEANS_CLUSTERING
-namespace Orleans.Clustering.AzureStorage.Utilities
+namespace Forkleans.Clustering.AzureStorage.Utilities
 #elif ORLEANS_PERSISTENCE
-namespace Orleans.Persistence.AzureStorage.Utilities
+namespace Forkleans.Persistence.AzureStorage.Utilities
 #elif ORLEANS_REMINDERS_PROVIDER
-namespace Orleans.Reminders
+namespace Forkleans.Reminders
 #elif ORLEANS_REMINDERS
-namespace Orleans.Reminders.AzureStorage.Utilities
+namespace Forkleans.Reminders.AzureStorage.Utilities
 #elif ORLEANS_STREAMING
-namespace Orleans.Streaming.AzureStorage.Utilities
+namespace Forkleans.Streaming.AzureStorage.Utilities
 #elif ORLEANS_EVENTHUBS
-namespace Orleans.Streaming.EventHubs.Utilities
+namespace Forkleans.Streaming.EventHubs.Utilities
 #elif TESTER_AZUREUTILS
-namespace Orleans.Tests.AzureUtils.Utilities
+namespace Forkleans.Tests.AzureUtils.Utilities
 #elif ORLEANS_TRANSACTIONS
-namespace Orleans.Transactions.AzureStorage.Utilities
+namespace Forkleans.Transactions.AzureStorage.Utilities
 #elif ORLEANS_DIRECTORY
-namespace Orleans.GrainDirectory.AzureStorage.Utilities
+namespace Forkleans.GrainDirectory.AzureStorage.Utilities
 #else
 // No default namespace intentionally to cause compile errors if something is not defined
 #endif

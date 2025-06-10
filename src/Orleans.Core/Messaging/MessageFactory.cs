@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Logging;
-using Orleans.CodeGeneration;
-using Orleans.Serialization;
+using Forkleans.CodeGeneration;
+using Forkleans.Serialization;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal partial class MessageFactory
     {

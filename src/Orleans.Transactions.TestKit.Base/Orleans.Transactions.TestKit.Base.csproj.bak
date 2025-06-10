@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>Microsoft.Forkleans.Transactions.TestKit.Base</PackageId>
+    <Title>Microsoft Orleans Transactions test kit base</Title>
+    <Description>Testkit base library for transactions</Description>
+    <PackageTags>$(PackageTags) TransactionTestkKit</PackageTags>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyName>Forkleans.Transactions.TestKit.Base</AssemblyName>
+    <RootNamespace>Forkleans.Transactions.TestKit.Base</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AwesomeAssertions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Azure\Forkleans.Transactions.AzureStorage\Forkleans.Transactions.AzureStorage.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.TestingHost\Forkleans.TestingHost.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Transactions\Forkleans.Transactions.csproj" />
+  </ItemGroup>
+
+</Project>

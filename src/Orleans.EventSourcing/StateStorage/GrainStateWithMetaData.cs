@@ -1,7 +1,7 @@
-using Orleans.EventSourcing.Common;
+using Forkleans.EventSourcing.Common;
 using System;
 
-namespace Orleans.EventSourcing.StateStorage
+namespace Forkleans.EventSourcing.StateStorage
 {
     /// <summary>
     /// A class that extends grain state with versioning metadata, so that a grain with log-view consistency

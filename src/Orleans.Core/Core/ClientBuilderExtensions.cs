@@ -5,14 +5,14 @@ using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
-using Orleans.Messaging;
-using Orleans.Runtime;
+using Forkleans.Configuration;
+using Forkleans.Messaging;
+using Forkleans.Runtime;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Extension methods for <see cref="IClientBuilder"/>.

@@ -1,7 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
 
-namespace Orleans.Connections.Security.Tests
+namespace Forkleans.Connections.Security.Tests
 {
     internal static class TestCertificateHelper
     {

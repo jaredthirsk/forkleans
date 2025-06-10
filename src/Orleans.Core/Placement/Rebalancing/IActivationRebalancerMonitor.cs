@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 #nullable enable
 
-namespace Orleans.Placement.Rebalancing;
+namespace Forkleans.Placement.Rebalancing;
 
 [Alias("IActivationRebalancerMonitor")]
 internal interface IActivationRebalancerMonitor : ISystemTarget, IActivationRebalancer

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 #nullable enable
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Represents a range or set of ranges around a virtual ring where points along the ring are identified using <see cref="uint"/> values.
@@ -36,7 +36,7 @@ namespace Orleans.Runtime
     /// <summary>
     /// Represents a single, contiguous range round a virtual ring where points along the ring are identified using <see cref="uint"/> values.
     /// </summary>
-    /// <seealso cref="Orleans.Runtime.IRingRange" />
+    /// <seealso cref="Forkleans.Runtime.IRingRange" />
     public interface ISingleRange : IRingRange
     {
         /// <summary>

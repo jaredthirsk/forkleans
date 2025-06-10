@@ -1,7 +1,7 @@
-using Orleans.Providers;
-using Orleans.SqlUtils.StorageProvider.GrainInterfaces;
+using Forkleans.Providers;
+using Forkleans.SqlUtils.StorageProvider.GrainInterfaces;
 
-namespace Orleans.SqlUtils.StorageProvider.GrainClasses
+namespace Forkleans.SqlUtils.StorageProvider.GrainClasses
 {
     [StorageProvider(ProviderName = "SqlStore")]
     public class CustomerGrain : Grain<CustomerState>, ICustomerGrain

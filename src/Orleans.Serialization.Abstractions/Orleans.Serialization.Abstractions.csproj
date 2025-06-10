@@ -1,12 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Serialization.Abstractions</PackageId>
+    <AssemblyName>Forkleans.Serialization.Abstractions</AssemblyName>
+    <PackageId>Microsoft.Forkleans.Serialization.Abstractions</PackageId>
     <Title>Microsoft Orleans Serialization Abstractions</Title>
     <Description>Serialization abstractions for Microsoft Orleans</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks);$(CompatibilityTargetFrameworks)</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <RootNamespace>Orleans</RootNamespace>
+    <RootNamespace>Forkleans</RootNamespace>
     <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>

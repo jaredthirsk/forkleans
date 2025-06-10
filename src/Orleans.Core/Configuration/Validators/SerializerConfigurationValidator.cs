@@ -3,13 +3,13 @@ using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
-using Orleans.Serialization;
-using Orleans.Serialization.Configuration;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Runtime;
+using Forkleans.Serialization;
+using Forkleans.Serialization.Configuration;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Validates serializer configuration.

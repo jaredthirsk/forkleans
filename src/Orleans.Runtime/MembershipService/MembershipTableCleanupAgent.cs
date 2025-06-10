@@ -1,15 +1,15 @@
 #nullable enable
 using System;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-using Orleans.Internal;
+using Forkleans.Internal;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     /// <summary>
     /// Responsible for cleaning up dead membership table entries.

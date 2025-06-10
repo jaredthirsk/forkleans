@@ -1,6 +1,6 @@
-using Orleans.Storage;
+using Forkleans.Storage;
 
-namespace Orleans.EventSourcing.LogStorage
+namespace Forkleans.EventSourcing.LogStorage
 {
     internal class DefaultAdaptorFactory : ILogViewAdaptorFactory
     {

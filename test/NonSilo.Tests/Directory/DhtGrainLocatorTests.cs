@@ -1,8 +1,8 @@
 using System.Net;
 using Microsoft.Extensions.Logging;
-using Orleans.GrainDirectory;
-using Orleans.Runtime;
-using Orleans.Runtime.GrainDirectory;
+using Forkleans.GrainDirectory;
+using Forkleans.Runtime;
+using Forkleans.Runtime.GrainDirectory;
 using TestExtensions;
 using UnitTests.SchedulerTests;
 using UnitTests.TesterInternal;

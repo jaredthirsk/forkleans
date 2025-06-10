@@ -2,7 +2,7 @@ using System;
 using Azure;
 using Azure.Data.Tables;
 
-namespace Orleans.Transactions.AzureStorage
+namespace Forkleans.Transactions.AzureStorage
 {
     internal class KeyEntity : ITableEntity
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Configuration for Amazon DynamoDB reminder storage.

@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace Orleans.Hosting.Kubernetes
+namespace Forkleans.Hosting.Kubernetes
 {
     internal static class KubernetesClientExtensions
     {

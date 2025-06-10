@@ -1,7 +1,7 @@
 using System.IO.Pipelines;
 using Microsoft.Extensions.Options;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     internal class SocketSchedulers
     {

@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Collections;
 using System.Collections.Generic;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System.Linq;
 
-namespace Orleans.Utilities
+namespace Forkleans.Utilities
 {
     /// <summary>
     /// Maintains a collection of observers.

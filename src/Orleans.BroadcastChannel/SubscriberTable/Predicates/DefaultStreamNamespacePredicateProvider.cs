@@ -1,7 +1,7 @@
 using System;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans.BroadcastChannel
+namespace Forkleans.BroadcastChannel
 {
     /// <summary>
     /// Default implementation of <see cref="IChannelNamespacePredicateProvider"/> for internally supported stream predicates.

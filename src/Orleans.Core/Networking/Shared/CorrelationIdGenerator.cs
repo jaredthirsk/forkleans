@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     internal static class CorrelationIdGenerator
     {

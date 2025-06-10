@@ -2,10 +2,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Orleans.Serialization;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Serialization;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions
+namespace Forkleans.Transactions
 {
     [GenerateSerializer]
     public sealed class TransactionInfo

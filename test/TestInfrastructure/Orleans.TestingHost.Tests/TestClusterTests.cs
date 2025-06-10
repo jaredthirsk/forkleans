@@ -1,12 +1,12 @@
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Orleans.TestingHost.Tests.Grains;
+using Forkleans.TestingHost.Tests.Grains;
 using TestExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Orleans.TestingHost.Tests
+namespace Forkleans.TestingHost.Tests
 {
     public class T0
     {

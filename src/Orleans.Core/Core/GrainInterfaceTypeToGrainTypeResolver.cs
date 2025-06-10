@@ -2,11 +2,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Orleans.Metadata;
-using Orleans.Runtime;
-using Orleans.Utilities;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
+using Forkleans.Utilities;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Associates <see cref="GrainInterfaceType"/>s with a compatible <see cref="GrainType"/>.

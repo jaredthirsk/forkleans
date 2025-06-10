@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Hosting;
-using Orleans.TestingHost;
+using Forkleans.Hosting;
+using Forkleans.TestingHost;
 
-namespace Orleans.Transactions.TestKit
+namespace Forkleans.Transactions.TestKit
 {
     public class SkewedClockConfigurator : ISiloConfigurator
     {

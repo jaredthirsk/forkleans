@@ -2,9 +2,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Orleans.Metadata;
+using Forkleans.Metadata;
 
-namespace Orleans.Runtime.Versions
+namespace Forkleans.Runtime.Versions
 {
     /// <summary>
     /// Functionality for querying the declared version of grain interfaces.

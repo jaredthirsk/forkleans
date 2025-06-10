@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class HostingExtensions
     {
@@ -20,7 +20,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Reminders.Cosmos
+namespace Forkleans.Reminders.Cosmos
 {
     public abstract partial class CosmosOptions
     {

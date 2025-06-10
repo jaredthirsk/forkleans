@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class DynamoDBGrainStorageOptionsValidator : IConfigurationValidator
     {
@@ -42,7 +42,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class DynamoDBGrainStorageServiceCollectionExtensions
     {
@@ -67,7 +67,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Persistence.DynamoDB
+namespace Forkleans.Persistence.DynamoDB
 {
     public partial class DynamoDBClientOptions
     {
@@ -85,7 +85,7 @@ namespace Orleans.Persistence.DynamoDB
     }
 }
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     public partial class DynamoDBGrainStorage : IGrainStorage, ILifecycleParticipant<Runtime.ISiloLifecycle>
     {

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);ORLEANSEXP005</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Journaling\Forkleans.Journaling.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Server\Forkleans.Server.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Sdk\Forkleans.Sdk.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Azure\Forkleans.Journaling.AzureStorage\Forkleans.Journaling.AzureStorage.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.TestingHost\Forkleans.TestingHost.csproj" />
+    <ProjectReference Include="$(SourceRoot)test\Extensions\TesterAzureUtils\Tester.AzureUtils.csproj" />
+    <ProjectReference Include="$(SourceRoot)test\TestInfrastructure\TestExtensions\TestExtensions.csproj" />
+  </ItemGroup>
+
+</Project>

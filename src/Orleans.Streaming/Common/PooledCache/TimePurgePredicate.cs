@@ -1,7 +1,7 @@
 
 using System;
 
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// Determines if data should be purged based off time.

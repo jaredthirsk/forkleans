@@ -1,12 +1,12 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Providers.Streams.Common;
-using Orleans.Streaming.EventHubs;
-using Orleans.Streams;
-using Orleans.Streaming.EventHubs.Testing;
-using Orleans.Configuration;
-using Orleans.Statistics;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Streaming.EventHubs;
+using Forkleans.Streams;
+using Forkleans.Streaming.EventHubs.Testing;
+using Forkleans.Configuration;
+using Forkleans.Statistics;
 
 namespace ServiceBus.Tests.TestStreamProviders
 {

@@ -3,12 +3,12 @@ using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Placement;
-using Orleans.Placement.Repartitioning;
-using Orleans.Runtime.Placement;
-using Orleans.Runtime.Placement.Repartitioning;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Placement;
+using Forkleans.Placement.Repartitioning;
+using Forkleans.Runtime.Placement;
+using Forkleans.Runtime.Placement.Repartitioning;
+using Forkleans.TestingHost;
 using TestExtensions;
 using Xunit;
 using Xunit.Abstractions;
@@ -263,7 +263,7 @@ public class CustomToleranceTests(CustomToleranceTests.Fixture fixture, ITestOut
                         o.AnchoringFilterEnabled = false;
                     })
                     .AddActivationRepartitioner<HardLimitRule>()
-                    .ConfigureLogging(logging => logging.AddFilter("Orleans.Runtime.Placement.Repartitioning", LogLevel.Trace))
+                    .ConfigureLogging(logging => logging.AddFilter("Forkleans.Runtime.Placement.Repartitioning", LogLevel.Trace))
                     .ConfigureServices(service => service.AddSingleton<IRepartitionerMessageFilter, TestMessageFilter>());
 #pragma warning restore ORLEANSEXP001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         }

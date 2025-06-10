@@ -26,7 +26,7 @@ namespace Samples.StorageProviders
     ///
     /// and this line to any grain that uses it:
     /// 
-    ///     [Orleans.Providers.StorageProvider(ProviderName = "FileStore")]
+    ///     [Forkleans.Providers.StorageProvider(ProviderName = "FileStore")]
     /// 
     /// The name 'FileStore' is an arbitrary choice.
     /// 

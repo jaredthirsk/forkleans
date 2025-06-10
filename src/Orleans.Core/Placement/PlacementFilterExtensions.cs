@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 
 #nullable enable
-namespace Orleans.Placement;
+namespace Forkleans.Placement;
 
 public static class PlacementFilterExtensions
 {

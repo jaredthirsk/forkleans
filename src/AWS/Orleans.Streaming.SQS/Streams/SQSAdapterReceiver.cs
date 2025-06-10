@@ -1,15 +1,15 @@
-using Orleans;
-using Orleans.Streams;
-using OrleansAWSUtils.Storage;
+using Forkleans;
+using Forkleans.Streams;
+using ForkleansAWSUtils.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Serialization;
+using Forkleans.Serialization;
 using SQSMessage = Amazon.SQS.Model.Message;
 
-namespace OrleansAWSUtils.Streams
+namespace ForkleansAWSUtils.Streams
 {
     /// <summary>
     /// Receives batches of messages from a single partition of a message queue.

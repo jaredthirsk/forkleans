@@ -1,13 +1,13 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.GrainDirectory;
-using Orleans.GrainDirectory.Redis;
-using Orleans.Runtime;
-using Orleans.Runtime.Hosting;
+using Forkleans.Configuration;
+using Forkleans.GrainDirectory;
+using Forkleans.GrainDirectory.Redis;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Hosting;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Extensions for configuring Redis as a grain directory provider.

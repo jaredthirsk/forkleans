@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using Orleans.EventSourcing;
-using Orleans.Runtime;
+using Forkleans.EventSourcing;
+using Forkleans.Runtime;
 
-namespace Orleans.SystemTargetInterfaces
+namespace Forkleans.SystemTargetInterfaces
 {
     /// <summary>
     /// The  protocol gateway is a relay that forwards incoming protocol messages from other clusters

@@ -1,6 +1,6 @@
 using System.Net.Security;
 
-namespace Orleans.Connections.Security
+namespace Forkleans.Connections.Security
 {
     internal static class OrleansApplicationProtocol
     {

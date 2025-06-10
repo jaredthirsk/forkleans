@@ -1,11 +1,11 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Messaging;
-using Orleans.Runtime.Membership;
-using Orleans.Configuration;
+using Forkleans.Messaging;
+using Forkleans.Runtime.Membership;
+using Forkleans.Configuration;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
 
     public static class ZooKeeperHostingExtensions

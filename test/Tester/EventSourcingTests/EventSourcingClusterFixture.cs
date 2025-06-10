@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
-using Orleans.EventSourcing.CustomStorage;
-using Orleans.Storage;
-using Orleans.TestingHost;
+using Forkleans.EventSourcing.CustomStorage;
+using Forkleans.Storage;
+using Forkleans.TestingHost;
 using TestExtensions;
 
 namespace Tester.EventSourcingTests

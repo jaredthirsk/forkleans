@@ -1,6 +1,6 @@
-using Orleans.Streaming.AdoNet;
+using Forkleans.Streaming.AdoNet;
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 /// <summary>
 /// Helps set up an individual stream provider on a silo.

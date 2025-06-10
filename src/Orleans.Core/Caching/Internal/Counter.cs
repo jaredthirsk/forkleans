@@ -5,9 +5,9 @@
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-using Orleans;
+using Forkleans;
 
-namespace Orleans.Caching.Internal;
+namespace Forkleans.Caching.Internal;
 
 /// <summary>
 /// A thread-safe counter suitable for high throughput counting across many concurrent threads.

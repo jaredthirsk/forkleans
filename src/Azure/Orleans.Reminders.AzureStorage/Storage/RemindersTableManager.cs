@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using Azure;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
-using Orleans.Reminders.AzureStorage;
+using Forkleans.Reminders.AzureStorage;
 
-namespace Orleans.Runtime.ReminderService
+namespace Forkleans.Runtime.ReminderService
 {
     internal sealed class ReminderTableEntry : ITableEntity
     {

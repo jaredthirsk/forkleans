@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 
 
-namespace Orleans.Runtime.ConsistentRing
+namespace Forkleans.Runtime.ConsistentRing
 {
     /// <summary>
     /// We use the 'backward/clockwise' definition to assign responsibilities on the ring. 

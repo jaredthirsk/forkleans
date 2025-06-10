@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Client interface for interacting with an Orleans cluster.

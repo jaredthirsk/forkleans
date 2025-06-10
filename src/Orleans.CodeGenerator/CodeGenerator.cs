@@ -7,22 +7,22 @@ using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Orleans.CodeGenerator.Diagnostics;
-using Orleans.CodeGenerator.Hashing;
-using Orleans.CodeGenerator.Model;
-using Orleans.CodeGenerator.SyntaxGeneration;
+using Forkleans.CodeGenerator.Diagnostics;
+using Forkleans.CodeGenerator.Hashing;
+using Forkleans.CodeGenerator.Model;
+using Forkleans.CodeGenerator.SyntaxGeneration;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static Orleans.CodeGenerator.SyntaxGeneration.SymbolExtensions;
+using static Forkleans.CodeGenerator.SyntaxGeneration.SymbolExtensions;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     public class CodeGeneratorOptions
     {
-        public List<string> GenerateSerializerAttributes { get; } = new() { "Orleans.GenerateSerializerAttribute" };
-        public List<string> IdAttributes { get; } = new() { "Orleans.IdAttribute" };
-        public List<string> AliasAttributes { get; } = new() { "Orleans.AliasAttribute" };
-        public List<string> ImmutableAttributes { get; } = new() { "Orleans.ImmutableAttribute" };
-        public List<string> ConstructorAttributes { get; } = new() { "Orleans.OrleansConstructorAttribute", "Microsoft.Extensions.DependencyInjection.ActivatorUtilitiesConstructorAttribute" };
+        public List<string> GenerateSerializerAttributes { get; } = new() { "Forkleans.GenerateSerializerAttribute" };
+        public List<string> IdAttributes { get; } = new() { "Forkleans.IdAttribute" };
+        public List<string> AliasAttributes { get; } = new() { "Forkleans.AliasAttribute" };
+        public List<string> ImmutableAttributes { get; } = new() { "Forkleans.ImmutableAttribute" };
+        public List<string> ConstructorAttributes { get; } = new() { "Forkleans.OrleansConstructorAttribute", "Microsoft.Extensions.DependencyInjection.ActivatorUtilitiesConstructorAttribute" };
         public GenerateFieldIds GenerateFieldIds { get; set; }
         public bool GenerateCompatibilityInvokers { get; set; }
     }
@@ -393,7 +393,7 @@ namespace Orleans.CodeGenerator
                             }));
             }
 
-            var usings = List(new[] { UsingDirective(ParseName("global::Orleans.Serialization.Codecs")), UsingDirective(ParseName("global::Orleans.Serialization.GeneratedCodeHelpers")) });
+            var usings = List(new[] { UsingDirective(ParseName("global::Forkleans.Serialization.Codecs")), UsingDirective(ParseName("global::Forkleans.Serialization.GeneratedCodeHelpers")) });
             var namespaces = new List<MemberDeclarationSyntax>(_namespacedMembers.Count);
             foreach (var pair in _namespacedMembers)
             {

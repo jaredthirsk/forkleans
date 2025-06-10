@@ -1,5 +1,5 @@
 using Microsoft.CodeAnalysis;
-using Orleans.Analyzers;
+using Forkleans.Analyzers;
 using Xunit;
 
 namespace Analyzers.Tests;
@@ -14,7 +14,7 @@ public class GrainInterfaceMethodReturnTypeDiagnosticAnalyzerTest : DiagnosticAn
     public async Task GrainInterfaceMethodReturnTypeNoError()
     {
         var code = """
-                    public interface IG : Orleans.IGrain
+                    public interface IG : Forkleans.IGrain
                     {
                         Task TaskMethod(int a);
                         Task<int> TaskOfIntMethod(int a);
@@ -23,7 +23,7 @@ public class GrainInterfaceMethodReturnTypeDiagnosticAnalyzerTest : DiagnosticAn
                         void VoidMethod(int a);
                     }
 
-                    public interface IA : Orleans.Runtime.IAddressable
+                    public interface IA : Forkleans.Runtime.IAddressable
                     {
                         Task TaskMethod(int a);
                         Task<int> TaskOfIntMethod(int a);
@@ -32,7 +32,7 @@ public class GrainInterfaceMethodReturnTypeDiagnosticAnalyzerTest : DiagnosticAn
                         void VoidMethod(int a);
                     }
 
-                    public interface IGO : Orleans.IGrainObserver
+                    public interface IGO : Forkleans.IGrainObserver
                     {
                         Task TaskMethod(int a);
                         Task<int> TaskOfIntMethod(int a);
@@ -50,7 +50,7 @@ public class GrainInterfaceMethodReturnTypeDiagnosticAnalyzerTest : DiagnosticAn
     public async Task IncompatibleGrainInterfaceMethodReturnType()
     {
         var code = """
-                    public interface I : Orleans.IGrain
+                    public interface I : Forkleans.IGrain
                     {
                         int MyMethod(int a);
                     }
@@ -71,7 +71,7 @@ public class GrainInterfaceMethodReturnTypeDiagnosticAnalyzerTest : DiagnosticAn
     public async Task StaticInterfaceMethodsWithRegularReturnsAreAllowed()
     {
         var code = """
-                    public interface I : Orleans.IGrain
+                    public interface I : Forkleans.IGrain
                     {
                         public static int GetSomeOtherThing(int a) => 0;
                         public static virtual int GetSomeOtherThingVirtual(int a) => 0;

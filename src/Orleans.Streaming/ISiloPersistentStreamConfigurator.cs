@@ -1,11 +1,11 @@
 using System;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Internal;
-using Orleans.Runtime.Providers;
-using Orleans.Streams;
+using Forkleans.Configuration;
+using Forkleans.Internal;
+using Forkleans.Runtime.Providers;
+using Forkleans.Streams;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Functionality for configuring persistent streams.

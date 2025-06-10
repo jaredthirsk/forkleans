@@ -1,4 +1,4 @@
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Marker interface for addressable endpoints, such as grains, observers, and other system-internal addressable endpoints

@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Stream namespace predicate which matches exactly one, specified

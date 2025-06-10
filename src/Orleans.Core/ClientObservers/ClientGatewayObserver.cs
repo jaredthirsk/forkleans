@@ -1,7 +1,7 @@
-using Orleans.Messaging;
-using Orleans.Runtime;
+using Forkleans.Messaging;
+using Forkleans.Runtime;
 
-namespace Orleans.ClientObservers
+namespace Forkleans.ClientObservers
 {
     /// <summary>
     /// Handles gateway notifications which are sent to connected clients.

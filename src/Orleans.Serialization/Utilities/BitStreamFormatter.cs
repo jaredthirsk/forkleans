@@ -1,13 +1,13 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.Session;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.Session;
+using Forkleans.Serialization.WireProtocol;
 using System;
 using System.Buffers;
 using System.IO;
 using System.Text;
 
-namespace Orleans.Serialization.Utilities
+namespace Forkleans.Serialization.Utilities
 {
     /// <summary>
     /// Utilities for formatting an encoded bitstream in a textual manner.

@@ -1,8 +1,8 @@
 using System;
 
-namespace Orleans
+namespace Forkleans
 {
-    using Orleans.Runtime;
+    using Forkleans.Runtime;
 
     /// <summary>
     /// Marker interface for grains

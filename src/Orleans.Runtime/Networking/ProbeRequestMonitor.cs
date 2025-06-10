@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Runtime.Messaging
+namespace Forkleans.Runtime.Messaging
 {
     /// <summary>
     /// Monitors incoming cluster health probe requests

@@ -1,7 +1,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace Orleans.BroadcastChannel
+namespace Forkleans.BroadcastChannel
 {
     /// <summary>
     /// <see cref="IChannelNamespacePredicate"/> implementation allowing to filter stream namespaces by regular

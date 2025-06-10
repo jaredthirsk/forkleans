@@ -1,6 +1,6 @@
 #nullable enable
 using Microsoft.Extensions.Logging;
-using Orleans.GrainDirectory;
+using Forkleans.GrainDirectory;
 using TestExtensions;
 using Xunit;
 using Xunit.Abstractions;

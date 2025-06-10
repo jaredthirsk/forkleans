@@ -1,8 +1,8 @@
-﻿
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Orleans.Transactions.TestKit.Correctnesss
+namespace Forkleans.Transactions.TestKit.Correctnesss
 {
     public interface ITransactionalBitArrayGrain : IGrainWithGuidKey
     {

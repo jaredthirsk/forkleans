@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Streams;
+using Forkleans.Configuration;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// Adapter for simple queue caches.

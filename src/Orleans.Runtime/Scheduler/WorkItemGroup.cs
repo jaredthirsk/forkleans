@@ -9,9 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
-namespace Orleans.Runtime.Scheduler;
+namespace Forkleans.Runtime.Scheduler;
 
 [DebuggerDisplay("WorkItemGroup Context={GrainContext} State={state}")]
 internal sealed class WorkItemGroup : IThreadPoolWorkItem, IWorkItemScheduler

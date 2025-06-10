@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.TestingHost;
 using System.Runtime.InteropServices;
 using TestExtensions;
 using TestVersionGrainInterfaces;

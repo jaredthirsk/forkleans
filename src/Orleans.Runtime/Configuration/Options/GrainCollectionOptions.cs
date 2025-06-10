@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Silo options for grain garbage collection.

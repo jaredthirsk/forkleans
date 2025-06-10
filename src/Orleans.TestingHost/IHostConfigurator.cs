@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Hosting;
 
-namespace Orleans.TestingHost
+namespace Forkleans.TestingHost
 {
     /// <summary>
     /// Allows implementations to configure the host builder when starting up each silo in the test cluster.

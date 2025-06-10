@@ -2,7 +2,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,15 +12,15 @@ using System.Threading.Tasks;
 using Amazon.Runtime.CredentialManagement;
 
 #if CLUSTERING_DYNAMODB
-namespace Orleans.Clustering.DynamoDB
+namespace Forkleans.Clustering.DynamoDB
 #elif PERSISTENCE_DYNAMODB
-namespace Orleans.Persistence.DynamoDB
+namespace Forkleans.Persistence.DynamoDB
 #elif REMINDERS_DYNAMODB
-namespace Orleans.Reminders.DynamoDB
+namespace Forkleans.Reminders.DynamoDB
 #elif AWSUTILS_TESTS
-namespace Orleans.AWSUtils.Tests
+namespace Forkleans.AWSUtils.Tests
 #elif TRANSACTIONS_DYNAMODB
-namespace Orleans.Transactions.DynamoDB
+namespace Forkleans.Transactions.DynamoDB
 #else
 // No default namespace intentionally to cause compile errors if something is not defined
 #endif

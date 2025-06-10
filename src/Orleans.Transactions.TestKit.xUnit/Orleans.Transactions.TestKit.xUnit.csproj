@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Transactions.TestKit.xUnit</PackageId>
+    <PackageId>Microsoft.Forkleans.Transactions.TestKit.xUnit</PackageId>
     <Title>Microsoft Orleans Transactions test kit for xUnit</Title>
     <Description>xUnit testkit library for transactions</Description>
     <PackageTags>$(PackageTags) TransactionTestKit</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
   </PropertyGroup>
 
   <PropertyGroup>
-    <AssemblyName>Orleans.Transactions.TestKit.xUnit</AssemblyName>
-    <RootNamespace>Orleans.Transactions.TestKit.xUnit</RootNamespace>
+    <AssemblyName>Forkleans.Transactions.TestKit.xUnit</AssemblyName>
+    <RootNamespace>Forkleans.Transactions.TestKit.xUnit</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

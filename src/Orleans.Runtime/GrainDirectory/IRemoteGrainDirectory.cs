@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.GrainDirectory;
+using Forkleans.GrainDirectory;
 
 #nullable enable
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Per-silo system interface for managing the distributed, partitioned grain-silo-activation directory.

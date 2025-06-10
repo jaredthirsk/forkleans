@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     [Id(101)]
     internal sealed class Message : ISpanFormattable

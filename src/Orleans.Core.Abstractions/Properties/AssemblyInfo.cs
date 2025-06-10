@@ -1,11 +1,11 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Orleans.Core")]
-[assembly: InternalsVisibleTo("Orleans.Runtime")]
-[assembly: InternalsVisibleTo("Orleans.TestingHost")]
-[assembly: InternalsVisibleTo("Orleans.Streaming")]
-[assembly: InternalsVisibleTo("Orleans.Streaming.Abstractions")]
-[assembly: InternalsVisibleTo("Orleans.Reminders")]
+[assembly: InternalsVisibleTo("Forkleans.Core")]
+[assembly: InternalsVisibleTo("Forkleans.Runtime")]
+[assembly: InternalsVisibleTo("Forkleans.TestingHost")]
+[assembly: InternalsVisibleTo("Forkleans.Streaming")]
+[assembly: InternalsVisibleTo("Forkleans.Streaming.Abstractions")]
+[assembly: InternalsVisibleTo("Forkleans.Reminders")]
 
 [assembly: InternalsVisibleTo("DefaultCluster.Tests")]
 [assembly: InternalsVisibleTo("NonSilo.Tests")]

@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans.Metadata
+namespace Forkleans.Metadata
 {
     /// <summary>
     /// Creates a <see cref="SiloManifest"/> for this silo.

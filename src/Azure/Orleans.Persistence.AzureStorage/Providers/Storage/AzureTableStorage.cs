@@ -12,15 +12,15 @@ using Azure.Data.Tables;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Configuration.Overrides;
-using Orleans.Persistence.AzureStorage;
-using Orleans.Providers.Azure;
-using Orleans.Runtime;
-using Orleans.Serialization.Serializers;
+using Forkleans.Configuration;
+using Forkleans.Configuration.Overrides;
+using Forkleans.Persistence.AzureStorage;
+using Forkleans.Providers.Azure;
+using Forkleans.Runtime;
+using Forkleans.Serialization.Serializers;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Simple storage for writing grain state data to Azure table storage.

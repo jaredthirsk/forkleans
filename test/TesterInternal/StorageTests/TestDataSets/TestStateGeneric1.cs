@@ -1,22 +1,22 @@
-﻿namespace UnitTests.StorageTests.Relational.TestDataSets
+namespace UnitTests.StorageTests.Relational.TestDataSets
 {
     /// <summary>
     /// A generic state used to test if saving, reading and clearing of the storage functions as expected.
     /// </summary>
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class TestStateGeneric1<T>: IEquatable<TestStateGeneric1<T>>
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public T SomeData { get; set; }
 
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public string A { get; set; }
 
-        [Orleans.Id(2)]
+        [Forkleans.Id(2)]
         public int B { get; set; }
 
-        [Orleans.Id(3)]
+        [Forkleans.Id(3)]
         public long C { get; set; }
 
 

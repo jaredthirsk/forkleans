@@ -1,8 +1,8 @@
 using System;
-using Orleans.Metadata;
-using Orleans.Runtime;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
 
-namespace Orleans.Metadata
+namespace Forkleans.Metadata
 {
     /// <summary>
     /// Associates a <see cref="GrainType"/> with a grain class.
@@ -70,7 +70,7 @@ namespace Orleans.Metadata
     }
 }
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Specifies the grain type of the grain class which it is attached to.

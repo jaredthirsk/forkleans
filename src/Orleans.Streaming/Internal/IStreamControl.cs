@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Stream control interface to allow stream runtime to perform management operations on streams 

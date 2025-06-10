@@ -1,6 +1,6 @@
-using Orleans.SqlUtils.StorageProvider.GrainInterfaces;
+using Forkleans.SqlUtils.StorageProvider.GrainInterfaces;
 
-namespace Orleans.SqlUtils.StorageProvider.GrainClasses
+namespace Forkleans.SqlUtils.StorageProvider.GrainClasses
 {
     [Serializable]
     [GenerateSerializer]

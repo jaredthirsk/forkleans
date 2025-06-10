@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration.Internal;
-using Orleans.Runtime;
-using Orleans.Runtime.ReminderService;
+using Forkleans.Configuration.Internal;
+using Forkleans.Runtime;
+using Forkleans.Runtime.ReminderService;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Extensions to <see cref="ISiloBuilder"/> for configuring the in-memory reminder provider.

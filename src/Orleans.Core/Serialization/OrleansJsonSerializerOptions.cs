@@ -2,7 +2,7 @@ using System;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     public class OrleansJsonSerializerOptions
     {

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Transactions
+namespace Forkleans.Transactions
 {
     internal class ResourceFactoryRegistry<T> : Dictionary<string, Func<T>> { };
 

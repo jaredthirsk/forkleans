@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace Orleans.Caching.Internal;
+namespace Forkleans.Caching.Internal;
 
 /// <summary>
 /// A long value padded by the size of a CPU cache line to mitigate false sharing.

@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Immutable;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     /// <summary>
     /// Identifies a proxy base, including whether the proxy is a grain reference or extension.

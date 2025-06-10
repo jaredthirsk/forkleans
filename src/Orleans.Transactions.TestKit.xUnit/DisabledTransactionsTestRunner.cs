@@ -1,7 +1,7 @@
-﻿using Xunit;
+using Xunit;
 using Xunit.Abstractions;
 
-namespace Orleans.Transactions.TestKit.xUnit
+namespace Forkleans.Transactions.TestKit.xUnit
 {
     public class DisabledTransactionsTestRunnerxUnit : DisabledTransactionsTestRunner
     {

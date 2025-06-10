@@ -8,13 +8,13 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.GrainReferences;
-using Orleans.Internal;
-using Orleans.Runtime.Messaging;
-using Orleans.Serialization;
-using Orleans.Serialization.Invocation;
+using Forkleans.GrainReferences;
+using Forkleans.Internal;
+using Forkleans.Runtime.Messaging;
+using Forkleans.Serialization;
+using Forkleans.Serialization.Invocation;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// A client which is hosted within a silo.

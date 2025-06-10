@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// When applied to a type, specifies that the type is intended to be serialized and that serialization code should be generated for the type.
@@ -616,7 +616,7 @@ namespace Orleans
     }
 }
 
-namespace Orleans.Invocation
+namespace Forkleans.Invocation
 {
     /// <summary>
     /// Applied to invokable base types (see TaskRequest) to indicate that instances of derived types should be returned directly from generated proxy methods rather than being passed to

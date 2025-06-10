@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.Runtime;
-using Orleans.Services;
+using Forkleans.Runtime;
+using Forkleans.Services;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Functionality for managing reminders.

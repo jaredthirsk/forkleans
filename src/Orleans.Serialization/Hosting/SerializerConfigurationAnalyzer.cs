@@ -1,12 +1,12 @@
-using Orleans.Serialization.Configuration;
-using Orleans.Serialization.Serializers;
+using Forkleans.Serialization.Configuration;
+using Forkleans.Serialization.Serializers;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     /// <summary>
     /// Analyzes serializer configuration to find likely configuration issues.

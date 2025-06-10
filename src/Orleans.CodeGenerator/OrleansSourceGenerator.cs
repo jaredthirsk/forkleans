@@ -5,11 +5,11 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
-using Orleans.CodeGenerator.Diagnostics;
-using Orleans.CodeGenerator.Model;
+using Forkleans.CodeGenerator.Diagnostics;
+using Forkleans.CodeGenerator.Model;
 
 #pragma warning disable RS1035 // Do not use APIs banned for analyzers
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     [Generator]
     public class OrleansSerializationSourceGenerator : ISourceGenerator

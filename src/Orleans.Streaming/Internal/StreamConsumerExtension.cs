@@ -5,10 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.Streams.Core;
+using Forkleans.Runtime;
+using Forkleans.Streams.Core;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     internal interface IStreamSubscriptionHandle
     {

@@ -1,7 +1,7 @@
 using Google.Protobuf;
-using Orleans.Serialization.Cloning;
+using Forkleans.Serialization.Cloning;
 
-namespace Orleans.Serialization;
+namespace Forkleans.Serialization;
 
 /// <summary>
 /// Copier for <see cref="ByteString"/>.

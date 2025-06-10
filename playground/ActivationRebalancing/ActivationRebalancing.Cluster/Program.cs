@@ -3,8 +3,8 @@ using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Runtime.Placement;
+using Forkleans.Configuration;
+using Forkleans.Runtime.Placement;
 
 #nullable enable
 
@@ -134,7 +134,7 @@ static async Task<IHost> StartSiloHost(int num)
         var host = Host.CreateDefaultBuilder()
             .ConfigureLogging(builder => builder
                 .AddFilter("", LogLevel.Error)
-                .AddFilter("Orleans.Runtime.Placement.Rebalancing", LogLevel.Trace)
+                .AddFilter("Forkleans.Runtime.Placement.Rebalancing", LogLevel.Trace)
                 .AddConsole())
             .UseOrleans(builder => builder
                 .Configure<ActivationRebalancerOptions>(o =>

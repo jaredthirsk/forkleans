@@ -1,10 +1,10 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.WireProtocol;
 using System;
 using System.Buffers;
 
-namespace Orleans.Serialization.Codecs
+namespace Forkleans.Serialization.Codecs
 {
     /// <summary>
     /// Surrogate serializer for <typeparamref name="TField"/> and all sub-types.

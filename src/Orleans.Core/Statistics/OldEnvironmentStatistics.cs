@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Statistics;
+namespace Forkleans.Statistics;
 
 [Obsolete("Used only until the interfaces that it implements are removed from the codebase")]
 internal sealed class OldEnvironmentStatistics(IEnvironmentStatisticsProvider statistics) : IAppEnvironmentStatistics, IHostEnvironmentStatistics

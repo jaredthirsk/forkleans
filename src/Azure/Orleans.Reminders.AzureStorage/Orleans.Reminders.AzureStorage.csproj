@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Orleans.Reminders.AzureStorage</PackageId>
+    <PackageId>Microsoft.Forkleans.Reminders.AzureStorage</PackageId>
     <Title>Microsoft Orleans Azure Table Storage Reminders Provider</Title>
     <Description>Microsoft Orleans reminders provider backed by Azure Table Storage</Description>
     <PackageTags>$(PackageTags) Azure Table Storage</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <AssemblyName>Orleans.Reminders.AzureStorage</AssemblyName>
-    <RootNamespace>Orleans.Reminders.AzureStorage</RootNamespace>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <AssemblyName>Forkleans.Reminders.AzureStorage</AssemblyName>
+    <RootNamespace>Forkleans.Reminders.AzureStorage</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <DefineConstants>$(DefineConstants);ORLEANS_REMINDERS</DefineConstants>
   </PropertyGroup>
 
@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Runtime\Orleans.Runtime.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Reminders\Orleans.Reminders.csproj" />
+    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Orleans.Reminders\Orleans.Reminders.csproj" />
     <PackageReference Include="Azure.Core" />
     <PackageReference Include="Azure.Data.Tables" />
     <PackageReference Include="System.Net.NameResolution" />

@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Mark a subscriptionId as either an implicit subscription Id, or an explicit subscription Id.

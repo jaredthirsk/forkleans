@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class AdoNetReminderTableOptions
     {
@@ -24,7 +24,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class SiloBuilderReminderExtensions
     {
@@ -36,7 +36,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Reminders.AdoNet.Storage
+namespace Forkleans.Reminders.AdoNet.Storage
 {
     public partial class OrleansRelationalDownloadStream : System.IO.Stream
     {

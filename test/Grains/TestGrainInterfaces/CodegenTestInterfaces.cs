@@ -2,7 +2,7 @@ using System.Collections;
 
 namespace UnitTests.GrainInterfaces
 {
-    using Orleans.Concurrency;
+    using Forkleans.Concurrency;
 
     namespace One
     {

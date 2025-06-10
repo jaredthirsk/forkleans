@@ -1,9 +1,9 @@
 #nullable enable
 using System.Threading.Tasks;
-using Orleans.Concurrency;
-using Orleans.Internal;
+using Forkleans.Concurrency;
+using Forkleans.Internal;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 internal interface IGrainCallCancellationExtension : IGrainExtension
 {

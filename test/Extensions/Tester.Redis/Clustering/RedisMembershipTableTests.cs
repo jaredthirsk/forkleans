@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Clustering.Redis;
-using Orleans.Messaging;
+using Forkleans.Clustering.Redis;
+using Forkleans.Messaging;
 using Xunit;
 using UnitTests.MembershipTests;
 using TestExtensions;

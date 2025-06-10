@@ -1,9 +1,9 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Orleans.Runtime.Internal;
+using Forkleans.Runtime.Internal;
 
-namespace Orleans.Runtime.Scheduler
+namespace Forkleans.Runtime.Scheduler
 {
     internal static class TaskSchedulerUtils
     {

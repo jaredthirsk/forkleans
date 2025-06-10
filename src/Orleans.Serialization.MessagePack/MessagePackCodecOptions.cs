@@ -2,7 +2,7 @@ using System;
 using System.Runtime.Serialization;
 using MessagePack;
 
-namespace Orleans.Serialization;
+namespace Forkleans.Serialization;
 
 /// <summary>
 /// Options for <see cref="MessagePackCodec"/>.

@@ -1,9 +1,9 @@
 
 using System;
 using System.Collections.Generic;
-using Orleans.Streams;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.Generator
+namespace Forkleans.Providers.Streams.Generator
 {
     /// <summary>
     /// Interface of generators used by the GeneratorStreamProvider.  Any method of generating events

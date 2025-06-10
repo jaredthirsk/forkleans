@@ -1,8 +1,8 @@
 using System;
 using System.Diagnostics;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Specifies global messaging options that are silo related.

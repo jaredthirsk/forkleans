@@ -1,13 +1,13 @@
 //#define USE_SQL_SERVER
 
 using Microsoft.Extensions.Configuration;
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.General;
 using UnitTests.GrainInterfaces;
 using UnitTests.TimerTests;
-using Orleans.Tests.SqlUtils;
-using Orleans.Internal;
+using Forkleans.Tests.SqlUtils;
+using Forkleans.Internal;
 using Xunit;
 using Microsoft.Extensions.Hosting;
 

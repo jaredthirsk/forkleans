@@ -10,15 +10,15 @@ using System.Diagnostics;
 using System.Collections.Immutable;
 using System.Data;
 using System.Threading;
-using Orleans.Internal;
-using Orleans.Configuration;
-using Orleans.Runtime.Utilities;
+using Forkleans.Internal;
+using Forkleans.Configuration;
+using Forkleans.Runtime.Utilities;
 using System.Runtime.InteropServices;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
-using Orleans.Placement.Repartitioning;
+using Forkleans.Placement.Repartitioning;
 
-namespace Orleans.Runtime.Placement.Repartitioning;
+namespace Forkleans.Runtime.Placement.Repartitioning;
 
 // See: https://www.microsoft.com/en-us/research/wp-content/uploads/2016/06/eurosys16loca_camera_ready-1.pdf
 internal sealed partial class ActivationRepartitioner : SystemTarget, IActivationRepartitionerSystemTarget, ILifecycleParticipant<ISiloLifecycle>, IDisposable, ISiloStatusListener

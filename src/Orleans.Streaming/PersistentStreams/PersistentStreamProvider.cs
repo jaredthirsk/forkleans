@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.Serialization;
-using Orleans.Streams;
-using Orleans.Streams.Core;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.Serialization;
+using Forkleans.Streams;
+using Forkleans.Streams.Core;
 
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// Commands which can be handled by the <see cref="PersistentStreamProvider" />.

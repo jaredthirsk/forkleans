@@ -8,13 +8,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Placement;
-using Orleans.Placement.Rebalancing;
+using Forkleans.Configuration;
+using Forkleans.Placement;
+using Forkleans.Placement.Rebalancing;
 
 #nullable enable
 
-namespace Orleans.Runtime.Placement.Rebalancing;
+namespace Forkleans.Runtime.Placement.Rebalancing;
 
 // See: https://www.ledjonbehluli.com/posts/orleans_adaptive_rebalancing/
 

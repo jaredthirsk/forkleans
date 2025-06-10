@@ -7,14 +7,14 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Placement;
-using Orleans.Runtime.GrainDirectory;
-using Orleans.Runtime.Internal;
-using Orleans.Runtime.Placement.Filtering;
-using Orleans.Runtime.Versions;
+using Forkleans.Configuration;
+using Forkleans.Placement;
+using Forkleans.Runtime.GrainDirectory;
+using Forkleans.Runtime.Internal;
+using Forkleans.Runtime.Placement.Filtering;
+using Forkleans.Runtime.Versions;
 
-namespace Orleans.Runtime.Placement
+namespace Forkleans.Runtime.Placement
 {
     /// <summary>
     /// Central point for placement decisions.

@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Concurrency;
-using Orleans.Configuration;
-using Orleans.Serialization;
+using Forkleans.Concurrency;
+using Forkleans.Configuration;
+using Forkleans.Serialization;
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     internal partial class SystemTargetBasedMembershipTable : IMembershipTable
     {

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Reminders.Redis;
+using Forkleans.Configuration;
+using Forkleans.Reminders.Redis;
 using StackExchange.Redis;
 using TestExtensions;
 using UnitTests;

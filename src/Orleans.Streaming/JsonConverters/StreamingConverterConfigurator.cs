@@ -1,10 +1,10 @@
 #nullable enable
 
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
-using Orleans.Serialization;
+using Forkleans.Runtime;
+using Forkleans.Serialization;
 
-namespace Orleans.Streaming.JsonConverters
+namespace Forkleans.Streaming.JsonConverters
 {
     internal class StreamingConverterConfigurator : IPostConfigureOptions<OrleansJsonSerializerOptions>
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Orleans.Serialization.Session
+namespace Forkleans.Serialization.Session
 {
     /// <summary>
     /// Collection of referenced <see cref="Type"/> instances.

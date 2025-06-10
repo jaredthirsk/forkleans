@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -15,11 +15,11 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <ProjectReference Update="$(SourceRoot)src\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
-    <ProjectReference Update="$(SourceRoot)src\Orleans.Core\Orleans.Core.csproj" />
+    <ProjectReference Update="$(SourceRoot)src\Forkleans.Core.Abstractions\Forkleans.Core.Abstractions.csproj" />
+    <ProjectReference Update="$(SourceRoot)src\Forkleans.Core\Forkleans.Core.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Grains\TestGrainInterfaces\TestGrainInterfaces.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Grains\TestGrains\TestGrains.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.TestingHost\Orleans.TestingHost.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.TestingHost\Orleans.TestingHost.csproj" />
   </ItemGroup>
 
   <Target Name="PostBuildPublish" AfterTargets="Build">

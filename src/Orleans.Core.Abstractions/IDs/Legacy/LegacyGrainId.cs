@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     [Serializable, GenerateSerializer, Immutable]
     public sealed class LegacyGrainId : IEquatable<LegacyGrainId>, IComparable<LegacyGrainId>

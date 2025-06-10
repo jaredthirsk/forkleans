@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     internal static class MembershipTableSnapshotExtensions
     {

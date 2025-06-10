@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Persistence.AdoNet</PackageId>
+    <PackageId>Microsoft.Forkleans.Persistence.AdoNet</PackageId>
     <Title>Microsoft Orleans ADO.NET Persistence Provider</Title>
     <Description>Microsoft Orleans persistence providers backed by ADO.NET</Description>
     <PackageTags>$(PackageTags) ADO.NET SQL MySQL PostgreSQL Oracle</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup>
-    <AssemblyName>Orleans.Persistence.AdoNet</AssemblyName>
-    <RootNamespace>Orleans.Persistence.AdoNet</RootNamespace>
+    <AssemblyName>Forkleans.Persistence.AdoNet</AssemblyName>
+    <RootNamespace>Forkleans.Persistence.AdoNet</RootNamespace>
     <DefineConstants>$(DefineConstants);PERSISTENCE_ADONET</DefineConstants>
   </PropertyGroup>
 
@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Reminders\Orleans.Reminders.csproj" />
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Orleans.Reminders\Orleans.Reminders.csproj" />
+    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
   </ItemGroup>
 
   <ItemGroup>

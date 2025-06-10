@@ -1,13 +1,13 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Streams;
-using Orleans.Configuration;
+using Forkleans.Streams;
+using Forkleans.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration.Overrides;
+using Forkleans.Configuration.Overrides;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     public class EventHubCheckpointerFactory : IStreamQueueCheckpointerFactory
     {

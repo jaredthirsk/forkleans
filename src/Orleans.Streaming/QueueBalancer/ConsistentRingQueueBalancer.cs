@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.Runtime.ConsistentRing;
+using Forkleans.Runtime;
+using Forkleans.Runtime.ConsistentRing;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     internal class ConsistentRingQueueBalancer : QueueBalancerBase, IStreamQueueBalancer, IRingRangeListener
     {

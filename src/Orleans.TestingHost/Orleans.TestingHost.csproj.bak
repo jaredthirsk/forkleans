@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Microsoft.Forkleans.TestingHost</PackageId>
+    <Title>Microsoft Orleans Testing Host Library</Title>
+    <Description>Microsoft Orleans library for hosting a silo in a testing project.</Description>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Persistence.Memory\Forkleans.Persistence.Memory.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Streaming\Forkleans.Streaming.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Reminders\Forkleans.Reminders.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+</Project>

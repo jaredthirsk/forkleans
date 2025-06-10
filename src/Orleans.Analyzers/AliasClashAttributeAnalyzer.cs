@@ -8,7 +8,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Globalization;
 
-namespace Orleans.Analyzers;
+namespace Forkleans.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class AliasClashAttributeAnalyzer : DiagnosticAnalyzer

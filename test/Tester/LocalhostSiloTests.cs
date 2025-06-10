@@ -1,8 +1,8 @@
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Orleans.Internal;
-using Orleans.TestingHost;
+using Forkleans.Internal;
+using Forkleans.TestingHost;
 using UnitTests.GrainInterfaces;
 using Xunit;
 

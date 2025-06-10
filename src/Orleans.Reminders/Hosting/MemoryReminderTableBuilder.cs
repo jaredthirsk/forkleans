@@ -1,12 +1,12 @@
 using Microsoft.Extensions.Configuration;
-using Orleans;
-using Orleans.Hosting;
-using Orleans.Providers;
-using Orleans.Runtime.Hosting.ProviderConfiguration;
+using Forkleans;
+using Forkleans.Hosting;
+using Forkleans.Providers;
+using Forkleans.Runtime.Hosting.ProviderConfiguration;
 
 [assembly: RegisterProvider("Memory", "Reminders", "Silo", typeof(MemoryReminderTableBuilder))]
 
-namespace Orleans.Runtime.Hosting.ProviderConfiguration;
+namespace Forkleans.Runtime.Hosting.ProviderConfiguration;
 
 internal sealed class MemoryReminderTableBuilder : IProviderBuilder<ISiloBuilder>
 {

@@ -2,15 +2,15 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Hosting;
-using Orleans.Persistence;
-using Orleans.Providers;
-using Orleans.Runtime;
-using Orleans.Runtime.Hosting;
-using Orleans.Storage;
+using Forkleans.Configuration;
+using Forkleans.Hosting;
+using Forkleans.Persistence;
+using Forkleans.Providers;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Hosting;
+using Forkleans.Storage;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// <see cref="IServiceCollection"/> extensions.

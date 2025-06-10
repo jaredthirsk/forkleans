@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
-using Orleans.Streams;
+using Forkleans.Configuration;
+using Forkleans.Streams;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Silo-specific configuration builder for recoverable streams.

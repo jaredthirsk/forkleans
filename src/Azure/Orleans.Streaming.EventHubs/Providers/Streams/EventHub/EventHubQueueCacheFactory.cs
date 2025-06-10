@@ -1,11 +1,11 @@
 using System;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Providers.Streams.Common;
-using Orleans.Streams;
-using Orleans.Streaming.EventHubs.StatisticMonitors;
+using Forkleans.Configuration;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Streams;
+using Forkleans.Streaming.EventHubs.StatisticMonitors;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Factory class to configure and create IEventHubQueueCache

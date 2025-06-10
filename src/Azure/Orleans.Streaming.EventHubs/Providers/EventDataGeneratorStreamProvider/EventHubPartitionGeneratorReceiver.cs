@@ -1,11 +1,11 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using Azure.Messaging.EventHubs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Orleans.Streaming.EventHubs.Testing
+namespace Forkleans.Streaming.EventHubs.Testing
 {
     /// <summary>
     /// Eventhub receiver which configured with data generator

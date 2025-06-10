@@ -1,9 +1,9 @@
 using System.Buffers;
 using System.Diagnostics;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Buffers.Adaptors;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Buffers.Adaptors;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 /// <summary>
 /// A mutable builder for creating log segments.

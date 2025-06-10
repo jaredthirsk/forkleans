@@ -1,13 +1,13 @@
 using System;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Specifies options for the <see cref="IPersistentState{TState}"/> constructor argument which it is applied to.
     /// </summary>
     /// <seealso cref="System.Attribute" />
-    /// <seealso cref="Orleans.IFacetMetadata" />
-    /// <seealso cref="Orleans.Runtime.IPersistentStateConfiguration" />
+    /// <seealso cref="Forkleans.IFacetMetadata" />
+    /// <seealso cref="Forkleans.Runtime.IPersistentStateConfiguration" />
     [AttributeUsage(AttributeTargets.Parameter)]
     public class PersistentStateAttribute : Attribute, IFacetMetadata, IPersistentStateConfiguration
     {

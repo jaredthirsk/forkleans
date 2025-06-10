@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>Microsoft.Forkleans.Transactions.AzureStorage</PackageId>
+    <Title>Microsoft Orleans Azure Storage Transactions Provider</Title>
+    <Description>Microsoft Orleans transactions storage provider backed by Azure Storage</Description>
+    <PackageTags>$(PackageTags) Azure Transactions</PackageTags>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <AssemblyName>Forkleans.Transactions.AzureStorage</AssemblyName>
+    <RootNamespace>Forkleans.Transactions.AzureStorage</RootNamespace>
+    <DefineConstants>$(DefineConstants);ORLEANS_TRANSACTIONS</DefineConstants>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\Storage\AzureTableDataManager.cs" Link="Storage\AzureTableDataManager.cs" />
+    <Compile Include="..\Shared\Storage\AzureTableUtils.cs" Link="Storage\AzureTableUtils.cs" />
+    <Compile Include="..\Shared\Storage\AzureStorageOperationOptions.cs" Link="Storage\AzureStorageOperationOptions.cs" />
+    <Compile Include="..\Shared\Storage\AzureStoragePolicyOptions.cs" Link="Storage\AzureStoragePolicyOptions.cs" />
+    <Compile Include="..\Shared\Utilities\ErrorCode.cs" Link="Utilities\ErrorCode.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Core" />
+    <PackageReference Include="Azure.Data.Tables" />
+    <PackageReference Include="System.Net.NameResolution" />
+    <ProjectReference Include="..\..\Forkleans.Transactions\Forkleans.Transactions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

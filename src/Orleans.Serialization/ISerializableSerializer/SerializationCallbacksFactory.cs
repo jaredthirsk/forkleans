@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 using System.Runtime.Serialization;
 using System.Security;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     /// <summary>
     /// Creates delegates for calling methods marked with serialization attributes.

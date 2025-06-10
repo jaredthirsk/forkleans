@@ -1,5 +1,5 @@
-using Orleans.Configuration;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.TestingHost;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -1,6 +1,6 @@
 using System.Threading;
 
-namespace Orleans.Runtime.Internal;
+namespace Forkleans.Runtime.Internal;
 
 /// <summary>
 /// Suppresses the flow of <see cref="ExecutionContext"/> until it is disposed.

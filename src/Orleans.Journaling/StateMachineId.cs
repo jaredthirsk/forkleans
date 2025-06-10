@@ -1,4 +1,4 @@
-﻿namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 /// <summary>
 /// Identifies a state machine.

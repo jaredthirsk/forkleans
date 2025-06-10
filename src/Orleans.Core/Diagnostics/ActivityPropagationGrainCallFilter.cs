@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// A grain call filter which helps to propagate activity correlation information across a call chain.
@@ -14,9 +14,9 @@ namespace Orleans.Runtime
         protected const string TraceStateHeaderName = "tracestate";
 
         internal const string RpcSystem = "orleans";
-        internal const string OrleansNamespacePrefix = "Orleans";
-        internal const string ApplicationGrainActivitySourceName = "Microsoft.Orleans.Application";
-        internal const string RuntimeActivitySourceName = "Microsoft.Orleans.Runtime";
+        internal const string OrleansNamespacePrefix = "Forkleans";
+        internal const string ApplicationGrainActivitySourceName = "Microsoft.Forkleans.Application";
+        internal const string RuntimeActivitySourceName = "Microsoft.Forkleans.Runtime";
 
         protected static readonly ActivitySource ApplicationGrainSource = new(ApplicationGrainActivitySourceName, "1.0.0");
         protected static readonly ActivitySource RuntimeGrainSource = new(RuntimeActivitySourceName, "1.0.0");

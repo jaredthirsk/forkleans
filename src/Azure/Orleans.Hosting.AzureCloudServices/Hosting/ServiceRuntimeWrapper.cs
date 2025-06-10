@@ -4,9 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
-using Orleans.Streams;
+using Forkleans.Streams;
 
-namespace Orleans.Runtime.Host
+namespace Forkleans.Runtime.Host
 {
     /// <summary>
     /// Interface exposed by ServiceRuntimeWrapper for functionality provided

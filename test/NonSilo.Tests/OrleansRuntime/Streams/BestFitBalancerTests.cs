@@ -1,4 +1,4 @@
-using Orleans.Streams;
+using Forkleans.Streams;
 using Xunit;
 
 namespace UnitTests.OrleansRuntime.Streams

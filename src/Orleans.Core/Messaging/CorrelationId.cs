@@ -2,7 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 
 #nullable enable
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     [Serializable, GenerateSerializer, Immutable]
     internal readonly struct CorrelationId : IEquatable<CorrelationId>, IComparable<CorrelationId>, ISpanFormattable

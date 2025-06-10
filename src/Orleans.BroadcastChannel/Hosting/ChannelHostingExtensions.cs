@@ -1,11 +1,11 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.BroadcastChannel;
-using Orleans.BroadcastChannel.SubscriberTable;
-using Orleans.Configuration;
+using Forkleans.BroadcastChannel;
+using Forkleans.BroadcastChannel.SubscriberTable;
+using Forkleans.Configuration;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static class ChannelHostingExtensions
     {

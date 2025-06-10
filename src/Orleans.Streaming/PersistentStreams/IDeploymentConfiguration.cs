@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Interface for accessing the deployment configuration.

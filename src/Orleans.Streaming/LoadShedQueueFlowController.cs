@@ -1,9 +1,9 @@
 
 using System;
-using Orleans.Configuration;
-using Orleans.Statistics;
+using Forkleans.Configuration;
+using Forkleans.Statistics;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Flow control triggered by silo load shedding.

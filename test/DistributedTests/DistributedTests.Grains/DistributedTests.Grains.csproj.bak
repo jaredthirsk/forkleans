@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Streaming\Forkleans.Streaming.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Core.Abstractions\Forkleans.Core.Abstractions.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Reminders\Forkleans.Reminders.csproj" />
+    <ProjectReference Include="$(SourceRoot)test\DistributedTests\DistributedTests.Common\DistributedTests.Common.csproj" />
+  </ItemGroup>
+  
+</Project>

@@ -3,12 +3,12 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Orleans.CodeGenerator.Diagnostics;
-using Orleans.CodeGenerator.SyntaxGeneration;
+using Forkleans.CodeGenerator.Diagnostics;
+using Forkleans.CodeGenerator.SyntaxGeneration;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static Orleans.CodeGenerator.InvokableGenerator;
+using static Forkleans.CodeGenerator.InvokableGenerator;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     internal class SerializerGenerator
     {
@@ -1423,7 +1423,7 @@ namespace Orleans.CodeGenerator
                     .ToTypeSyntax(containingTypeSyntax, fieldType);
 
                 // Generate syntax to initialize the field in the constructor
-                var fieldAccessorUtility = AliasQualifiedName("global", IdentifierName("Orleans.Serialization")).Member("Utilities").Member("FieldAccessor");
+                var fieldAccessorUtility = AliasQualifiedName("global", IdentifierName("Forkleans.Serialization")).Member("Utilities").Member("FieldAccessor");
                 var accessorMethod = setter ? (valueType ? "GetValueSetter" : "GetReferenceSetter") : (valueType ? "GetValueGetter" : "GetGetter");
                 var accessorInvoke = CastExpression(delegateType,
                     InvocationExpression(fieldAccessorUtility.Member(accessorMethod))

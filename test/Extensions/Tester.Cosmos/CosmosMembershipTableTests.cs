@@ -2,8 +2,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TestExtensions;
 using UnitTests.MembershipTests;
-using Orleans.Messaging;
-using Orleans.Clustering.Cosmos;
+using Forkleans.Messaging;
+using Forkleans.Clustering.Cosmos;
 using UnitTests;
 
 namespace Tester.Cosmos.Clustering;
@@ -22,7 +22,7 @@ public class CosmosMembershipTableTests : MembershipTableTestsBase
     {
         var filters = new LoggerFilterOptions();
         filters.AddFilter(typeof(CosmosMembershipTable).FullName, LogLevel.Trace);
-        filters.AddFilter("Orleans.Storage", LogLevel.Trace);
+        filters.AddFilter("Forkleans.Storage", LogLevel.Trace);
         return filters;
     }
 

@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class ZooKeeperClusteringSiloOptions
     {
@@ -21,7 +21,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class ZooKeeperHostingExtensions
     {
@@ -35,11 +35,11 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Runtime.Membership
+namespace Forkleans.Runtime.Membership
 {
     public partial class ZooKeeperBasedMembershipTable : IMembershipTable
     {
-        public ZooKeeperBasedMembershipTable(Microsoft.Extensions.Logging.ILogger<ZooKeeperBasedMembershipTable> logger, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.ZooKeeperClusteringSiloOptions> membershipTableOptions, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.ClusterOptions> clusterOptions) { }
+        public ZooKeeperBasedMembershipTable(Microsoft.Extensions.Logging.ILogger<ZooKeeperBasedMembershipTable> logger, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.ZooKeeperClusteringSiloOptions> membershipTableOptions, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.ClusterOptions> clusterOptions) { }
 
         public System.Threading.Tasks.Task CleanupDefunctSiloEntries(System.DateTimeOffset beforeDate) { throw null; }
 
@@ -58,9 +58,9 @@ namespace Orleans.Runtime.Membership
         public System.Threading.Tasks.Task<bool> UpdateRow(MembershipEntry entry, string etag, TableVersion tableVersion) { throw null; }
     }
 
-    public partial class ZooKeeperGatewayListProvider : Orleans.Messaging.IGatewayListProvider
+    public partial class ZooKeeperGatewayListProvider : Forkleans.Messaging.IGatewayListProvider
     {
-        public ZooKeeperGatewayListProvider(Microsoft.Extensions.Logging.ILogger<ZooKeeperGatewayListProvider> logger, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.ZooKeeperGatewayListProviderOptions> options, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.GatewayOptions> gatewayOptions, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.ClusterOptions> clusterOptions) { }
+        public ZooKeeperGatewayListProvider(Microsoft.Extensions.Logging.ILogger<ZooKeeperGatewayListProvider> logger, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.ZooKeeperGatewayListProviderOptions> options, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.GatewayOptions> gatewayOptions, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.ClusterOptions> clusterOptions) { }
 
         public bool IsUpdatable { get { throw null; } }
 

@@ -3,8 +3,8 @@ using Microsoft.Extensions.Configuration;
 using AWSUtils.Tests.StorageTests;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using Orleans.TestingHost;
-using OrleansAWSUtils.Streams;
+using Forkleans.TestingHost;
+using ForkleansAWSUtils.Streams;
 using TestExtensions;
 using UnitTests.StreamingTests;
 
@@ -34,7 +34,7 @@ namespace AWSUtils.Tests.Streaming
             {
                 hostBuilder
                     .AddMemoryGrainStorage("PubSubStore")
-                    .AddSqsStreams(SQSStreamProviderName, (Action<Orleans.Configuration.SqsOptions>)(options =>
+                    .AddSqsStreams(SQSStreamProviderName, (Action<Forkleans.Configuration.SqsOptions>)(options =>
                     {
                         options.ConnectionString = AWSTestConstants.SqsConnectionString;
                     }));
@@ -46,7 +46,7 @@ namespace AWSUtils.Tests.Streaming
             public void Configure(IConfiguration configuration, IClientBuilder clientBuilder)
             {
                 clientBuilder
-                    .AddSqsStreams(SQSStreamProviderName, (Action<Orleans.Configuration.SqsOptions>)(options =>
+                    .AddSqsStreams(SQSStreamProviderName, (Action<Forkleans.Configuration.SqsOptions>)(options =>
                     {
                         options.ConnectionString = AWSTestConstants.SqsConnectionString;
                     }));

@@ -1,4 +1,4 @@
-namespace Orleans.Reminders.Cosmos;
+namespace Forkleans.Reminders.Cosmos;
 
 /// <summary>
 /// Options for Azure Cosmos DB Reminder Storage.

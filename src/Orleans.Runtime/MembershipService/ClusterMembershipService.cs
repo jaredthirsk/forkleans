@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Internal;
-using Orleans.Runtime.MembershipService;
-using Orleans.Runtime.Utilities;
+using Forkleans.Configuration;
+using Forkleans.Internal;
+using Forkleans.Runtime.MembershipService;
+using Forkleans.Runtime.Utilities;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal partial class ClusterMembershipService : IClusterMembershipService, ILifecycleParticipant<ISiloLifecycle>, IDisposable
     {

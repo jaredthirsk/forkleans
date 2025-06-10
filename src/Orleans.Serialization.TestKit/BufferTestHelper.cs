@@ -1,12 +1,12 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Session;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Session;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Orleans.Serialization.TestKit
+namespace Forkleans.Serialization.TestKit
 {
     /// <summary>
     /// Helper for testing buffer types.

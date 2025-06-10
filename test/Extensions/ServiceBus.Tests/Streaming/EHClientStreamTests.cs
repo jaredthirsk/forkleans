@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Streaming.EventHubs;
-using Orleans.Streams;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Streaming.EventHubs;
+using Forkleans.Streams;
+using Forkleans.TestingHost;
 using ServiceBus.Tests.TestStreamProviders.EventHub;
 using Tester;
 using Tester.StreamingTests;

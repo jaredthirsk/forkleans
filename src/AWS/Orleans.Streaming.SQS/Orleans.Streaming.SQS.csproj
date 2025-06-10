@@ -1,13 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <AssemblyName>Forkleans.Streaming.SQS</AssemblyName>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Orleans.Streaming.SQS</PackageId>
+    <PackageId>Microsoft.Forkleans.Streaming.SQS</PackageId>
     <Title>Microsoft Orleans AWS SQS Streaming Provider</Title>
     <Description>Microsoft Orleans streaming provider backed by AWS SQS</Description>
     <PackageTags>$(PackageTags) AWS SQS</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <DefineConstants>$(DefineConstants);STREAMING_SQS</DefineConstants>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Streaming\Orleans.Streaming.csproj" />
+    <ProjectReference Include="..\..\Orleans.Streaming\Orleans.Streaming.csproj" />
     <PackageReference Include="AWSSDK.SQS" />
   </ItemGroup>
 

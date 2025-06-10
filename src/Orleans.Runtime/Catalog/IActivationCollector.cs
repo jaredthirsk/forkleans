@@ -1,4 +1,4 @@
-﻿namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal interface IActivationCollector
     {

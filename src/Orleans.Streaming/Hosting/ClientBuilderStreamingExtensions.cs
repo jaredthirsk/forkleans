@@ -1,8 +1,8 @@
 using System;
-using Orleans.Providers;
-using Orleans.Streams;
+using Forkleans.Providers;
+using Forkleans.Streams;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static class ClientBuilderStreamingExtensions
     {

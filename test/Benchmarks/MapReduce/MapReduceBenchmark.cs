@@ -1,7 +1,7 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkGrainInterfaces.MapReduce;
 using BenchmarkGrains.MapReduce;
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 
 namespace Benchmarks.MapReduce
 {

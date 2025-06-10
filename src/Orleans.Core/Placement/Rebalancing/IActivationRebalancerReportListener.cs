@@ -1,4 +1,4 @@
-namespace Orleans.Placement.Rebalancing;
+namespace Forkleans.Placement.Rebalancing;
 
 /// <summary>
 /// Interface for types which listen to rebalancer status changes.

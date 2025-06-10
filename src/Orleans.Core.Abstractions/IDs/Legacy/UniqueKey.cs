@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     [Serializable, GenerateSerializer, Immutable]
     [SuppressReferenceTracking]

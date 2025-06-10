@@ -2,10 +2,10 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Orleans.Runtime;
-using Orleans.Threading;
+using Forkleans.Runtime;
+using Forkleans.Threading;
 
-namespace Orleans.Timers.Internal
+namespace Forkleans.Timers.Internal
 {
     /// <summary>
     /// Provides functionality for managing single-shot timers.

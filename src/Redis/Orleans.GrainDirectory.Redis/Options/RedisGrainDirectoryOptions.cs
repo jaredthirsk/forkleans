@@ -1,10 +1,10 @@
 using System;
 using System.Threading.Tasks;
-using Orleans.GrainDirectory.Redis;
-using Orleans.Runtime;
+using Forkleans.GrainDirectory.Redis;
+using Forkleans.Runtime;
 using StackExchange.Redis;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Configuration options for the <see cref="RedisGrainDirectory"/>

@@ -7,9 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions.TestKit.Correctnesss
+namespace Forkleans.Transactions.TestKit.Correctnesss
 {
     [Serializable]
     [GenerateSerializer]

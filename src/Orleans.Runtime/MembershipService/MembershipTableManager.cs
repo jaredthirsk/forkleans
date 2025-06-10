@@ -8,12 +8,12 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Internal;
-using Orleans.Runtime.Utilities;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Configuration;
+using Forkleans.Internal;
+using Forkleans.Runtime.Utilities;
+using Forkleans.Serialization.TypeSystem;
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     internal partial class MembershipTableManager : IHealthCheckParticipant, ILifecycleParticipant<ISiloLifecycle>, IDisposable
     {

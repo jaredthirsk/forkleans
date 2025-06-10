@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     [Alias("json")]
     public partial class JsonCodec : Serializers.IGeneralizedCodec, Codecs.IFieldCodec, Cloning.IGeneralizedCopier, Cloning.IDeepCopier, ITypeFilter

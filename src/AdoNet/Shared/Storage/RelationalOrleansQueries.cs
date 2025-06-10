@@ -4,24 +4,24 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
 #nullable disable
 
 #if CLUSTERING_ADONET
-namespace Orleans.Clustering.AdoNet.Storage
+namespace Forkleans.Clustering.AdoNet.Storage
 #elif PERSISTENCE_ADONET
-namespace Orleans.Persistence.AdoNet.Storage
+namespace Forkleans.Persistence.AdoNet.Storage
 #elif REMINDERS_ADONET
-namespace Orleans.Reminders.AdoNet.Storage
+namespace Forkleans.Reminders.AdoNet.Storage
 #elif STREAMING_ADONET
-namespace Orleans.Streaming.AdoNet.Storage
+namespace Forkleans.Streaming.AdoNet.Storage
 #elif GRAINDIRECTORY_ADONET
-namespace Orleans.GrainDirectory.AdoNet.Storage
+namespace Forkleans.GrainDirectory.AdoNet.Storage
 #elif TESTER_SQLUTILS
-using Orleans.Streaming.AdoNet;
-using Orleans.GrainDirectory.AdoNet;
-namespace Orleans.Tests.SqlUtils
+using Forkleans.Streaming.AdoNet;
+using Forkleans.GrainDirectory.AdoNet;
+namespace Forkleans.Tests.SqlUtils
 #else
 // No default namespace intentionally to cause compile errors if something is not defined
 #endif

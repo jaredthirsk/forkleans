@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.AzureQueue
+namespace Forkleans.Providers.Streams.AzureQueue
 {
     /// <summary>
     /// Second version of AzureQueueBatchContainer.  This version supports external serializers (like json)

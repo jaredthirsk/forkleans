@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.GrainDirectory;
+using Forkleans.Configuration;
+using Forkleans.GrainDirectory;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static class AzureTableGrainDirectorySiloBuilderExtensions
     {

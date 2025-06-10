@@ -1,4 +1,4 @@
-namespace Orleans.Clustering.Cosmos;
+namespace Forkleans.Clustering.Cosmos;
 
 /// <summary>
 /// Options for configuring Azure Cosmos DB clustering.

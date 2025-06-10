@@ -2,11 +2,11 @@ using System;
 using System.Net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Orleans.Runtime;
-using Orleans.GrainReferences;
+using Forkleans.Runtime;
+using Forkleans.GrainReferences;
 using Microsoft.Extensions.Options;
 
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
 
     /// <summary>

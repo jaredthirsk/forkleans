@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Serialization
+namespace Forkleans.Serialization
 {
     [RegisterSerializer]
     public sealed partial class ByteStringCodec : Codecs.IFieldCodec<Google.Protobuf.ByteString>, Codecs.IFieldCodec

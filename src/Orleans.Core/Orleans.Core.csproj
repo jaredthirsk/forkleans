@@ -1,11 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Core</PackageId>
+    <AssemblyName>Forkleans.Core</AssemblyName>
+    <PackageId>Microsoft.Forkleans.Core</PackageId>
     <Title>Microsoft Orleans Core Library</Title>
     <Description>Core library of Microsoft Orleans used both on the client and server.</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <RootNamespace>Orleans</RootNamespace>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <RootNamespace>Forkleans</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
@@ -18,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
+    <ProjectReference Include="..\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Connections.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Configuration" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />

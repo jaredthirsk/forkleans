@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Orleans.Runtime;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Runtime;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions
+namespace Forkleans.Transactions
 {
     [Serializable, GenerateSerializer, Immutable]
     public readonly struct ParticipantId

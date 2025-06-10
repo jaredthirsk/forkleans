@@ -6,10 +6,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Internal;
-using Orleans.Runtime.Internal;
+using Forkleans.Internal;
+using Forkleans.Runtime.Internal;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Maintains a list of activations which are recently active.

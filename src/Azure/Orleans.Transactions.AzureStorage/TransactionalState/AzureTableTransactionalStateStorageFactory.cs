@@ -6,11 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.Transactions.Abstractions;
 
-namespace Orleans.Transactions.AzureStorage
+namespace Forkleans.Transactions.AzureStorage
 {
     public class AzureTableTransactionalStateStorageFactory : ITransactionalStateStorageFactory, ILifecycleParticipant<ISiloLifecycle>
     {

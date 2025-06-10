@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace Orleans.Serialization.Configuration
+namespace Forkleans.Serialization.Configuration
 {
     /// <summary>
     /// Provides type manifest information.

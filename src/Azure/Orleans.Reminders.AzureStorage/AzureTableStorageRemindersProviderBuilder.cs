@@ -4,15 +4,15 @@ using Azure.Data.Tables;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans;
-using Orleans.Configuration;
-using Orleans.Hosting;
-using Orleans.Providers;
-using Orleans.Reminders.AzureStorage;
+using Forkleans;
+using Forkleans.Configuration;
+using Forkleans.Hosting;
+using Forkleans.Providers;
+using Forkleans.Reminders.AzureStorage;
 
 [assembly: RegisterProvider("AzureTableStorage", "Reminders", "Silo", typeof(AzureTableStorageRemindersProviderBuilder))]
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 internal sealed class AzureTableStorageRemindersProviderBuilder : IProviderBuilder<ISiloBuilder>
 {

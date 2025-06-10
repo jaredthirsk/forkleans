@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Internal
+namespace Forkleans.Internal
 {
     /// <summary>
     /// Random TimeSpan generator

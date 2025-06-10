@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class AdoNetStreamOptions
     {
@@ -38,7 +38,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public partial class ClusterClientAdoNetStreamConfigurator : ClusterClientPersistentStreamConfigurator
     {
@@ -77,7 +77,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Streaming.AdoNet.Storage
+namespace Forkleans.Streaming.AdoNet.Storage
 {
     public partial class OrleansRelationalDownloadStream : System.IO.Stream
     {

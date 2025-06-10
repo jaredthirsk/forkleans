@@ -1,6 +1,6 @@
-using Orleans.Serialization.Activators;
+using Forkleans.Serialization.Activators;
 
-namespace Orleans.Serialization.Serializers
+namespace Forkleans.Serialization.Serializers
 {
     /// <summary>
     /// Provides activators.

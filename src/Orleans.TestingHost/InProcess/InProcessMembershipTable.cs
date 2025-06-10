@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System.Globalization;
 using System.Threading.Tasks;
-using Orleans.Messaging;
+using Forkleans.Messaging;
 
-namespace Orleans.TestingHost.InProcess;
+namespace Forkleans.TestingHost.InProcess;
 
 /// <summary>
 /// An in-memory implementation of <see cref="IMembershipTable"/> for testing purposes.

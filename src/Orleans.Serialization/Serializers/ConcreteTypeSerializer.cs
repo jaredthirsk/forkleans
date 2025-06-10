@@ -1,12 +1,12 @@
-using Orleans.Serialization.Activators;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Codecs;
-using Orleans.Serialization.GeneratedCodeHelpers;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Activators;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Codecs;
+using Forkleans.Serialization.GeneratedCodeHelpers;
+using Forkleans.Serialization.WireProtocol;
 using System;
 using System.Buffers;
 
-namespace Orleans.Serialization.Serializers
+namespace Forkleans.Serialization.Serializers
 {
     /// <summary>
     /// Serializer for reference types which can be instantiated.

@@ -5,11 +5,11 @@ using System.Net;
 using System.Threading.Tasks;
 using Cassandra;
 using Microsoft.Extensions.Options;
-using Orleans.Clustering.Cassandra.Hosting;
-using Orleans.Configuration;
-using Orleans.Runtime;
+using Forkleans.Clustering.Cassandra.Hosting;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
 
-namespace Orleans.Clustering.Cassandra;
+namespace Forkleans.Clustering.Cassandra;
 
 internal sealed class CassandraClusteringTable : IMembershipTable
 {

@@ -1,11 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.Configuration.Internal;
+using Forkleans.Runtime;
+using Forkleans.Configuration.Internal;
 using System.Linq;
-using Orleans.Runtime.ReminderService;
-using Orleans.Timers;
+using Forkleans.Runtime.ReminderService;
+using Forkleans.Timers;
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 public static class SiloBuilderReminderExtensions
 {

@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
-using Orleans;
-using Orleans.Internal;
+using Forkleans;
+using Forkleans.Internal;
 using Xunit;
 using Xunit.Abstractions;
 

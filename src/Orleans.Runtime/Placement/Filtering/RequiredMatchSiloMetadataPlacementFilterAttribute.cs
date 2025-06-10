@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Orleans.Placement;
+using Forkleans.Placement;
 
 #nullable enable
-namespace Orleans.Runtime.Placement.Filtering;
+namespace Forkleans.Runtime.Placement.Filtering;
 
 /// <summary>
 /// Attribute to specify that a silo must have a specific metadata key-value pair matching the local (calling) silo to be considered for placement.

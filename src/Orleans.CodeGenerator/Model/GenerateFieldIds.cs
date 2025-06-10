@@ -1,4 +1,4 @@
-namespace Orleans.CodeGenerator.Model;
+namespace Forkleans.CodeGenerator.Model;
 
 /// <summary>
 /// This enum provides options for controlling the field id generation logic.

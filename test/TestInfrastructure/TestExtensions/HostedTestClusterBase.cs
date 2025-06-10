@@ -1,8 +1,8 @@
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Serialization;
-using Orleans.TestingHost;
+using Forkleans.Serialization;
+using Forkleans.TestingHost;
 using Xunit;
 
 namespace TestExtensions

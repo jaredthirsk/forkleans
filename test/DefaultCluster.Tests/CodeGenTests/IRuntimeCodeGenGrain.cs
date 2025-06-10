@@ -5,8 +5,8 @@ namespace Tester.CodeGenTests
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Orleans;
-    using Orleans.Providers;
+    using Forkleans;
+    using Forkleans.Providers;
 
     // Regression test for explicit interface method implementations https://github.com/dotnet/orleans/issues/8991
     public interface IExplicitInterfaceMethodImplementationTestGenericBase<in T>

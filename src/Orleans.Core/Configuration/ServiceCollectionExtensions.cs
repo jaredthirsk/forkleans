@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Orleans.Configuration.Internal
+namespace Forkleans.Configuration.Internal
 {
     /// <summary>
     /// Extension methods for configuring dependency injection.

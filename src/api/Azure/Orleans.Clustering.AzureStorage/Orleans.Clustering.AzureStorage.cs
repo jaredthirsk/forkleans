@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Clustering.AzureStorage
+namespace Forkleans.Clustering.AzureStorage
 {
     public partial class AzureStorageClusteringOptions : AzureStorageOperationOptions
     {
@@ -87,7 +87,7 @@ namespace Orleans.Clustering.AzureStorage
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class AzureTableClusteringExtensions
     {

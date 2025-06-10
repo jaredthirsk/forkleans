@@ -1,7 +1,7 @@
 using System.Net;
-using Orleans.Clustering.Cosmos.Models;
+using Forkleans.Clustering.Cosmos.Models;
 
-namespace Orleans.Clustering.Cosmos;
+namespace Forkleans.Clustering.Cosmos;
 
 internal partial class CosmosMembershipTable : IMembershipTable
 {

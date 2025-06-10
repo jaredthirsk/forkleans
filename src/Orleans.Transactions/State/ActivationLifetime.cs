@@ -1,9 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Transactions.State
+namespace Forkleans.Transactions.State
 {
     internal class ActivationLifetime : IActivationLifetime, ILifecycleObserver
     {

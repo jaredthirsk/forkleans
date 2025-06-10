@@ -1,7 +1,7 @@
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.WireProtocol;
 
-namespace Orleans.Serialization.Codecs
+namespace Forkleans.Serialization.Codecs
 {
     /// <summary>
     /// Extension methods for consuming unknown fields.

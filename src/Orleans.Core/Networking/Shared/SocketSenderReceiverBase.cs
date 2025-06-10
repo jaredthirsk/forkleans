@@ -2,7 +2,7 @@ using System;
 using System.IO.Pipelines;
 using System.Net.Sockets;
 
-namespace Orleans.Networking.Shared
+namespace Forkleans.Networking.Shared
 {
     internal abstract class SocketSenderReceiverBase : IDisposable
     {

@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public partial class SqsOptions
     {
@@ -15,7 +15,7 @@ namespace Orleans.Configuration
     }
 }
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class ClientBuilderExtensions
     {
@@ -52,23 +52,23 @@ namespace Orleans.Hosting
     }
 }
 
-namespace OrleansAWSUtils.Streams
+namespace ForkleansAWSUtils.Streams
 {
-    public partial class SQSAdapterFactory : Orleans.Streams.IQueueAdapterFactory
+    public partial class SQSAdapterFactory : Forkleans.Streams.IQueueAdapterFactory
     {
-        public SQSAdapterFactory(string name, Orleans.Configuration.SqsOptions sqsOptions, Orleans.Configuration.HashRingStreamQueueMapperOptions queueMapperOptions, Orleans.Configuration.SimpleQueueCacheOptions cacheOptions, Microsoft.Extensions.Options.IOptions<Orleans.Configuration.ClusterOptions> clusterOptions, Orleans.Serialization.Serializer serializer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) { }
+        public SQSAdapterFactory(string name, Forkleans.Configuration.SqsOptions sqsOptions, Forkleans.Configuration.HashRingStreamQueueMapperOptions queueMapperOptions, Forkleans.Configuration.SimpleQueueCacheOptions cacheOptions, Microsoft.Extensions.Options.IOptions<Forkleans.Configuration.ClusterOptions> clusterOptions, Forkleans.Serialization.Serializer serializer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) { }
 
-        protected System.Func<Orleans.Streams.QueueId, System.Threading.Tasks.Task<Orleans.Streams.IStreamFailureHandler>> StreamFailureHandlerFactory { set { } }
+        protected System.Func<Forkleans.Streams.QueueId, System.Threading.Tasks.Task<Forkleans.Streams.IStreamFailureHandler>> StreamFailureHandlerFactory { set { } }
 
         public static SQSAdapterFactory Create(System.IServiceProvider services, string name) { throw null; }
 
-        public virtual System.Threading.Tasks.Task<Orleans.Streams.IQueueAdapter> CreateAdapter() { throw null; }
+        public virtual System.Threading.Tasks.Task<Forkleans.Streams.IQueueAdapter> CreateAdapter() { throw null; }
 
-        public System.Threading.Tasks.Task<Orleans.Streams.IStreamFailureHandler> GetDeliveryFailureHandler(Orleans.Streams.QueueId queueId) { throw null; }
+        public System.Threading.Tasks.Task<Forkleans.Streams.IStreamFailureHandler> GetDeliveryFailureHandler(Forkleans.Streams.QueueId queueId) { throw null; }
 
-        public virtual Orleans.Streams.IQueueAdapterCache GetQueueAdapterCache() { throw null; }
+        public virtual Forkleans.Streams.IQueueAdapterCache GetQueueAdapterCache() { throw null; }
 
-        public Orleans.Streams.IStreamQueueMapper GetStreamQueueMapper() { throw null; }
+        public Forkleans.Streams.IStreamQueueMapper GetStreamQueueMapper() { throw null; }
 
         public virtual void Init() { }
     }

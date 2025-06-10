@@ -4,8 +4,8 @@ using Benchmarks.Models;
 using Benchmarks.Serialization.Models;
 using Benchmarks.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Serialization;
-using Orleans.Serialization.Session;
+using Forkleans.Serialization;
+using Forkleans.Serialization.Session;
 
 namespace Benchmarks.Serialization.Comparison;
 

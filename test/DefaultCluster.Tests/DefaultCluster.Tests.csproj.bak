@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NodaTime" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Serialization\Forkleans.Serialization.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Serialization.FSharp\Forkleans.Serialization.FSharp.csproj" />
+    <ProjectReference Include="$(SourceRoot)test\Tester\Tester.csproj" />
+    <ProjectReference Include="$(SourceRoot)test\Misc\TestInternalDtosRefOrleans\TestInternalDtosRefForkleans.csproj" />
+  </ItemGroup>
+</Project>

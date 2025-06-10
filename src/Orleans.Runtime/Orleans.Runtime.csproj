@@ -1,15 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Runtime</PackageId>
+    <AssemblyName>Forkleans.Runtime</AssemblyName>
+    <PackageId>Microsoft.Forkleans.Runtime</PackageId>
     <Title>Microsoft Orleans Runtime</Title>
     <Description>Core runtime library of Microsoft Orleans that hosts and executes grains within a silo.</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\\Orleans.Core\Orleans.Core.csproj" />
+    <ProjectReference Include="..\Orleans.Core\Orleans.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

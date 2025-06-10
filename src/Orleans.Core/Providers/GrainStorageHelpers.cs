@@ -2,9 +2,9 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Providers;
+using Forkleans.Providers;
 
-namespace Orleans.Storage;
+namespace Forkleans.Storage;
 
 /// <summary>
 /// Utility functions for grain storage.

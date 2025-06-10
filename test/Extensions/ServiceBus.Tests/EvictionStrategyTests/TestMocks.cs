@@ -1,8 +1,8 @@
-using Orleans.Providers.Streams.Common;
-using Orleans.Streaming.EventHubs;
-using Orleans.Streams;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Streaming.EventHubs;
+using Forkleans.Streams;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using Azure.Messaging.EventHubs;
 
 namespace ServiceBus.Tests.EvictionStrategyTests
@@ -30,7 +30,7 @@ namespace ServiceBus.Tests.EvictionStrategyTests
         private long sequenceNumberCounter = 0;
         private readonly int eventIndex = 1;
         private readonly string eventHubOffset = "OffSet";
-        public MockEventHubCacheAdaptor(Orleans.Serialization.Serializer serializer) : base(serializer)
+        public MockEventHubCacheAdaptor(Forkleans.Serialization.Serializer serializer) : base(serializer)
         { }
 
         public override StreamPosition GetStreamPosition(string partition, EventData queueMessage)

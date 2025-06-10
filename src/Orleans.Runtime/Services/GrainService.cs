@@ -3,11 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime.ConsistentRing;
-using Orleans.Runtime.Scheduler;
-using Orleans.Services;
+using Forkleans.Runtime.ConsistentRing;
+using Forkleans.Runtime.Scheduler;
+using Forkleans.Services;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>Base class for implementing a grain-like partitioned service with per silo instances of it automatically instantiated and started by silo runtime</summary>
     public abstract partial class GrainService : SystemTarget, IRingRangeListener, IGrainService

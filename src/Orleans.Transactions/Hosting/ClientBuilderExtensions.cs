@@ -1,4 +1,4 @@
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static class ClientBuilderExtensions
     {

@@ -2,11 +2,11 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Orleans.Providers.Streams.AzureQueue;
-using Orleans.Configuration;
-using Orleans.Streams;
+using Forkleans.Providers.Streams.AzureQueue;
+using Forkleans.Configuration;
+using Forkleans.Streams;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public interface IAzureQueueStreamConfigurator : INamedServiceConfigurator { }
 

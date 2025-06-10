@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Reflection;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal static class RuntimeVersion
     {

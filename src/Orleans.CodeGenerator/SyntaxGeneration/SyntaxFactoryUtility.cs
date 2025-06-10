@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Orleans.CodeGenerator.SyntaxGeneration
+namespace Forkleans.CodeGenerator.SyntaxGeneration
 {
     internal static class SyntaxFactoryUtility
     {

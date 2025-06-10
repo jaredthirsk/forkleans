@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Configuration;
-using Orleans;
-using Orleans.Hosting;
-using Orleans.Providers;
+using Forkleans;
+using Forkleans.Hosting;
+using Forkleans.Providers;
 
 [assembly: RegisterProvider("DynamoDB", "Reminders", "Silo", typeof(DynamoDBRemindersProviderBuilder))]
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 internal sealed class DynamoDBRemindersProviderBuilder : IProviderBuilder<ISiloBuilder>
 {

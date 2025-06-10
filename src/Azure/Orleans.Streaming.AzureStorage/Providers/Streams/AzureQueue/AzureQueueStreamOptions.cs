@@ -5,10 +5,10 @@ using Azure;
 using Azure.Core;
 using Azure.Storage;
 using Azure.Storage.Queues;
-using Orleans.AzureUtils;
-using Orleans.Runtime;
+using Forkleans.AzureUtils;
+using Forkleans.Runtime;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Azure queue stream provider options.

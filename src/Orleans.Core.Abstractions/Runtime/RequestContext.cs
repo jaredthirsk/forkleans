@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Orleans.Core.Internal;
+using Forkleans.Core.Internal;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// This class holds information regarding the request currently being processed.

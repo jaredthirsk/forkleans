@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Serialization;
-using Orleans.Streams;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Serialization;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.AzureQueue
+namespace Forkleans.Providers.Streams.AzureQueue
 {
     /// <summary>
     /// Original data adapter.  Here to maintain backwards compatibility, but does not support json and other custom serializers

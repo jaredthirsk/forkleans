@@ -1,4 +1,4 @@
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// Aggregation dimensions for receiver monitor.

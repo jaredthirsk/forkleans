@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Orleans.Runtime")]
+[assembly: InternalsVisibleTo("Forkleans.Runtime")]
 
 [assembly: InternalsVisibleTo("TestInternalGrains")]
 [assembly: InternalsVisibleTo("TesterInternal")]

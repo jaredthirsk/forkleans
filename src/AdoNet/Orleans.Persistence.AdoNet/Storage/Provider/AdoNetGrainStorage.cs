@@ -1,6 +1,6 @@
-using Orleans.Persistence.AdoNet.Storage;
-using Orleans.Providers;
-using Orleans.Runtime;
+using Forkleans.Persistence.AdoNet.Storage;
+using Forkleans.Providers;
+using Forkleans.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,20 +13,20 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration.Overrides;
-using Orleans.Configuration;
-using Orleans.Runtime.Configuration;
-using Orleans.Serialization.Serializers;
+using Forkleans.Configuration.Overrides;
+using Forkleans.Configuration;
+using Forkleans.Runtime.Configuration;
+using Forkleans.Serialization.Serializers;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Logging codes used by <see cref="AdoNetGrainStorage"/>.
     /// </summary>
-    /// <remarks> These are taken from <em>Orleans.Providers.ProviderErrorCode</em> and <em>Orleans.Providers.AzureProviderErrorCode</em>.</remarks>
+    /// <remarks> These are taken from <em>Forkleans.Providers.ProviderErrorCode</em> and <em>Forkleans.Providers.AzureProviderErrorCode</em>.</remarks>
     internal enum RelationalStorageProviderCodes
     {
-        //These is from Orleans.Providers.ProviderErrorCode and Orleans.Providers.AzureProviderErrorCode.
+        //These is from Forkleans.Providers.ProviderErrorCode and Forkleans.Providers.AzureProviderErrorCode.
         ProvidersBase = 200000,
 
         RelationalProviderBase = ProvidersBase + 400,

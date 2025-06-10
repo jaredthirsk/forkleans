@@ -1,4 +1,4 @@
-namespace Orleans;
+namespace Forkleans;
 
 internal static class RemindersConstants
 {

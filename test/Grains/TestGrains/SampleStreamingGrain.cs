@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
-using Orleans;
-using Orleans.Streams;
+using Forkleans;
+using Forkleans.Streams;
 using UnitTests.GrainInterfaces;
 
 namespace UnitTests.Grains

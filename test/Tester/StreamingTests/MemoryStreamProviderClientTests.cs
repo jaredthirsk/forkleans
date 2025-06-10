@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Providers;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Providers;
+using Forkleans.TestingHost;
 using TestExtensions;
 using Xunit;
 using Xunit.Abstractions;

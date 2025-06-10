@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Net;
 using Microsoft.Extensions.Configuration;
-using Orleans;
-using Orleans.Hosting;
-using Orleans.Providers;
+using Forkleans;
+using Forkleans.Hosting;
+using Forkleans.Providers;
 
 [assembly: RegisterProvider("Development", "Clustering", "Client", typeof(StaticGatewayListProviderBuilder))]
 [assembly: RegisterProvider("Static", "Clustering", "Client", typeof(StaticGatewayListProviderBuilder))]
 
-namespace Orleans.Providers;
+namespace Forkleans.Providers;
 
 internal sealed class StaticGatewayListProviderBuilder : IProviderBuilder<IClientBuilder>
 {

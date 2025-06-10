@@ -1,4 +1,4 @@
-namespace Orleans.Serialization.Serializers
+namespace Forkleans.Serialization.Serializers
 {
     /// <summary>
     /// Provides access to <see cref="IBaseCodec{T}"/> implementations.

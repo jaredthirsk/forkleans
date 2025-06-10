@@ -3,12 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.AzureUtils;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.AzureUtils;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.AzureQueue
+namespace Forkleans.Providers.Streams.AzureQueue
 {
     internal sealed class AzureQueueAdapter : IQueueAdapter
     {

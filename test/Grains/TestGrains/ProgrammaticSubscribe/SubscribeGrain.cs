@@ -1,6 +1,6 @@
-using Orleans.Streams;
-using Orleans.Runtime;
-using Orleans.Streams.PubSub;
+using Forkleans.Streams;
+using Forkleans.Runtime;
+using Forkleans.Streams.PubSub;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace UnitTests.Grains.ProgrammaticSubscribe

@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// The prefer local placement strategy indicates that a grain should always be placed on the local host if the grain

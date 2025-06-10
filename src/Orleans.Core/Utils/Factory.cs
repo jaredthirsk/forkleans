@@ -1,4 +1,4 @@
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Creates an instance of <typeparamref name="TInstance"/>.

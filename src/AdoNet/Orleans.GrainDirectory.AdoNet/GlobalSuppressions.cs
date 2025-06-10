@@ -5,5 +5,5 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Style", "IDE0130:Namespace does not match folder structure", Justification = "N/A", Scope = "namespace", Target = "~N:Orleans.Configuration")]
-[assembly: SuppressMessage("Style", "IDE0130:Namespace does not match folder structure", Justification = "N/A", Scope = "namespace", Target = "~N:Orleans.Hosting")]
+[assembly: SuppressMessage("Style", "IDE0130:Namespace does not match folder structure", Justification = "N/A", Scope = "namespace", Target = "~N:Forkleans.Configuration")]
+[assembly: SuppressMessage("Style", "IDE0130:Namespace does not match folder structure", Justification = "N/A", Scope = "namespace", Target = "~N:Forkleans.Hosting")]

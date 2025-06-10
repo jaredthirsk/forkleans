@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>Microsoft.Forkleans.Persistence.DynamoDB</PackageId>
+    <Title>Microsoft Orleans AWS DynamoDB Persistence Provider</Title>
+    <Description>Microsoft Orleans persistence providers backed by AWS DynamoDB</Description>
+    <PackageTags>$(PackageTags) AWS DynamoDB</PackageTags>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyName>Forkleans.Persistence.DynamoDB</AssemblyName>
+    <RootNamespace>Forkleans.Persistence.DynamoDB</RootNamespace>
+    <DefineConstants>$(DefineConstants);PERSISTENCE_DYNAMODB</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\AWSUtils.cs" Link="AWSUtils.cs" />
+    <Compile Include="..\Shared\Storage\DynamoDBStorage.cs" Link="Storage\DynamoDBStorage.cs" />
+    <Compile Include="..\Shared\Storage\DynamoDBClientOptions.cs" Link="Storage\DynamoDBClientOptions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

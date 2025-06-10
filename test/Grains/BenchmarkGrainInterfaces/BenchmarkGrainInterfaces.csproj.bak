@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Core.Abstractions\Forkleans.Core.Abstractions.csproj" />
+    <ProjectReference Include="$(SourceRoot)src\Forkleans.Transactions\Forkleans.Transactions.csproj" />
+  </ItemGroup>
+</Project>

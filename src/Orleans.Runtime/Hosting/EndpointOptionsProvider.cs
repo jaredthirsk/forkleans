@@ -3,9 +3,9 @@ using System.Net;
 using System.Net.Sockets;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Runtime.Configuration;
+using Forkleans.Runtime.Configuration;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     internal partial class EndpointOptionsProvider : IPostConfigureOptions<EndpointOptions>
     {

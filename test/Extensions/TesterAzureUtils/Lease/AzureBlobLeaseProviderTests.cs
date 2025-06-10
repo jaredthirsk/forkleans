@@ -1,7 +1,7 @@
 using Xunit.Abstractions;
-using Orleans.LeaseProviders;
+using Forkleans.LeaseProviders;
 using TestExtensions.Runners;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace Tester.AzureUtils.Lease

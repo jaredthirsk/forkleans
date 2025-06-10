@@ -1,4 +1,4 @@
-namespace Orleans.GrainDirectory.AdoNet;
+namespace Forkleans.GrainDirectory.AdoNet;
 
 /// <summary>
 /// The model that represents a grain activation in an ADONET grain directory.

@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Orleans.GrainDirectory;
+using Forkleans.GrainDirectory;
 
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     /// <summary>
     /// Provides functionality for locating grain activations in a cluster and registering the location of grain activations.

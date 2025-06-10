@@ -5,11 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.Serialization;
-using Orleans.Serialization.Invocation;
+using Forkleans.Runtime;
+using Forkleans.Serialization;
+using Forkleans.Serialization.Invocation;
 
-namespace Orleans
+namespace Forkleans
 {
     internal sealed partial class InvokableObjectManager : IDisposable
     {

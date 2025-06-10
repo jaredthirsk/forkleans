@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
-namespace Orleans.Runtime.Configuration
+namespace Forkleans.Runtime.Configuration
 {
     /// <summary>
     /// Utilities class for working with configuration.

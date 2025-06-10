@@ -1,10 +1,10 @@
 using System.Net;
 using Cassandra;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Clustering.Cassandra;
-using Orleans.Clustering.Cassandra.Hosting;
-using Orleans.Configuration;
-using Orleans.Messaging;
+using Forkleans.Clustering.Cassandra;
+using Forkleans.Clustering.Cassandra.Hosting;
+using Forkleans.Configuration;
+using Forkleans.Messaging;
 using Tester.Cassandra.Utility;
 using Xunit;
 using Xunit.Abstractions;

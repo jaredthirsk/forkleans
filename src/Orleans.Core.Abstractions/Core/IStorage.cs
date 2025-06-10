@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Orleans.Core
+namespace Forkleans.Core
 {
     /// <summary>
     /// Provides method for operating on grain storage.

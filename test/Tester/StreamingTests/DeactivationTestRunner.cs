@@ -1,9 +1,9 @@
-using Orleans.Streams;
-using Orleans.Internal;
+using Forkleans.Streams;
+using Forkleans.Internal;
 using UnitTests.GrainInterfaces;
 using Xunit;
-using Orleans.Runtime;
-using Orleans.Core.Internal;
+using Forkleans.Runtime;
+using Forkleans.Core.Internal;
 
 namespace UnitTests.StreamingTests
 {

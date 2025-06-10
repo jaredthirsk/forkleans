@@ -7,12 +7,12 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NonSilo.Tests.Utilities;
 using NSubstitute;
-using Orleans;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.Runtime.GrainDirectory;
-using Orleans.Runtime.Messaging;
-using Orleans.Runtime.Scheduler;
+using Forkleans;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.Runtime.GrainDirectory;
+using Forkleans.Runtime.Messaging;
+using Forkleans.Runtime.Scheduler;
 using UnitTests.Directory;
 using Xunit;
 

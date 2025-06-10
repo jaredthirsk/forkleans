@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.GrainDirectory;
+using Forkleans.Configuration;
+using Forkleans.GrainDirectory;
 
 #nullable enable
-namespace Orleans.Runtime.GrainDirectory
+namespace Forkleans.Runtime.GrainDirectory
 {
     [Serializable]
     internal sealed class GrainInfo

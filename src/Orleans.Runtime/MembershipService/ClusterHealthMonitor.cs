@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Internal;
-using static Orleans.Runtime.MembershipService.SiloHealthMonitor;
+using Forkleans.Configuration;
+using Forkleans.Internal;
+using static Forkleans.Runtime.MembershipService.SiloHealthMonitor;
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     /// <summary>
     /// Responsible for ensuring that this silo monitors other silos in the cluster.

@@ -1,7 +1,7 @@
 using System;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 
-namespace Orleans.Runtime.MembershipService;
+namespace Forkleans.Runtime.MembershipService;
 
 internal static class MembershipTableEntryExtensions
 {

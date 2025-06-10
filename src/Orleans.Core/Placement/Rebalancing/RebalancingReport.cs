@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Immutable;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Placement.Rebalancing;
+namespace Forkleans.Placement.Rebalancing;
 
 /// <summary>
 /// The status of the <see cref="IActivationRebalancerWorker"/>.

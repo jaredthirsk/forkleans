@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// Provides functionality for serializing and deserializing grain state, delegating to a prefered and fallback implementation of <see cref="IGrainStorageSerializer"/>.

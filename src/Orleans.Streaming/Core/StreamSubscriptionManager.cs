@@ -1,10 +1,10 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Orleans.Streams.Core
+namespace Forkleans.Streams.Core
 {
     internal class StreamSubscriptionManager: IStreamSubscriptionManager
     {

@@ -1,4 +1,4 @@
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// A stream namespace predicate which matches all namespaces.

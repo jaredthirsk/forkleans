@@ -1,7 +1,7 @@
-using Orleans.Serialization.Cloning;
+using Forkleans.Serialization.Cloning;
 using System;
 
-namespace Orleans.Serialization.Serializers
+namespace Forkleans.Serialization.Serializers
 {
     /// <summary>
     /// Provides functionality for accessing codecs, activators, and copiers.

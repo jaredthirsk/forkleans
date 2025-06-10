@@ -2,10 +2,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.Timers;
+using Forkleans.Runtime;
+using Forkleans.Timers;
 
-namespace Orleans
+namespace Forkleans
 {
     /// <summary>
     /// Interface for grain implementations

@@ -1,4 +1,4 @@
-namespace Orleans.GrainDirectory.AdoNet;
+namespace Forkleans.GrainDirectory.AdoNet;
 
 /// <summary>
 /// Options for the ADO.NET Grain Directory.

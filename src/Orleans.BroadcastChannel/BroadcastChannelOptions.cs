@@ -1,4 +1,4 @@
-namespace Orleans.BroadcastChannel
+namespace Forkleans.BroadcastChannel
 {
     /// <summary>
     /// Configuration options for broadcast channel

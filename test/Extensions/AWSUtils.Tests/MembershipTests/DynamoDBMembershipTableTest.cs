@@ -1,9 +1,9 @@
 using AWSUtils.Tests.StorageTests;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Clustering.DynamoDB;
-using Orleans.Configuration;
-using Orleans.Messaging;
+using Forkleans.Clustering.DynamoDB;
+using Forkleans.Configuration;
+using Forkleans.Messaging;
 using TestExtensions;
 using UnitTests;
 using UnitTests.MembershipTests;

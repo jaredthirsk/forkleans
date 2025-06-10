@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Streams;
-using OrleansAWSUtils.Storage;
-using Orleans.Configuration;
+using Forkleans.Streams;
+using ForkleansAWSUtils.Storage;
+using Forkleans.Configuration;
 
-namespace OrleansAWSUtils.Streams
+namespace ForkleansAWSUtils.Streams
 {
     /// <summary>
     /// SQS utility functions

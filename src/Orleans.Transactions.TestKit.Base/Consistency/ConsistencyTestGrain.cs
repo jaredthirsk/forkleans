@@ -1,12 +1,12 @@
 using Microsoft.Extensions.Logging;
-using Orleans.Concurrency;
-using Orleans.Transactions.Abstractions;
+using Forkleans.Concurrency;
+using Forkleans.Transactions.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Orleans.Transactions.TestKit.Consistency
+namespace Forkleans.Transactions.TestKit.Consistency
 {
     [Reentrant]
     public class ConsistencyTestGrain : Grain, IConsistencyTestGrain

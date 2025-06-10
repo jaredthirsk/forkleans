@@ -7,7 +7,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 
-namespace Orleans.CodeGenerator.SyntaxGeneration
+namespace Forkleans.CodeGenerator.SyntaxGeneration
 {
     internal static class SymbolSyntaxExtensions
     {

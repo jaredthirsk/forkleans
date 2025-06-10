@@ -1,8 +1,8 @@
 
-using Orleans.Versions.Compatibility;
-using Orleans.Versions.Selector;
+using Forkleans.Versions.Compatibility;
+using Forkleans.Versions.Selector;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Versioning options govern grain implementation selection in heterogeneous deployments.

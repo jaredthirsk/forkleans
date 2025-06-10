@@ -1,9 +1,9 @@
 #nullable enable
 using System;
-using Orleans.Core;
-using Orleans.Timers;
+using Forkleans.Core;
+using Forkleans.Timers;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 /// <summary>
 /// The gateway of the <see cref="Grain"/> to the Orleans runtime. The <see cref="Grain"/> should only interact with the runtime through this interface.

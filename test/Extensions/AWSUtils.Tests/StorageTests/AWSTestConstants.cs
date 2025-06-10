@@ -2,8 +2,8 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
 using Microsoft.Extensions.Logging.Abstractions;
-using Orleans.AWSUtils.Tests;
-using Orleans.Internal;
+using Forkleans.AWSUtils.Tests;
+using Forkleans.Internal;
 using TestExtensions;
 
 namespace AWSUtils.Tests.StorageTests

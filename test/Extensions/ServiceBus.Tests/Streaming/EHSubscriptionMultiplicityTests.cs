@@ -1,7 +1,7 @@
 using System.Diagnostics.Metrics;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.TestingHost;
+using Forkleans.Runtime;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.StreamingTests;
 using Xunit;

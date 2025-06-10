@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Orleans.Analyzers
+namespace Forkleans.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class GenerateSerializationAttributesAnalyzer : DiagnosticAnalyzer

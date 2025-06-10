@@ -1,14 +1,14 @@
-using Orleans.Streams;
-using OrleansAWSUtils.Storage;
+using Forkleans.Streams;
+using ForkleansAWSUtils.Storage;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Orleans.Runtime;
-using Orleans.Serialization;
+using Forkleans.Runtime;
+using Forkleans.Serialization;
 
-namespace OrleansAWSUtils.Streams
+namespace ForkleansAWSUtils.Streams
 {
     internal class SQSAdapter : IQueueAdapter
     {

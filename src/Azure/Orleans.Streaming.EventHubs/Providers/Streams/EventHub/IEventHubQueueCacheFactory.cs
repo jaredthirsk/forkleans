@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
-using Orleans.Streams;
+using Forkleans.Streams;
 
-namespace Orleans.Streaming.EventHubs
+namespace Forkleans.Streaming.EventHubs
 {
     /// <summary>
     /// Factory responsible for creating a message cache for an EventHub partition.

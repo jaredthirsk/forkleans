@@ -1,8 +1,8 @@
 using System;
 using Microsoft.Extensions.Logging;
-using Orleans.Statistics;
+using Forkleans.Statistics;
 
-namespace Orleans.Runtime.Placement.Rebalancing;
+namespace Forkleans.Runtime.Placement.Rebalancing;
 
 internal partial class ActivationRebalancerWorker
 {

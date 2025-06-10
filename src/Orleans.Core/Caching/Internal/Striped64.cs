@@ -9,7 +9,7 @@ using System.Threading;
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-namespace Orleans.Caching.Internal;
+namespace Forkleans.Caching.Internal;
 
 /*
  * This class maintains a lazily-initialized table of atomically

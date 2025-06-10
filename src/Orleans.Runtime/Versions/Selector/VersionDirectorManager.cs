@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Versions.Selector;
+using Forkleans.Configuration;
+using Forkleans.Versions.Selector;
 
-namespace Orleans.Runtime.Versions.Selector
+namespace Forkleans.Runtime.Versions.Selector
 {
     internal class VersionSelectorManager
     {

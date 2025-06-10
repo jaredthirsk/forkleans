@@ -6,7 +6,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     public static partial class KubernetesHostingExtensions
     {
@@ -20,7 +20,7 @@ namespace Orleans.Hosting
     }
 }
 
-namespace Orleans.Hosting.Kubernetes
+namespace Forkleans.Hosting.Kubernetes
 {
     public sealed partial class KubernetesClusterAgent : ILifecycleParticipant<Runtime.ISiloLifecycle>
     {

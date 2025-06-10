@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 
 #nullable enable
-namespace Orleans.Runtime.MembershipService.SiloMetadata;
+namespace Forkleans.Runtime.MembershipService.SiloMetadata;
 
 internal interface ISiloMetadataClient
 {

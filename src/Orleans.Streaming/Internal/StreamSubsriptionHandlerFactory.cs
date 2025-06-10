@@ -1,8 +1,8 @@
-using Orleans.Runtime;
+using Forkleans.Runtime;
 using System;
-using Orleans.Streams.Core;
+using Forkleans.Streams.Core;
 
-namespace Orleans.Streams
+namespace Forkleans.Streams
 {
     /// <summary>
     /// Factory for creating <see cref="StreamSubscriptionHandle{T}"/> instances.

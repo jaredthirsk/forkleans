@@ -7,12 +7,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Internal;
-using Orleans.Runtime.Messaging;
-using Orleans.Runtime.Scheduler;
+using Forkleans.Configuration;
+using Forkleans.Internal;
+using Forkleans.Runtime.Messaging;
+using Forkleans.Runtime.Scheduler;
 
-namespace Orleans.Runtime.GrainDirectory;
+namespace Forkleans.Runtime.GrainDirectory;
 
 /// <summary>
 /// A directory for routes to clients (external clients and hosted clients).

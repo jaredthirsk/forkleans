@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Providers.Streams.AzureQueue;
-using Orleans.Streams;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Providers.Streams.AzureQueue;
+using Forkleans.Streams;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using UnitTests.StreamingTests;

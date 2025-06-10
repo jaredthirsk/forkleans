@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Connections.Features;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Connections.Security
+namespace Forkleans.Connections.Security
 {
     internal class TlsServerConnectionMiddleware
     {

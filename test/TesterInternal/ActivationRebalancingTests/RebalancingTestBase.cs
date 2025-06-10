@@ -1,7 +1,7 @@
 using TestExtensions;
 using Xunit.Abstractions;
-using Orleans.TestingHost;
-using Orleans.Runtime.Placement;
+using Forkleans.TestingHost;
+using Forkleans.Runtime.Placement;
 
 namespace UnitTests.ActivationRebalancingTests;
 

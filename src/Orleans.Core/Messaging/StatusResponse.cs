@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     [Id(103), Serializable, GenerateSerializer, Immutable]
     internal sealed class StatusResponse

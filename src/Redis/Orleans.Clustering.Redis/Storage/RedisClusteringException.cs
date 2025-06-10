@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Orleans.Clustering.Redis
+namespace Forkleans.Clustering.Redis
 {
     /// <summary>
     /// Represents an exception which occurred in the Redis clustering.

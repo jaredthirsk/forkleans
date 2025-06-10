@@ -1,12 +1,12 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Orleans.Runtime.MembershipService
+namespace Forkleans.Runtime.MembershipService
 {
     /// <summary>
     /// Exception used to indicate that a cluster membership entry which was expected to be present.
     /// </summary>
-    /// <seealso cref="Orleans.Runtime.OrleansException" />
+    /// <seealso cref="Forkleans.Runtime.OrleansException" />
     [Serializable]
     [GenerateSerializer]
     public sealed class OrleansMissingMembershipEntryException : OrleansException

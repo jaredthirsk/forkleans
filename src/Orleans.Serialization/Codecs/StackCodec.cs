@@ -2,12 +2,12 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Orleans.Serialization.Buffers;
-using Orleans.Serialization.Cloning;
-using Orleans.Serialization.GeneratedCodeHelpers;
-using Orleans.Serialization.WireProtocol;
+using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Cloning;
+using Forkleans.Serialization.GeneratedCodeHelpers;
+using Forkleans.Serialization.WireProtocol;
 
-namespace Orleans.Serialization.Codecs;
+namespace Forkleans.Serialization.Codecs;
 
 /// <summary>
 /// Serializer for <see cref="Stack{T}"/>.

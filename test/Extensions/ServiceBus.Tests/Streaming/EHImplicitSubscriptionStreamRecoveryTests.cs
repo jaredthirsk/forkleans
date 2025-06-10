@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Providers.Streams.Generator;
-using Orleans.Runtime;
-using Orleans.Streams;
-using Orleans.TestingHost;
+using Forkleans.Providers.Streams.Generator;
+using Forkleans.Runtime;
+using Forkleans.Streams;
+using Forkleans.TestingHost;
 using Tester.StreamingTests;
 using TestExtensions;
 using TestGrains;

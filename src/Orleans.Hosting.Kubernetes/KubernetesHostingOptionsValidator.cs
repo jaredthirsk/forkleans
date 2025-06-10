@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 
-namespace Orleans.Hosting.Kubernetes
+namespace Forkleans.Hosting.Kubernetes
 {
     /// <summary>
     /// Validates <see cref="KubernetesHostingOptions"/>.

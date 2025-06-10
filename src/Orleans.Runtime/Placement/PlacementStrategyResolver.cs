@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
-using Orleans.Metadata;
+using Forkleans.Metadata;
 using System.Collections.Immutable;
 using System.Collections.Concurrent;
-using Orleans.Runtime.Hosting;
+using Forkleans.Runtime.Hosting;
 using System.Collections.Frozen;
-using Orleans.GrainDirectory;
+using Forkleans.GrainDirectory;
 
-namespace Orleans.Runtime.Placement
+namespace Forkleans.Runtime.Placement
 {
     /// <summary>
     /// Responsible for resolving an <see cref="PlacementStrategy"/> for a <see cref="GrainType"/>.

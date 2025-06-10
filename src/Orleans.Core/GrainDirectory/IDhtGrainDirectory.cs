@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.GrainDirectory
+namespace Forkleans.GrainDirectory
 {
     /// <summary>
     /// Recursive distributed operations on grain directories.

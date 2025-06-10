@@ -1,4 +1,4 @@
-﻿namespace Orleans.TestingHost.Tests.Grains
+namespace Forkleans.TestingHost.Tests.Grains
 {
     public interface ISimpleGrain : IGrainWithIntegerKey
     {

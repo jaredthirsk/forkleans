@@ -1,7 +1,7 @@
 using System;
 
 #nullable enable
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     /// <summary>
     /// Uniquely identifies a grain interface.

@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
-namespace Orleans.Runtime.Host
+namespace Forkleans.Runtime.Host
 {
     internal class MembershipSerializerSettings : JsonSerializerSettings
     {

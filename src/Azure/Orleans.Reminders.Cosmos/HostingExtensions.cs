@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Hosting;
-using Orleans.Reminders.Cosmos;
+using Forkleans.Hosting;
+using Forkleans.Reminders.Cosmos;
 
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 /// <summary>
 /// Extension methods for configuring the Azure Cosmos DB reminder table provider.

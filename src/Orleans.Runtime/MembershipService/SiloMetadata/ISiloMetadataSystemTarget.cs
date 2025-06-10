@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 
 #nullable enable
-namespace Orleans.Runtime.MembershipService.SiloMetadata;
+namespace Forkleans.Runtime.MembershipService.SiloMetadata;
 
-[Alias("Orleans.Runtime.MembershipService.SiloMetadata.ISiloMetadataSystemTarget")]
+[Alias("Forkleans.Runtime.MembershipService.SiloMetadata.ISiloMetadataSystemTarget")]
 internal interface ISiloMetadataSystemTarget : ISystemTarget
 {
     [Alias("GetSiloMetadata")]

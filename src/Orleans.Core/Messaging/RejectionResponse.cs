@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     [Id(102), GenerateSerializer, Immutable]
     internal sealed class RejectionResponse

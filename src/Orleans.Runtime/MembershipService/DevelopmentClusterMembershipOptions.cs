@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>Configures development clustering options</summary>
     public class DevelopmentClusterMembershipOptions

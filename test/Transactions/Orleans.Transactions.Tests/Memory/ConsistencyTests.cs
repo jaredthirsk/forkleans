@@ -1,8 +1,8 @@
-using Orleans.Transactions.TestKit.xUnit;
+using Forkleans.Transactions.TestKit.xUnit;
 using Xunit.Abstractions;
 using Xunit;
 
-namespace Orleans.Transactions.Tests
+namespace Forkleans.Transactions.Tests
 {
     [TestCategory("Transactions-dev")]
     public class ConsistencyTests : ConsistencyTransactionTestRunnerxUnit, IClassFixture<MemoryTransactionsFixture>

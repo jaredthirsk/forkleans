@@ -1,13 +1,13 @@
 using System;
 using Microsoft.AspNetCore.Connections;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     /// <summary>
     /// Options for configuring silo networking.
-    /// Implements the <see cref="Orleans.Configuration.SiloConnectionOptions.ISiloConnectionBuilderOptions" />
+    /// Implements the <see cref="Forkleans.Configuration.SiloConnectionOptions.ISiloConnectionBuilderOptions" />
     /// </summary>
-    /// <seealso cref="Orleans.Configuration.SiloConnectionOptions.ISiloConnectionBuilderOptions" />
+    /// <seealso cref="Forkleans.Configuration.SiloConnectionOptions.ISiloConnectionBuilderOptions" />
     public class SiloConnectionOptions : SiloConnectionOptions.ISiloConnectionBuilderOptions
     {
         private readonly ConnectionBuilderDelegates siloOutboundDelegates = new ConnectionBuilderDelegates();

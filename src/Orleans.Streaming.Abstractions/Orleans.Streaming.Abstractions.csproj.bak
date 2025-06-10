@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>Microsoft.Forkleans.Streaming.Abstractions</PackageId>
+    <Title>Microsoft Orleans Streaming Abstractions</Title>
+    <Description>Streaming abstractions library for Microsoft Orleans</Description>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>Forkleans</RootNamespace>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Forkleans.Core.Abstractions\Forkleans.Core.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

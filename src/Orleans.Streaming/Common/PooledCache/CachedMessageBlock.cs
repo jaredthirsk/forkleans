@@ -1,10 +1,10 @@
 
 using System;
 using System.Collections.Generic;
-using Orleans.Runtime;
-using Orleans.Streams;
+using Forkleans.Runtime;
+using Forkleans.Streams;
 
-namespace Orleans.Providers.Streams.Common
+namespace Forkleans.Providers.Streams.Common
 {
     /// <summary>
     /// CachedMessageBlock is a block of tightly packed structures containing tracking data for cached messages.  This data is 

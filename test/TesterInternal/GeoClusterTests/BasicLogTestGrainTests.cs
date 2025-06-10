@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Options;
 using Xunit;
-using Orleans.TestingHost;
+using Forkleans.TestingHost;
 using UnitTests.GrainInterfaces;
 using TestExtensions;
 using Tester;
 
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using Azure.Data.Tables;
 using Azure.Identity;
 

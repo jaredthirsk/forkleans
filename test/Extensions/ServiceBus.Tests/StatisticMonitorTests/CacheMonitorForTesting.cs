@@ -1,4 +1,4 @@
-﻿using Orleans.Providers.Streams.Common;
+using Forkleans.Providers.Streams.Common;
 
 namespace ServiceBus.Tests.MonitorTests
 {
@@ -44,22 +44,22 @@ namespace ServiceBus.Tests.MonitorTests
     }
 
     [Serializable]
-    [Orleans.GenerateSerializer]
+    [Forkleans.GenerateSerializer]
     public class CacheMonitorCounters
     {
-        [Orleans.Id(0)]
+        [Forkleans.Id(0)]
         public int TrackCachePressureMonitorStatusChangeCallCounter;
-        [Orleans.Id(1)]
+        [Forkleans.Id(1)]
         public int ReportCacheSizeCallCounter;
-        [Orleans.Id(2)]
+        [Forkleans.Id(2)]
         public int ReportMessageStatisticsCallCounter;
-        [Orleans.Id(3)]
+        [Forkleans.Id(3)]
         public int TrackMemoryAllocatedCallCounter;
-        [Orleans.Id(4)]
+        [Forkleans.Id(4)]
         public int TrackMemoryReleasedCallCounter;
-        [Orleans.Id(5)]
+        [Forkleans.Id(5)]
         public int TrackMessageAddedCounter;
-        [Orleans.Id(6)]
+        [Forkleans.Id(6)]
         public int TrackMessagePurgedCounter;
     }
 }

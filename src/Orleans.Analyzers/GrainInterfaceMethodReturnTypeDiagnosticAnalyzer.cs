@@ -5,12 +5,12 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace Orleans.Analyzers
+namespace Forkleans.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class GrainInterfaceMethodReturnTypeDiagnosticAnalyzer : DiagnosticAnalyzer
     {
-        private const string BaseInterfaceName = "Orleans.Runtime.IAddressable";
+        private const string BaseInterfaceName = "Forkleans.Runtime.IAddressable";
         private static readonly (string[] Namespace, string MetadataName)[] SupportedReturnTypes = new[]
         {
             (new [] { "System", "Threading", "Tasks" }, "Task"),

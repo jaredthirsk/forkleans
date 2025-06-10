@@ -1,7 +1,7 @@
-﻿using Azure.Storage.Blobs;
-using Orleans.Runtime;
+using Azure.Storage.Blobs;
+using Forkleans.Runtime;
 
-namespace Orleans.Journaling;
+namespace Forkleans.Journaling;
 
 /// <summary>
 /// A factory for building container clients for blob storage using GrainId

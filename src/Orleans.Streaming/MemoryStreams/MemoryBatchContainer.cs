@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Orleans.Providers.Streams.Common;
-using Orleans.Runtime;
-using Orleans.Serialization;
-using Orleans.Streams;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Runtime;
+using Forkleans.Serialization;
+using Forkleans.Streams;
 
-namespace Orleans.Providers
+namespace Forkleans.Providers
 {
     [Serializable]
     [GenerateSerializer]

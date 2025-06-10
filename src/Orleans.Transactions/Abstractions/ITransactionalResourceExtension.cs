@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
-using Orleans.Concurrency;
-using Orleans.Runtime;
+using Forkleans.Concurrency;
+using Forkleans.Runtime;
 
-namespace Orleans.Transactions.Abstractions
+namespace Forkleans.Transactions.Abstractions
 {
     public interface ITransactionalResourceExtension : IGrainExtension
     {

@@ -1,4 +1,4 @@
-﻿namespace Orleans.Storage
+namespace Forkleans.Storage
 {
     /// <summary>
     /// An interface for all the hashing operations currently in Orleans Storage operations.

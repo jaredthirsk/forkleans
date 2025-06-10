@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using Orleans.Runtime;
-using Orleans.Runtime.Placement;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Placement;
 
 #nullable enable
-namespace Orleans.Placement;
+namespace Forkleans.Placement;
 
 public interface IPlacementFilterDirector
 {

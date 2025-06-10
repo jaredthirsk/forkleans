@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,11 +9,11 @@ using System.Net;
 using System.Reflection;
 using System.Threading;
 using Microsoft.Extensions.ObjectPool;
-using Orleans.Serialization.Invocation;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.Utilities;
+using Forkleans.Serialization.Invocation;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.Utilities;
 
-namespace Orleans.Serialization.Cloning
+namespace Forkleans.Serialization.Cloning
 {
     /// <summary>
     /// Provides <see cref="IDeepCopier{T}"/> instances.
@@ -110,7 +110,7 @@ namespace Orleans.Serialization.Cloning
     /// Provides functionality for creating clones of objects of type <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">The type of objects which this instance can copy.</typeparam>
-    /// <seealso cref="Orleans.Serialization.Cloning.IDeepCopier" />
+    /// <seealso cref="Forkleans.Serialization.Cloning.IDeepCopier" />
     public interface IDeepCopier<T> : IDeepCopier
     {
         /// <summary>
@@ -135,7 +135,7 @@ namespace Orleans.Serialization.Cloning
     /// Provides functionality for copying members from one object to another.
     /// </summary>
     /// <typeparam name="T">The type of objects which this instance can copy.</typeparam>
-    /// <seealso cref="Orleans.Serialization.Cloning.IBaseCopier" />
+    /// <seealso cref="Forkleans.Serialization.Cloning.IBaseCopier" />
     public interface IBaseCopier<T> : IBaseCopier where T : class
     {
         /// <summary>

@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Reminders.AzureStorage;
-using Orleans.Runtime.ReminderService;
-namespace Orleans.Hosting
+using Forkleans.Configuration;
+using Forkleans.Reminders.AzureStorage;
+using Forkleans.Runtime.ReminderService;
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// <see cref="IServiceCollection"/> extensions.

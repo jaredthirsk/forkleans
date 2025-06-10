@@ -1,4 +1,4 @@
-namespace Orleans.Clustering.AzureStorage;
+namespace Forkleans.Clustering.AzureStorage;
 
 /// <summary>
 /// Specify options used for AzureTableBasedMembership

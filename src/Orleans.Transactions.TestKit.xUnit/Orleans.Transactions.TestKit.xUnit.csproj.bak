@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Microsoft.Forkleans.Transactions.TestKit.xUnit</PackageId>
+    <Title>Microsoft Orleans Transactions test kit for xUnit</Title>
+    <Description>xUnit testkit library for transactions</Description>
+    <PackageTags>$(PackageTags) TransactionTestKit</PackageTags>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyName>Forkleans.Transactions.TestKit.xUnit</AssemblyName>
+    <RootNamespace>Forkleans.Transactions.TestKit.xUnit</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.extensibility.core" />
+    <PackageReference Include="xunit.extensibility.execution" />
+    <PackageReference Include="xunit.assert" />
+    <PackageReference Include="Xunit.SkippableFact" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Forkleans.Transactions.TestKit.Base\Forkleans.Transactions.TestKit.Base.csproj" />
+  </ItemGroup>
+
+</Project>

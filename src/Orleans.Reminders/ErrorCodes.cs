@@ -1,5 +1,5 @@
 // ReSharper disable InconsistentNaming
-namespace Orleans.Reminders;
+namespace Forkleans.Reminders;
 
 /// <summary>
 /// The set of error codes used by the Orleans runtime libraries for logging errors. For Reminders.

@@ -4,11 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime;
-using Orleans.Storage;
-using Orleans.Providers;
+using Forkleans.Runtime;
+using Forkleans.Storage;
+using Forkleans.Providers;
 
-namespace Orleans.EventSourcing
+namespace Forkleans.EventSourcing
 {
     /// <summary>
     /// Base class for all grains that use log-consistency for managing  the state.

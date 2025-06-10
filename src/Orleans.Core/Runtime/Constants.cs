@@ -2,7 +2,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal static class Constants
     {

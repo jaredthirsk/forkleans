@@ -6,9 +6,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Orleans.CodeGenerator.SyntaxGeneration;
+using Forkleans.CodeGenerator.SyntaxGeneration;
 
-namespace Orleans.CodeGenerator
+namespace Forkleans.CodeGenerator
 {
     internal sealed class LibraryTypes
     {
@@ -19,54 +19,54 @@ namespace Orleans.CodeGenerator
         private LibraryTypes(Compilation compilation, CodeGeneratorOptions options)
         {
             Compilation = compilation;
-            ApplicationPartAttribute = Type("Orleans.ApplicationPartAttribute");
+            ApplicationPartAttribute = Type("Forkleans.ApplicationPartAttribute");
             Action_2 = Type("System.Action`2");
-            TypeManifestProviderBase = Type("Orleans.Serialization.Configuration.TypeManifestProviderBase");
-            Field = Type("Orleans.Serialization.WireProtocol.Field");
-            FieldCodec_1 = Type("Orleans.Serialization.Codecs.IFieldCodec`1");
-            AbstractTypeSerializer = Type("Orleans.Serialization.Serializers.AbstractTypeSerializer`1");
-            DeepCopier_1 = Type("Orleans.Serialization.Cloning.IDeepCopier`1");
-            ShallowCopier = Type("Orleans.Serialization.Cloning.ShallowCopier`1");
-            CompoundTypeAliasAttribute = Type("Orleans.CompoundTypeAliasAttribute");
-            CopyContext = Type("Orleans.Serialization.Cloning.CopyContext");
+            TypeManifestProviderBase = Type("Forkleans.Serialization.Configuration.TypeManifestProviderBase");
+            Field = Type("Forkleans.Serialization.WireProtocol.Field");
+            FieldCodec_1 = Type("Forkleans.Serialization.Codecs.IFieldCodec`1");
+            AbstractTypeSerializer = Type("Forkleans.Serialization.Serializers.AbstractTypeSerializer`1");
+            DeepCopier_1 = Type("Forkleans.Serialization.Cloning.IDeepCopier`1");
+            ShallowCopier = Type("Forkleans.Serialization.Cloning.ShallowCopier`1");
+            CompoundTypeAliasAttribute = Type("Forkleans.CompoundTypeAliasAttribute");
+            CopyContext = Type("Forkleans.Serialization.Cloning.CopyContext");
             MethodInfo = Type("System.Reflection.MethodInfo");
             Func_2 = Type("System.Func`2");
-            GenerateMethodSerializersAttribute = Type("Orleans.GenerateMethodSerializersAttribute");
-            GenerateSerializerAttribute = Type("Orleans.GenerateSerializerAttribute");
-            SerializationCallbacksAttribute = Type("Orleans.SerializationCallbacksAttribute");
-            IActivator_1 = Type("Orleans.Serialization.Activators.IActivator`1");
+            GenerateMethodSerializersAttribute = Type("Forkleans.GenerateMethodSerializersAttribute");
+            GenerateSerializerAttribute = Type("Forkleans.GenerateSerializerAttribute");
+            SerializationCallbacksAttribute = Type("Forkleans.SerializationCallbacksAttribute");
+            IActivator_1 = Type("Forkleans.Serialization.Activators.IActivator`1");
             IBufferWriter = Type("System.Buffers.IBufferWriter`1");
             IdAttributeTypes = options.IdAttributes.Select(Type).ToArray();
             ConstructorAttributeTypes = options.ConstructorAttributes.Select(Type).ToArray();
-            AliasAttribute = Type("Orleans.AliasAttribute");
-            IInvokable = Type("Orleans.Serialization.Invocation.IInvokable");
-            InvokeMethodNameAttribute = Type("Orleans.InvokeMethodNameAttribute");
+            AliasAttribute = Type("Forkleans.AliasAttribute");
+            IInvokable = Type("Forkleans.Serialization.Invocation.IInvokable");
+            InvokeMethodNameAttribute = Type("Forkleans.InvokeMethodNameAttribute");
             RuntimeHelpers = Type("System.Runtime.CompilerServices.RuntimeHelpers");
-            InvokableCustomInitializerAttribute = Type("Orleans.InvokableCustomInitializerAttribute");
-            DefaultInvokableBaseTypeAttribute = Type("Orleans.DefaultInvokableBaseTypeAttribute");
-            GenerateCodeForDeclaringAssemblyAttribute = Type("Orleans.GenerateCodeForDeclaringAssemblyAttribute");
-            InvokableBaseTypeAttribute = Type("Orleans.InvokableBaseTypeAttribute");
-            ReturnValueProxyAttribute = Type("Orleans.Invocation.ReturnValueProxyAttribute");
-            RegisterSerializerAttribute = Type("Orleans.RegisterSerializerAttribute");
-            ResponseTimeoutAttribute = Type("Orleans.ResponseTimeoutAttribute");
-            GeneratedActivatorConstructorAttribute = Type("Orleans.GeneratedActivatorConstructorAttribute");
-            SerializerTransparentAttribute = Type("Orleans.SerializerTransparentAttribute");
-            RegisterActivatorAttribute = Type("Orleans.RegisterActivatorAttribute");
-            RegisterConverterAttribute = Type("Orleans.RegisterConverterAttribute");
-            RegisterCopierAttribute = Type("Orleans.RegisterCopierAttribute");
-            UseActivatorAttribute = Type("Orleans.UseActivatorAttribute");
-            SuppressReferenceTrackingAttribute = Type("Orleans.SuppressReferenceTrackingAttribute");
-            OmitDefaultMemberValuesAttribute = Type("Orleans.OmitDefaultMemberValuesAttribute");
-            ITargetHolder = Type("Orleans.Serialization.Invocation.ITargetHolder");
-            TypeManifestProviderAttribute = Type("Orleans.Serialization.Configuration.TypeManifestProviderAttribute");
+            InvokableCustomInitializerAttribute = Type("Forkleans.InvokableCustomInitializerAttribute");
+            DefaultInvokableBaseTypeAttribute = Type("Forkleans.DefaultInvokableBaseTypeAttribute");
+            GenerateCodeForDeclaringAssemblyAttribute = Type("Forkleans.GenerateCodeForDeclaringAssemblyAttribute");
+            InvokableBaseTypeAttribute = Type("Forkleans.InvokableBaseTypeAttribute");
+            ReturnValueProxyAttribute = Type("Forkleans.Invocation.ReturnValueProxyAttribute");
+            RegisterSerializerAttribute = Type("Forkleans.RegisterSerializerAttribute");
+            ResponseTimeoutAttribute = Type("Forkleans.ResponseTimeoutAttribute");
+            GeneratedActivatorConstructorAttribute = Type("Forkleans.GeneratedActivatorConstructorAttribute");
+            SerializerTransparentAttribute = Type("Forkleans.SerializerTransparentAttribute");
+            RegisterActivatorAttribute = Type("Forkleans.RegisterActivatorAttribute");
+            RegisterConverterAttribute = Type("Forkleans.RegisterConverterAttribute");
+            RegisterCopierAttribute = Type("Forkleans.RegisterCopierAttribute");
+            UseActivatorAttribute = Type("Forkleans.UseActivatorAttribute");
+            SuppressReferenceTrackingAttribute = Type("Forkleans.SuppressReferenceTrackingAttribute");
+            OmitDefaultMemberValuesAttribute = Type("Forkleans.OmitDefaultMemberValuesAttribute");
+            ITargetHolder = Type("Forkleans.Serialization.Invocation.ITargetHolder");
+            TypeManifestProviderAttribute = Type("Forkleans.Serialization.Configuration.TypeManifestProviderAttribute");
             NonSerializedAttribute = Type("System.NonSerializedAttribute");
             ObsoleteAttribute = Type("System.ObsoleteAttribute");
-            BaseCodec_1 = Type("Orleans.Serialization.Serializers.IBaseCodec`1");
-            BaseCopier_1 = Type("Orleans.Serialization.Cloning.IBaseCopier`1");
-            ArrayCodec = Type("Orleans.Serialization.Codecs.ArrayCodec`1");
-            ArrayCopier = Type("Orleans.Serialization.Codecs.ArrayCopier`1");
-            Reader = Type("Orleans.Serialization.Buffers.Reader`1");
-            TypeManifestOptions = Type("Orleans.Serialization.Configuration.TypeManifestOptions");
+            BaseCodec_1 = Type("Forkleans.Serialization.Serializers.IBaseCodec`1");
+            BaseCopier_1 = Type("Forkleans.Serialization.Cloning.IBaseCopier`1");
+            ArrayCodec = Type("Forkleans.Serialization.Codecs.ArrayCodec`1");
+            ArrayCopier = Type("Forkleans.Serialization.Codecs.ArrayCopier`1");
+            Reader = Type("Forkleans.Serialization.Buffers.Reader`1");
+            TypeManifestOptions = Type("Forkleans.Serialization.Configuration.TypeManifestOptions");
             Task = Type("System.Threading.Tasks.Task");
             Task_1 = Type("System.Threading.Tasks.Task`1");
             this.Type = Type("System.Type");
@@ -82,71 +82,71 @@ namespace Orleans.CodeGenerator
             _version = Type("System.Version");
             _timeOnly = TypeOrDefault("System.TimeOnly");
             Guid = Type("System.Guid");
-            ICodecProvider = Type("Orleans.Serialization.Serializers.ICodecProvider");
-            ValueSerializer = Type("Orleans.Serialization.Serializers.IValueSerializer`1");
+            ICodecProvider = Type("Forkleans.Serialization.Serializers.ICodecProvider");
+            ValueSerializer = Type("Forkleans.Serialization.Serializers.IValueSerializer`1");
             ValueTask = Type("System.Threading.Tasks.ValueTask");
             ValueTask_1 = Type("System.Threading.Tasks.ValueTask`1");
-            ValueTypeGetter_2 = Type("Orleans.Serialization.Utilities.ValueTypeGetter`2");
-            ValueTypeSetter_2 = Type("Orleans.Serialization.Utilities.ValueTypeSetter`2");
-            Writer = Type("Orleans.Serialization.Buffers.Writer`1");
+            ValueTypeGetter_2 = Type("Forkleans.Serialization.Utilities.ValueTypeGetter`2");
+            ValueTypeSetter_2 = Type("Forkleans.Serialization.Utilities.ValueTypeSetter`2");
+            Writer = Type("Forkleans.Serialization.Buffers.Writer`1");
             FSharpSourceConstructFlagsOrDefault = TypeOrDefault("Microsoft.FSharp.Core.SourceConstructFlags");
             FSharpCompilationMappingAttributeOrDefault = TypeOrDefault("Microsoft.FSharp.Core.CompilationMappingAttribute");
             StaticCodecs = new List<WellKnownCodecDescription>
                 {
-                    new(compilation.GetSpecialType(SpecialType.System_Object), Type("Orleans.Serialization.Codecs.ObjectCodec")),
-                    new(compilation.GetSpecialType(SpecialType.System_Boolean), Type("Orleans.Serialization.Codecs.BoolCodec")),
-                    new(compilation.GetSpecialType(SpecialType.System_Char), Type("Orleans.Serialization.Codecs.CharCodec")),
-                    new(compilation.GetSpecialType(SpecialType.System_Byte), Type("Orleans.Serialization.Codecs.ByteCodec")),
-                    new(compilation.GetSpecialType(SpecialType.System_SByte), Type("Orleans.Serialization.Codecs.SByteCodec")),
-                    new(compilation.GetSpecialType(SpecialType.System_Int16), Type("Orleans.Serialization.Codecs.Int16Codec")),
-                    new(compilation.GetSpecialType(SpecialType.System_Int32), Type("Orleans.Serialization.Codecs.Int32Codec")),
-                    new(compilation.GetSpecialType(SpecialType.System_Int64), Type("Orleans.Serialization.Codecs.Int64Codec")),
-                    new(compilation.GetSpecialType(SpecialType.System_UInt16), Type("Orleans.Serialization.Codecs.UInt16Codec")),
-                    new(compilation.GetSpecialType(SpecialType.System_UInt32), Type("Orleans.Serialization.Codecs.UInt32Codec")),
-                    new(compilation.GetSpecialType(SpecialType.System_UInt64), Type("Orleans.Serialization.Codecs.UInt64Codec")),
-                    new(compilation.GetSpecialType(SpecialType.System_String), Type("Orleans.Serialization.Codecs.StringCodec")),
-                    new(compilation.CreateArrayTypeSymbol(compilation.GetSpecialType(SpecialType.System_Byte), 1), Type("Orleans.Serialization.Codecs.ByteArrayCodec")),
-                    new(compilation.GetSpecialType(SpecialType.System_Single), Type("Orleans.Serialization.Codecs.FloatCodec")),
-                    new(compilation.GetSpecialType(SpecialType.System_Double), Type("Orleans.Serialization.Codecs.DoubleCodec")),
-                    new(compilation.GetSpecialType(SpecialType.System_Decimal), Type("Orleans.Serialization.Codecs.DecimalCodec")),
-                    new(compilation.GetSpecialType(SpecialType.System_DateTime), Type("Orleans.Serialization.Codecs.DateTimeCodec")),
-                    new(Type("System.TimeSpan"), Type("Orleans.Serialization.Codecs.TimeSpanCodec")),
-                    new(Type("System.DateTimeOffset"), Type("Orleans.Serialization.Codecs.DateTimeOffsetCodec")),
-                    new(TypeOrDefault("System.DateOnly"), TypeOrDefault("Orleans.Serialization.Codecs.DateOnlyCodec")),
-                    new(TypeOrDefault("System.TimeOnly"), TypeOrDefault("Orleans.Serialization.Codecs.TimeOnlyCodec")),
-                    new(Type("System.Guid"), Type("Orleans.Serialization.Codecs.GuidCodec")),
-                    new(Type("System.Type"), Type("Orleans.Serialization.Codecs.TypeSerializerCodec")),
-                    new(Type("System.ReadOnlyMemory`1").Construct(compilation.GetSpecialType(SpecialType.System_Byte)), Type("Orleans.Serialization.Codecs.ReadOnlyMemoryOfByteCodec")),
-                    new(Type("System.Memory`1").Construct(compilation.GetSpecialType(SpecialType.System_Byte)), Type("Orleans.Serialization.Codecs.MemoryOfByteCodec")),
-                    new(Type("System.Net.IPAddress"), Type("Orleans.Serialization.Codecs.IPAddressCodec")),
-                    new(Type("System.Net.IPEndPoint"), Type("Orleans.Serialization.Codecs.IPEndPointCodec")),
-                    new(TypeOrDefault("System.UInt128"), TypeOrDefault("Orleans.Serialization.Codecs.UInt128Codec")),
-                    new(TypeOrDefault("System.Int128"), TypeOrDefault("Orleans.Serialization.Codecs.Int128Codec")),
-                    new(TypeOrDefault("System.Half"), TypeOrDefault("Orleans.Serialization.Codecs.HalfCodec")),
-                    new(Type("System.Uri"), Type("Orleans.Serialization.Codecs.UriCodec")),
+                    new(compilation.GetSpecialType(SpecialType.System_Object), Type("Forkleans.Serialization.Codecs.ObjectCodec")),
+                    new(compilation.GetSpecialType(SpecialType.System_Boolean), Type("Forkleans.Serialization.Codecs.BoolCodec")),
+                    new(compilation.GetSpecialType(SpecialType.System_Char), Type("Forkleans.Serialization.Codecs.CharCodec")),
+                    new(compilation.GetSpecialType(SpecialType.System_Byte), Type("Forkleans.Serialization.Codecs.ByteCodec")),
+                    new(compilation.GetSpecialType(SpecialType.System_SByte), Type("Forkleans.Serialization.Codecs.SByteCodec")),
+                    new(compilation.GetSpecialType(SpecialType.System_Int16), Type("Forkleans.Serialization.Codecs.Int16Codec")),
+                    new(compilation.GetSpecialType(SpecialType.System_Int32), Type("Forkleans.Serialization.Codecs.Int32Codec")),
+                    new(compilation.GetSpecialType(SpecialType.System_Int64), Type("Forkleans.Serialization.Codecs.Int64Codec")),
+                    new(compilation.GetSpecialType(SpecialType.System_UInt16), Type("Forkleans.Serialization.Codecs.UInt16Codec")),
+                    new(compilation.GetSpecialType(SpecialType.System_UInt32), Type("Forkleans.Serialization.Codecs.UInt32Codec")),
+                    new(compilation.GetSpecialType(SpecialType.System_UInt64), Type("Forkleans.Serialization.Codecs.UInt64Codec")),
+                    new(compilation.GetSpecialType(SpecialType.System_String), Type("Forkleans.Serialization.Codecs.StringCodec")),
+                    new(compilation.CreateArrayTypeSymbol(compilation.GetSpecialType(SpecialType.System_Byte), 1), Type("Forkleans.Serialization.Codecs.ByteArrayCodec")),
+                    new(compilation.GetSpecialType(SpecialType.System_Single), Type("Forkleans.Serialization.Codecs.FloatCodec")),
+                    new(compilation.GetSpecialType(SpecialType.System_Double), Type("Forkleans.Serialization.Codecs.DoubleCodec")),
+                    new(compilation.GetSpecialType(SpecialType.System_Decimal), Type("Forkleans.Serialization.Codecs.DecimalCodec")),
+                    new(compilation.GetSpecialType(SpecialType.System_DateTime), Type("Forkleans.Serialization.Codecs.DateTimeCodec")),
+                    new(Type("System.TimeSpan"), Type("Forkleans.Serialization.Codecs.TimeSpanCodec")),
+                    new(Type("System.DateTimeOffset"), Type("Forkleans.Serialization.Codecs.DateTimeOffsetCodec")),
+                    new(TypeOrDefault("System.DateOnly"), TypeOrDefault("Forkleans.Serialization.Codecs.DateOnlyCodec")),
+                    new(TypeOrDefault("System.TimeOnly"), TypeOrDefault("Forkleans.Serialization.Codecs.TimeOnlyCodec")),
+                    new(Type("System.Guid"), Type("Forkleans.Serialization.Codecs.GuidCodec")),
+                    new(Type("System.Type"), Type("Forkleans.Serialization.Codecs.TypeSerializerCodec")),
+                    new(Type("System.ReadOnlyMemory`1").Construct(compilation.GetSpecialType(SpecialType.System_Byte)), Type("Forkleans.Serialization.Codecs.ReadOnlyMemoryOfByteCodec")),
+                    new(Type("System.Memory`1").Construct(compilation.GetSpecialType(SpecialType.System_Byte)), Type("Forkleans.Serialization.Codecs.MemoryOfByteCodec")),
+                    new(Type("System.Net.IPAddress"), Type("Forkleans.Serialization.Codecs.IPAddressCodec")),
+                    new(Type("System.Net.IPEndPoint"), Type("Forkleans.Serialization.Codecs.IPEndPointCodec")),
+                    new(TypeOrDefault("System.UInt128"), TypeOrDefault("Forkleans.Serialization.Codecs.UInt128Codec")),
+                    new(TypeOrDefault("System.Int128"), TypeOrDefault("Forkleans.Serialization.Codecs.Int128Codec")),
+                    new(TypeOrDefault("System.Half"), TypeOrDefault("Forkleans.Serialization.Codecs.HalfCodec")),
+                    new(Type("System.Uri"), Type("Forkleans.Serialization.Codecs.UriCodec")),
                 }.Where(desc => desc.UnderlyingType is { } && desc.CodecType is { }).ToArray();
             WellKnownCodecs = new WellKnownCodecDescription[]
             {
-                    new(Type("System.Exception"), Type("Orleans.Serialization.ExceptionCodec")),
-                    new(Type("System.Collections.Generic.Dictionary`2"), Type("Orleans.Serialization.Codecs.DictionaryCodec`2")),
-                    new(Type("System.Collections.Generic.List`1"), Type("Orleans.Serialization.Codecs.ListCodec`1")),
-                    new(Type("System.Collections.Generic.HashSet`1"), Type("Orleans.Serialization.Codecs.HashSetCodec`1")),
-                    new(compilation.GetSpecialType(SpecialType.System_Nullable_T), Type("Orleans.Serialization.Codecs.NullableCodec`1")),
+                    new(Type("System.Exception"), Type("Forkleans.Serialization.ExceptionCodec")),
+                    new(Type("System.Collections.Generic.Dictionary`2"), Type("Forkleans.Serialization.Codecs.DictionaryCodec`2")),
+                    new(Type("System.Collections.Generic.List`1"), Type("Forkleans.Serialization.Codecs.ListCodec`1")),
+                    new(Type("System.Collections.Generic.HashSet`1"), Type("Forkleans.Serialization.Codecs.HashSetCodec`1")),
+                    new(compilation.GetSpecialType(SpecialType.System_Nullable_T), Type("Forkleans.Serialization.Codecs.NullableCodec`1")),
             };
             StaticCopiers = new WellKnownCopierDescription[]
             {
-                    new(compilation.GetSpecialType(SpecialType.System_Object), Type("Orleans.Serialization.Codecs.ObjectCopier")),
-                    new(compilation.CreateArrayTypeSymbol(compilation.GetSpecialType(SpecialType.System_Byte), 1), Type("Orleans.Serialization.Codecs.ByteArrayCopier")),
-                    new(Type("System.ReadOnlyMemory`1").Construct(compilation.GetSpecialType(SpecialType.System_Byte)), Type("Orleans.Serialization.Codecs.ReadOnlyMemoryOfByteCopier")),
-                    new(Type("System.Memory`1").Construct(compilation.GetSpecialType(SpecialType.System_Byte)), Type("Orleans.Serialization.Codecs.MemoryOfByteCopier")),
+                    new(compilation.GetSpecialType(SpecialType.System_Object), Type("Forkleans.Serialization.Codecs.ObjectCopier")),
+                    new(compilation.CreateArrayTypeSymbol(compilation.GetSpecialType(SpecialType.System_Byte), 1), Type("Forkleans.Serialization.Codecs.ByteArrayCopier")),
+                    new(Type("System.ReadOnlyMemory`1").Construct(compilation.GetSpecialType(SpecialType.System_Byte)), Type("Forkleans.Serialization.Codecs.ReadOnlyMemoryOfByteCopier")),
+                    new(Type("System.Memory`1").Construct(compilation.GetSpecialType(SpecialType.System_Byte)), Type("Forkleans.Serialization.Codecs.MemoryOfByteCopier")),
             };
             WellKnownCopiers = new WellKnownCopierDescription[]
             {
-                    new(Type("System.Exception"), Type("Orleans.Serialization.ExceptionCodec")),
-                    new(Type("System.Collections.Generic.Dictionary`2"), Type("Orleans.Serialization.Codecs.DictionaryCopier`2")),
-                    new(Type("System.Collections.Generic.List`1"), Type("Orleans.Serialization.Codecs.ListCopier`1")),
-                    new(Type("System.Collections.Generic.HashSet`1"), Type("Orleans.Serialization.Codecs.HashSetCopier`1")),
-                    new(compilation.GetSpecialType(SpecialType.System_Nullable_T), Type("Orleans.Serialization.Codecs.NullableCopier`1")),
+                    new(Type("System.Exception"), Type("Forkleans.Serialization.ExceptionCodec")),
+                    new(Type("System.Collections.Generic.Dictionary`2"), Type("Forkleans.Serialization.Codecs.DictionaryCopier`2")),
+                    new(Type("System.Collections.Generic.List`1"), Type("Forkleans.Serialization.Codecs.ListCopier`1")),
+                    new(Type("System.Collections.Generic.HashSet`1"), Type("Forkleans.Serialization.Codecs.HashSetCopier`1")),
+                    new(compilation.GetSpecialType(SpecialType.System_Nullable_T), Type("Forkleans.Serialization.Codecs.NullableCopier`1")),
             };
             Exception = Type("System.Exception");
             ImmutableAttributes = options.ImmutableAttributes.Select(Type).ToArray();

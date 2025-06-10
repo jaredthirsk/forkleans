@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
-using Orleans.Configuration;
-using Orleans.Streaming.AdoNet.Storage;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Streaming.AdoNet.Storage;
+using Forkleans.TestingHost;
 using Tester.StreamingTests;
 using TestExtensions;
 using UnitTests.General;

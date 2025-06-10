@@ -9,10 +9,10 @@ using org.apache.zookeeper;
 using org.apache.zookeeper.data;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Orleans.Runtime.Host;
+using Forkleans.Configuration;
+using Forkleans.Runtime.Host;
 
-namespace Orleans.Runtime.Membership
+namespace Forkleans.Runtime.Membership
 {
     /// <summary>
     /// A Membership Table implementation using Apache Zookeeper 3.4.6 https://zookeeper.apache.org/doc/r3.4.6/

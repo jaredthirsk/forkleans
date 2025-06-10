@@ -1,8 +1,8 @@
 
 using System;
-using Orleans.Runtime.GrainDirectory;
+using Forkleans.Runtime.GrainDirectory;
 
-namespace Orleans.Configuration
+namespace Forkleans.Configuration
 {
     public class GrainDirectoryOptions
     {

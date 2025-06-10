@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>Microsoft.Forkleans.Serialization.Protobuf</PackageId>
+    <TargetFrameworks>$(DefaultTargetFrameworks);netstandard2.1</TargetFrameworks>
+    <PackageDescription>Google.Protobuf integration for Forkleans.Serialization</PackageDescription>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="$(GoogleProtobufVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Forkleans.Serialization\Forkleans.Serialization.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

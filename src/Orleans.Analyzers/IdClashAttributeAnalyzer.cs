@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Orleans.Analyzers;
+namespace Forkleans.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class IdClashAttributeAnalyzer : DiagnosticAnalyzer

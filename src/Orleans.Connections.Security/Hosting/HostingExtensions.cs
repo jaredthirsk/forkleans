@@ -3,9 +3,9 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Orleans.Connections.Security;
+using Forkleans.Connections.Security;
 
-namespace Orleans
+namespace Forkleans
 {
     public static class TlsConnectionBuilderExtensions
     {

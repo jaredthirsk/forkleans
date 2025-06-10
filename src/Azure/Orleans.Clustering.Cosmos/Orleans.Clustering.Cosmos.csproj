@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Clustering.Cosmos</PackageId>
+    <PackageId>Microsoft.Forkleans.Clustering.Cosmos</PackageId>
     <Title>Microsoft Orleans clustering provider for Azure Cosmos DB</Title>
     <Description>Microsoft Orleans clustering provider backed by Azure Cosmos DB</Description>
     <PackageTags>$(PackageTags) Azure Cosmos DB</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <AssemblyName>Orleans.Clustering.Cosmos</AssemblyName>
-    <RootNamespace>Orleans.Clustering.Cosmos</RootNamespace>
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <AssemblyName>Forkleans.Clustering.Cosmos</AssemblyName>
+    <RootNamespace>Forkleans.Clustering.Cosmos</RootNamespace>
+    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
     <DefineConstants>$(DefineConstants);ORLEANS_CLUSTERING</DefineConstants>
     <Nullable>enable</Nullable>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
     <PackageReference Include="Azure.Core" />
     <PackageReference Include="Microsoft.Azure.Cosmos" />
   </ItemGroup>

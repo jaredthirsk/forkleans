@@ -1,10 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Configuration;
-using Orleans.Configuration.Internal;
-using Orleans.Runtime;
-using Orleans.Runtime.GrainDirectory;
-using Orleans.Runtime.Placement;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Configuration.Internal;
+using Forkleans.Runtime;
+using Forkleans.Runtime.GrainDirectory;
+using Forkleans.Runtime.Placement;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using Xunit;

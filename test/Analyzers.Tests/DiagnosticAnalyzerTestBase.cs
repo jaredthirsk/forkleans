@@ -21,18 +21,18 @@ namespace Analyzers.Tests
         private static readonly string[] Usings = new[] {
             "System",
             "System.Threading.Tasks",
-            "Orleans"
+            "Forkleans"
         };
 
         public static IEnumerable<object[]> GrainInterfaces =>
             new List<object[]>
             {
-                new object[] { "Orleans.IGrain" },
-                new object[] { "Orleans.IGrainWithStringKey" },
-                new object[] { "Orleans.IGrainWithGuidKey" },
-                new object[] { "Orleans.IGrainWithGuidCompoundKey" },
-                new object[] { "Orleans.IGrainWithIntegerKey" },
-                new object[] { "Orleans.IGrainWithIntegerCompoundKey" }
+                new object[] { "Forkleans.IGrain" },
+                new object[] { "Forkleans.IGrainWithStringKey" },
+                new object[] { "Forkleans.IGrainWithGuidKey" },
+                new object[] { "Forkleans.IGrainWithGuidCompoundKey" },
+                new object[] { "Forkleans.IGrainWithIntegerKey" },
+                new object[] { "Forkleans.IGrainWithIntegerCompoundKey" }
             };
 
         protected virtual DiagnosticAnalyzer CreateDiagnosticAnalyzer() => new TDiagnosticAnalyzer();
@@ -85,8 +85,8 @@ namespace Analyzers.Tests
             var assemblies = new[]
             {
                 typeof(Task).Assembly,
-                typeof(Orleans.IGrain).Assembly,
-                typeof(Orleans.Grain).Assembly,
+                typeof(Forkleans.IGrain).Assembly,
+                typeof(Forkleans.Grain).Assembly,
                 typeof(Attribute).Assembly,
                 typeof(int).Assembly,
                 typeof(object).Assembly,

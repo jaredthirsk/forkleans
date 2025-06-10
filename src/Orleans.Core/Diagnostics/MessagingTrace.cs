@@ -5,11 +5,11 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Runtime
+namespace Forkleans.Runtime
 {
     internal class MessagingTrace : DiagnosticListener, ILogger
     {
-        public const string Category = "Orleans.Messaging";
+        public const string Category = "Forkleans.Messaging";
 
         public const string CreateMessageEventName = Category + ".CreateMessage";
         public const string SendMessageEventName = Category + ".Outbound.Send";

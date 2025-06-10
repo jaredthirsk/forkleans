@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 
 #nullable enable
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 /// <summary>
 /// Represents a directive to update an invalid, cached <see cref="GrainAddress"/> to a valid <see cref="GrainAddress"/>.

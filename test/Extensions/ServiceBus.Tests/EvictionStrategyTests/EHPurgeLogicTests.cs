@@ -1,16 +1,16 @@
-using Orleans.Providers.Streams.Common;
-using Orleans.Streaming.EventHubs;
-using Orleans.Streams;
+using Forkleans.Providers.Streams.Common;
+using Forkleans.Streaming.EventHubs;
+using Forkleans.Streams;
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Orleans.Configuration;
+using Forkleans.Configuration;
 using Xunit;
-using Orleans.Streaming.EventHubs.Testing;
+using Forkleans.Streaming.EventHubs.Testing;
 using Azure.Messaging.EventHubs;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Serialization;
-using Orleans.Statistics;
+using Forkleans.Serialization;
+using Forkleans.Statistics;
 
 namespace ServiceBus.Tests.EvictionStrategyTests
 {

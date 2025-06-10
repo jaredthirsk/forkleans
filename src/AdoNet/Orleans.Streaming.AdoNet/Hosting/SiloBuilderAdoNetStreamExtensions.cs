@@ -1,4 +1,4 @@
-namespace Orleans.Hosting;
+namespace Forkleans.Hosting;
 
 /// <summary>
 /// Allows configuration of individual ADO.NET streams in a silo.

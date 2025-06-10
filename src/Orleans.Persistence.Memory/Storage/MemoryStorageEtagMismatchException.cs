@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Orleans.Storage.Internal
+namespace Forkleans.Storage.Internal
 {
     /// <summary>Exception used to communicate with the storage provider, so that it throws this exception to its caller.</summary>
     [Serializable]

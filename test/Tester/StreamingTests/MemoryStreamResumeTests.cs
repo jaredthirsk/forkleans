@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
-using Orleans.Providers;
-using Orleans.TestingHost;
+using Forkleans.Providers;
+using Forkleans.TestingHost;
 
 namespace Tester.StreamingTests
 {

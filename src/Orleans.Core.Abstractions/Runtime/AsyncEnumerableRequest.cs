@@ -8,11 +8,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Concurrency;
-using Orleans.Invocation;
-using Orleans.Serialization.Invocation;
+using Forkleans.Concurrency;
+using Forkleans.Invocation;
+using Forkleans.Serialization.Invocation;
 
-namespace Orleans.Runtime;
+namespace Forkleans.Runtime;
 
 /// <summary>
 /// Identifies enumeration results.

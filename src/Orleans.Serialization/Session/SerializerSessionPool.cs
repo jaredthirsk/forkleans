@@ -1,10 +1,10 @@
 using Microsoft.Extensions.ObjectPool;
-using Orleans.Serialization.Invocation;
-using Orleans.Serialization.Serializers;
-using Orleans.Serialization.TypeSystem;
+using Forkleans.Serialization.Invocation;
+using Forkleans.Serialization.Serializers;
+using Forkleans.Serialization.TypeSystem;
 using System;
 
-namespace Orleans.Serialization.Session
+namespace Forkleans.Serialization.Session
 {
     /// <summary>
     /// Pool for <see cref="SerializerSession"/> objects.

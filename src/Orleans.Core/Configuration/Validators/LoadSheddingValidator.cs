@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
-using Orleans.Runtime;
+using Forkleans.Runtime;
 
-namespace Orleans.Configuration.Validators;
+namespace Forkleans.Configuration.Validators;
 
 /// <summary>
 /// Validates <see cref="LoadSheddingOptions"/> configuration.
