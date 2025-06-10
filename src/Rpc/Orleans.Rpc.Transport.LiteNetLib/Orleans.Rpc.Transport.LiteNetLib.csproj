@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>Orleans.Rpc.Transport.LiteNetLib</AssemblyName>
+    <RootNamespace>Forkleans.Rpc.Transport.LiteNetLib</RootNamespace>
+    <Description>LiteNetLib transport implementation for Orleans RPC</Description>
+    <PackageTags>$(PackageTags);RPC;Transport;LiteNetLib;UDP</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Orleans.Rpc.Abstractions\Orleans.Rpc.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LiteNetLib" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+</Project>

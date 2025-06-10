@@ -6,6 +6,8 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("Forkleans.Runtime")]
 [assembly: InternalsVisibleTo("Forkleans.Streaming")]
 [assembly: InternalsVisibleTo("Forkleans.TestingHost")]
+[assembly: InternalsVisibleTo("Forkleans.Rpc.Server")]
+[assembly: InternalsVisibleTo("Forkleans.Rpc.Client")]
 
 [assembly: InternalsVisibleTo("AWSUtils.Tests")]
 [assembly: InternalsVisibleTo("DefaultCluster.Tests")]

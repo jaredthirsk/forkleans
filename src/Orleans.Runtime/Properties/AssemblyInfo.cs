@@ -4,6 +4,8 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("Forkleans.Reminders")]
 [assembly: InternalsVisibleTo("Forkleans.Journaling")]
 [assembly: InternalsVisibleTo("Forkleans.TestingHost")]
+[assembly: InternalsVisibleTo("Forkleans.Rpc.Server")]
+[assembly: InternalsVisibleTo("Forkleans.Rpc.Client")]
 
 [assembly: InternalsVisibleTo("AWSUtils.Tests")]
 [assembly: InternalsVisibleTo("LoadTestGrains")]

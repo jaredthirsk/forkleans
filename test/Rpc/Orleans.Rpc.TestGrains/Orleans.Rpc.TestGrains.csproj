@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Forkleans.Rpc.TestGrains</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Orleans.Rpc.TestGrainInterfaces\Orleans.Rpc.TestGrainInterfaces.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Core\Orleans.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Sdk\Orleans.Sdk.csproj" />
+  </ItemGroup>
+
+</Project>

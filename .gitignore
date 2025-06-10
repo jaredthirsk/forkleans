@@ -224,3 +224,4 @@ namespace_conversion_report.txt
 assembly-names-report.txt
 class-names-fix-report.txt
 reference-fix-report.txt
+/.claude/settings.local.json
