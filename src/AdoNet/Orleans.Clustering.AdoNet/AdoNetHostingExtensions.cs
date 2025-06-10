@@ -1,12 +1,12 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Orleans.Messaging;
-using Orleans.Runtime.Membership;
-using Orleans.Runtime.MembershipService;
-using Orleans.Configuration;
+using Forkleans.Messaging;
+using Forkleans.Runtime.Membership;
+using Forkleans.Runtime.MembershipService;
+using Forkleans.Configuration;
 
-namespace Orleans.Hosting
+namespace Forkleans.Hosting
 {
     /// <summary>
     /// Extensions for configuring ADO.NET for clustering.
