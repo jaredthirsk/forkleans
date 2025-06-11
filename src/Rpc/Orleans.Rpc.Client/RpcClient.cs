@@ -48,7 +48,6 @@ namespace Forkleans.Rpc
             _transportOptions = transportOptions?.Value ?? throw new ArgumentNullException(nameof(transportOptions));
             _transportFactory = transportFactory ?? throw new ArgumentNullException(nameof(transportFactory));
             _lifecycle = lifecycle ?? throw new ArgumentNullException(nameof(lifecycle));
-            
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -57,6 +56,14 @@ namespace Forkleans.Rpc
             
             try
             {
+                // Call ConsumeServices on the runtime client to break circular dependencies
+                var runtimeClient = _serviceProvider.GetService<IRuntimeClient>() as OutsideRpcRuntimeClient;
+                if (runtimeClient != null)
+                {
+                    runtimeClient.ConsumeServices();
+                    _logger.LogDebug("ConsumeServices called on OutsideRpcRuntimeClient");
+                }
+                
                 await (_lifecycle as ILifecycleSubject)?.OnStart(cancellationToken);
                 await ConnectAsync(cancellationToken);
                 _logger.LogInformation("RPC client started successfully");

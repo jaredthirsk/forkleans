@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -6,7 +7,15 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 using Forkleans.Rpc.TestGrainInterfaces;
+using Forkleans.Rpc.TestGrains;
 using Forkleans.Rpc.Transport.LiteNetLib;
+using Forkleans.Rpc.Hosting;
+using Forkleans.Configuration;
+using Forkleans.Configuration.Internal;
+using Forkleans.Serialization.Configuration;
+using Forkleans.Serialization;
+using Forkleans.Metadata;
+using Forkleans.Runtime;
 
 namespace Forkleans.Rpc.Tests
 {
@@ -29,6 +38,10 @@ namespace Forkleans.Rpc.Tests
         {
             var serverPort = 11111;
 
+            // Ensure grain assemblies are loaded
+            _ = typeof(HelloGrain).Assembly;
+            _ = typeof(IHelloGrain).Assembly;
+
             // Build and start the RPC server
             _serverHost = Host.CreateDefaultBuilder()
                 .ConfigureLogging(logging =>
@@ -41,11 +54,47 @@ namespace Forkleans.Rpc.Tests
                 {
                     rpcServer.ConfigureEndpoint(serverPort);
                     rpcServer.UseLiteNetLib();
+                    
+                    // Add grain assemblies
+                    rpcServer.AddAssemblyContaining<HelloGrain>()
+                             .AddAssemblyContaining<IHelloGrain>();
+                    
+                    // Add logging to debug grain type discovery
+                    rpcServer.Services.PostConfigure<GrainTypeOptions>(options =>
+                    {
+                        _output.WriteLine($"GrainTypeOptions.Classes count: {options.Classes.Count}");
+                        foreach (var grainClass in options.Classes)
+                        {
+                            _output.WriteLine($"  - Grain class: {grainClass.FullName}");
+                        }
+                        _output.WriteLine($"GrainTypeOptions.Interfaces count: {options.Interfaces.Count}");
+                        foreach (var grainInterface in options.Interfaces)
+                        {
+                            _output.WriteLine($"  - Grain interface: {grainInterface.FullName}");
+                        }
+                    });
                 })
                 .Build();
 
             await _serverHost.StartAsync();
             _output.WriteLine($"RPC Server started on port {serverPort}");
+            
+            // Debug manifest provider
+            var manifestProvider = _serverHost.Services.GetRequiredService<IClusterManifestProvider>();
+            _output.WriteLine($"Manifest version: {manifestProvider.Current.Version}");
+            _output.WriteLine($"Manifest grain count: {manifestProvider.Current.AllGrainManifests.SelectMany(m => m.Grains).Count()}");
+            foreach (var manifest in manifestProvider.Current.AllGrainManifests)
+            {
+                foreach (var grain in manifest.Grains)
+                {
+                    _output.WriteLine($"  - Grain type: {grain.Key}, Properties: {string.Join(", ", grain.Value.Properties.Select(p => $"{p.Key}={p.Value}"))}");
+                }
+                _output.WriteLine($"Manifest interface count: {manifest.Interfaces.Count}");
+                foreach (var iface in manifest.Interfaces)
+                {
+                    _output.WriteLine($"  - Interface type: {iface.Key}, Properties: {string.Join(", ", iface.Value.Properties.Select(p => $"{p.Key}={p.Value}"))}");
+                }
+            }
 
             // Give server time to fully start
             await Task.Delay(1000);
@@ -62,6 +111,12 @@ namespace Forkleans.Rpc.Tests
                 {
                     rpcClient.ConnectTo("127.0.0.1", serverPort);
                     rpcClient.UseLiteNetLib();
+                    
+                    // Add grain interface assembly for client
+                    rpcClient.Services.AddSerializer(serializer =>
+                    {
+                        serializer.AddAssembly(typeof(IHelloGrain).Assembly);
+                    });
                 })
                 .Build();
 
@@ -98,6 +153,11 @@ namespace Forkleans.Rpc.Tests
         [Fact]
         public async Task Can_Call_SayHello_Method()
         {
+            // Debug client-side interface resolution
+            var grainInterfaceTypeResolver = _clientHost.Services.GetRequiredService<GrainInterfaceTypeResolver>();
+            var interfaceType = grainInterfaceTypeResolver.GetGrainInterfaceType(typeof(IHelloGrain));
+            _output.WriteLine($"Client looking for interface type: {interfaceType}");
+            
             // Arrange
             var grain = _client.GetGrain<IHelloGrain>("1");
             

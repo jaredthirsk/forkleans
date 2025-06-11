@@ -16,7 +16,7 @@ namespace Orleans.Rpc.IntegrationTest.Combined
     {
         static async Task Main(string[] args)
         {
-            var serverPort = 11111;
+            var serverPort = 41111;
 
             // Start server in background
             var serverTask = RunServer(serverPort);

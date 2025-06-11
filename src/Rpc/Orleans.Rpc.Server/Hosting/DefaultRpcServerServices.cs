@@ -136,6 +136,9 @@ namespace Forkleans.Rpc.Hosting
             services.AddSingleton<IGrainPropertiesProvider, TypeNameGrainPropertiesProvider>();
             services.AddSingleton<IGrainPropertiesProvider, ImplementedInterfaceProvider>();
             
+            // Configure GrainTypeOptions from TypeManifestOptions
+            services.TryAddSingleton<IConfigureOptions<GrainTypeOptions>, DefaultGrainTypeOptionsProvider>();
+            
             // Grain versioning support (simplified for RPC)
             services.AddSingleton<GrainVersionManifest>();
 

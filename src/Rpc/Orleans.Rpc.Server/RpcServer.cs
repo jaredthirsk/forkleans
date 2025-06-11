@@ -32,6 +32,8 @@ namespace Forkleans.Rpc
         private readonly Forkleans.Serialization.Serializer _serializer;
         private readonly IOptions<MessagingOptions> _messagingOptions;
         private readonly ILoggerFactory _loggerFactory;
+        private readonly IClusterManifestProvider _manifestProvider;
+        private readonly GrainInterfaceTypeToGrainTypeResolver _interfaceToGrainResolver;
         
         private IRpcTransport _transport;
         private readonly ConcurrentDictionary<string, RpcConnection> _connections = new();
@@ -46,7 +48,9 @@ namespace Forkleans.Rpc
             MessageFactory messageFactory,
             Forkleans.Serialization.Serializer serializer,
             IOptions<MessagingOptions> messagingOptions,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            IClusterManifestProvider manifestProvider,
+            GrainInterfaceTypeToGrainTypeResolver interfaceToGrainResolver)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _serverDetails = serverDetails ?? throw new ArgumentNullException(nameof(serverDetails));
@@ -58,6 +62,8 @@ namespace Forkleans.Rpc
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _messagingOptions = messagingOptions ?? throw new ArgumentNullException(nameof(messagingOptions));
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
+            _manifestProvider = manifestProvider ?? throw new ArgumentNullException(nameof(manifestProvider));
+            _interfaceToGrainResolver = interfaceToGrainResolver ?? throw new ArgumentNullException(nameof(interfaceToGrainResolver));
             
             _logger.LogInformation("RpcServer created, registering with lifecycle");
         }

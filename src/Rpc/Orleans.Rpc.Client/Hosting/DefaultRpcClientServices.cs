@@ -151,7 +151,7 @@ namespace Forkleans.Rpc.Hosting
 
             // RPC Transport
             //services.TryAddSingleton<IRpcTransportFactory, DefaultRpcTransportFactory>();  // We don't have a default factory, so the user needs to add this in their application.
-            
+
             // RPC Protocol
             services.TryAddSingleton<Rpc.Protocol.RpcMessageSerializer>();
             

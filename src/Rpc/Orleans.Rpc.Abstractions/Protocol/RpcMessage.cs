@@ -129,4 +129,54 @@ namespace Forkleans.Rpc.Protocol
         [Id(4)]
         public string[] Features { get; set; } = Array.Empty<string>();
     }
+
+    /// <summary>
+    /// Handshake acknowledgment from server.
+    /// </summary>
+    [GenerateSerializer]
+    public class RpcHandshakeAck : RpcMessage
+    {
+        /// <summary>
+        /// Server ID.
+        /// </summary>
+        [Id(2)]
+        public string ServerId { get; set; }
+
+        /// <summary>
+        /// Protocol version accepted.
+        /// </summary>
+        [Id(3)]
+        public int ProtocolVersion { get; set; } = 1;
+
+        /// <summary>
+        /// Grain manifest from the server.
+        /// </summary>
+        [Id(4)]
+        public RpcGrainManifest GrainManifest { get; set; }
+    }
+
+    /// <summary>
+    /// Simplified grain manifest for RPC.
+    /// </summary>
+    [GenerateSerializer]
+    public class RpcGrainManifest
+    {
+        /// <summary>
+        /// Mapping of interface type to grain type.
+        /// </summary>
+        [Id(0)]
+        public Dictionary<string, string> InterfaceToGrainMappings { get; set; } = new();
+
+        /// <summary>
+        /// Grain type properties.
+        /// </summary>
+        [Id(1)]
+        public Dictionary<string, Dictionary<string, string>> GrainProperties { get; set; } = new();
+
+        /// <summary>
+        /// Interface properties.
+        /// </summary>
+        [Id(2)]
+        public Dictionary<string, Dictionary<string, string>> InterfaceProperties { get; set; } = new();
+    }
 }

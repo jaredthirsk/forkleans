@@ -23,23 +23,21 @@ namespace Forkleans.Rpc
     {
         private readonly ILogger<OutsideRpcRuntimeClient> _logger;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IGrainReferenceRuntime _grainReferenceRuntime;
         private readonly TimeProvider _timeProvider;
         private readonly ILocalClientDetails _clientDetails;
         private readonly RpcClient _rpcClient;
         private TimeSpan _responseTimeout = TimeSpan.FromSeconds(30);
+        private IInternalGrainFactory _internalGrainFactory;
 
         public OutsideRpcRuntimeClient(
             IServiceProvider serviceProvider,
             ILogger<OutsideRpcRuntimeClient> logger,
-            IGrainReferenceRuntime grainReferenceRuntime,
             TimeProvider timeProvider,
             ILocalClientDetails clientDetails,
             RpcClient rpcClient)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _grainReferenceRuntime = grainReferenceRuntime ?? throw new ArgumentNullException(nameof(grainReferenceRuntime));
             _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
             _clientDetails = clientDetails ?? throw new ArgumentNullException(nameof(clientDetails));
             _rpcClient = rpcClient ?? throw new ArgumentNullException(nameof(rpcClient));
@@ -47,17 +45,27 @@ namespace Forkleans.Rpc
 
         public TimeProvider TimeProvider => _timeProvider;
 
-        public IInternalGrainFactory InternalGrainFactory => _serviceProvider.GetRequiredService<IGrainFactory>() as IInternalGrainFactory;
+        public IInternalGrainFactory InternalGrainFactory => _internalGrainFactory ??= _serviceProvider.GetRequiredService<IGrainFactory>() as IInternalGrainFactory;
 
         public string CurrentActivationIdentity => _clientDetails.ClientId;
 
         public IServiceProvider ServiceProvider => _serviceProvider;
 
-        public IGrainReferenceRuntime GrainReferenceRuntime => _grainReferenceRuntime;
+        public IGrainReferenceRuntime GrainReferenceRuntime { get; private set; }
 
         public TimeSpan GetResponseTimeout() => _responseTimeout;
 
         public void SetResponseTimeout(TimeSpan timeout) => _responseTimeout = timeout;
+
+        /// <summary>
+        /// Consume services from the service provider to break circular dependencies.
+        /// This must be called after the DI container is fully built.
+        /// </summary>
+        public void ConsumeServices()
+        {
+            this.GrainReferenceRuntime = this.ServiceProvider.GetRequiredService<IGrainReferenceRuntime>();
+            _logger.LogDebug("ConsumeServices completed, GrainReferenceRuntime populated");
+        }
 
         public void SendRequest(GrainReference target, IInvokable request, IResponseCompletionSource context, InvokeMethodOptions options)
         {
