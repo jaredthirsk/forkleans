@@ -21,7 +21,7 @@ namespace Forkleans.Rpc.TestGrains
 
         public override Task OnActivateAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("HelloGrain {GrainId} activated", this.GetPrimaryKeyLong());
+            _logger.LogInformation("HelloGrain {GrainId} activated", this.GetPrimaryKeyString());
             return base.OnActivateAsync(cancellationToken);
         }
 
@@ -34,7 +34,7 @@ namespace Forkleans.Rpc.TestGrains
                 return new ValueTask<string>("Hello, anonymous!");
             }
 
-            return new ValueTask<string>($"Hello, {name}! Greetings from grain {this.GetPrimaryKeyLong()}");
+            return new ValueTask<string>($"Hello, {name}! Greetings from grain {this.GetPrimaryKeyString()}");
         }
 
         public ValueTask<string> Echo(string message)
@@ -51,7 +51,7 @@ namespace Forkleans.Rpc.TestGrains
             var response = new HelloResponse
             {
                 Greeting = $"Hello {request.Name}, age {request.Age} from {request.Location}! " +
-                          $"This is grain {this.GetPrimaryKeyLong()} speaking.",
+                          $"This is grain {this.GetPrimaryKeyString()} speaking.",
                 ServerTime = DateTime.UtcNow.ToString("O"),
                 ProcessId = Process.GetCurrentProcess().Id
             };
@@ -62,7 +62,7 @@ namespace Forkleans.Rpc.TestGrains
         public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
         {
             _logger.LogInformation("HelloGrain {GrainId} deactivating. Reason: {Reason}", 
-                this.GetPrimaryKeyLong(), reason);
+                this.GetPrimaryKeyString(), reason);
             return base.OnDeactivateAsync(reason, cancellationToken);
         }
     }

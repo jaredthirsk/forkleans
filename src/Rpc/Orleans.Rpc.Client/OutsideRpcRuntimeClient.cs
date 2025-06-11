@@ -61,7 +61,7 @@ namespace Forkleans.Rpc
 
         public void SendRequest(GrainReference target, IInvokable request, IResponseCompletionSource context, InvokeMethodOptions options)
         {
-            _logger.LogDebug("SendRequest called for {Target} method {MethodName}", target, request.GetMethodName());
+            _logger.LogInformation("SendRequest called for {Target} method {MethodName}", target, request.GetMethodName());
             
             Task.Run(async () =>
             {
@@ -75,15 +75,17 @@ namespace Forkleans.Rpc
                         GrainId = target.GrainId,
                         InterfaceType = target.InterfaceType,
                         MethodId = methodId,
-                        Arguments = SerializeArguments(request)
+                        Arguments = SerializeArguments(request),
+                        TimeoutMs = 30000 // 30 seconds timeout
                     };
                     
-                    _logger.LogDebug("Sending RPC request {MessageId} to grain {GrainId}", rpcRequest.MessageId, rpcRequest.GrainId);
+                    _logger.LogInformation("Sending RPC request {MessageId} to grain {GrainId} interface {InterfaceType} method {MethodId}", 
+                        rpcRequest.MessageId, rpcRequest.GrainId, rpcRequest.InterfaceType, rpcRequest.MethodId);
                     
                     // Send request and wait for response
                     var response = await _rpcClient.SendRequestAsync(rpcRequest);
                     
-                    _logger.LogDebug("Received RPC response for {MessageId}: Success={Success}", rpcRequest.MessageId, response.Success);
+                    _logger.LogInformation("Received RPC response for {MessageId}: Success={Success}", rpcRequest.MessageId, response.Success);
                     
                     if (response.Success)
                     {

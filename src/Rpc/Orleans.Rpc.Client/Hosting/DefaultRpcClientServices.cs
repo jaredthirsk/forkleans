@@ -84,6 +84,8 @@ namespace Forkleans.Rpc.Hosting
             services.TryAddSingleton<InterfaceToImplementationMappingCache>();
             services.TryAddSingleton<GrainInterfaceTypeToGrainTypeResolver>();
             services.TryAddSingleton<GrainReferenceActivator>();
+            // Add RPC grain reference provider first so it takes precedence
+            services.AddSingleton<IGrainReferenceActivatorProvider, RpcGrainReferenceActivatorProvider>();
             services.AddSingleton<IGrainReferenceActivatorProvider, GrainReferenceActivatorProvider>();
             services.AddSingleton<IGrainReferenceActivatorProvider, UntypedGrainReferenceActivatorProvider>();
             services.TryAddSingleton<RpcProvider>();
