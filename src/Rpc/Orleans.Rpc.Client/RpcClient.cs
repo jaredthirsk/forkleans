@@ -48,6 +48,7 @@ namespace Forkleans.Rpc
             _transportOptions = transportOptions?.Value ?? throw new ArgumentNullException(nameof(transportOptions));
             _transportFactory = transportFactory ?? throw new ArgumentNullException(nameof(transportFactory));
             _lifecycle = lifecycle ?? throw new ArgumentNullException(nameof(lifecycle));
+            
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -338,6 +339,9 @@ namespace Forkleans.Rpc
         internal async Task<Protocol.RpcResponse> SendRequestAsync(Protocol.RpcRequest request)
         {
             EnsureConnected();
+            
+            _logger.LogInformation("SendRequestAsync called for request {MessageId} to grain {GrainId} method {MethodId}", 
+                request.MessageId, request.GrainId, request.MethodId);
 
             var tcs = new TaskCompletionSource<Protocol.RpcResponse>();
             if (!_pendingRequests.TryAdd(request.MessageId, tcs))
@@ -350,22 +354,28 @@ namespace Forkleans.Rpc
                 // Serialize and send the request
                 var messageSerializer = _serviceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
                 var data = messageSerializer.SerializeMessage(request);
+                _logger.LogInformation("Sending {ByteCount} bytes to server for request {MessageId}", data.Length, request.MessageId);
                 await _transport.SendAsync(_serverEndpoint, data, CancellationToken.None);
 
                 // Wait for response with timeout
                 using (var cts = new CancellationTokenSource(request.TimeoutMs))
                 {
-                    return await tcs.Task.WaitAsync(cts.Token);
+                    _logger.LogInformation("Waiting for response to request {MessageId} with timeout {TimeoutMs}ms", request.MessageId, request.TimeoutMs);
+                    var response = await tcs.Task.WaitAsync(cts.Token);
+                    _logger.LogInformation("Received response for request {MessageId}: Success={Success}", request.MessageId, response.Success);
+                    return response;
                 }
             }
             catch (OperationCanceledException)
             {
                 _pendingRequests.TryRemove(request.MessageId, out _);
+                _logger.LogError("Request {MessageId} timed out after {TimeoutMs}ms", request.MessageId, request.TimeoutMs);
                 throw new TimeoutException($"RPC request {request.MessageId} timed out after {request.TimeoutMs}ms");
             }
-            catch
+            catch (Exception ex)
             {
                 _pendingRequests.TryRemove(request.MessageId, out _);
+                _logger.LogError(ex, "Error in SendRequestAsync for request {MessageId}", request.MessageId);
                 throw;
             }
         }

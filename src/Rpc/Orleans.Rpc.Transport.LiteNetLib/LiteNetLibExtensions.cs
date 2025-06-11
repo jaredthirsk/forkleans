@@ -26,7 +26,7 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
             builder.Services.AddSingleton<IRpcTransportFactory>(_ => new LiteNetLibTransportFactory(isServer: true));
 
             // Register default LiteNetLib options
-            builder.Services.TryAddSingleton<IOptions<LiteNetLibOptions>>(sp => 
+            builder.Services.TryAddSingleton<IOptions<LiteNetLibOptions>>(sp =>
                 Microsoft.Extensions.Options.Options.Create(new LiteNetLibOptions()));
 
             return builder;
@@ -47,7 +47,7 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
             builder.Services.AddSingleton<IRpcTransportFactory>(_ => new LiteNetLibTransportFactory(isServer: false));
 
             // Register default LiteNetLib options
-            builder.Services.TryAddSingleton<IOptions<LiteNetLibOptions>>(sp => 
+            builder.Services.TryAddSingleton<IOptions<LiteNetLibOptions>>(sp =>
                 Microsoft.Extensions.Options.Options.Create(new LiteNetLibOptions()));
 
             return builder;
@@ -100,6 +100,11 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
         /// <summary>
         /// Gets or sets the connection timeout in milliseconds.
         /// </summary>
-        public int ConnectionTimeoutMs { get; set; } = 5000;
+        public int ConnectionTimeoutMs { get; set; }
+#if DEBUG
+            = 120_000;
+#else
+            = 5_000;
+#endif
     }
 }

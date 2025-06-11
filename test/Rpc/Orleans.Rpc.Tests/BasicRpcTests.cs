@@ -99,7 +99,7 @@ namespace Forkleans.Rpc.Tests
         public async Task Can_Call_SayHello_Method()
         {
             // Arrange
-            var grain = _client.GetGrain<IHelloGrain>(1);
+            var grain = _client.GetGrain<IHelloGrain>("1");
             
             // Act
             var result = await grain.SayHello("World");
@@ -114,7 +114,7 @@ namespace Forkleans.Rpc.Tests
         public async Task Can_Call_Echo_Method()
         {
             // Arrange
-            var grain = _client.GetGrain<IHelloGrain>(2);
+            var grain = _client.GetGrain<IHelloGrain>("2");
             var message = "This is a test message";
             
             // Act
@@ -129,7 +129,7 @@ namespace Forkleans.Rpc.Tests
         public async Task Can_Call_Method_With_Complex_Types()
         {
             // Arrange
-            var grain = _client.GetGrain<IHelloGrain>(3);
+            var grain = _client.GetGrain<IHelloGrain>("3");
             var request = new HelloRequest
             {
                 Name = "Alice",
@@ -159,7 +159,7 @@ namespace Forkleans.Rpc.Tests
             // Call multiple grain instances
             for (int i = 0; i < 5; i++)
             {
-                var grain = _client.GetGrain<IHelloGrain>(i);
+                var grain = _client.GetGrain<IHelloGrain>($"{i}");
                 var result = await grain.SayHello($"User{i}");
                 
                 Assert.NotNull(result);

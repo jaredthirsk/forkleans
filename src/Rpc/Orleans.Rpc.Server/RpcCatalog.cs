@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Forkleans.Runtime;
 
@@ -98,8 +99,30 @@ namespace Forkleans.Rpc
 
             var grainContext = _activator.CreateInstance(address);
             
-            // TODO: Initialize the grain context
-            // In RPC mode, we skip the full lifecycle management
+            // Activate the grain (this should create the grain instance)
+            // Note: In full Orleans, this goes through a complex lifecycle
+            // For RPC, we'll do a simplified activation
+            try
+            {
+                _logger.LogDebug("Activating grain {GrainId} with activation {ActivationId}", grainId, activationId);
+                
+                // The GrainContextActivator should handle creating the grain instance
+                // If it doesn't, we might need to do it manually
+                if (grainContext.GrainInstance == null)
+                {
+                    _logger.LogWarning("GrainInstance is null after activation for {GrainId}, grain may not be properly initialized", grainId);
+                }
+                else
+                {
+                    _logger.LogDebug("Successfully activated grain {GrainId} with type {GrainType}", 
+                        grainId, grainContext.GrainInstance.GetType().Name);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to activate grain {GrainId}", grainId);
+                throw;
+            }
             
             return Task.FromResult(grainContext);
         }

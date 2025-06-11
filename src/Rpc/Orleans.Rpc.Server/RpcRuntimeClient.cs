@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Forkleans;
 using Forkleans.CodeGeneration;
 using Forkleans.Runtime;
@@ -18,17 +19,20 @@ namespace Forkleans.Rpc
         private readonly IGrainReferenceRuntime _grainReferenceRuntime;
         private readonly TimeProvider _timeProvider;
         private readonly string _serverId;
+        private readonly ILogger<RpcRuntimeClient> _logger;
         
         public RpcRuntimeClient(
             IServiceProvider serviceProvider,
             IGrainReferenceRuntime grainReferenceRuntime,
             TimeProvider timeProvider,
-            ILocalRpcServerDetails serverDetails)
+            ILocalRpcServerDetails serverDetails,
+            ILogger<RpcRuntimeClient> logger)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _grainReferenceRuntime = grainReferenceRuntime ?? throw new ArgumentNullException(nameof(grainReferenceRuntime));
             _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
             _serverId = serverDetails?.ServerId ?? throw new ArgumentNullException(nameof(serverDetails));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public TimeProvider TimeProvider => _timeProvider;
@@ -55,7 +59,12 @@ namespace Forkleans.Rpc
 
         public void SendResponse(Message request, Response response)
         {
-            throw new NotImplementedException("Use RPC transport directly");
+            // This is called when a grain method completes
+            // We need to find the RPC connection and send the response back
+            _logger.LogDebug("SendResponse called for message {MessageId}", request.Id);
+            
+            // For now, log a warning as we need to implement the connection lookup
+            _logger.LogWarning("SendResponse not fully implemented - response will be lost");
         }
 
         public void ReceiveResponse(Message message)

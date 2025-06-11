@@ -173,6 +173,9 @@ namespace Forkleans.Rpc.Hosting
             
             // TypeConverter for manifest provider
             services.TryAddSingleton<TypeConverter>();
+            
+            // Interface mapping cache for method invocation
+            services.TryAddSingleton<InterfaceToImplementationMappingCache>();
         }
 
         private class AllowForkleanTypes : ITypeNameFilter

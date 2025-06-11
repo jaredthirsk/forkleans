@@ -13,6 +13,7 @@ using Forkleans.Runtime;
 using Forkleans.Serialization;
 using Forkleans.Serialization.Session;
 using Forkleans.Serialization.Buffers;
+using Forkleans.Serialization.Invocation;
 
 namespace Forkleans.Rpc
 {
@@ -177,8 +178,8 @@ namespace Forkleans.Rpc
 
         private async Task HandleRequest(Protocol.RpcRequest request, IPEndPoint remoteEndpoint)
         {
-            _logger.LogDebug("Handling RPC request {MessageId} for grain {GrainId}", 
-                request.MessageId, request.GrainId);
+            _logger.LogInformation("Handling RPC request {MessageId} for grain {GrainId} method {MethodId} from {Endpoint}", 
+                request.MessageId, request.GrainId, request.MethodId, remoteEndpoint);
 
             // Get or create connection for this endpoint
             var connectionId = remoteEndpoint.ToString();
@@ -195,6 +196,8 @@ namespace Forkleans.Rpc
                 _logger.LogDebug("Creating new RPC connection for {ConnectionId}", id);
                 
                 var connectionLogger = _loggerFactory.CreateLogger<RpcConnection>();
+                var interfaceToImplementationMapping = _catalog.ServiceProvider.GetRequiredService<InterfaceToImplementationMappingCache>();
+                
                 return new RpcConnection(
                     id,
                     remoteEndpoint,
@@ -202,6 +205,7 @@ namespace Forkleans.Rpc
                     _catalog,
                     _messageFactory,
                     _messagingOptions.Value,
+                    interfaceToImplementationMapping,
                     connectionLogger);
             });
         }

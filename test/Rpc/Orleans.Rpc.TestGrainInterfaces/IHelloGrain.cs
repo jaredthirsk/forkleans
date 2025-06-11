@@ -8,7 +8,7 @@ namespace Forkleans.Rpc.TestGrainInterfaces
     /// Test grain interface for RPC communication.
     /// </summary>
     [RpcConnection(PersistentConnection = true)]
-    public interface IHelloGrain : IRpcGrainInterface
+    public interface IHelloGrain : IRpcGrainInterfaceWithStringKey
     {
         /// <summary>
         /// Simple greeting method.

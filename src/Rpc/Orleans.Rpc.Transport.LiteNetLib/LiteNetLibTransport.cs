@@ -154,7 +154,7 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
 
         public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
         {
-            _logger.LogDebug("Latency update for peer {PeerId}: {Latency}ms", peer.Id, latency);
+            _logger.LogTrace("Latency update for peer {PeerId}: {Latency}ms", peer.Id, latency);
         }
 
         public void OnConnectionRequest(ConnectionRequest request)
