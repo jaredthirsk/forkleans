@@ -36,6 +36,7 @@
     <EmbeddedResource Update="Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <LogicalName>Forkleans.Analyzers.Resources.resources</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 
