@@ -326,8 +326,6 @@ namespace Forkleans.Rpc
         {
             if (_pendingRequests.TryRemove(response.RequestId, out var tcs))
             {
-                _logger.LogDebug("Received response for request {RequestId}, success: {Success}", 
-                    response.RequestId, response.Success);
                 
                 if (response.Success)
                 {
@@ -364,7 +362,6 @@ namespace Forkleans.Rpc
         {
             _logger.LogInformation("Connected to RPC server at {Endpoint}", e.RemoteEndPoint);
             _isConnected = true;
-            _logger.LogDebug("Set _isConnected to true");
         }
 
         private void OnConnectionClosed(object sender, RpcConnectionEventArgs e)
@@ -379,8 +376,6 @@ namespace Forkleans.Rpc
         {
             EnsureConnected();
             
-            _logger.LogInformation("SendRequestAsync called for request {MessageId} to grain {GrainId} method {MethodId}", 
-                request.MessageId, request.GrainId, request.MethodId);
 
             var tcs = new TaskCompletionSource<Protocol.RpcResponse>();
             if (!_pendingRequests.TryAdd(request.MessageId, tcs))
@@ -393,15 +388,12 @@ namespace Forkleans.Rpc
                 // Serialize and send the request
                 var messageSerializer = _serviceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
                 var data = messageSerializer.SerializeMessage(request);
-                _logger.LogInformation("Sending {ByteCount} bytes to server for request {MessageId}", data.Length, request.MessageId);
                 await _transport.SendAsync(_serverEndpoint, data, CancellationToken.None);
 
                 // Wait for response with timeout
                 using (var cts = new CancellationTokenSource(request.TimeoutMs))
                 {
-                    _logger.LogInformation("Waiting for response to request {MessageId} with timeout {TimeoutMs}ms", request.MessageId, request.TimeoutMs);
                     var response = await tcs.Task.WaitAsync(cts.Token);
-                    _logger.LogInformation("Received response for request {MessageId}: Success={Success}", request.MessageId, response.Success);
                     return response;
                 }
             }

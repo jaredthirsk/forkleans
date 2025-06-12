@@ -24,7 +24,6 @@ namespace Forkleans.Rpc
             _logger = logger;
             _grainClassMap = serviceProvider.GetRequiredService<GrainClassMap>();
 
-            _logger.LogInformation("SimpleRpcGrainContext: Creating grain instance for type {GrainType}", grainType);
 
             // Get the grain class for this type
             if (!_grainClassMap.TryGetGrainClass(grainType, out var grainClass))
@@ -32,17 +31,13 @@ namespace Forkleans.Rpc
                 throw new InvalidOperationException($"Could not find grain class for grain type {grainType}");
             }
 
-            _logger.LogInformation("SimpleRpcGrainContext: Found grain class {GrainClass}", grainClass.Name);
 
             // Create the grain instance using dependency injection
             try
             {
                 GrainInstance = ActivatorUtilities.CreateInstance(serviceProvider, grainClass);
-                _logger.LogInformation("SimpleRpcGrainContext: Successfully created grain instance of type {GrainClass}, actual type: {ActualType}, base type: {BaseType}", 
-                    grainClass.Name, GrainInstance.GetType().FullName, GrainInstance.GetType().BaseType?.FullName);
                 
                 // If the grain derives from Grain, we need to set its GrainContext property
-                _logger.LogInformation("SimpleRpcGrainContext: Checking if instance is Forkleans.Grain");
                 if (GrainInstance is Forkleans.Grain grain)
                 {
                     // Use reflection to set the GrainContext property since it has a private setter
@@ -50,7 +45,6 @@ namespace Forkleans.Rpc
                     if (grainContextProperty != null)
                     {
                         grainContextProperty.SetValue(grain, this);
-                        _logger.LogInformation("SimpleRpcGrainContext: Set GrainContext property on grain instance");
                     }
                     else
                     {

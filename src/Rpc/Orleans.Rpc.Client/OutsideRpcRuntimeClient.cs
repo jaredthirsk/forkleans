@@ -64,7 +64,6 @@ namespace Forkleans.Rpc
         public void ConsumeServices()
         {
             this.GrainReferenceRuntime = this.ServiceProvider.GetRequiredService<IGrainReferenceRuntime>();
-            _logger.LogDebug("ConsumeServices completed, GrainReferenceRuntime populated");
         }
 
         public void SendRequest(GrainReference target, IInvokable request, IResponseCompletionSource context, InvokeMethodOptions options)
@@ -203,7 +202,6 @@ namespace Forkleans.Rpc
             
             // GrainInterfaceType.Value is an IdSpan, convert to string
             var typeName = interfaceType.Value.ToString();
-            _logger.LogDebug("Looking for interface type: {TypeName}", typeName);
             
             foreach (var assembly in assemblies)
             {
@@ -218,7 +216,6 @@ namespace Forkleans.Rpc
                              type.FullName.EndsWith("." + typeName)))
                         {
                             interfaceClrType = type;
-                            _logger.LogDebug("Found interface type {TypeName} in assembly {Assembly}", type.FullName, assembly.FullName);
                             break;
                         }
                     }
@@ -243,8 +240,6 @@ namespace Forkleans.Rpc
                 .OrderBy(m => m.Name, StringComparer.Ordinal)
                 .ToArray();
             
-            _logger.LogDebug("Interface {Interface} has methods: {Methods}", 
-                interfaceClrType.Name, string.Join(", ", methods.Select(m => m.Name)));
             
             for (int i = 0; i < methods.Length; i++)
             {

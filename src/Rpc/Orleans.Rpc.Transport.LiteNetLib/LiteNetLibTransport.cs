@@ -139,8 +139,6 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
                 reader.GetBytes(data, reader.AvailableBytes);
                 var endpoint = _peerEndpoints.GetValueOrDefault(peer.Id, new IPEndPoint(peer.Address, 0));
                 
-                _logger.LogInformation("LiteNetLib OnNetworkReceive: Received {ByteCount} bytes from peer {PeerId} ({Endpoint}), raising DataReceived event", 
-                    data.Length, peer.Id, endpoint);
                 
                 DataReceived?.Invoke(this, new RpcDataReceivedEventArgs(endpoint, data));
             }

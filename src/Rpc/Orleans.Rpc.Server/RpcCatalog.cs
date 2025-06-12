@@ -73,7 +73,6 @@ namespace Forkleans.Rpc
             
             if (_activations.TryAdd(grainId, grainContext))
             {
-                _logger.LogDebug("Created new activation for grain {GrainId}", grainId);
                 return grainContext;
             }
 
@@ -84,7 +83,6 @@ namespace Forkleans.Rpc
 
         private Task<IGrainContext> CreateActivationAsync(GrainId grainId)
         {
-            _logger.LogInformation("CreateActivationAsync: Starting activation for {GrainId}", grainId);
             
             // Bypass the Orleans activation system entirely for RPC mode
             // Create a simple grain instance directly using dependency injection
@@ -97,16 +95,11 @@ namespace Forkleans.Rpc
                 SiloAddress = null // No silo for RPC mode
             };
 
-            _logger.LogInformation("CreateActivationAsync: Created address {Address}", address);
             
             try
             {
                 // Instead of using the complex Orleans activator, create a simple wrapper
-                _logger.LogInformation("Creating simple grain context wrapper for {GrainId}", grainId);
                 var grainContext = new SimpleRpcGrainContext(address, grainType, _serviceProvider, _logger);
-                
-                _logger.LogInformation("Successfully created grain {GrainId} with type {GrainType}", 
-                    grainId, grainContext.GrainInstance?.GetType().Name ?? "null");
                     
                 return Task.FromResult<IGrainContext>(grainContext);
             }

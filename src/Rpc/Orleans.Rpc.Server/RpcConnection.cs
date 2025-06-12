@@ -83,17 +83,10 @@ namespace Forkleans.Rpc
 
             try
             {
-                _logger.LogInformation("Processing RPC request {MessageId} for grain {GrainId} method {MethodId}",
-                    request.MessageId, request.GrainId, request.MethodId);
-                
-                _logger.LogDebug("Request details - InterfaceType: {InterfaceType}, Arguments length: {ArgsLength}",
-                    request.InterfaceType, request.Arguments?.Length ?? 0);
 
                 // For now, let's use a simpler approach - invoke the grain method directly
                 // This bypasses Orleans' message pump but is simpler for RPC
                 var result = await InvokeGrainMethodAsync(request);
-                
-                _logger.LogInformation("Method invocation completed for request {MessageId}, preparing response", request.MessageId);
                 
                 // Send success response
                 var response = new Protocol.RpcResponse
@@ -103,9 +96,7 @@ namespace Forkleans.Rpc
                     Payload = SerializeResult(result)
                 };
                 
-                _logger.LogInformation("Sending success response for request {MessageId}", request.MessageId);
                 await SendResponseAsync(response);
-                _logger.LogInformation("Response sent successfully for request {MessageId}", request.MessageId);
             }
             catch (Exception ex)
             {
@@ -120,7 +111,6 @@ namespace Forkleans.Rpc
                     ErrorMessage = ex.Message
                 };
                 
-                _logger.LogInformation("Sending error response for request {MessageId}", request.MessageId);
                 await SendResponseAsync(errorResponse);
             }
         }
@@ -184,13 +174,8 @@ namespace Forkleans.Rpc
 
         private async Task<object> InvokeGrainMethodAsync(Protocol.RpcRequest request)
         {
-            _logger.LogInformation("Starting grain method invocation for {GrainId}", request.GrainId);
-            
-            _logger.LogInformation("About to call _catalog.GetOrCreateActivationAsync for {GrainId}", request.GrainId);
             // Get or create the grain activation
             var grainContext = await _catalog.GetOrCreateActivationAsync(request.GrainId);
-            _logger.LogInformation("Got grain context for {GrainId}, GrainInstance type: {GrainType}", 
-                request.GrainId, grainContext.GrainInstance?.GetType().Name ?? "null");
             
             var grain = grainContext.GrainInstance;
             
@@ -204,8 +189,6 @@ namespace Forkleans.Rpc
             
             // Get the interface type - need to resolve the actual Type from GrainInterfaceType
             var grainType = grain.GetType();
-            _logger.LogDebug("Grain type: {GrainType}, interfaces: {Interfaces}", 
-                grainType.Name, string.Join(", ", grainType.GetInterfaces().Select(i => i.Name)));
             
             // Find the grain interface on the implementation
             Type interfaceType = null;
@@ -224,7 +207,6 @@ namespace Forkleans.Rpc
                     iface != typeof(IGrainWithIntegerCompoundKey) &&
                     iface != typeof(ISystemTarget))
                 {
-                    _logger.LogDebug("Found grain interface: {Interface}", iface.Name);
                     interfaceType = iface;
                     break;
                 }
@@ -241,8 +223,6 @@ namespace Forkleans.Rpc
                 .OrderBy(m => m.Name, StringComparer.Ordinal)
                 .ToArray();
             
-            _logger.LogDebug("Interface {Interface} has {MethodCount} methods: {Methods}", 
-                interfaceType.Name, methods.Length, string.Join(", ", methods.Select(m => m.Name)));
             
             if (request.MethodId >= methods.Length)
             {
@@ -250,8 +230,6 @@ namespace Forkleans.Rpc
             }
             
             var method = methods[request.MethodId];
-            _logger.LogInformation("Invoking method {MethodName} (ID: {MethodId}) on grain {GrainId}", 
-                method.Name, request.MethodId, request.GrainId);
             
             // Deserialize arguments
             object[] arguments = null;
@@ -262,7 +240,6 @@ namespace Forkleans.Rpc
                 try
                 {
                     var jsonString = System.Text.Encoding.UTF8.GetString(request.Arguments);
-                    _logger.LogDebug("Deserializing arguments: {Json}", jsonString);
                     
                     var jsonArray = JsonSerializer.Deserialize<JsonElement[]>(request.Arguments);
                     arguments = new object[parameters.Length];
@@ -271,7 +248,6 @@ namespace Forkleans.Rpc
                     {
                         var paramType = parameters[i].ParameterType;
                         arguments[i] = JsonSerializer.Deserialize(jsonArray[i].GetRawText(), paramType);
-                        _logger.LogDebug("Argument {Index}: {Value} (Type: {Type})", i, arguments[i], paramType.Name);
                     }
                 }
                 catch (Exception ex)
@@ -283,7 +259,6 @@ namespace Forkleans.Rpc
             else
             {
                 arguments = new object[parameters.Length];
-                _logger.LogDebug("No arguments provided for method {Method}", method.Name);
             }
             
             try
@@ -296,15 +271,11 @@ namespace Forkleans.Rpc
                 }
                 
                 // Invoke the method
-                _logger.LogDebug("Invoking implementation method {Method} on grain {GrainType}", 
-                    methodEntry.ImplementationMethod.Name, grainType.Name);
                 
                 object result = null;
                 try
                 {
                     result = methodEntry.ImplementationMethod.Invoke(grain, arguments);
-                    _logger.LogDebug("Method invocation returned, result type: {ResultType}", 
-                        result?.GetType().Name ?? "null");
                 }
                 catch (Exception ex)
                 {
@@ -315,9 +286,7 @@ namespace Forkleans.Rpc
                 // Handle async methods
                 if (result is Task task)
                 {
-                    _logger.LogDebug("Result is a Task, awaiting...");
                     await task;
-                    _logger.LogDebug("Task completed");
                     
                     // Get the result from Task<T> or ValueTask<T>
                     var taskType = task.GetType();
@@ -328,12 +297,10 @@ namespace Forkleans.Rpc
                         {
                             var resultProperty = taskType.GetProperty("Result");
                             var taskResult = resultProperty.GetValue(task);
-                            _logger.LogDebug("Method {Method} returned: {Result}", method.Name, taskResult);
                             return taskResult;
                         }
                     }
                     
-                    _logger.LogDebug("Method {Method} returned void", method.Name);
                     return null; // Task without result
                 }
                 else if (result != null && result.GetType().IsGenericType && 
@@ -346,20 +313,13 @@ namespace Forkleans.Rpc
                     
                     var resultProperty = task2.GetType().GetProperty("Result");
                     var taskResult = resultProperty.GetValue(task2);
-                    _logger.LogDebug("Method {Method} returned ValueTask result: {Result}", method.Name, taskResult);
                     return taskResult;
                 }
                 
-                _logger.LogDebug("Method {Method} returned synchronously: {Result}", method.Name, result);
                 return result;
             }
             catch (TargetInvocationException tie)
             {
-                _logger.LogError(tie, "TargetInvocationException during method invocation");
-                if (tie.InnerException != null)
-                {
-                    _logger.LogError(tie.InnerException, "Inner exception: {Message}", tie.InnerException.Message);
-                }
                 throw tie.InnerException ?? tie;
             }
         }
@@ -382,7 +342,6 @@ namespace Forkleans.Rpc
             {
                 _cancellationTokenSource?.Cancel();
                 _cancellationTokenSource?.Dispose();
-                _logger.LogDebug("RPC connection {ConnectionId} disposed", _connectionId);
             }
         }
     }
