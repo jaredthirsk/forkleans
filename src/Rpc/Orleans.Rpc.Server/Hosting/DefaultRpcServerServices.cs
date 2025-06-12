@@ -108,15 +108,9 @@ namespace Forkleans.Rpc.Hosting
             services.TryAddSingleton<RpcActivationDirectory>();
             services.TryAddSingleton<GrainCountStatistics>();
             
-            // Grain activation
+            // Grain activation - simplified for RPC mode
             services.TryAddSingleton<RpcCatalog>();
             services.AddFromExisting<ILifecycleParticipant<IRpcServerLifecycle>, RpcCatalog>();
-            services.AddSingleton<GrainContextActivator>();
-            services.AddSingleton<IConfigureGrainTypeComponents, ConfigureDefaultGrainActivator>();
-            services.AddSingleton<IGrainContextActivatorProvider, ActivationDataActivatorProvider>();
-            services.AddSingleton<IGrainContextAccessor, GrainContextAccessor>();
-            services.AddSingleton<GrainTypeSharedContextResolver>();
-            services.AddSingleton<IActivationWorkingSet, ActivationWorkingSet>();
             
             // Scoped to a grain activation
             // Note: RuntimeContext is internal, using a factory that will be provided at activation time

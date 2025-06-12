@@ -60,6 +60,12 @@ namespace Forkleans.Rpc.Protocol
         /// </summary>
         [Id(6)]
         public int TimeoutMs { get; set; } = 30000;
+
+        /// <summary>
+        /// Return type name for deserialization.
+        /// </summary>
+        [Id(7)]
+        public string ReturnTypeName { get; set; }
     }
 
     /// <summary>

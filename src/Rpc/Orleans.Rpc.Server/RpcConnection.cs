@@ -298,10 +298,19 @@ namespace Forkleans.Rpc
                 // Invoke the method
                 _logger.LogDebug("Invoking implementation method {Method} on grain {GrainType}", 
                     methodEntry.ImplementationMethod.Name, grainType.Name);
-                    
-                var result = methodEntry.ImplementationMethod.Invoke(grain, arguments);
-                _logger.LogDebug("Method invocation returned, result type: {ResultType}", 
-                    result?.GetType().Name ?? "null");
+                
+                object result = null;
+                try
+                {
+                    result = methodEntry.ImplementationMethod.Invoke(grain, arguments);
+                    _logger.LogDebug("Method invocation returned, result type: {ResultType}", 
+                        result?.GetType().Name ?? "null");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Exception during method.Invoke");
+                    throw;
+                }
                 
                 // Handle async methods
                 if (result is Task task)
@@ -346,6 +355,11 @@ namespace Forkleans.Rpc
             }
             catch (TargetInvocationException tie)
             {
+                _logger.LogError(tie, "TargetInvocationException during method invocation");
+                if (tie.InnerException != null)
+                {
+                    _logger.LogError(tie.InnerException, "Inner exception: {Message}", tie.InnerException.Message);
+                }
                 throw tie.InnerException ?? tie;
             }
         }

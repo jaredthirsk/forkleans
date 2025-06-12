@@ -1,14 +1,17 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Forkleans;
 using Forkleans.Rpc;
+using Forkleans.Rpc.Hosting;
 using Forkleans.Rpc.TestGrainInterfaces;
-using Forkleans.Rpc.Transport.LiteNetLib;
+using Forkleans.Rpc.TestGrains;
 using Forkleans.Rpc.Transport;
+using Forkleans.Rpc.Transport.LiteNetLib;
+using Forkleans.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Orleans.Rpc.IntegrationTest.Combined
 {
@@ -44,6 +47,10 @@ namespace Orleans.Rpc.IntegrationTest.Combined
                 {
                     rpcServer.ConfigureEndpoint(port);
                     rpcServer.UseLiteNetLib();
+                    
+                    // Add grain assemblies
+                    rpcServer.AddAssemblyContaining<HelloGrain>()
+                             .AddAssemblyContaining<IHelloGrain>();
                 })
                 .Build();
 
@@ -67,6 +74,12 @@ namespace Orleans.Rpc.IntegrationTest.Combined
                 {
                     rpcClient.ConnectTo("127.0.0.1", port);
                     rpcClient.UseLiteNetLib();
+
+                    // Add grain interface assembly for client
+                    rpcClient.Services.AddSerializer(serializer =>
+                    {
+                        serializer.AddAssembly(typeof(IHelloGrain).Assembly);
+                    });
                 })
                 .Build();
 

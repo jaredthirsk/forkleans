@@ -79,6 +79,25 @@ namespace Forkleans.Rpc
                 {
                     // Create RPC request
                     var methodId = GetMethodId(target.InterfaceType, request.GetMethodName());
+                    
+                    // Get return type information
+                    string returnTypeName = null;
+                    var method = request.GetMethod();
+                    if (method != null)
+                    {
+                        var returnType = method.ReturnType;
+                        if (returnType.IsGenericType)
+                        {
+                            // Handle Task<T> or ValueTask<T>
+                            var genericDef = returnType.GetGenericTypeDefinition();
+                            if (genericDef == typeof(Task<>) || genericDef == typeof(ValueTask<>))
+                            {
+                                var actualReturnType = returnType.GetGenericArguments()[0];
+                                returnTypeName = actualReturnType.AssemblyQualifiedName;
+                            }
+                        }
+                    }
+                    
                     var rpcRequest = new Protocol.RpcRequest
                     {
                         MessageId = Guid.NewGuid(),
@@ -86,7 +105,8 @@ namespace Forkleans.Rpc
                         InterfaceType = target.InterfaceType,
                         MethodId = methodId,
                         Arguments = SerializeArguments(request),
-                        TimeoutMs = 30000 // 30 seconds timeout
+                        TimeoutMs = 30000, // 30 seconds timeout
+                        ReturnTypeName = returnTypeName
                     };
                     
                     _logger.LogInformation("Sending RPC request {MessageId} to grain {GrainId} interface {InterfaceType} method {MethodId}", 
@@ -104,7 +124,35 @@ namespace Forkleans.Rpc
                         if (response.Payload != null && response.Payload.Length > 0)
                         {
                             var json = System.Text.Encoding.UTF8.GetString(response.Payload);
-                            result = System.Text.Json.JsonSerializer.Deserialize<object>(json);
+                            
+                            // Try to deserialize using the return type information if available
+                            if (!string.IsNullOrEmpty(rpcRequest.ReturnTypeName))
+                            {
+                                try
+                                {
+                                    var returnType = Type.GetType(rpcRequest.ReturnTypeName);
+                                    if (returnType != null)
+                                    {
+                                        result = System.Text.Json.JsonSerializer.Deserialize(json, returnType);
+                                    }
+                                    else
+                                    {
+                                        _logger.LogWarning("Could not load return type {ReturnTypeName}", rpcRequest.ReturnTypeName);
+                                        result = System.Text.Json.JsonSerializer.Deserialize<object>(json);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(ex, "Error deserializing result of type {ReturnTypeName}", rpcRequest.ReturnTypeName);
+                                    // Fall back to object deserialization
+                                    result = System.Text.Json.JsonSerializer.Deserialize<object>(json);
+                                }
+                            }
+                            else
+                            {
+                                // No type information available, deserialize as object
+                                result = System.Text.Json.JsonSerializer.Deserialize<object>(json);
+                            }
                         }
                         
                         context.Complete(Response.FromResult(result));
