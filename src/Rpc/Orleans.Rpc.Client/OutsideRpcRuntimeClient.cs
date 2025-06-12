@@ -69,7 +69,9 @@ namespace Forkleans.Rpc
 
         public void SendRequest(GrainReference target, IInvokable request, IResponseCompletionSource context, InvokeMethodOptions options)
         {
-            _logger.LogInformation("SendRequest called for {Target} method {MethodName}", target, request.GetMethodName());
+            try
+            {
+                _logger.LogInformation("SendRequest called for {Target} method {MethodName} (entry point)", target, request.GetMethodName());
             
             Task.Run(async () =>
             {
@@ -118,6 +120,12 @@ namespace Forkleans.Rpc
                     context.Complete(Response.FromException(ex));
                 }
             });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in SendRequest method entry");
+                context.Complete(Response.FromException(ex));
+            }
         }
         
         private byte[] SerializeArguments(IInvokable request)

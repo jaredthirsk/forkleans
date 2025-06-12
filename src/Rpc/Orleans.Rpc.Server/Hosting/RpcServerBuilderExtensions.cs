@@ -2,7 +2,11 @@ using System;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Forkleans.Serialization.Configuration;
+using Forkleans.Serialization;
 using Microsoft.Extensions.Options;
+using Forkleans;
+using Forkleans.Runtime;
+using Forkleans.Configuration;
 
 namespace Forkleans.Rpc.Hosting
 {
@@ -32,6 +36,30 @@ namespace Forkleans.Rpc.Hosting
                         if (typeof(IGrain).IsAssignableFrom(type))
                         {
                             options.InterfaceImplementations.Add(type);
+                        }
+                    }
+                    else if (type.IsInterface)
+                    {
+                        // Check if it's a grain interface
+                        if (typeof(IAddressable).IsAssignableFrom(type))
+                        {
+                            options.Interfaces.Add(type);
+                        }
+                    }
+                }
+            });
+            
+            // Also configure GrainTypeOptions directly to ensure types are registered
+            builder.Services.Configure<GrainTypeOptions>(options =>
+            {
+                foreach (var type in assembly.GetTypes())
+                {
+                    if (!type.IsAbstract && !type.IsInterface)
+                    {
+                        // Check if it's a grain implementation
+                        if (typeof(IGrain).IsAssignableFrom(type))
+                        {
+                            options.Classes.Add(type);
                         }
                     }
                     else if (type.IsInterface)

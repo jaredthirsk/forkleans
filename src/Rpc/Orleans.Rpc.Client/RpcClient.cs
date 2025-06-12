@@ -263,12 +263,17 @@ namespace Forkleans.Rpc
                 // Deserialize the message
                 var messageSerializer = _serviceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
                 var message = messageSerializer.DeserializeMessage(e.Data);
+                _logger.LogDebug("Deserialized message type: {MessageType}", message.GetType().Name);
 
                 // Handle different message types
                 switch (message)
                 {
                     case Protocol.RpcHandshake handshake:
                         _logger.LogInformation("Received handshake response from server {ServerId}", handshake.ClientId);
+                        break;
+                        
+                    case Protocol.RpcHandshakeAck handshakeAck:
+                        HandleHandshakeAck(handshakeAck);
                         break;
                         
                     case Protocol.RpcResponse response:
@@ -287,6 +292,33 @@ namespace Forkleans.Rpc
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing received data from server");
+            }
+        }
+
+        private void HandleHandshakeAck(Protocol.RpcHandshakeAck handshakeAck)
+        {
+            _logger.LogInformation("Received handshake acknowledgment from server {ServerId}, manifest included: {HasManifest}", 
+                handshakeAck.ServerId, handshakeAck.GrainManifest != null);
+            
+            // Update the client manifest provider with server's grain manifest
+            if (handshakeAck.GrainManifest != null)
+            {
+                var manifestProvider = _serviceProvider.GetService<Hosting.RpcClientManifestProvider>();
+                if (manifestProvider != null)
+                {
+                    manifestProvider.UpdateFromServer(handshakeAck.GrainManifest);
+                    _logger.LogInformation("Updated client manifest with {GrainCount} grains and {InterfaceCount} interfaces",
+                        handshakeAck.GrainManifest.GrainProperties.Count,
+                        handshakeAck.GrainManifest.InterfaceProperties.Count);
+                }
+                else
+                {
+                    _logger.LogWarning("Could not find RpcClientManifestProvider to update manifest");
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Server handshake acknowledgment did not include grain manifest");
             }
         }
 

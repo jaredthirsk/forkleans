@@ -124,6 +124,9 @@ namespace Forkleans.Rpc.Tests
             _output.WriteLine("RPC Client connected");
 
             _client = _clientHost.Services.GetRequiredService<IClusterClient>();
+            
+            // Give time for handshake to complete
+            await Task.Delay(500);
         }
 
         public async Task DisposeAsync()
@@ -157,6 +160,18 @@ namespace Forkleans.Rpc.Tests
             var grainInterfaceTypeResolver = _clientHost.Services.GetRequiredService<GrainInterfaceTypeResolver>();
             var interfaceType = grainInterfaceTypeResolver.GetGrainInterfaceType(typeof(IHelloGrain));
             _output.WriteLine($"Client looking for interface type: {interfaceType}");
+            
+            // Debug manifest on client
+            var clientManifestProvider = _clientHost.Services.GetRequiredService<IClusterManifestProvider>();
+            _output.WriteLine($"Client manifest version: {clientManifestProvider.Current.Version}");
+            _output.WriteLine($"Client manifest grain count: {clientManifestProvider.Current.AllGrainManifests.SelectMany(m => m.Grains).Count()}");
+            foreach (var manifest in clientManifestProvider.Current.AllGrainManifests)
+            {
+                foreach (var grainEntry in manifest.Grains)
+                {
+                    _output.WriteLine($"  - Client grain type: {grainEntry.Key}, Properties: {string.Join(", ", grainEntry.Value.Properties.Select(p => $"{p.Key}={p.Value}"))}");
+                }
+            }
             
             // Arrange
             var grain = _client.GetGrain<IHelloGrain>("1");

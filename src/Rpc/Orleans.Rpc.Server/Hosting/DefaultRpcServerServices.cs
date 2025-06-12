@@ -10,6 +10,7 @@ using Forkleans.Metadata;
 using Forkleans.Providers;
 using Forkleans.Runtime;
 using Forkleans.Runtime.Messaging;
+using Forkleans.Runtime.Placement;
 using Forkleans.Runtime.Scheduler;
 using Forkleans.Runtime.Versions;
 using Forkleans.Rpc.Configuration;
@@ -24,6 +25,7 @@ using Forkleans.Timers;
 using Forkleans.Timers.Internal;
 using System;
 using System.Linq;
+using System.Net;
 
 namespace Forkleans.Rpc.Hosting
 {
@@ -174,11 +176,29 @@ namespace Forkleans.Rpc.Hosting
             services.ConfigureFormatter<RpcTransportOptions>();
             services.ConfigureFormatter<ClusterOptions>();
             
+            // Configure messaging options - use ClientMessagingOptions as a concrete implementation
+            services.Configure<ClientMessagingOptions>(options =>
+            {
+                options.ResponseTimeout = TimeSpan.FromSeconds(30);
+                options.MaxMessageBodySize = 128 * 1024 * 1024; // 128MB
+            });
+            
             // TypeConverter for manifest provider
             services.TryAddSingleton<TypeConverter>();
             
             // Interface mapping cache for method invocation
             services.TryAddSingleton<InterfaceToImplementationMappingCache>();
+            
+            // Placement services (needed for grain activation)
+            services.TryAddSingleton<PlacementStrategyResolver>();
+            services.TryAddSingleton<IPlacementStrategyResolver, ClientObserverPlacementStrategyResolver>();
+            services.TryAddSingleton<PlacementStrategy, RandomPlacement>();
+            
+            // Adapter to provide ILocalSiloDetails from RPC server details
+            services.TryAddSingleton<ILocalSiloDetails, RpcSiloDetailsAdapter>();
+            
+            // Grain cancellation token runtime
+            services.TryAddSingleton<IGrainCancellationTokenRuntime, GrainCancellationTokenRuntime>();
         }
 
         private class AllowForkleanTypes : ITypeNameFilter
@@ -192,6 +212,27 @@ namespace Forkleans.Rpc.Hosting
 
                 return null;
             }
+        }
+
+        private class RpcSiloDetailsAdapter : ILocalSiloDetails
+        {
+            private readonly ILocalRpcServerDetails _rpcServerDetails;
+            private readonly SiloAddress _siloAddress;
+
+            public RpcSiloDetailsAdapter(ILocalRpcServerDetails rpcServerDetails)
+            {
+                _rpcServerDetails = rpcServerDetails;
+                // Create a pseudo SiloAddress from RPC server details
+                _siloAddress = SiloAddress.New(_rpcServerDetails.ServerEndpoint, 0);
+            }
+
+            public string Name => _rpcServerDetails.ServerName;
+            public SiloAddress SiloAddress => _siloAddress;
+            public SiloAddress GatewayAddress => _siloAddress;
+            public string ClusterId => "rpc-cluster";
+            public string DnsHostName => _rpcServerDetails.ServerEndpoint.Address.ToString();
+            public IPEndPoint SiloListeningEndpoint => _rpcServerDetails.ServerEndpoint;
+            public IPEndPoint GatewayListeningEndpoint => _rpcServerDetails.ServerEndpoint;
         }
 
         private class ServicesAdded { }

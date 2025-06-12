@@ -85,6 +85,9 @@ namespace Forkleans.Rpc
             {
                 _logger.LogInformation("Processing RPC request {MessageId} for grain {GrainId} method {MethodId}",
                     request.MessageId, request.GrainId, request.MethodId);
+                
+                _logger.LogDebug("Request details - InterfaceType: {InterfaceType}, Arguments length: {ArgsLength}",
+                    request.InterfaceType, request.Arguments?.Length ?? 0);
 
                 // For now, let's use a simpler approach - invoke the grain method directly
                 // This bypasses Orleans' message pump but is simpler for RPC
@@ -106,7 +109,8 @@ namespace Forkleans.Rpc
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing request {MessageId}: {ErrorMessage}", request.MessageId, ex.Message);
+                _logger.LogError(ex, "Error processing request {MessageId}: {ErrorMessage}. Stack trace: {StackTrace}", 
+                    request.MessageId, ex.Message, ex.StackTrace);
                 
                 // Send error response
                 var errorResponse = new Protocol.RpcResponse
@@ -180,8 +184,14 @@ namespace Forkleans.Rpc
 
         private async Task<object> InvokeGrainMethodAsync(Protocol.RpcRequest request)
         {
+            _logger.LogInformation("Starting grain method invocation for {GrainId}", request.GrainId);
+            
+            _logger.LogInformation("About to call _catalog.GetOrCreateActivationAsync for {GrainId}", request.GrainId);
             // Get or create the grain activation
             var grainContext = await _catalog.GetOrCreateActivationAsync(request.GrainId);
+            _logger.LogInformation("Got grain context for {GrainId}, GrainInstance type: {GrainType}", 
+                request.GrainId, grainContext.GrainInstance?.GetType().Name ?? "null");
+            
             var grain = grainContext.GrainInstance;
             
             if (grain == null)
@@ -194,6 +204,8 @@ namespace Forkleans.Rpc
             
             // Get the interface type - need to resolve the actual Type from GrainInterfaceType
             var grainType = grain.GetType();
+            _logger.LogDebug("Grain type: {GrainType}, interfaces: {Interfaces}", 
+                grainType.Name, string.Join(", ", grainType.GetInterfaces().Select(i => i.Name)));
             
             // Find the grain interface on the implementation
             Type interfaceType = null;
@@ -212,6 +224,7 @@ namespace Forkleans.Rpc
                     iface != typeof(IGrainWithIntegerCompoundKey) &&
                     iface != typeof(ISystemTarget))
                 {
+                    _logger.LogDebug("Found grain interface: {Interface}", iface.Name);
                     interfaceType = iface;
                     break;
                 }
@@ -283,12 +296,19 @@ namespace Forkleans.Rpc
                 }
                 
                 // Invoke the method
+                _logger.LogDebug("Invoking implementation method {Method} on grain {GrainType}", 
+                    methodEntry.ImplementationMethod.Name, grainType.Name);
+                    
                 var result = methodEntry.ImplementationMethod.Invoke(grain, arguments);
+                _logger.LogDebug("Method invocation returned, result type: {ResultType}", 
+                    result?.GetType().Name ?? "null");
                 
                 // Handle async methods
                 if (result is Task task)
                 {
+                    _logger.LogDebug("Result is a Task, awaiting...");
                     await task;
+                    _logger.LogDebug("Task completed");
                     
                     // Get the result from Task<T> or ValueTask<T>
                     var taskType = task.GetType();

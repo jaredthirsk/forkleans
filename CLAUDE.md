@@ -9,6 +9,7 @@ This is **Forkleans**, an experimental fork of Microsoft Orleans focused on addi
 Key differences from upstream Orleans:
 - All namespaces renamed from `Orleans` to `Forkleans`
 - Package prefix changed to `Forkleans.`
+- DLL name prefix for all original Orleans changed to `Forkleans.`, but new DLLs that are created for RPC should have the `Orleans.` prefix so that they are easier to merge into real Orleans someday.
 - Version suffix includes `-fork`
 - Original filenames preserved for easier merging
 

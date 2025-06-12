@@ -91,8 +91,8 @@ namespace Forkleans.Rpc.Hosting
             services.TryAddSingleton<RpcProvider>();
             services.TryAddSingleton<IGrainReferenceRuntime, GrainReferenceRuntime>();
             services.TryAddSingleton<GrainPropertiesResolver>();
-            // Note: IGrainCancellationTokenRuntime is internal
-            // services.TryAddSingleton<IGrainCancellationTokenRuntime, GrainCancellationTokenRuntime>();
+            // Grain cancellation token runtime
+            services.TryAddSingleton<IGrainCancellationTokenRuntime, GrainCancellationTokenRuntime>();
             services.TryAddFromExisting<IGrainFactory, GrainFactory>();
             services.TryAddFromExisting<IInternalGrainFactory, GrainFactory>();
             

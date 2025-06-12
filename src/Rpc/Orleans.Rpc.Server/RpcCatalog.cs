@@ -87,6 +87,8 @@ namespace Forkleans.Rpc
 
         private Task<IGrainContext> CreateActivationAsync(GrainId grainId)
         {
+            _logger.LogInformation("CreateActivationAsync: Starting activation for {GrainId}", grainId);
+            
             // Simplified activation creation for RPC
             var grainType = grainId.Type;
             var activationId = ActivationId.NewId();
@@ -97,26 +99,40 @@ namespace Forkleans.Rpc
                 SiloAddress = null // No silo for RPC mode
             };
 
-            var grainContext = _activator.CreateInstance(address);
+            _logger.LogInformation("CreateActivationAsync: Created address {Address}", address);
             
-            // Activate the grain (this should create the grain instance)
-            // Note: In full Orleans, this goes through a complex lifecycle
-            // For RPC, we'll do a simplified activation
+            _logger.LogInformation("CreateActivationAsync: About to call _activator.CreateInstance, activator type: {ActivatorType}", _activator.GetType().Name);
+            var grainContext = _activator.CreateInstance(address);
+            _logger.LogInformation("CreateActivationAsync: _activator.CreateInstance completed");
+            _logger.LogInformation("CreateActivationAsync: Created grain context, GrainInstance: {GrainInstance}", 
+                grainContext.GrainInstance?.GetType().Name ?? "null");
+            
+            // In RPC mode, we don't need the complex Orleans activation process
+            // The grain instance is already created by CreateInstance, so we just need to
+            // mark it as valid without going through the full activation lifecycle
             try
             {
-                _logger.LogDebug("Activating grain {GrainId} with activation {ActivationId}", grainId, activationId);
+                _logger.LogInformation("Setting grain context state to Valid for {GrainId}", grainId);
                 
-                // The GrainContextActivator should handle creating the grain instance
-                // If it doesn't, we might need to do it manually
-                if (grainContext.GrainInstance == null)
+                // Cast to ActivationData to access internal methods
+                if (grainContext is ActivationData activationData)
                 {
-                    _logger.LogWarning("GrainInstance is null after activation for {GrainId}, grain may not be properly initialized", grainId);
+                    // Set the state directly to Valid since we've already created the instance
+                    activationData.SetState(ActivationState.Valid);
+                    _logger.LogInformation("Successfully set grain {GrainId} state to Valid", grainId);
                 }
                 else
                 {
-                    _logger.LogDebug("Successfully activated grain {GrainId} with type {GrainType}", 
-                        grainId, grainContext.GrainInstance.GetType().Name);
+                    _logger.LogWarning("GrainContext is not ActivationData: {Type}", grainContext.GetType().Name);
                 }
+                
+                if (grainContext.GrainInstance == null)
+                {
+                    throw new InvalidOperationException($"GrainInstance is null after activation for {grainId}, grain activation failed");
+                }
+                
+                _logger.LogInformation("Successfully activated grain {GrainId} with type {GrainType}", 
+                    grainId, grainContext.GrainInstance.GetType().Name);
             }
             catch (Exception ex)
             {
