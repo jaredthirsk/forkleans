@@ -13,13 +13,14 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <Forkleans_DesignTimeBuild>$(DesignTimeBuild)</Forkleans_DesignTimeBuild>
-    <Forkleans_GenerateFieldIds>$(OrleansGenerateFieldIds)</Forkleans_GenerateFieldIds>
-    <Forkleans_ImmutableAttributes>$(OrleansImmutableAttributes)</Forkleans_ImmutableAttributes>
-    <Forkleans_IdAttributes>$(OrleansIdAttributes)</Forkleans_IdAttributes>
-    <Forkleans_AliasAttributes>$(OrleansAliasAttributes)</Forkleans_AliasAttributes>
-    <Forkleans_GenerateSerializerAttributes>$(OrleansGenerateSerializerAttributes)</Forkleans_GenerateSerializerAttributes>
-    <Forkleans_ConstructorAttributes>$(OrleansConstructorAttributes)</Forkleans_ConstructorAttributes>
+    <Orleans_DesignTimeBuild>$(DesignTimeBuild)</Orleans_DesignTimeBuild>
+    <Orleans_GenerateFieldIds>$(OrleansGenerateFieldIds)</Orleans_GenerateFieldIds>
+    <Orleans_ImmutableAttributes>$(OrleansImmutableAttributes)</Orleans_ImmutableAttributes>
+    <Orleans_IdAttributes>$(OrleansIdAttributes)</Orleans_IdAttributes>
+    <Orleans_AliasAttributes>$(OrleansAliasAttributes)</Orleans_AliasAttributes>
+    <Orleans_GenerateSerializerAttributes>$(OrleansGenerateSerializerAttributes)</Orleans_GenerateSerializerAttributes>
+    <Orleans_ConstructorAttributes>$(OrleansConstructorAttributes)</Orleans_ConstructorAttributes>
+    <OrleansGenerateCompatibilityInvokers>$(OrleansGenerateCompatibilityInvokers)</OrleansGenerateCompatibilityInvokers>
   </PropertyGroup>
 
 </Project>
