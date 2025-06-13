@@ -55,10 +55,17 @@ Write-Host "`nUpdating Directory.Build.props files with implicit usings..." -For
 
 $implicitUsingsXml = @"
 
-  <ItemGroup Condition="`$(ImplicitUsings)' == 'enable' or '`$(ImplicitUsings)' == 'true'">
+  <!-- Only add Forkleans implicit usings to projects that aren't Aspire hosts -->
+  <ItemGroup Condition="('`$(ImplicitUsings)' == 'enable' or '`$(ImplicitUsings)' == 'true') and '`$(IsAspireHost)' != 'true'">
     <Using Include="Forkleans"/>
     <Using Include="Forkleans.Hosting"/>
     <Using Include="Forkleans.Runtime"/>
+  </ItemGroup>
+
+  <!-- Add Aspire implicit usings for Aspire hosts -->
+  <ItemGroup Condition="('`$(ImplicitUsings)' == 'enable' or '`$(ImplicitUsings)' == 'true') and '`$(IsAspireHost)' == 'true'">
+    <Using Include="Aspire.Hosting"/>
+    <Using Include="Aspire.Hosting.ApplicationModel"/>
   </ItemGroup>
 "@
 
