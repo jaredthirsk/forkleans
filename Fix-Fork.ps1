@@ -29,13 +29,13 @@ Write-Host "`nStep 3: Fixing assembly names..." -ForegroundColor Green
 Write-Host "`nStep 4: Fixing F# namespaces..." -ForegroundColor Green
 .\Fix-FSharp-Namespaces.ps1 -Path $RootPath -DryRun:$DryRun
 
-# Step 5: Add missing using statements (using the new safe script)
-Write-Host "`nStep 5: Adding missing using statements..." -ForegroundColor Green
-.\Fix-Missing-Usings.ps1 -Path $RootPath -DryRun:$DryRun
+# Step 5: Add missing using statements
+#Write-Host "`nStep 5: Adding missing using statements..." -ForegroundColor Green
+#.\Fix-Missing-Usings.ps1 -Path $RootPath -DryRun:$DryRun
 
 # Step 6: Fix any syntax errors that might have been introduced
-Write-Host "`nStep 6: Checking and fixing syntax errors..." -ForegroundColor Green
-.\Fix-Syntax-Errors.ps1 -Path $RootPath -DryRun:$DryRun
+#Write-Host "`nStep 6: Checking and fixing syntax errors..." -ForegroundColor Green
+#.\Fix-Syntax-Errors.ps1 -Path $RootPath -DryRun:$DryRun
 
 # Step 7: Build and report results
 if (-not $DryRun) {
@@ -44,10 +44,10 @@ if (-not $DryRun) {
         $buildOutput = & dotnet build "$RootPath\Orleans.sln" -c Debug --no-restore 2>&1
         $successfulProjects = ($buildOutput | Select-String " -> ").Count
         $totalProjects = & dotnet sln "$RootPath\Orleans.sln" list | Select-String "\.csproj|\.fsproj" | Measure-Object | Select-Object -ExpandProperty Count
-        
+
         Write-Host "`nBuild Results:" -ForegroundColor Cyan
         Write-Host "Successful projects: $successfulProjects / $totalProjects" -ForegroundColor $(if ($successfulProjects -eq $totalProjects) { "Green" } else { "Yellow" })
-        
+
         if ($successfulProjects -lt $totalProjects) {
             Write-Host "`nTo see build errors, run:" -ForegroundColor Yellow
             Write-Host "  dotnet build `"$RootPath\Orleans.sln`" -c Debug --no-restore" -ForegroundColor White
