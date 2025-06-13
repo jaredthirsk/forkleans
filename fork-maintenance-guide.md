@@ -242,7 +242,6 @@ For test projects that need to reference both namespaces:
 
 ### 4. Important Notes
 
-- **DO NOT** use the old `fix-using-statements.ps1` script - it has a critical bug that removes duplicate lines throughout entire files, breaking code syntax
 - Always do a dry run first with the `-DryRun` flag
 - Keep original Orleans filenames to make merging easier
 - The scripts preserve git history by modifying files in place
@@ -277,7 +276,7 @@ jobs:
       - name: Merge upstream
         run: git merge upstream/main --no-edit || true
       - name: Run fork maintenance
-        run: .\Fix-Fork.ps1 -RootPath . 
+        run: .\Fix-Fork.ps1 -RootPath .
       - name: Build solution
         run: dotnet build Orleans.sln
       - name: Create Pull Request
@@ -293,7 +292,7 @@ jobs:
 When creating new maintenance scripts:
 1. Always include a `-DryRun` option
 2. Process files safely - don't remove arbitrary duplicate lines
-3. Handle both C# and F# syntax appropriately  
+3. Handle both C# and F# syntax appropriately
 4. Validate changes (e.g., check brace balance)
 5. Provide clear output about what was changed
 6. Handle locked files gracefully
@@ -318,7 +317,7 @@ Generate a mapping file:
 ```powershell
 Get-ChildItem -Recurse -Filter "*.cs" | ForEach-Object {
     $content = Get-Content $_.FullName
-    $namespaces = $content | Select-String -Pattern "namespace\s+(\S+)" | 
+    $namespaces = $content | Select-String -Pattern "namespace\s+(\S+)" |
                             ForEach-Object { $_.Matches[0].Groups[1].Value }
     $namespaces | ForEach-Object {
         [PSCustomObject]@{
