@@ -17,9 +17,9 @@ namespace Forkleans.Rpc.Transport.Ruffles
         private readonly RpcTransportOptions _options;
         private bool _disposed;
 
-        public event EventHandler<RpcDataReceivedEventArgs> DataReceived;
-        public event EventHandler<RpcConnectionEventArgs> ConnectionEstablished;
-        public event EventHandler<RpcConnectionEventArgs> ConnectionClosed;
+        public event EventHandler<RpcDataReceivedEventArgs> DataReceived { add { } remove { } }
+        public event EventHandler<RpcConnectionEventArgs> ConnectionEstablished { add { } remove { } }
+        public event EventHandler<RpcConnectionEventArgs> ConnectionClosed { add { } remove { } }
 
         public RufflesTransport(ILogger<RufflesTransport> logger, IOptions<RpcTransportOptions> options)
         {
@@ -30,7 +30,7 @@ namespace Forkleans.Rpc.Transport.Ruffles
         public Task StartAsync(IPEndPoint endpoint, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Ruffles transport starting on {Endpoint} (stub implementation)", endpoint);
-            
+
             // TODO: Implement Ruffles transport
             throw new NotImplementedException("Ruffles transport is not yet implemented. This is a stub for future development.");
         }
@@ -38,7 +38,7 @@ namespace Forkleans.Rpc.Transport.Ruffles
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Ruffles transport stopping (stub implementation)");
-            
+
             // TODO: Implement Ruffles transport
             return Task.CompletedTask;
         }
