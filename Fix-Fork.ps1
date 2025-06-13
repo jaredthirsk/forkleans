@@ -29,17 +29,21 @@ Write-Host "`nStep 3: Fixing assembly names..." -ForegroundColor Green
 Write-Host "`nStep 4: Fixing F# namespaces..." -ForegroundColor Green
 .\Fix-FSharp-Namespaces.ps1 -Path $RootPath -DryRun:$DryRun
 
-# Step 5: Add missing using statements
-#Write-Host "`nStep 5: Adding missing using statements..." -ForegroundColor Green
+# Step 5: Fix SDK targets files
+Write-Host "`nStep 5: Fixing SDK targets files..." -ForegroundColor Green
+.\Fix-SDK-Targets.ps1 -RootPath $RootPath -DryRun:$DryRun
+
+# Step 6: Add missing using statements (disabled - using implicit usings instead)
+#Write-Host "`nStep 6: Adding missing using statements..." -ForegroundColor Green
 #.\Fix-Missing-Usings.ps1 -Path $RootPath -DryRun:$DryRun
 
-# Step 6: Fix any syntax errors that might have been introduced
-#Write-Host "`nStep 6: Checking and fixing syntax errors..." -ForegroundColor Green
+# Step 7: Fix any syntax errors that might have been introduced (disabled - avoiding syntax errors)
+#Write-Host "`nStep 7: Checking and fixing syntax errors..." -ForegroundColor Green
 #.\Fix-Syntax-Errors.ps1 -Path $RootPath -DryRun:$DryRun
 
-# Step 7: Build and report results
+# Step 8: Build and report results
 if (-not $DryRun) {
-    Write-Host "`nStep 7: Building solution to verify fixes..." -ForegroundColor Green
+    Write-Host "`nStep 8: Building solution to verify fixes..." -ForegroundColor Green
     try {
         $buildOutput = & dotnet build "$RootPath\Orleans.sln" -c Debug --no-restore 2>&1
         $successfulProjects = ($buildOutput | Select-String " -> ").Count
