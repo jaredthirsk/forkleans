@@ -21,7 +21,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 # File extensions to process
-$codeExtensions = @("*.cs", "*.csproj", "*.props", "*.targets", "*.json", "*.xml", "*.config", "*.sln")
+$codeExtensions = @("*.cs", "*.fs", "*.fsx", "*.fsproj", "*.csproj", "*.props", "*.targets", "*.json", "*.xml", "*.config", "*.sln")
 $excludeDirs = @(".git", "bin", "obj", "packages", ".vs", "artifacts", "node_modules")
 
 function Write-Info($message) {
@@ -74,7 +74,7 @@ function Process-FileContent($filePath, $content) {
     # Define replacement patterns based on file type
     $patterns = @()
     
-    if ($filePath -match '\.(cs|csproj|props|targets|xml)$') {
+    if ($filePath -match '\.(cs|fs|fsx|csproj|fsproj|props|targets|xml)$') {
         # C# and project files
         $patterns += @(
             @{ Pattern = "namespace\s+$OldName"; Replace = "namespace $NewName" },
