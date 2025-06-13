@@ -13,3 +13,21 @@ builder.AddProject<DashboardToy_Frontend>("frontend")
     .WithReplicas(5);
 
 builder.Build().Run();
+
+/* Jared tried adding this to get build working. Not sure why Forkleans isn't found
+
+namespace Forkleans
+{
+    public class Dummy { }
+}
+namespace Forkleans.Hosting
+{
+    public class Dummy { }
+}
+
+namespace Forkleans.Runtime
+{
+    public class Dummy { }
+}
+
+*/

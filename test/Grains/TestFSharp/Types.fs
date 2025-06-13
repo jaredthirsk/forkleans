@@ -1,7 +1,7 @@
 namespace UnitTests.FSharpTypes
 
 open System.Runtime.CompilerServices
-open Orleans
+open Forkleans
 
 [<Immutable; GenerateSerializer>]
 type EnumStyleDU =

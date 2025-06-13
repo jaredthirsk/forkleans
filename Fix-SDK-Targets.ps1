@@ -56,7 +56,7 @@ Write-Host "`nUpdating Directory.Build.props files with implicit usings..." -For
 $implicitUsingsXml = @"
 
   <!-- Only add Forkleans implicit usings to projects that aren't Aspire hosts -->
-  <ItemGroup Condition="('`$(ImplicitUsings)' == 'enable' or '`$(ImplicitUsings)' == 'true') and '`$(IsAspireHost)' != 'true'">
+  <ItemGroup Condition="('`$(ImplicitUsings)' == 'enable' or '`$(ImplicitUsings)' == 'true') and '`$(IsAspireHost)' != 'true' and '`$(IsAspireSharedProject)' != 'true'">
     <Using Include="Forkleans"/>
     <Using Include="Forkleans.Hosting"/>
     <Using Include="Forkleans.Runtime"/>
@@ -66,6 +66,16 @@ $implicitUsingsXml = @"
   <ItemGroup Condition="('`$(ImplicitUsings)' == 'enable' or '`$(ImplicitUsings)' == 'true') and '`$(IsAspireHost)' == 'true'">
     <Using Include="Aspire.Hosting"/>
     <Using Include="Aspire.Hosting.ApplicationModel"/>
+  </ItemGroup>
+"@
+
+$testImplicitUsingsXml = @"
+
+  <!-- Only add Forkleans implicit usings to projects that aren't Aspire hosts -->
+  <ItemGroup Condition="('`$(ImplicitUsings)' == 'enable' or '`$(ImplicitUsings)' == 'true') and '`$(IsAspireHost)' != 'true' and '`$(DisableForkleanseImplicitUsings)' != 'true'">
+    <Using Include="Forkleans"/>
+    <Using Include="Forkleans.Hosting"/>
+    <Using Include="Forkleans.Runtime"/>
   </ItemGroup>
 "@
 
@@ -82,9 +92,12 @@ foreach ($propsFile in $directoryBuildPropsFiles) {
         if ($content -notmatch '<Using Include="Forkleans"') {
             Write-Host "  Updating: $($propsFile.Substring($RootPath.Length + 1))" -ForegroundColor Gray
             
+            # Use different XML for test directory
+            $xmlToInsert = if ($propsFile -like "*test*") { $testImplicitUsingsXml } else { $implicitUsingsXml }
+            
             if (-not $DryRun) {
                 # Insert before the closing </Project> tag
-                $newContent = $content -replace '</Project>', "$implicitUsingsXml`n</Project>"
+                $newContent = $content -replace '</Project>', "$xmlToInsert`n</Project>"
                 Set-Content -Path $propsFile -Value $newContent -NoNewline
                 Write-Host "    -> Added implicit usings" -ForegroundColor Green
             } else {

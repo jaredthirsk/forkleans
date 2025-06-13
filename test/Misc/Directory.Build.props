@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <_ParentDirectoryBuildPropsPath Condition="'$(_DirectoryBuildPropsFile)' != ''">$([System.IO.Path]::Combine('..', '$(_DirectoryBuildPropsFile)'))</_ParentDirectoryBuildPropsPath>
+  </PropertyGroup>
+
+  <Import Project="$(_ParentDirectoryBuildPropsPath)" Condition="Exists('$(_ParentDirectoryBuildPropsPath)')"/>
+
+  <!-- Some Misc test projects don't actually use Orleans/Forkleans or only use serialization abstractions -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'TestInterfaces' or '$(MSBuildProjectName)' == 'TestFSharpInterfaces' or '$(MSBuildProjectName)' == 'TestSerializerExternalModels'">
+    <DisableForkleanseImplicitUsings>true</DisableForkleanseImplicitUsings>
+  </PropertyGroup>
+
+</Project>

@@ -22,5 +22,8 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="build\**\*" Pack="true" PackagePath="build\" />
+    <None Include="buildMultiTargeting\**\*" Pack="true" PackagePath="buildMultiTargeting\" />
+    <None Include="buildTransitive\**\*" Pack="true" PackagePath="buildTransitive\" />
   </ItemGroup>
 </Project>
