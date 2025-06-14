@@ -1,10 +1,10 @@
 # Forkleans (fork of Orleans)
 
-This is an experiment to make the transport layer more extensible.
+This is an experiment to make the transport layer more extensible, and add a reliable UDP implementation for 1 server (non-clustered) to talk to multiple clients.
 
 ## Fork maintenance
 
-- (fork-maintenance-guide.md)
+- [Fork Maintenance Guide](fork-maintenance-guide.md)
 
 # Original Readme
 
