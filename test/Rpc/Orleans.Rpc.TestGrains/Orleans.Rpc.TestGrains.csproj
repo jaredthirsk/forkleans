@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -6,10 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Orleans.CodeGenerator\Orleans.CodeGenerator.csproj" />
-    <ProjectReference Include="..\Orleans.Rpc.TestGrainInterfaces\Orleans.Rpc.TestGrainInterfaces.csproj" />
-    <ProjectReference Include="..\..\..\src\Orleans.Core\Orleans.Core.csproj" />
-    <ProjectReference Include="..\..\..\src\Orleans.Sdk\Orleans.Sdk.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.CodeGenerator\Forkleans.CodeGenerator.csproj" />
+    <ProjectReference Include="..\Forkleans.Rpc.TestGrainInterfaces\Forkleans.Rpc.TestGrainInterfaces.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.Core\Forkleans.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.Sdk\Forkleans.Sdk.csproj" />
   </ItemGroup>
 
 </Project>

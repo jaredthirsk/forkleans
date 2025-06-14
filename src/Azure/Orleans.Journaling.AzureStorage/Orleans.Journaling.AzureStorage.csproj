@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Orleans.Journaling\Orleans.Journaling.csproj" />
+    <ProjectReference Include="..\..\Forkleans.Journaling\Forkleans.Journaling.csproj" />
   </ItemGroup>
 
   <ItemGroup>

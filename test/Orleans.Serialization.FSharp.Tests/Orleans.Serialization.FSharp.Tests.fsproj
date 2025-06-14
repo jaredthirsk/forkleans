@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceRoot)src/Orleans.Serialization.FSharp/Orleans.Serialization.FSharp.csproj"/>
+    <ProjectReference Include="$(SourceRoot)src/Forkleans.Serialization.FSharp/Forkleans.Serialization.FSharp.csproj"/>
     <ProjectReference Include="$(SourceRoot)test/TestInfrastructure/TestExtensions/TestExtensions.csproj"/>
     <ProjectReference Include="$(SourceRoot)test/Grains/TestFSharp/TestFSharp.fsproj"/>
     <ProjectReference Include="$(SourceRoot)test/Grains/TestFSharpGrainInterfaces/TestFSharpGrainInterfaces.csproj"/>

@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Orleans.Streaming\Orleans.Streaming.csproj" />
+    <ProjectReference Include="..\..\Forkleans.Streaming\Forkleans.Streaming.csproj" />
     <PackageReference Include="AWSSDK.SQS" />
   </ItemGroup>
 

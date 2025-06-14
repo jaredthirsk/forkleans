@@ -27,7 +27,7 @@ namespace Forkleans.Transactions.TestKit
             await coordinator.MultiGrainAdd(committer, new PassOperation("pass"), grains, expected);
 
             Func<Task> task = () => coordinator.MultiGrainAdd(committer, new FailOperation("fail"), grains, expected);
-            await task.Should().ThrowAsync<OrleansTransactionAbortedException>();
+            await task.Should().ThrowAsync<ForkleansTransactionAbortedException>();
 
             foreach (var grain in grains)
             {
@@ -56,7 +56,7 @@ namespace Forkleans.Transactions.TestKit
             await coordinator.MultiGrainAdd(committer, new PassOperation("pass"), grains, expected);
 
             Func<Task> task = () => coordinator.MultiGrainAdd(committer, new ThrowOperation("throw"), grains, expected);
-            await task.Should().ThrowAsync<OrleansTransactionInDoubtException>();
+            await task.Should().ThrowAsync<ForkleansTransactionInDoubtException>();
 
             foreach (var grain in grains)
             {

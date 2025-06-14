@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Orleans.Serialization\Orleans.Serialization.csproj" />
+    <ProjectReference Include="..\Forkleans.Serialization\Forkleans.Serialization.csproj" />
   </ItemGroup>
 
   <ItemGroup>

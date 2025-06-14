@@ -9,10 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Orleans.Persistence.Memory\Orleans.Persistence.Memory.csproj" />
-    <ProjectReference Include="..\Orleans.Runtime\Orleans.Runtime.csproj" />
-    <ProjectReference Include="..\Orleans.Streaming\Orleans.Streaming.csproj" />
-    <ProjectReference Include="..\Orleans.Reminders\Orleans.Reminders.csproj" />
+    <ProjectReference Include="..\Forkleans.Persistence.Memory\Forkleans.Persistence.Memory.csproj" />
+    <ProjectReference Include="..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="..\Forkleans.Streaming\Forkleans.Streaming.csproj" />
+    <ProjectReference Include="..\Forkleans.Reminders\Forkleans.Reminders.csproj" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
   </ItemGroup>
 </Project>

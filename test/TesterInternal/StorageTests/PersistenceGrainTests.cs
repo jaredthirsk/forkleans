@@ -46,9 +46,9 @@ namespace UnitTests.StorageTests
                     hostBuilder.AddTestStorageProvider(MockStorageProviderNameLowerCase, (sp, name) => ActivatorUtilities.CreateInstance<MockStorageProvider>(sp, name));
                     hostBuilder.AddTestStorageProvider(ErrorInjectorProviderName, (sp, name) => ActivatorUtilities.CreateInstance<ErrorInjectionStorageProvider>(sp));
 
-                    hostBuilder.Services.AddSingleton<OrleansGrainStorageSerializer>();
+                    hostBuilder.Services.AddSingleton<ForkleansGrainStorageSerializer>();
                     hostBuilder.AddMemoryGrainStorage("OrleansSerializerMemoryStore", (OptionsBuilder<MemoryGrainStorageOptions> optionsBuilder) =>
-                        optionsBuilder.Configure<OrleansGrainStorageSerializer>((options, serializer) => options.GrainStorageSerializer = serializer));
+                        optionsBuilder.Configure<ForkleansGrainStorageSerializer>((options, serializer) => options.GrainStorageSerializer = serializer));
                 }
             }
         }
@@ -983,7 +983,7 @@ namespace UnitTests.StorageTests
             var ae = new AggregateException(msg3, oe);
 
             Assert.NotNull(ae.InnerException); // AggregateException.InnerException should not be null
-            Assert.IsAssignableFrom<OrleansException>(ae.InnerException);
+            Assert.IsAssignableFrom<ForkleansException>(ae.InnerException);
             Exception exc = ae.InnerException;
             Assert.NotNull(exc.InnerException); // OrleansException.InnerException should not be null
             Assert.IsAssignableFrom<BadProviderConfigException>(exc.InnerException);

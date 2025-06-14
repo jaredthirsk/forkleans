@@ -2,17 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <AssemblyName>Orleans.Rpc.Server</AssemblyName>
+    <AssemblyName>Forkleans.Rpc.Server</AssemblyName>
     <RootNamespace>Forkleans.Rpc</RootNamespace>
     <Description>Orleans RPC Server - simplified RPC-only server without clustering</Description>
     <PackageTags>$(PackageTags);Server;RPC</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
-    <ProjectReference Include="..\..\Orleans.Core\Orleans.Core.csproj" />
-    <ProjectReference Include="..\..\Orleans.Serialization\Orleans.Serialization.csproj" />
-    <ProjectReference Include="..\Orleans.Rpc.Abstractions\Orleans.Rpc.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Forkleans.Core\Forkleans.Core.csproj" />
+    <ProjectReference Include="..\..\Forkleans.Serialization\Forkleans.Serialization.csproj" />
+    <ProjectReference Include="..\Forkleans.Rpc.Abstractions\Forkleans.Rpc.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

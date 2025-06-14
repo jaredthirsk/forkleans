@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Azure\Orleans.Clustering.AzureStorage\Orleans.Clustering.AzureStorage.csproj" />
-    <ProjectReference Include="..\..\..\src\Orleans.Client\Orleans.Client.csproj" />
+    <ProjectReference Include="..\..\..\src\Azure\Forkleans.Clustering.AzureStorage\Forkleans.Clustering.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.Client\Forkleans.Client.csproj" />
     <ProjectReference Include="..\DistributedTests.Common\DistributedTests.Common.csproj" />
   </ItemGroup>
 

@@ -25,7 +25,7 @@
     <PackageReference Include="Azure.Data.Tables" />
     <PackageReference Include="System.Net.NameResolution" />
     <PackageReference Include="Azure.Messaging.EventHubs" />
-    <ProjectReference Include="..\..\Orleans.Streaming\Orleans.Streaming.csproj" />
+    <ProjectReference Include="..\..\Forkleans.Streaming\Forkleans.Streaming.csproj" />
   </ItemGroup>
 
   <ItemGroup>

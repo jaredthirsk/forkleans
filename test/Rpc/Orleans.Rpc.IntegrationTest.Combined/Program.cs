@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Orleans.Rpc.IntegrationTest.Combined
+namespace Forkleans.Rpc.IntegrationTest.Combined
 {
     class Program
     {

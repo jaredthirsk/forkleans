@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Runtime.Placement;
+using Forkleans.Runtime.Placement;
 using UnitTests.GrainInterfaces;
 
 namespace UnitTests.Grains

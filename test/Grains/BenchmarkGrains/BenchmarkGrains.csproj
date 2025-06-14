@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Orleans.Transactions\Orleans.Transactions.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.Transactions\Forkleans.Transactions.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Grains\BenchmarkGrainInterfaces\BenchmarkGrainInterfaces.csproj" />
   </ItemGroup>
 </Project>

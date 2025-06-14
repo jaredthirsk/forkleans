@@ -79,7 +79,7 @@ namespace Forkleans.Transactions
             joined.Enqueue(x);
         }
 
-        public OrleansTransactionAbortedException MustAbort(Serializer<OrleansTransactionAbortedException> serializer)
+        public OrleansTransactionAbortedException MustAbort(Serializer<ForkleansTransactionAbortedException> serializer)
         {
             if (OriginalException != null)
             {
@@ -95,7 +95,7 @@ namespace Forkleans.Transactions
             }
         }
 
-        public void RecordException(Exception e, Serializer<OrleansTransactionAbortedException> sm)
+        public void RecordException(Exception e, Serializer<ForkleansTransactionAbortedException> sm)
         {
             if (OriginalException == null)
             {

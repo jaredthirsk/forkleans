@@ -152,8 +152,8 @@ namespace Forkleans.Rpc.Hosting
             // Note: GrainReferenceCodecProvider and GrainReferenceCopierProvider are internal types
             // Serialization will handle grain references automatically
             services.AddSingleton<OnDeserializedCallbacks>();
-            services.AddSingleton<IPostConfigureOptions<OrleansJsonSerializerOptions>, ConfigureOrleansJsonSerializerOptions>();
-            services.AddSingleton<OrleansJsonSerializer>();
+            services.AddSingleton<IPostConfigureOptions<ForkleansJsonSerializerOptions>, ConfigureOrleansJsonSerializerOptions>();
+            services.AddSingleton<ForkleansJsonSerializer>();
 
             // RPC Server
             services.TryAddSingleton<RpcServer>();
@@ -199,7 +199,7 @@ namespace Forkleans.Rpc.Hosting
         {
             public bool? IsTypeNameAllowed(string typeName, string assemblyName)
             {
-                if (assemblyName is { Length: > 0 } && assemblyName.Contains("Orleans"))
+                if (assemblyName is { Length: > 0 } && assemblyName.Contains("Forkleans"))
                 {
                     return true;
                 }

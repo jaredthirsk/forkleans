@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Orleans.Streaming\Orleans.Streaming.csproj" />
-    <ProjectReference Include="..\..\..\src\Orleans.Serialization\Orleans.Serialization.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.Streaming\Forkleans.Streaming.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.Serialization\Forkleans.Serialization.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Misc\TestInterfaces\TestInterfaces.csproj" />
-    <ProjectReference Include="..\..\..\src\Orleans.Reminders\Orleans.Reminders.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.Reminders\Forkleans.Reminders.csproj" />
   </ItemGroup>
 
   <ItemGroup>

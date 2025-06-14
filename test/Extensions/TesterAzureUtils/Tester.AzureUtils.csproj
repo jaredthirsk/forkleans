@@ -19,9 +19,9 @@
 
   <ItemGroup>
     <ProjectReference Include="$(SourceRoot)test\TesterInternal\TesterInternal.csproj" />
-    <ProjectReference Include="..\..\..\src\Azure\Orleans.Reminders.AzureStorage\Orleans.Reminders.AzureStorage.csproj" />
-    <ProjectReference Include="..\..\..\src\Azure\Orleans.GrainDirectory.AzureStorage\Orleans.GrainDirectory.AzureStorage.csproj" />
-    <ProjectReference Include="..\..\..\src\Azure\Orleans.Streaming.AzureStorage\Orleans.Streaming.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\..\src\Azure\Forkleans.Reminders.AzureStorage\Forkleans.Reminders.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\..\src\Azure\Forkleans.GrainDirectory.AzureStorage\Forkleans.GrainDirectory.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\..\src\Azure\Forkleans.Streaming.AzureStorage\Forkleans.Streaming.AzureStorage.csproj" />
   </ItemGroup>
 
   <ItemGroup>

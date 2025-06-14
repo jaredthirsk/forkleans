@@ -15,10 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\AWS\Orleans.Clustering.DynamoDB\Orleans.Clustering.DynamoDB.csproj" />
-    <ProjectReference Include="..\..\..\src\AWS\Orleans.Persistence.DynamoDB\Orleans.Persistence.DynamoDB.csproj" />
-    <ProjectReference Include="..\..\..\src\AWS\Orleans.Reminders.DynamoDB\Orleans.Reminders.DynamoDB.csproj" />
-    <ProjectReference Include="..\..\..\src\AWS\Orleans.Streaming.SQS\Orleans.Streaming.SQS.csproj" />
+    <ProjectReference Include="..\..\..\src\AWS\Forkleans.Clustering.DynamoDB\Forkleans.Clustering.DynamoDB.csproj" />
+    <ProjectReference Include="..\..\..\src\AWS\Forkleans.Persistence.DynamoDB\Forkleans.Persistence.DynamoDB.csproj" />
+    <ProjectReference Include="..\..\..\src\AWS\Forkleans.Reminders.DynamoDB\Forkleans.Reminders.DynamoDB.csproj" />
+    <ProjectReference Include="..\..\..\src\AWS\Forkleans.Streaming.SQS\Forkleans.Streaming.SQS.csproj" />
     <ProjectReference Include="$(SourceRoot)test\TesterInternal\TesterInternal.csproj" />
   </ItemGroup>
 </Project>

@@ -8,7 +8,7 @@ using Forkleans.Rpc;
 using Forkleans.Rpc.TestGrainInterfaces;
 using Forkleans.Rpc.Transport.LiteNetLib;
 
-namespace Orleans.Rpc.IntegrationTest.Client
+namespace Forkleans.Rpc.IntegrationTest.Client
 {
     class Program
     {

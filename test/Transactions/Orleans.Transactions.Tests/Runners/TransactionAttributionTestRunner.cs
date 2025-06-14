@@ -281,7 +281,7 @@ namespace Forkleans.Transactions.Tests
                     })
             };
 
-            OrleansTransactionAbortedException exception = await Assert.ThrowsAsync<OrleansTransactionAbortedException>(() => fail.GetNestedTransactionIds(0, tiers));
+            OrleansTransactionAbortedException exception = await Assert.ThrowsAsync<ForkleansTransactionAbortedException>(() => fail.GetNestedTransactionIds(0, tiers));
             Assert.IsType<NotSupportedException>(exception.InnerException);
         }
     }

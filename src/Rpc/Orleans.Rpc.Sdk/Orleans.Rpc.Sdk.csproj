@@ -2,16 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <AssemblyName>Orleans.Rpc.Sdk</AssemblyName>
+    <AssemblyName>Forkleans.Rpc.Sdk</AssemblyName>
     <RootNamespace>Forkleans.Rpc</RootNamespace>
     <Description>Orleans RPC SDK - attributes and interfaces for RPC-specific grain features</Description>
     <PackageTags>$(PackageTags);SDK;RPC</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
-    <ProjectReference Include="..\..\Orleans.Sdk\Orleans.Sdk.csproj" />
-    <ProjectReference Include="..\..\Orleans.CodeGenerator\Orleans.CodeGenerator.csproj" PrivateAssets="None" />
+    <ProjectReference Include="..\..\Forkleans.Core.Abstractions\Forkleans.Core.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Forkleans.Sdk\Forkleans.Sdk.csproj" />
+    <ProjectReference Include="..\..\Forkleans.CodeGenerator\Forkleans.CodeGenerator.csproj" PrivateAssets="None" />
   </ItemGroup>
 
   <ItemGroup>

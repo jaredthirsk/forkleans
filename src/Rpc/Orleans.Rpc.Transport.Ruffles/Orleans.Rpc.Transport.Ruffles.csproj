@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <AssemblyName>Orleans.Rpc.Transport.Ruffles</AssemblyName>
+    <AssemblyName>Forkleans.Rpc.Transport.Ruffles</AssemblyName>
     <RootNamespace>Forkleans.Rpc.Transport.Ruffles</RootNamespace>
     <Description>Ruffles transport implementation for Orleans RPC (stub)</Description>
     <PackageTags>$(PackageTags);RPC;Transport;Ruffles;UDP</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Orleans.Rpc.Server\Orleans.Rpc.Server.csproj" />
+    <ProjectReference Include="..\Forkleans.Rpc.Server\Forkleans.Rpc.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>

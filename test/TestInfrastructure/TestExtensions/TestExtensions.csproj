@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Orleans.TestingHost\Orleans.TestingHost.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.TestingHost\Forkleans.TestingHost.csproj" />
   </ItemGroup>
 
   <ItemGroup>

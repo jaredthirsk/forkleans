@@ -22,9 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
-    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
-    <ProjectReference Include="..\..\Orleans.Reminders\Orleans.Reminders.csproj" />
+    <ProjectReference Include="..\..\Forkleans.Core.Abstractions\Forkleans.Core.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Forkleans.Reminders\Forkleans.Reminders.csproj" />
     <PackageReference Include="AWSSDK.DynamoDBv2" />
   </ItemGroup>
 

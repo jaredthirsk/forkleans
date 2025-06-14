@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Orleans.TestingHost.Tests.xunit.runner.json">
+    <None Include="Forkleans.TestingHost.Tests.xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

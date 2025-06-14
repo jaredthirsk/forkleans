@@ -1,6 +1,6 @@
 using System;
 
-namespace Orleans.Rpc.IntegrationTest
+namespace Forkleans.Rpc.IntegrationTest
 {
     class Program
     {
@@ -8,9 +8,9 @@ namespace Orleans.Rpc.IntegrationTest
         {
             Console.WriteLine("This project contains integration test helpers.");
             Console.WriteLine("Please run one of the following projects instead:");
-            Console.WriteLine("  - Orleans.Rpc.IntegrationTest.Server");
-            Console.WriteLine("  - Orleans.Rpc.IntegrationTest.Client");
-            Console.WriteLine("  - Orleans.Rpc.IntegrationTest.Combined");
+            Console.WriteLine("  - Forkleans.Rpc.IntegrationTest.Server");
+            Console.WriteLine("  - Forkleans.Rpc.IntegrationTest.Client");
+            Console.WriteLine("  - Forkleans.Rpc.IntegrationTest.Combined");
         }
     }
 }

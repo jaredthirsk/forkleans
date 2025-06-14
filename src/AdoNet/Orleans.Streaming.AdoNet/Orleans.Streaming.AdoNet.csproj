@@ -27,8 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
-    <ProjectReference Include="..\..\Orleans.Streaming\Orleans.Streaming.csproj" />
+    <ProjectReference Include="..\..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Forkleans.Streaming\Forkleans.Streaming.csproj" />
   </ItemGroup>
 
 

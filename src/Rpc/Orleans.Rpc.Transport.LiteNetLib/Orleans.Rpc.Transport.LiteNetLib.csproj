@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <AssemblyName>Orleans.Rpc.Transport.LiteNetLib</AssemblyName>
+    <AssemblyName>Forkleans.Rpc.Transport.LiteNetLib</AssemblyName>
     <RootNamespace>Forkleans.Rpc.Transport.LiteNetLib</RootNamespace>
     <Description>LiteNetLib transport implementation for Orleans RPC</Description>
     <PackageTags>$(PackageTags);RPC;Transport;LiteNetLib;UDP</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Orleans.Rpc.Abstractions\Orleans.Rpc.Abstractions.csproj" />
+    <ProjectReference Include="..\Forkleans.Rpc.Abstractions\Forkleans.Rpc.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

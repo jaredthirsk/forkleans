@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Orleans.Clustering.Consul\Orleans.Clustering.Consul.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.Clustering.Consul\Forkleans.Clustering.Consul.csproj" />
     <ProjectReference Include="$(SourceRoot)test\TesterInternal\TesterInternal.csproj" />
   </ItemGroup>
 </Project>

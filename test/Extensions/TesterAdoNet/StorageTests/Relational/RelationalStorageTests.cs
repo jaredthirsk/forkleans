@@ -79,7 +79,7 @@ namespace UnitTests.StorageTests.Relational
 
         private JsonGrainStorageSerializer GetJsonGrainStorageSerializer()
         {
-            var serializer = this.Fixture.Services.GetRequiredService<OrleansJsonSerializer>();
+            var serializer = this.Fixture.Services.GetRequiredService<ForkleansJsonSerializer>();
             return new JsonGrainStorageSerializer(serializer);
         }
 

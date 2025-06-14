@@ -1,39 +1,39 @@
-﻿#pragma warning disable CS1591, RS0016, RS0041
-[assembly: global::Orleans.ApplicationPartAttribute("TestProject")]
-[assembly: global::Orleans.ApplicationPartAttribute("Orleans.Core.Abstractions")]
-[assembly: global::Orleans.ApplicationPartAttribute("Orleans.Serialization")]
-[assembly: global::Orleans.ApplicationPartAttribute("Orleans.Core")]
-[assembly: global::Orleans.ApplicationPartAttribute("Orleans.Runtime")]
-[assembly: global::Orleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(OrleansCodeGen.TestProject.Metadata_TestProject))]
-namespace OrleansCodeGen
+#pragma warning disable CS1591, RS0016, RS0041
+[assembly: global::Forkleans.ApplicationPartAttribute("TestProject")]
+[assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Core.Abstractions")]
+[assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Serialization")]
+[assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Core")]
+[assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Runtime")]
+[assembly: global::Forkleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(OrleansCodeGen.TestProject.Metadata_TestProject))]
+namespace ForkleansCodeGen
 {
-    using global::Orleans.Serialization.Codecs;
-    using global::Orleans.Serialization.GeneratedCodeHelpers;
+    using global::Forkleans.Serialization.Codecs;
+    using global::Forkleans.Serialization.GeneratedCodeHelpers;
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    public sealed class Codec_ExternalType : global::Orleans.Serialization.Codecs.IFieldCodec<global::ExternalType>, global::Orleans.Serialization.Serializers.IBaseCodec<global::ExternalType>
+    public sealed class Codec_ExternalType : global::Forkleans.Serialization.Codecs.IFieldCodec<global::ExternalType>, global::Forkleans.Serialization.Serializers.IBaseCodec<global::ExternalType>
     {
         private readonly global::System.Type _codecFieldType = typeof(global::ExternalType);
-        private readonly global::Orleans.Serialization.Activators.IActivator<global::ExternalType> _activator;
-        private static readonly global::System.Func<global::ExternalType, int> getField0 = (global::System.Func<global::ExternalType, int>)global::Orleans.Serialization.Utilities.FieldAccessor.GetGetter(typeof(global::ExternalType), "Amount");
-        private static readonly global::System.Action<global::ExternalType, int> setField0 = (global::System.Action<global::ExternalType, int>)global::Orleans.Serialization.Utilities.FieldAccessor.GetReferenceSetter(typeof(global::ExternalType), "Amount");
-        public Codec_ExternalType(global::Orleans.Serialization.Activators.IActivator<global::ExternalType> _activator)
+        private readonly global::Forkleans.Serialization.Activators.IActivator<global::ExternalType> _activator;
+        private static readonly global::System.Func<global::ExternalType, int> getField0 = (global::System.Func<global::ExternalType, int>)global::Forkleans.Serialization.Utilities.FieldAccessor.GetGetter(typeof(global::ExternalType), "Amount");
+        private static readonly global::System.Action<global::ExternalType, int> setField0 = (global::System.Action<global::ExternalType, int>)global::Forkleans.Serialization.Utilities.FieldAccessor.GetReferenceSetter(typeof(global::ExternalType), "Amount");
+        public Codec_ExternalType(global::Forkleans.Serialization.Activators.IActivator<global::ExternalType> _activator)
         {
             this._activator = OrleansGeneratedCodeHelper.UnwrapService(this, _activator);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void Serialize<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::ExternalType instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, global::ExternalType instance)
             where TBufferWriter : global::System.Buffers.IBufferWriter<byte>
         {
-            global::Orleans.Serialization.Codecs.Int32Codec.WriteField(ref writer, 0U, getField0(instance));
+            global::Forkleans.Serialization.Codecs.Int32Codec.WriteField(ref writer, 0U, getField0(instance));
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void Deserialize<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::ExternalType instance)
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::ExternalType instance)
         {
             uint id = 0U;
-            global::Orleans.Serialization.WireProtocol.Field header = default;
+            global::Forkleans.Serialization.WireProtocol.Field header = default;
             while (true)
             {
                 reader.ReadFieldHeader(ref header);
@@ -42,7 +42,7 @@ namespace OrleansCodeGen
                 id += header.FieldIdDelta;
                 if (id == 0U)
                 {
-                    setField0(instance, global::Orleans.Serialization.Codecs.Int32Codec.ReadValue(ref reader, header));
+                    setField0(instance, global::Forkleans.Serialization.Codecs.Int32Codec.ReadValue(ref reader, header));
                     reader.ReadFieldHeader(ref header);
                 }
 
@@ -52,7 +52,7 @@ namespace OrleansCodeGen
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void WriteField<TBufferWriter>(ref global::Orleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, global::System.Type expectedType, global::ExternalType @value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, global::System.Type expectedType, global::ExternalType @value)
             where TBufferWriter : global::System.Buffers.IBufferWriter<byte>
         {
             if (@value is null || @value.GetType() == typeof(global::ExternalType))
@@ -68,7 +68,7 @@ namespace OrleansCodeGen
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public global::ExternalType ReadValue<TReaderInput>(ref global::Orleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Orleans.Serialization.WireProtocol.Field field)
+        public global::ExternalType ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field)
         {
             if (field.IsReference)
                 return ReferenceCodec.ReadReference<global::ExternalType, TReaderInput>(ref reader, field);
@@ -87,13 +87,13 @@ namespace OrleansCodeGen
     }
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    public sealed class Copier_ExternalType : global::Orleans.Serialization.Cloning.IDeepCopier<global::ExternalType>, global::Orleans.Serialization.Cloning.IBaseCopier<global::ExternalType>
+    public sealed class Copier_ExternalType : global::Forkleans.Serialization.Cloning.IDeepCopier<global::ExternalType>, global::Forkleans.Serialization.Cloning.IBaseCopier<global::ExternalType>
     {
-        private readonly global::Orleans.Serialization.Activators.IActivator<global::ExternalType> _activator;
-        private static readonly global::System.Func<global::ExternalType, int> getField0 = (global::System.Func<global::ExternalType, int>)global::Orleans.Serialization.Utilities.FieldAccessor.GetGetter(typeof(global::ExternalType), "Amount");
-        private static readonly global::System.Action<global::ExternalType, int> setField0 = (global::System.Action<global::ExternalType, int>)global::Orleans.Serialization.Utilities.FieldAccessor.GetReferenceSetter(typeof(global::ExternalType), "Amount");
+        private readonly global::Forkleans.Serialization.Activators.IActivator<global::ExternalType> _activator;
+        private static readonly global::System.Func<global::ExternalType, int> getField0 = (global::System.Func<global::ExternalType, int>)global::Forkleans.Serialization.Utilities.FieldAccessor.GetGetter(typeof(global::ExternalType), "Amount");
+        private static readonly global::System.Action<global::ExternalType, int> setField0 = (global::System.Action<global::ExternalType, int>)global::Forkleans.Serialization.Utilities.FieldAccessor.GetReferenceSetter(typeof(global::ExternalType), "Amount");
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public global::ExternalType DeepCopy(global::ExternalType original, global::Orleans.Serialization.Cloning.CopyContext context)
+        public global::ExternalType DeepCopy(global::ExternalType original, global::Forkleans.Serialization.Cloning.CopyContext context)
         {
             if (context.TryGetCopy(original, out global::ExternalType existing))
                 return existing;
@@ -105,20 +105,20 @@ namespace OrleansCodeGen
             return result;
         }
 
-        public Copier_ExternalType(global::Orleans.Serialization.Activators.IActivator<global::ExternalType> _activator)
+        public Copier_ExternalType(global::Forkleans.Serialization.Activators.IActivator<global::ExternalType> _activator)
         {
             this._activator = OrleansGeneratedCodeHelper.UnwrapService(this, _activator);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void DeepCopy(global::ExternalType input, global::ExternalType output, global::Orleans.Serialization.Cloning.CopyContext context)
+        public void DeepCopy(global::ExternalType input, global::ExternalType output, global::Forkleans.Serialization.Cloning.CopyContext context)
         {
             setField0(output, getField0(input));
         }
     }
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    internal sealed class Activator_ExternalType : global::Orleans.Serialization.Activators.IActivator<global::ExternalType>
+    internal sealed class Activator_ExternalType : global::Forkleans.Serialization.Activators.IActivator<global::ExternalType>
     {
         private readonly int _arg0;
         public Activator_ExternalType(int arg0)
@@ -130,15 +130,15 @@ namespace OrleansCodeGen
     }
 }
 
-namespace OrleansCodeGen.TestProject
+namespace ForkleansCodeGen.TestProject
 {
-    using global::Orleans.Serialization.Codecs;
-    using global::Orleans.Serialization.GeneratedCodeHelpers;
+    using global::Forkleans.Serialization.Codecs;
+    using global::Forkleans.Serialization.GeneratedCodeHelpers;
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    internal sealed class Metadata_TestProject : global::Orleans.Serialization.Configuration.TypeManifestProviderBase
+    internal sealed class Metadata_TestProject : global::Forkleans.Serialization.Configuration.TypeManifestProviderBase
     {
-        protected override void ConfigureInner(global::Orleans.Serialization.Configuration.TypeManifestOptions config)
+        protected override void ConfigureInner(global::Forkleans.Serialization.Configuration.TypeManifestOptions config)
         {
             config.Serializers.Add(typeof(OrleansCodeGen.Codec_ExternalType));
             config.Copiers.Add(typeof(OrleansCodeGen.Copier_ExternalType));

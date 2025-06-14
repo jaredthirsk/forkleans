@@ -61,7 +61,7 @@ namespace Forkleans
     public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFilter, IOnDeserialized
     {
         [NonSerialized]
-        private Serializer<OrleansTransactionAbortedException> _serializer;
+        private Serializer<ForkleansTransactionAbortedException> _serializer;
 
         [NonSerialized]
         private ITransactionAgent _transactionAgent;
@@ -75,7 +75,7 @@ namespace Forkleans
         public TransactionInfo TransactionInfo { get; set; }
 
         [GeneratedActivatorConstructor]
-        protected TransactionRequestBase(Serializer<OrleansTransactionAbortedException> exceptionSerializer, IServiceProvider serviceProvider)
+        protected TransactionRequestBase(Serializer<ForkleansTransactionAbortedException> exceptionSerializer, IServiceProvider serviceProvider)
         {
             _serializer = exceptionSerializer;
 
@@ -247,7 +247,7 @@ namespace Forkleans
 
         void IOnDeserialized.OnDeserialized(DeserializationContext context)
         {
-            _serializer = context.ServiceProvider.GetRequiredService<Serializer<OrleansTransactionAbortedException>>();
+            _serializer = context.ServiceProvider.GetRequiredService<Serializer<ForkleansTransactionAbortedException>>();
             _transactionAgent = context.ServiceProvider.GetRequiredService<ITransactionAgent>();
         }
     }
@@ -314,7 +314,7 @@ namespace Forkleans
     [SerializerTransparent]
     public abstract class TransactionRequest : TransactionRequestBase
     {
-        protected TransactionRequest(Serializer<OrleansTransactionAbortedException> exceptionSerializer, IServiceProvider serviceProvider) : base(exceptionSerializer, serviceProvider)
+        protected TransactionRequest(Serializer<ForkleansTransactionAbortedException> exceptionSerializer, IServiceProvider serviceProvider) : base(exceptionSerializer, serviceProvider)
         {
         }
 
@@ -357,7 +357,7 @@ namespace Forkleans
     [SerializerTransparent]
     public abstract class TransactionRequest<TResult> : TransactionRequestBase
     {
-        protected TransactionRequest(Serializer<OrleansTransactionAbortedException> exceptionSerializer, IServiceProvider serviceProvider) : base(exceptionSerializer, serviceProvider)
+        protected TransactionRequest(Serializer<ForkleansTransactionAbortedException> exceptionSerializer, IServiceProvider serviceProvider) : base(exceptionSerializer, serviceProvider)
         {
         }
 
@@ -399,7 +399,7 @@ namespace Forkleans
     [SerializerTransparent]
     public abstract class TransactionTaskRequest<TResult> : TransactionRequestBase
     {
-        protected TransactionTaskRequest(Serializer<OrleansTransactionAbortedException> exceptionSerializer, IServiceProvider serviceProvider) : base(exceptionSerializer, serviceProvider)
+        protected TransactionTaskRequest(Serializer<ForkleansTransactionAbortedException> exceptionSerializer, IServiceProvider serviceProvider) : base(exceptionSerializer, serviceProvider)
         {
         }
 
@@ -442,7 +442,7 @@ namespace Forkleans
     [SerializerTransparent]
     public abstract class TransactionTaskRequest : TransactionRequestBase
     {
-        protected TransactionTaskRequest(Serializer<OrleansTransactionAbortedException> exceptionSerializer, IServiceProvider serviceProvider) : base(exceptionSerializer, serviceProvider)
+        protected TransactionTaskRequest(Serializer<ForkleansTransactionAbortedException> exceptionSerializer, IServiceProvider serviceProvider) : base(exceptionSerializer, serviceProvider)
         {
         }
 

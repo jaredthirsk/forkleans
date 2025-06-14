@@ -7,7 +7,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Azure.Data.Tables;
 using Azure.Identity;
-using Orleans.Runtime.Placement;
+using Forkleans.Runtime.Placement;
 
 namespace Tester.Forwarding
 {

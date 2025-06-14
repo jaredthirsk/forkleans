@@ -15,9 +15,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Orleans.Core\Orleans.Core.csproj" />
-    <ProjectReference Include="..\Orleans.Analyzers\Orleans.Analyzers.csproj" PrivateAssets="None" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-    <ProjectReference Include="..\Orleans.CodeGenerator\Orleans.CodeGenerator.csproj" PrivateAssets="None" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\Forkleans.Core\Forkleans.Core.csproj" />
+    <ProjectReference Include="..\Forkleans.Analyzers\Forkleans.Analyzers.csproj" PrivateAssets="None" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\Forkleans.CodeGenerator\Forkleans.CodeGenerator.csproj" PrivateAssets="None" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>

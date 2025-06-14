@@ -16,7 +16,7 @@ namespace Forkleans.Transactions.TestKit
             const int delta = 5;
             ITransactionTestGrain grain = RandomTestGrain(transactionTestGrainClassName);
             Func<Task> task = ()=>grain.Set(delta);
-            var response = task.Should().ThrowAsync<OrleansTransactionsDisabledException>();
+            var response = task.Should().ThrowAsync<ForkleansTransactionsDisabledException>();
         }
 
         public virtual void MultiTransactionGrainsThrowWhenTransactions(string transactionTestGrainClassName)
@@ -31,7 +31,7 @@ namespace Forkleans.Transactions.TestKit
             ITransactionCoordinatorGrain coordinator = this.grainFactory.GetGrain<ITransactionCoordinatorGrain>(Guid.NewGuid());
 
             Func<Task> task = () => coordinator.MultiGrainSet(grains, delta);
-            var response = task.Should().ThrowAsync<OrleansTransactionsDisabledException>();
+            var response = task.Should().ThrowAsync<ForkleansTransactionsDisabledException>();
         }
     }
 }

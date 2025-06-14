@@ -19,7 +19,7 @@
     <ProjectReference Update="$(SourceRoot)src\Forkleans.Core\Forkleans.Core.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Grains\TestGrainInterfaces\TestGrainInterfaces.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Grains\TestGrains\TestGrains.csproj" />
-    <ProjectReference Include="..\..\..\src\Orleans.TestingHost\Orleans.TestingHost.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.TestingHost\Forkleans.TestingHost.csproj" />
   </ItemGroup>
 
   <Target Name="PostBuildPublish" AfterTargets="Build">

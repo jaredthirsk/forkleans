@@ -11,7 +11,7 @@ namespace Forkleans.Rpc
     {
         /// <summary>
         /// Marker method for RPC SDK.
-        /// The actual UseOrleansRpc extension method is in Orleans.Rpc.Server package.
+        /// The actual UseOrleansRpc extension method is in Forkleans.Rpc.Server package.
         /// </summary>
         public static void EnsureRpcSdkLoaded(this IServiceCollection services)
         {

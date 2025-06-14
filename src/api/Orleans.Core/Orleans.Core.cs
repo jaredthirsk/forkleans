@@ -1579,7 +1579,7 @@ namespace Forkleans.Serialization
         public override void WriteJson(Newtonsoft.Json.JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer) { }
     }
 
-    public partial class ConfigureOrleansJsonSerializerOptions : Microsoft.Extensions.Options.IPostConfigureOptions<OrleansJsonSerializerOptions>
+    public partial class ConfigureOrleansJsonSerializerOptions : Microsoft.Extensions.Options.IPostConfigureOptions<ForkleansJsonSerializerOptions>
     {
         public ConfigureOrleansJsonSerializerOptions(System.IServiceProvider serviceProvider) { }
 
@@ -1645,7 +1645,7 @@ namespace Forkleans.Serialization
         public const string IndentJsonProperty = "IndentJSON";
         public const string TypeNameHandlingProperty = "TypeNameHandling";
         public const string UseFullAssemblyNamesProperty = "UseFullAssemblyNames";
-        public OrleansJsonSerializer(Microsoft.Extensions.Options.IOptions<OrleansJsonSerializerOptions> options) { }
+        public OrleansJsonSerializer(Microsoft.Extensions.Options.IOptions<ForkleansJsonSerializerOptions> options) { }
 
         public object Deserialize(System.Type expectedType, string input) { throw null; }
 

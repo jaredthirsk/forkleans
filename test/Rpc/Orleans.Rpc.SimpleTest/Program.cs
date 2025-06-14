@@ -9,7 +9,7 @@ using Forkleans.Rpc;
 using Forkleans.Rpc.TestGrainInterfaces;
 using Forkleans.Rpc.Transport.LiteNetLib;
 
-namespace Orleans.Rpc.SimpleTest
+namespace Forkleans.Rpc.SimpleTest
 {
     class Program
     {

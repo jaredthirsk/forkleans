@@ -62,6 +62,6 @@ public class RebalancingOptionsTests
         };
 
         var validator = new ActivationRebalancerOptionsValidator(Options.Create(options), Options.Create(publisherOptions));
-        Assert.Throws<OrleansConfigurationException>(validator.ValidateConfiguration);
+        Assert.Throws<ForkleansConfigurationException>(validator.ValidateConfiguration);
     }
 }

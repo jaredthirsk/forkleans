@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -16,13 +16,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Orleans.Sdk\Orleans.Sdk.csproj" />
-    <ProjectReference Include="..\..\..\src\Rpc\Orleans.Rpc.Abstractions\Orleans.Rpc.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\src\Rpc\Orleans.Rpc.Server\Orleans.Rpc.Server.csproj" />
-    <ProjectReference Include="..\..\..\src\Rpc\Orleans.Rpc.Client\Orleans.Rpc.Client.csproj" />
-    <ProjectReference Include="..\..\..\src\Rpc\Orleans.Rpc.Transport.LiteNetLib\Orleans.Rpc.Transport.LiteNetLib.csproj" />
-    <ProjectReference Include="..\Orleans.Rpc.TestGrainInterfaces\Orleans.Rpc.TestGrainInterfaces.csproj" />
-    <ProjectReference Include="..\Orleans.Rpc.TestGrains\Orleans.Rpc.TestGrains.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.Sdk\Forkleans.Sdk.csproj" />
+    <ProjectReference Include="..\..\..\src\Rpc\Forkleans.Rpc.Abstractions\Forkleans.Rpc.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\src\Rpc\Forkleans.Rpc.Server\Forkleans.Rpc.Server.csproj" />
+    <ProjectReference Include="..\..\..\src\Rpc\Forkleans.Rpc.Client\Forkleans.Rpc.Client.csproj" />
+    <ProjectReference Include="..\..\..\src\Rpc\Forkleans.Rpc.Transport.LiteNetLib\Forkleans.Rpc.Transport.LiteNetLib.csproj" />
+    <ProjectReference Include="..\Forkleans.Rpc.TestGrainInterfaces\Forkleans.Rpc.TestGrainInterfaces.csproj" />
+    <ProjectReference Include="..\Forkleans.Rpc.TestGrains\Forkleans.Rpc.TestGrains.csproj" />
   </ItemGroup>
 
 </Project>

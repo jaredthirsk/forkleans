@@ -34,14 +34,14 @@ namespace Forkleans.AzureUtils
         {
             DeploymentId = clusterId;
             TableName = options.TableName;
-            logger = loggerFactory.CreateLogger<OrleansSiloInstanceManager>();
+            logger = loggerFactory.CreateLogger<ForkleansSiloInstanceManager>();
             storage = new AzureTableDataManager<SiloInstanceTableEntry>(
                 options,
                 loggerFactory.CreateLogger<AzureTableDataManager<SiloInstanceTableEntry>>());
             this.storagePolicyOptions = options.StoragePolicyOptions;
         }
 
-        public static async Task<OrleansSiloInstanceManager> GetManager(
+        public static async Task<ForkleansSiloInstanceManager> GetManager(
             string clusterId,
             ILoggerFactory loggerFactory,
             AzureStorageOperationOptions options)

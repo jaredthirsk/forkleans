@@ -67,11 +67,11 @@ namespace UnitTests.Serialization
                 {
                     siloBuilder
                     .Configure<ClusterOptions>(o => o.ClusterId = o.ServiceId = "s")
-                    .Configure<OrleansJsonSerializerOptions>(options => options.JsonSerializerSettings.DefaultValueHandling = DefaultValueHandling.Include)
+                    .Configure<ForkleansJsonSerializerOptions>(options => options.JsonSerializerSettings.DefaultValueHandling = DefaultValueHandling.Include)
                     .UseLocalhostClustering();
                 })
                 .Build();
-            var serializer = silo.Services.GetRequiredService<OrleansJsonSerializer>();
+            var serializer = silo.Services.GetRequiredService<ForkleansJsonSerializer>();
             var data = new JsonPoco();
             var serialized = serializer.Serialize(data, typeof(JsonPoco));
             Assert.Contains("some_flag", serialized);

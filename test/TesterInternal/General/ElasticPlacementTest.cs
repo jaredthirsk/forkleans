@@ -1,10 +1,10 @@
 using System.Net;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Runtime;
-using Orleans.Runtime.Placement;
-using Orleans.TestingHost;
+using Forkleans.Configuration;
+using Forkleans.Runtime;
+using Forkleans.Runtime.Placement;
+using Forkleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using Xunit;
@@ -144,7 +144,7 @@ namespace UnitTests.General
             await taintedGrainPrimary.LatchCpuUsage(110.0f);
             await taintedGrainSecondary.LatchCpuUsage(110.0f);
 
-            await Assert.ThrowsAsync<OrleansException>(() =>
+            await Assert.ThrowsAsync<ForkleansException>(() =>
                 this.AddTestGrains(1));
         }
 

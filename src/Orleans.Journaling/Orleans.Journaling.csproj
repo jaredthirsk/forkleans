@@ -23,9 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Orleans.Core\Orleans.Core.csproj" />
-    <ProjectReference Include="..\Orleans.Runtime\Orleans.Runtime.csproj" />
-    <ProjectReference Include="..\Orleans.Serialization\Orleans.Serialization.csproj" />
+    <ProjectReference Include="..\Forkleans.Core\Forkleans.Core.csproj" />
+    <ProjectReference Include="..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="..\Forkleans.Serialization\Forkleans.Serialization.csproj" />
   </ItemGroup>
 
 </Project>

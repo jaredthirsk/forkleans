@@ -300,7 +300,7 @@ namespace Tester.AzureUtils.Persistence
             }
 
             var options = new AzureTableStorageOptions();
-            var jsonOptions = this.providerRuntime.ServiceProvider.GetService<IOptions<OrleansJsonSerializerOptions>>();
+            var jsonOptions = this.providerRuntime.ServiceProvider.GetService<IOptions<ForkleansJsonSerializerOptions>>();
             if (typeNameHandling != null)
             {
                 jsonOptions.Value.JsonSerializerSettings.TypeNameHandling = typeNameHandling.Value;

@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
     <PackageReference Include="CassandraCSharpDriver" />
   </ItemGroup>
 

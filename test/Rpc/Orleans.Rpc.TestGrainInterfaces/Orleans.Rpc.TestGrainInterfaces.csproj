@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\src\Orleans.Sdk\Orleans.Sdk.csproj" />
-    <ProjectReference Include="..\..\..\src\Rpc\Orleans.Rpc.Sdk\Orleans.Rpc.Sdk.csproj" />
-    <ProjectReference Include="..\..\..\src\Orleans.Analyzers\Orleans.Analyzers.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-    <ProjectReference Include="..\..\..\src\Orleans.CodeGenerator\Orleans.CodeGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\..\..\src\Forkleans.Core.Abstractions\Forkleans.Core.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.Sdk\Forkleans.Sdk.csproj" />
+    <ProjectReference Include="..\..\..\src\Rpc\Forkleans.Rpc.Sdk\Forkleans.Rpc.Sdk.csproj" />
+    <ProjectReference Include="..\..\..\src\Forkleans.Analyzers\Forkleans.Analyzers.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\..\..\src\Forkleans.CodeGenerator\Forkleans.CodeGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
 </Project>

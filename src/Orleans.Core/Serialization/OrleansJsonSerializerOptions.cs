@@ -14,7 +14,7 @@ namespace Forkleans.Serialization
         }
     }
 
-    public class ConfigureOrleansJsonSerializerOptions : IPostConfigureOptions<OrleansJsonSerializerOptions>
+    public class ConfigureOrleansJsonSerializerOptions : IPostConfigureOptions<ForkleansJsonSerializerOptions>
     {
         private readonly IServiceProvider _serviceProvider;
 

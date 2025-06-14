@@ -13,9 +13,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Orleans.Persistence.Memory\Orleans.Persistence.Memory.csproj" />
-    <ProjectReference Include="..\Orleans.Runtime\Orleans.Runtime.csproj" />
-    <ProjectReference Include="..\Orleans.Sdk\Orleans.Sdk.csproj" />
+    <ProjectReference Include="..\Forkleans.Persistence.Memory\Forkleans.Persistence.Memory.csproj" />
+    <ProjectReference Include="..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="..\Forkleans.Sdk\Forkleans.Sdk.csproj" />
   </ItemGroup>
 
   <ItemGroup>

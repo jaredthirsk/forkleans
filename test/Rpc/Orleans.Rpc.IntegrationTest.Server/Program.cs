@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Forkleans.Rpc;
 using Forkleans.Rpc.Transport.LiteNetLib;
 
-namespace Orleans.Rpc.IntegrationTest.Server
+namespace Forkleans.Rpc.IntegrationTest.Server
 {
     class Program
     {

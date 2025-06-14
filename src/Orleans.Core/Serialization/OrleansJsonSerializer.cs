@@ -22,7 +22,7 @@ namespace Forkleans.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="OrleansJsonSerializer"/> class.
         /// </summary>
-        public OrleansJsonSerializer(IOptions<OrleansJsonSerializerOptions> options)
+        public OrleansJsonSerializer(IOptions<ForkleansJsonSerializerOptions> options)
         {
             this.settings = options.Value.JsonSerializerSettings;
         }

@@ -1,3 +1,3 @@
 using Forkleans;
 
-[assembly: ApplicationPartAttribute("Orleans.Rpc.Abstractions")]
+[assembly: ApplicationPartAttribute("Forkleans.Rpc.Abstractions")]

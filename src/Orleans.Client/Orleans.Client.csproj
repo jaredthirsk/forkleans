@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Orleans.Sdk\Orleans.Sdk.csproj" />
+    <ProjectReference Include="..\Forkleans.Sdk\Forkleans.Sdk.csproj" />
   </ItemGroup>
 
   <ItemGroup>
