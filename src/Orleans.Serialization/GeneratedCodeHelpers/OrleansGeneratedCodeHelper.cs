@@ -17,7 +17,7 @@ namespace Forkleans.Serialization.GeneratedCodeHelpers
     /// <summary>
     /// Utilities for use by generated code.
     /// </summary>
-    public static class OrleansGeneratedCodeHelper
+    public static class ForkleansGeneratedCodeHelper
     {
         private static readonly ThreadLocal<RecursiveServiceResolutionState> ResolutionState = new ThreadLocal<RecursiveServiceResolutionState>(() => new RecursiveServiceResolutionState());
 

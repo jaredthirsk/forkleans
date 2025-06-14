@@ -97,7 +97,7 @@ namespace Forkleans.CodeGenerator
             static ExpressionSyntax Unwrapped(ExpressionSyntax expr)
             {
                 return InvocationExpression(
-                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("OrleansGeneratedCodeHelper"), IdentifierName("UnwrapService")),
+                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("ForkleansGeneratedCodeHelper"), IdentifierName("UnwrapService")),
                     ArgumentList(SeparatedList(new[] { Argument(ThisExpression()), Argument(expr) })));
             }
         }

@@ -10,7 +10,7 @@ namespace Forkleans.Streams
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public sealed class FaultedSubscriptionException : OrleansException
+    public sealed class FaultedSubscriptionException : ForkleansException
     {
         private const string ErrorStringFormat =
             "Subscription is in a Faulted state.  Subscription:{0}, Stream:{1}";

@@ -53,7 +53,7 @@ public sealed class ResourceOptimizedPlacementOptionsTests
         });
 
         var validator = new ResourceOptimizedPlacementOptionsValidator(options);
-        Assert.Throws<OrleansConfigurationException>(validator.ValidateConfiguration);
+        Assert.Throws<ForkleansConfigurationException>(validator.ValidateConfiguration);
     }
 
     [Theory, TestCategory("PlacementOptions"), TestCategory("BVT")]

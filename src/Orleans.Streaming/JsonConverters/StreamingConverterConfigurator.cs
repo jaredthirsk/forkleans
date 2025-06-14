@@ -6,7 +6,7 @@ using Forkleans.Serialization;
 
 namespace Forkleans.Streaming.JsonConverters
 {
-    internal class StreamingConverterConfigurator : IPostConfigureOptions<OrleansJsonSerializerOptions>
+    internal class StreamingConverterConfigurator : IPostConfigureOptions<ForkleansJsonSerializerOptions>
     {
         private readonly IRuntimeClient _runtimeClient;
 
@@ -15,7 +15,7 @@ namespace Forkleans.Streaming.JsonConverters
             _runtimeClient = runtimeClient;
         }
 
-        public void PostConfigure(string? name, OrleansJsonSerializerOptions options)
+        public void PostConfigure(string? name, ForkleansJsonSerializerOptions options)
         {
             options.JsonSerializerSettings.Converters.Add(new StreamImplConverter(_runtimeClient));
         }

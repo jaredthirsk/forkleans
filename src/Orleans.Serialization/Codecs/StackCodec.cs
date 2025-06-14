@@ -26,7 +26,7 @@ public sealed class StackCodec<T> : IFieldCodec<Stack<T>>
     /// <param name="fieldCodec">The field codec.</param>
     public StackCodec(IFieldCodec<T> fieldCodec)
     {
-        _fieldCodec = OrleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
+        _fieldCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
     }
 
     /// <inheritdoc/>

@@ -8,7 +8,7 @@ namespace Forkleans.Providers
     /// Exception thrown whenever a provider has failed to be initialized.
     /// </summary>
     [Serializable, GenerateSerializer]
-    public sealed class ProviderInitializationException : OrleansException
+    public sealed class ProviderInitializationException : ForkleansException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ProviderInitializationException"/> class.

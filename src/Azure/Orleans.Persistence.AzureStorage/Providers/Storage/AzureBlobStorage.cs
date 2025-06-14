@@ -243,7 +243,7 @@ namespace Forkleans.Storage
                 LogInformationInitializing(this.options);
                 if (options.CreateClient is not { } createClient)
                 {
-                    throw new OrleansConfigurationException($"No credentials specified. Use the {options.GetType().Name}.{nameof(AzureBlobStorageOptions.ConfigureBlobServiceClient)} method to configure the Azure Blob Service client.");
+                    throw new ForkleansConfigurationException($"No credentials specified. Use the {options.GetType().Name}.{nameof(AzureBlobStorageOptions.ConfigureBlobServiceClient)} method to configure the Azure Blob Service client.");
                 }
 
                 var client = await createClient();

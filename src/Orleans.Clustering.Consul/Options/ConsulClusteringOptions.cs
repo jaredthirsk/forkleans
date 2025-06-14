@@ -50,7 +50,7 @@ namespace Forkleans.Configuration
         {
             if (CreateClient is null)
             {
-                throw new OrleansConfigurationException($"No callback specified. Use the {GetType().Name}.{nameof(ConsulClusteringOptions.ConfigureConsulClient)} method to configure the consul client.");
+                throw new ForkleansConfigurationException($"No callback specified. Use the {GetType().Name}.{nameof(ConsulClusteringOptions.ConfigureConsulClient)} method to configure the consul client.");
             }                       
         }
     }

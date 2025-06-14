@@ -37,7 +37,7 @@ namespace Forkleans.Configuration
         {
             if (this.options.ChooseOutOf <= 0)
             {
-                throw new OrleansConfigurationException(
+                throw new ForkleansConfigurationException(
                     $"The value of {nameof(ActivationCountBasedPlacementOptions)}.{nameof(this.options.ChooseOutOf)} must be greater than 0.");
             }
         }

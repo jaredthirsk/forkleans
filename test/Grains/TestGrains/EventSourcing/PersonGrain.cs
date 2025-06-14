@@ -99,7 +99,7 @@ namespace TestGrains
         private static void AssertEqual<T>(T a, T b)
         {
             if (!Object.Equals(a, b))
-                throw new OrleansException($"Test failed. Expected = {a}. Actual = {b}.");
+                throw new ForkleansException($"Test failed. Expected = {a}. Actual = {b}.");
         }
 
 

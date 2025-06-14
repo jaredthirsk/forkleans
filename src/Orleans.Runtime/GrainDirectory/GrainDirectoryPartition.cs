@@ -658,7 +658,7 @@ internal sealed partial class GrainDirectoryPartition : SystemTarget, IGrainDire
             }
             catch (Exception ex)
             {
-                if (ex is not OrleansMessageRejectionException)
+                if (ex is not ForkleansMessageRejectionException)
                 {
                     LogErrorErrorInvokingOperation(_logger, ex, operationName, siloAddress);
                 }

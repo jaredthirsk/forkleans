@@ -146,8 +146,8 @@ namespace Forkleans.Rpc.Hosting
             // services.AddSingleton<ISpecializableCopier, GrainReferenceCopierProvider>();
             services.AddSingleton<OnDeserializedCallbacks>();
             services.AddSingleton<MigrationContext.SerializationHooks>();
-            services.AddSingleton<IPostConfigureOptions<OrleansJsonSerializerOptions>, ConfigureOrleansJsonSerializerOptions>();
-            services.AddSingleton<OrleansJsonSerializer>();
+            services.AddSingleton<IPostConfigureOptions<ForkleansJsonSerializerOptions>, ConfigureOrleansJsonSerializerOptions>();
+            services.AddSingleton<ForkleansJsonSerializer>();
 
             // RPC Transport
             //services.TryAddSingleton<IRpcTransportFactory, DefaultRpcTransportFactory>();  // We don't have a default factory, so the user needs to add this in their application.

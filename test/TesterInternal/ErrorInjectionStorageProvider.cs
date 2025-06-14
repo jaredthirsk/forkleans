@@ -31,7 +31,7 @@ namespace UnitTests.StorageTests
 
     [Serializable]
     [GenerateSerializer]
-    public class StorageProviderInjectedError : OrleansException
+    public class StorageProviderInjectedError : ForkleansException
     {
         [Id(0)]
         private readonly ErrorInjectionPoint errorInjectionPoint;

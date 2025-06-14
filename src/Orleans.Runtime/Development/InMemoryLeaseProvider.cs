@@ -114,7 +114,7 @@ namespace Forkleans.Runtime.Development
                 lease.ExpiredUtc = now + leaseRequest.Duration;
                 return new AcquireLeaseResult(new AcquiredLease(leaseRequest.ResourceKey, leaseRequest.Duration, lease.Token, now), ResponseCode.OK, null);
             }
-            return new AcquireLeaseResult(new AcquiredLease(leaseRequest.ResourceKey), ResponseCode.LeaseNotAvailable, new OrleansException("Lease not available"));
+            return new AcquireLeaseResult(new AcquiredLease(leaseRequest.ResourceKey), ResponseCode.LeaseNotAvailable, new ForkleansException("Lease not available"));
         }
 
         private void Release(string category, AcquiredLease acquiredLease)
@@ -132,7 +132,7 @@ namespace Forkleans.Runtime.Development
             // if lease exists, and we have the right token, and lease has not expired, renew.
             if (!this.leases.TryGetValue(Tuple.Create(category, acquiredLease.ResourceKey), out Lease lease) || lease.Token != acquiredLease.Token)
             {
-                return new AcquireLeaseResult(new AcquiredLease(acquiredLease.ResourceKey), ResponseCode.InvalidToken, new OrleansException("Invalid token provided, caller is not the owner."));
+                return new AcquireLeaseResult(new AcquiredLease(acquiredLease.ResourceKey), ResponseCode.InvalidToken, new ForkleansException("Invalid token provided, caller is not the owner."));
             }
             // we don't care if lease has expired or not as long as owner has not changed.
             lease.ExpiredUtc = now + acquiredLease.Duration;

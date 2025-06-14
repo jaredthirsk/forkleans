@@ -67,7 +67,7 @@ namespace Forkleans.CodeGenerator
 
             var isExceptionType = type.IsExceptionType && type.SerializationHooks.Count == 0;
 
-            var baseType = isExceptionType ? QualifiedName(AliasQualifiedName("global", IdentifierName("Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper")), GenericName(Identifier("ExceptionCopier"), TypeArgumentList(SeparatedList(new[] { type.TypeSyntax, type.BaseType.ToTypeSyntax() }))))
+            var baseType = isExceptionType ? QualifiedName(AliasQualifiedName("global", IdentifierName("Forkleans.Serialization.GeneratedCodeHelpers.ForkleansGeneratedCodeHelper")), GenericName(Identifier("ExceptionCopier"), TypeArgumentList(SeparatedList(new[] { type.TypeSyntax, type.BaseType.ToTypeSyntax() }))))
                 : (isShallowCopyable ? LibraryTypes.ShallowCopier : LibraryTypes.DeepCopier_1).ToTypeSyntax(type.TypeSyntax);
 
             var classDeclaration = ClassDeclaration(simpleClassName)
@@ -194,7 +194,7 @@ namespace Forkleans.CodeGenerator
                         }
 
                         var copier = InvocationExpression(
-                            IdentifierName("OrleansGeneratedCodeHelper").Member(GenericName(Identifier("GetService"), TypeArgumentList(SingletonSeparatedList(field.FieldType)))),
+                            IdentifierName("ForkleansGeneratedCodeHelper").Member(GenericName(Identifier("GetService"), TypeArgumentList(SingletonSeparatedList(field.FieldType)))),
                             ArgumentList(SeparatedList(new[] { Argument(ThisExpression()), Argument(IdentifierName("codecProvider")) })));
 
                         statements.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, field.FieldName.ToIdentifierName(), copier)));
@@ -211,7 +211,7 @@ namespace Forkleans.CodeGenerator
             static ExpressionSyntax Unwrapped(ExpressionSyntax expr)
             {
                 return InvocationExpression(
-                    IdentifierName("OrleansGeneratedCodeHelper").Member("UnwrapService"),
+                    IdentifierName("ForkleansGeneratedCodeHelper").Member("UnwrapService"),
                     ArgumentList(SeparatedList(new[] { Argument(ThisExpression()), Argument(expr) })));
             }
         }

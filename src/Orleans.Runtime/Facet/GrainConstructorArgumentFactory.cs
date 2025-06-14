@@ -77,13 +77,13 @@ namespace Forkleans.Runtime
             var factoryMapper = services.GetService<IAttributeToFactoryMapper<TMetadata>>();
             if (factoryMapper is null)
             {
-                throw new OrleansException($"Missing attribute mapper for attribute {metadata.GetType()} used in grain constructor for grain type {type}.");
+                throw new ForkleansException($"Missing attribute mapper for attribute {metadata.GetType()} used in grain constructor for grain type {type}.");
             }
 
             var factory = factoryMapper.GetFactory(parameter, (TMetadata)metadata);
             if (factory is null)
             {
-                throw new OrleansException($"Attribute mapper {factoryMapper.GetType()} failed to create a factory for grain type {type}.");
+                throw new ForkleansException($"Attribute mapper {factoryMapper.GetType()} failed to create a factory for grain type {type}.");
             }
 
             return factory;

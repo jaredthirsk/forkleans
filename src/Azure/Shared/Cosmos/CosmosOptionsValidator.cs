@@ -36,16 +36,16 @@ public class CosmosOptionsValidator<TOptions> : IConfigurationValidator where TO
     public void ValidateConfiguration()
     {
         if (string.IsNullOrWhiteSpace(_options.DatabaseName))
-            throw new OrleansConfigurationException(
+            throw new ForkleansConfigurationException(
                 $"Configuration for Azure Cosmos DB provider {_name} is invalid. {nameof(_options.DatabaseName)} is not valid.");
 
         if (string.IsNullOrWhiteSpace(_options.ContainerName))
-            throw new OrleansConfigurationException(
+            throw new ForkleansConfigurationException(
                 $"Configuration for Azure Cosmos DB provider {_name} is invalid. {nameof(_options.ContainerName)} is not valid.");
 
         if (_options.CreateClient is null)
         {
-            throw new OrleansConfigurationException(
+            throw new ForkleansConfigurationException(
                 $"Configuration for Azure Cosmos DB provider {_name} is invalid. You must call {nameof(_options.ConfigureCosmosClient)} to configure access to Azure Cosmos DB.");
         }
     }

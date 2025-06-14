@@ -263,7 +263,7 @@ namespace Forkleans.Runtime.MembershipService
             }
 
             if (suspectingSilos.Count != suspectingTimes.Count)
-                throw new OrleansException(string.Format("SuspectingSilos.Length of {0} as read from Azure table is not equal to SuspectingTimes.Length of {1}", suspectingSilos.Count, suspectingTimes.Count));
+                throw new ForkleansException(string.Format("SuspectingSilos.Length of {0} as read from Azure table is not equal to SuspectingTimes.Length of {1}", suspectingSilos.Count, suspectingTimes.Count));
 
             for (int i = 0; i < suspectingSilos.Count; i++)
                 parse.AddSuspector(suspectingSilos[i], suspectingTimes[i]);

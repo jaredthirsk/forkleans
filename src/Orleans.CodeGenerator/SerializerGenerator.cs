@@ -207,7 +207,7 @@ namespace Forkleans.CodeGenerator
                         }
 
                         var codec = InvocationExpression(
-                            IdentifierName("OrleansGeneratedCodeHelper").Member(GenericName(Identifier("GetService"), TypeArgumentList(SingletonSeparatedList(field.FieldType)))),
+                            IdentifierName("ForkleansGeneratedCodeHelper").Member(GenericName(Identifier("GetService"), TypeArgumentList(SingletonSeparatedList(field.FieldType)))),
                             ArgumentList(SeparatedList(new[] { Argument(ThisExpression()), Argument(IdentifierName("codecProvider")) })));
 
                         statements.Add(ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, field.FieldName.ToIdentifierName(), codec)));
@@ -223,7 +223,7 @@ namespace Forkleans.CodeGenerator
             static ExpressionSyntax Unwrapped(ExpressionSyntax expr)
             {
                 return InvocationExpression(
-                    IdentifierName("OrleansGeneratedCodeHelper").Member("UnwrapService"),
+                    IdentifierName("ForkleansGeneratedCodeHelper").Member("UnwrapService"),
                     ArgumentList(SeparatedList(new[] { Argument(ThisExpression()), Argument(expr) })));
             }
         }

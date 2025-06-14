@@ -137,7 +137,7 @@ namespace Forkleans.Storage
             this.logger = logger;
             this.serviceId = clusterOptions.Value.ServiceId;
             this.Serializer = options.Value.GrainStorageSerializer;
-            this.HashPicker = options.Value.HashPicker ?? new StorageHasherPicker(new[] { new OrleansDefaultHasher() });
+            this.HashPicker = options.Value.HashPicker ?? new StorageHasherPicker(new[] { new ForkleansDefaultHasher() });
         }
 
         public void Participate(ISiloLifecycle lifecycle)

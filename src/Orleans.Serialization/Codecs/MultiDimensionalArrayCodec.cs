@@ -27,8 +27,8 @@ namespace Forkleans.Serialization.Codecs
         /// <param name="elementCodec">The element codec.</param>
         public MultiDimensionalArrayCodec(IFieldCodec<int[]> intArrayCodec, IFieldCodec<T> elementCodec)
         {
-            _intArrayCodec = OrleansGeneratedCodeHelper.UnwrapService(this, intArrayCodec);
-            _elementCodec = OrleansGeneratedCodeHelper.UnwrapService(this, elementCodec);
+            _intArrayCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, intArrayCodec);
+            _elementCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, elementCodec);
         }
 
         /// <inheritdoc/>

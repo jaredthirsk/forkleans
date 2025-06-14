@@ -24,7 +24,7 @@ namespace Forkleans.Serialization.Codecs
         /// <param name="fieldCodec">The field codec.</param>
         public QueueCodec(IFieldCodec<T> fieldCodec)
         {
-            _fieldCodec = OrleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
+            _fieldCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
         }
 
         /// <inheritdoc/>

@@ -6,10 +6,10 @@ namespace Forkleans.Runtime.MembershipService
     /// <summary>
     /// Exception used to indicate that a cluster membership entry which was expected to be present.
     /// </summary>
-    /// <seealso cref="Forkleans.Runtime.OrleansException" />
+    /// <seealso cref="Forkleans.Runtime.ForkleansException" />
     [Serializable]
     [GenerateSerializer]
-    public sealed class OrleansMissingMembershipEntryException : OrleansException
+    public sealed class OrleansMissingMembershipEntryException : ForkleansException
     {
 
         /// <summary>

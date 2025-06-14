@@ -133,8 +133,8 @@ namespace Forkleans
             services.AddSingleton<ISpecializableCopier, GrainReferenceCopierProvider>();
             services.AddSingleton<OnDeserializedCallbacks>();
             services.AddSingleton<MigrationContext.SerializationHooks>();
-            services.AddSingleton<IPostConfigureOptions<OrleansJsonSerializerOptions>, ConfigureOrleansJsonSerializerOptions>();
-            services.AddSingleton<OrleansJsonSerializer>();
+            services.AddSingleton<IPostConfigureOptions<ForkleansJsonSerializerOptions>, ConfigureOrleansJsonSerializerOptions>();
+            services.AddSingleton<ForkleansJsonSerializer>();
 
             services.TryAddTransient(sp => ActivatorUtilities.CreateInstance<MessageSerializer>(
                 sp,

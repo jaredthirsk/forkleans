@@ -45,7 +45,7 @@ namespace Forkleans.Runtime.LogConsistency
             if (!throwexception)
                 return;
 
-            throw new OrleansException(string.Format("{0} (grain={1}, cluster={2})", msg, grainContext.GrainId, this.MyClusterId));
+            throw new ForkleansException(string.Format("{0} (grain={1}, cluster={2})", msg, grainContext.GrainId, this.MyClusterId));
         }
 
         public void CaughtException(string where, Exception e)

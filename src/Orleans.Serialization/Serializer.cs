@@ -518,7 +518,7 @@ namespace Forkleans.Serialization
         /// Initializes a new instance of the <see cref="Serializer{T}"/> class.
         /// </summary>
         /// <param name="sessionPool">The session pool.</param>
-        public Serializer(SerializerSessionPool sessionPool) : this(OrleansGeneratedCodeHelper.UnwrapService(null, sessionPool.CodecProvider.GetCodec<T>()), sessionPool)
+        public Serializer(SerializerSessionPool sessionPool) : this(ForkleansGeneratedCodeHelper.UnwrapService(null, sessionPool.CodecProvider.GetCodec<T>()), sessionPool)
         {
         }
 
@@ -932,7 +932,7 @@ namespace Forkleans.Serialization
         public ValueSerializer(IValueSerializerProvider codecProvider, SerializerSessionPool sessionPool)
         {
             _sessionPool = sessionPool;
-            _codec = OrleansGeneratedCodeHelper.UnwrapService(null, codecProvider.GetValueSerializer<T>());
+            _codec = ForkleansGeneratedCodeHelper.UnwrapService(null, codecProvider.GetValueSerializer<T>());
         }
 
         /// <summary>

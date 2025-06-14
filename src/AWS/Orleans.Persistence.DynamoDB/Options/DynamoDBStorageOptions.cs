@@ -39,9 +39,9 @@ namespace Forkleans.Configuration
 
         /// <summary>
         /// DynamoDB table name.
-        /// Defaults to 'OrleansGrainState'.
+        /// Defaults to 'ForkleansGrainState'.
         /// </summary>
-        public string TableName { get; set; } = "OrleansGrainState";
+        public string TableName { get; set; } = "ForkleansGrainState";
 
         /// <summary>
         /// Indicates if grain data should be deleted or reset to defaults when a grain clears it's state.
@@ -84,17 +84,17 @@ namespace Forkleans.Configuration
         public void ValidateConfiguration()
         {
             if (string.IsNullOrWhiteSpace(this.options.TableName))
-                throw new OrleansConfigurationException(
+                throw new ForkleansConfigurationException(
                     $"Configuration for DynamoDBGrainStorage {this.name} is invalid. {nameof(this.options.TableName)} is not valid.");
 
             if (this.options.UseProvisionedThroughput)
             {
                 if (this.options.ReadCapacityUnits == 0)
-                    throw new OrleansConfigurationException(
+                    throw new ForkleansConfigurationException(
                         $"Configuration for DynamoDBGrainStorage {this.name} is invalid. {nameof(this.options.ReadCapacityUnits)} is not valid.");
 
                 if (this.options.WriteCapacityUnits == 0)
-                    throw new OrleansConfigurationException(
+                    throw new ForkleansConfigurationException(
                         $"Configuration for DynamoDBGrainStorage {this.name} is invalid. {nameof(this.options.WriteCapacityUnits)} is not valid.");
             }
         }

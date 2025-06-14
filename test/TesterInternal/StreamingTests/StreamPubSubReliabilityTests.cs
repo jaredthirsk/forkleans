@@ -83,13 +83,13 @@ namespace UnitTests.StreamingTests
         {
             // Expected behaviour: Underlying error StorageProviderInjectedError returned to caller
             //
-            // Actual behaviour: Rather cryptic error OrleansException returned, mentioning 
+            // Actual behaviour: Rather cryptic error ForkleansException returned, mentioning 
             //                   root cause problem "Failed SetupActivationState" in message text, 
             //                   but no more details or stack trace.
 
             await SetErrorInjection(PubSubStoreProviderName, ErrorInjectionPoint.BeforeRead);
 
-            // TODO: expect StorageProviderInjectedError directly instead of OrleansException
+            // TODO: expect StorageProviderInjectedError directly instead of ForkleansException
             await Assert.ThrowsAsync<StorageProviderInjectedError>(() =>
                 Test_PubSub_Stream(StreamProviderName, StreamId));
         }

@@ -1,6 +1,6 @@
 # Fix-Fork.ps1
 # Master script to fix the Orleans fork after merging from upstream
-# Updated with lessons learned from debugging namespace conversion issues
+# Updated for complete namespace and type name conversion
 
 param(
     [Parameter(Mandatory=$true)]
@@ -18,7 +18,7 @@ $ErrorActionPreference = "Stop"
 Write-Host "Starting fork maintenance process..." -ForegroundColor Cyan
 
 # Step 1: Convert namespaces from Orleans to Forkleans
-Write-Host "`nStep 1: Converting namespaces..." -ForegroundColor Green
+Write-Host "`nStep 1: Converting namespaces and type names..." -ForegroundColor Green
 
 # Check for improved converter first, then fixed version, then fall back to original
 if (Test-Path ".\Convert-OrleansNamespace-Improved.ps1") {
@@ -29,43 +29,6 @@ if (Test-Path ".\Convert-OrleansNamespace-Improved.ps1") {
     .\Convert-OrleansNamespace-Fixed.ps1 -RootPath $RootPath -DryRun:$DryRun -BackupFirst:$BackupFirst
 } else {
     .\Convert-OrleansNamespace.ps1 -RootPath $RootPath -DryRun:$DryRun -BackupFirst:$BackupFirst
-}
-
-# Step 1.1: Fix Orleans-prefixed types that should NOT be converted
-Write-Host "`nStep 1.1: Fixing Orleans-prefixed type names..." -ForegroundColor Green
-
-$typesToPreserve = @(
-    "OrleansException",
-    "OrleansConfigurationException", 
-    "OrleansTransactionAbortedException",
-    "OrleansJsonSerializer",
-    "OrleansJsonSerializerOptions",
-    "OrleansGrainStorageSerializer",
-    "OrleansLifecycleAttribute",
-    "OrleansGrainReferenceAttribute"
-)
-
-$fixedTypes = 0
-foreach ($type in $typesToPreserve) {
-    $incorrectName = $type -replace "^Orleans", "Forkleans"
-    
-    if (-not $DryRun) {
-        Get-ChildItem -Path $RootPath -Recurse -Include "*.cs" -ErrorAction SilentlyContinue | ForEach-Object {
-            $content = Get-Content $_.FullName -Raw -ErrorAction SilentlyContinue
-            if ($content -match $incorrectName) {
-                $newContent = $content -replace $incorrectName, $type
-                Set-Content -Path $_.FullName -Value $newContent -NoNewline
-                Write-Host "  Fixed $incorrectName -> $type in: $($_.Name)" -ForegroundColor DarkGray
-                $fixedTypes++
-            }
-        }
-    } else {
-        Write-Host "  Would fix: $incorrectName -> $type" -ForegroundColor DarkGray
-    }
-}
-
-if ($fixedTypes -gt 0) {
-    Write-Host "  Fixed $fixedTypes type references" -ForegroundColor Green
 }
 
 # Step 1.5: Fix ALL project reference issues comprehensively
@@ -171,9 +134,9 @@ if (-not $DryRun) {
             Write-Host "  dotnet build `"$RootPath\Orleans.sln`" -c Debug --no-restore" -ForegroundColor White
             
             Write-Host "`nCommon issues to check:" -ForegroundColor Yellow
-            Write-Host "  - Orleans-prefixed types (should not be converted)" -ForegroundColor Gray
             Write-Host "  - Analyzer project references in Directory.Build.targets" -ForegroundColor Gray
             Write-Host "  - Windows paths in project.assets.json files" -ForegroundColor Gray
+            Write-Host "  - Missing type conversions (Orleans* -> Forkleans*)" -ForegroundColor Gray
         } else {
             Write-Host "`nBuild completed successfully!" -ForegroundColor Green
         }
@@ -193,7 +156,7 @@ Dry Run: $DryRun
 
 Steps Completed:
 1. Namespace conversion (Orleans -> Forkleans)
-2. Orleans-prefixed type preservation
+2. Type name conversion (Orleans* -> Forkleans*)
 3. Project reference fixes
 4. Directory.Build file fixes
 5. SDK build file name fixes
@@ -202,11 +165,17 @@ Steps Completed:
 8. SDK targets fixes
 9. Special project fixes
 
+Conversion Summary:
+- All Orleans namespaces -> Forkleans
+- All Orleans-prefixed types -> Forkleans-prefixed
+- Assembly names use Forkleans prefix
+- Package names use Forkleans prefix
+
 Known Issues to Watch:
-- Orleans-prefixed exception types should remain unchanged
 - Analyzer projects need ReferenceOutputAssembly="false"
-- Project reference paths should not change
+- Project reference paths should not change (Orleans.*.csproj)
 - Build file names (Microsoft.Orleans.*) should not change
+- MSBuild properties (OrleansBuildTimeCodeGen) remain unchanged
 
 Next Steps:
 1. Run 'dotnet build' to verify all projects compile

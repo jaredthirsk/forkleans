@@ -269,7 +269,7 @@ internal partial class CosmosMembershipTable : IMembershipTable
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 LogWarningUnableToQueryEntry(new(entry));
-                throw new OrleansException($"Unable to query for SiloEntity {entry.ToFullString()}");
+                throw new ForkleansException($"Unable to query for SiloEntity {entry.ToFullString()}");
             }
 
             _self = selfRow = response.Resource;
@@ -449,7 +449,7 @@ internal partial class CosmosMembershipTable : IMembershipTable
 
         if (suspectingSilos.Count != suspectingTimes.Count)
         {
-            throw new OrleansException($"SuspectingSilos.Length of {suspectingSilos.Count} as read from Azure Cosmos DB is not equal to SuspectingTimes.Length of {suspectingTimes.Count}");
+            throw new ForkleansException($"SuspectingSilos.Length of {suspectingSilos.Count} as read from Azure Cosmos DB is not equal to SuspectingTimes.Length of {suspectingTimes.Count}");
         }
 
         for (var i = 0; i < suspectingSilos.Count; i++)

@@ -4,13 +4,13 @@
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Serialization")]
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Core")]
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Runtime")]
-[assembly: global::Forkleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(OrleansCodeGen.TestProject.Metadata_TestProject))]
+[assembly: global::Forkleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(ForkleansCodeGen.TestProject.Metadata_TestProject))]
 namespace ForkleansCodeGen.TestProject
 {
     using global::Forkleans.Serialization.Codecs;
     using global::Forkleans.Serialization.GeneratedCodeHelpers;
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Codec_DemoClass : global::Forkleans.Serialization.Codecs.IFieldCodec<global::TestProject.DemoClass>, global::Forkleans.Serialization.Serializers.IBaseCodec<global::TestProject.DemoClass>
     {
         private readonly global::System.Type _codecFieldType = typeof(global::TestProject.DemoClass);
@@ -83,7 +83,7 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Copier_DemoClass : global::Forkleans.Serialization.Cloning.IDeepCopier<global::TestProject.DemoClass>, global::Forkleans.Serialization.Cloning.IBaseCopier<global::TestProject.DemoClass>
     {
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -105,20 +105,20 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     internal sealed class Activator_DemoClass : global::Forkleans.Serialization.Activators.IActivator<global::TestProject.DemoClass>
     {
         public global::TestProject.DemoClass Create() => new global::TestProject.DemoClass();
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     internal sealed class Metadata_TestProject : global::Forkleans.Serialization.Configuration.TypeManifestProviderBase
     {
         protected override void ConfigureInner(global::Forkleans.Serialization.Configuration.TypeManifestOptions config)
         {
-            config.Serializers.Add(typeof(OrleansCodeGen.TestProject.Codec_DemoClass));
-            config.Copiers.Add(typeof(OrleansCodeGen.TestProject.Copier_DemoClass));
-            config.Activators.Add(typeof(OrleansCodeGen.TestProject.Activator_DemoClass));
+            config.Serializers.Add(typeof(ForkleansCodeGen.TestProject.Codec_DemoClass));
+            config.Copiers.Add(typeof(ForkleansCodeGen.TestProject.Copier_DemoClass));
+            config.Activators.Add(typeof(ForkleansCodeGen.TestProject.Activator_DemoClass));
         }
     }
 }

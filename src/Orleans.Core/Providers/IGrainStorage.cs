@@ -58,7 +58,7 @@ namespace Forkleans.Storage
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public class InconsistentStateException : OrleansException
+    public class InconsistentStateException : ForkleansException
     {
         /// <summary>
         /// Gets or sets a value indicating whether this exception occurred on the current activation.

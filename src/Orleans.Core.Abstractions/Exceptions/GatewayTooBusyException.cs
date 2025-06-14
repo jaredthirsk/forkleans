@@ -13,7 +13,7 @@ namespace Forkleans.Runtime
     /// </remarks>
     [Serializable]
     [GenerateSerializer]
-    public sealed class GatewayTooBusyException : OrleansException
+    public sealed class GatewayTooBusyException : ForkleansException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="GatewayTooBusyException"/> class.

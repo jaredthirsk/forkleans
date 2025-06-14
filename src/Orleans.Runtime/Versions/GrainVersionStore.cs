@@ -79,7 +79,7 @@ namespace Forkleans.Runtime.Versions
         {
             if (!IsEnabled) ThrowDisabled();
 
-            static void ThrowDisabled() => throw new OrleansException("Version store not enabled, make sure the store is configured");
+            static void ThrowDisabled() => throw new ForkleansException("Version store not enabled, make sure the store is configured");
         }
 
         public void Participate(ISiloLifecycle lifecycle)

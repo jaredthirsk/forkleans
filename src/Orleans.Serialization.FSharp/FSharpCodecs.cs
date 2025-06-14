@@ -54,7 +54,7 @@ namespace Forkleans.Serialization
         /// </summary>
         public FSharpOptionCodec(IFieldCodec<T> fieldCodec)
         {
-            _fieldCodec = OrleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
+            _fieldCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
         }
 
         /// <inheritdoc/>
@@ -122,7 +122,7 @@ namespace Forkleans.Serialization
         /// <param name="valueCopier">The value copier.</param>
         public FSharpOptionCopier(IDeepCopier<T> valueCopier)
         {
-            _valueCopier = OrleansGeneratedCodeHelper.UnwrapService(this, valueCopier);
+            _valueCopier = ForkleansGeneratedCodeHelper.UnwrapService(this, valueCopier);
         }
 
         /// <inheritdoc/>
@@ -159,7 +159,7 @@ namespace Forkleans.Serialization
         /// <param name="item1Codec">The item codec.</param>
         public FSharpValueOptionCodec(IFieldCodec<T> item1Codec)
         {
-            _valueCodec = OrleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
+            _valueCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
         }
 
         /// <inheritdoc/>
@@ -222,7 +222,7 @@ namespace Forkleans.Serialization
         /// <param name="valueCopier">The value copier.</param>
         public FSharpValueOptionCopier(IDeepCopier<T> valueCopier)
         {
-            _valueCopier = OrleansGeneratedCodeHelper.UnwrapService(this, valueCopier);
+            _valueCopier = ForkleansGeneratedCodeHelper.UnwrapService(this, valueCopier);
         }
 
         /// <inheritdoc/>
@@ -258,8 +258,8 @@ namespace Forkleans.Serialization
         /// <param name="item2Codec">The codec for <typeparamref name="T2"/>.</param>
         public FSharpChoiceCodec(IFieldCodec<T1> item1Codec, IFieldCodec<T2> item2Codec)
         {
-            _item1Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
-            _item2Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item2Codec);
+            _item1Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
+            _item2Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item2Codec);
         }
 
         /// <inheritdoc/>
@@ -363,9 +363,9 @@ namespace Forkleans.Serialization
             IFieldCodec<T2> item2Codec,
             IFieldCodec<T3> item3Codec)
         {
-            _item1Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
-            _item2Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item2Codec);
-            _item3Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item3Codec);
+            _item1Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
+            _item2Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item2Codec);
+            _item3Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item3Codec);
         }
 
         void IFieldCodec<FSharpChoice<T1, T2, T3>>.WriteField<TBufferWriter>(ref Writer<TBufferWriter> writer, uint fieldIdDelta, Type expectedType, FSharpChoice<T1, T2, T3> value)
@@ -479,10 +479,10 @@ namespace Forkleans.Serialization
             IFieldCodec<T3> item3Codec,
             IFieldCodec<T4> item4Codec)
         {
-            _item1Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
-            _item2Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item2Codec);
-            _item3Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item3Codec);
-            _item4Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item4Codec);
+            _item1Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
+            _item2Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item2Codec);
+            _item3Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item3Codec);
+            _item4Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item4Codec);
         }
 
         void IFieldCodec<FSharpChoice<T1, T2, T3, T4>>.WriteField<TBufferWriter>(ref Writer<TBufferWriter> writer, uint fieldIdDelta, Type expectedType, FSharpChoice<T1, T2, T3, T4> value)
@@ -605,11 +605,11 @@ namespace Forkleans.Serialization
             IFieldCodec<T4> item4Codec,
             IFieldCodec<T5> item5Codec)
         {
-            _item1Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
-            _item2Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item2Codec);
-            _item3Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item3Codec);
-            _item4Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item4Codec);
-            _item5Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item5Codec);
+            _item1Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
+            _item2Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item2Codec);
+            _item3Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item3Codec);
+            _item4Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item4Codec);
+            _item5Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item5Codec);
         }
 
         void IFieldCodec<FSharpChoice<T1, T2, T3, T4, T5>>.WriteField<TBufferWriter>(ref Writer<TBufferWriter> writer, uint fieldIdDelta, Type expectedType, FSharpChoice<T1, T2, T3, T4, T5> value)
@@ -741,12 +741,12 @@ namespace Forkleans.Serialization
             IFieldCodec<T5> item5Codec,
             IFieldCodec<T6> item6Codec)
         {
-            _item1Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
-            _item2Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item2Codec);
-            _item3Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item3Codec);
-            _item4Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item4Codec);
-            _item5Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item5Codec);
-            _item6Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item6Codec);
+            _item1Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
+            _item2Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item2Codec);
+            _item3Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item3Codec);
+            _item4Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item4Codec);
+            _item5Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item5Codec);
+            _item6Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item6Codec);
         }
 
         void IFieldCodec<FSharpChoice<T1, T2, T3, T4, T5, T6>>.WriteField<TBufferWriter>(ref Writer<TBufferWriter> writer, uint fieldIdDelta, Type expectedType, FSharpChoice<T1, T2, T3, T4, T5, T6> value)
@@ -1091,8 +1091,8 @@ namespace Forkleans.Serialization
 
         public FSharpResultCodec(IFieldCodec<T> item1Codec, IFieldCodec<TError> item2Codec)
         {
-            _item1Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
-            _item2Codec = OrleansGeneratedCodeHelper.UnwrapService(this, item2Codec);
+            _item1Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item1Codec);
+            _item2Codec = ForkleansGeneratedCodeHelper.UnwrapService(this, item2Codec);
         }
 
         void IFieldCodec<FSharpResult<T, TError>>.WriteField<TBufferWriter>(ref Writer<TBufferWriter> writer, uint fieldIdDelta, Type expectedType, FSharpResult<T, TError> value)

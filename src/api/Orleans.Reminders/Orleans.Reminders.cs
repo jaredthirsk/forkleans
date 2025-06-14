@@ -167,7 +167,7 @@ namespace Forkleans.Runtime
     }
 
     [GenerateSerializer]
-    public sealed partial class ReminderException : OrleansException
+    public sealed partial class ReminderException : ForkleansException
     {
         [System.Obsolete]
         public ReminderException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
@@ -208,7 +208,7 @@ namespace Forkleans.Timers
 
 namespace ForkleansCodeGen.Orleans
 {
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IRemindable_GrainReference_6461BF2F : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IRemindable_GrainReference_6461BF2F>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -226,7 +226,7 @@ namespace ForkleansCodeGen.Orleans
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IReminderService_GrainReference_1281C86D : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IReminderService_GrainReference_1281C86D>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -244,7 +244,7 @@ namespace ForkleansCodeGen.Orleans
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IReminderService_GrainReference_419EB51E : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IReminderService_GrainReference_419EB51E>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -262,7 +262,7 @@ namespace ForkleansCodeGen.Orleans
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IReminderService_GrainReference_5CF78F8A : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IReminderService_GrainReference_5CF78F8A>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -278,7 +278,7 @@ namespace ForkleansCodeGen.Orleans
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IReminderService_GrainReference_A7AF84A8 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IReminderService_GrainReference_A7AF84A8>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -296,7 +296,7 @@ namespace ForkleansCodeGen.Orleans
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IReminderService_GrainReference_AC622EEB : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IReminderService_GrainReference_AC622EEB>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -314,7 +314,7 @@ namespace ForkleansCodeGen.Orleans
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IReminderService_GrainReference_DCFCA00D : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IReminderService_GrainReference_DCFCA00D>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -330,7 +330,7 @@ namespace ForkleansCodeGen.Orleans
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_ReminderEntry : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.ReminderEntry>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -348,7 +348,7 @@ namespace ForkleansCodeGen.Orleans
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_ReminderTableData : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.ReminderTableData>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -366,7 +366,7 @@ namespace ForkleansCodeGen.Orleans
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IRemindable_GrainReference_6461BF2F : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IRemindable_GrainReference_6461BF2F>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -374,7 +374,7 @@ namespace ForkleansCodeGen.Orleans
         public Invokable_IRemindable_GrainReference_6461BF2F DeepCopy(Invokable_IRemindable_GrainReference_6461BF2F original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IReminderService_GrainReference_1281C86D : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IReminderService_GrainReference_1281C86D>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -382,7 +382,7 @@ namespace ForkleansCodeGen.Orleans
         public Invokable_IReminderService_GrainReference_1281C86D DeepCopy(Invokable_IReminderService_GrainReference_1281C86D original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IReminderService_GrainReference_419EB51E : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IReminderService_GrainReference_419EB51E>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -390,7 +390,7 @@ namespace ForkleansCodeGen.Orleans
         public Invokable_IReminderService_GrainReference_419EB51E DeepCopy(Invokable_IReminderService_GrainReference_419EB51E original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IReminderService_GrainReference_5CF78F8A : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IReminderService_GrainReference_5CF78F8A>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -398,7 +398,7 @@ namespace ForkleansCodeGen.Orleans
         public Invokable_IReminderService_GrainReference_5CF78F8A DeepCopy(Invokable_IReminderService_GrainReference_5CF78F8A original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IReminderService_GrainReference_A7AF84A8 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IReminderService_GrainReference_A7AF84A8>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -408,7 +408,7 @@ namespace ForkleansCodeGen.Orleans
         public Invokable_IReminderService_GrainReference_A7AF84A8 DeepCopy(Invokable_IReminderService_GrainReference_A7AF84A8 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IReminderService_GrainReference_AC622EEB : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IReminderService_GrainReference_AC622EEB>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -416,7 +416,7 @@ namespace ForkleansCodeGen.Orleans
         public Invokable_IReminderService_GrainReference_AC622EEB DeepCopy(Invokable_IReminderService_GrainReference_AC622EEB original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IReminderService_GrainReference_DCFCA00D : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IReminderService_GrainReference_DCFCA00D>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -424,7 +424,7 @@ namespace ForkleansCodeGen.Orleans
         public Invokable_IReminderService_GrainReference_DCFCA00D DeepCopy(Invokable_IReminderService_GrainReference_DCFCA00D original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_ReminderEntry : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.ReminderEntry>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -432,7 +432,7 @@ namespace ForkleansCodeGen.Orleans
         public global::Forkleans.ReminderEntry DeepCopy(global::Forkleans.ReminderEntry original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_ReminderTableData : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.ReminderTableData>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -442,7 +442,7 @@ namespace ForkleansCodeGen.Orleans
         public global::Forkleans.ReminderTableData DeepCopy(global::Forkleans.ReminderTableData original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.IRemindable), "6461BF2F" })]
@@ -475,7 +475,7 @@ namespace ForkleansCodeGen.Orleans
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.IReminderService), "1281C86D" })]
@@ -510,7 +510,7 @@ namespace ForkleansCodeGen.Orleans
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.IReminderService), "419EB51E" })]
@@ -542,7 +542,7 @@ namespace ForkleansCodeGen.Orleans
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.IReminderService), "5CF78F8A" })]
@@ -567,7 +567,7 @@ namespace ForkleansCodeGen.Orleans
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.IReminderService), "A7AF84A8" })]
@@ -599,7 +599,7 @@ namespace ForkleansCodeGen.Orleans
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.IReminderService), "AC622EEB" })]
@@ -632,7 +632,7 @@ namespace ForkleansCodeGen.Orleans
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.IReminderService), "DCFCA00D" })]
@@ -660,7 +660,7 @@ namespace ForkleansCodeGen.Orleans
 
 namespace ForkleansCodeGen.Forkleans.Runtime
 {
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_ReminderException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.ReminderException>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -678,7 +678,7 @@ namespace ForkleansCodeGen.Forkleans.Runtime
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_TickStatus : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Runtime.TickStatus>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IValueSerializer<global::Forkleans.Runtime.TickStatus>, global::Forkleans.Serialization.Serializers.IValueSerializer
@@ -694,10 +694,10 @@ namespace ForkleansCodeGen.Forkleans.Runtime
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_ReminderException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.ReminderException, global::Forkleans.Runtime.OrleansException>
+    public sealed partial class Copier_ReminderException : global::Forkleans.Serialization.GeneratedCodeHelpers.ForkleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Runtime.ReminderException, global::Forkleans.Runtime.ForkleansException>
     {
         public Copier_ReminderException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
     }

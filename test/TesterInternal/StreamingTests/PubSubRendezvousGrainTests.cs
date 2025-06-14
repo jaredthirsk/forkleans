@@ -51,7 +51,7 @@ namespace UnitTests.StreamingTests
             await faultGrain.AddFaultOnWrite(pubSubGrain.GetGrainId(), new ApplicationException("Write"));
 
             // expect exception when registering a new consumer
-            await Assert.ThrowsAsync<OrleansException>(
+            await Assert.ThrowsAsync<ForkleansException>(
                     () => pubSubGrain.RegisterConsumer(GuidId.GetGuidId(Guid.NewGuid()), streamId, default, null));
 
             // pubsub grain should recover and still function
@@ -80,7 +80,7 @@ namespace UnitTests.StreamingTests
             await faultGrain.AddFaultOnWrite(pubSubGrain.GetGrainId(), new ApplicationException("Write"));
 
             // expect exception when unregistering a consumer
-            await Assert.ThrowsAsync<OrleansException>(
+            await Assert.ThrowsAsync<ForkleansException>(
                     () => pubSubGrain.UnregisterConsumer(subscriptionId1, streamId));
 
             // pubsub grain should recover and still function
@@ -92,7 +92,7 @@ namespace UnitTests.StreamingTests
             await faultGrain.AddFaultOnClear(pubSubGrain.GetGrainId(), new ApplicationException("Write"));
 
             // expect exception when unregistering a consumer
-            await Assert.ThrowsAsync<OrleansException>(
+            await Assert.ThrowsAsync<ForkleansException>(
                     () => pubSubGrain.UnregisterConsumer(subscriptionId2, streamId));
 
             // pubsub grain should recover and still function
@@ -123,7 +123,7 @@ namespace UnitTests.StreamingTests
             await faultGrain.AddFaultOnWrite(pubSubGrain.GetGrainId(), new ApplicationException("Write"));
 
             // expect exception when registering a new producer
-            await Assert.ThrowsAsync<OrleansException>(
+            await Assert.ThrowsAsync<ForkleansException>(
                     () => pubSubGrain.RegisterProducer(streamId, default));
 
             // pubsub grain should recover and still function
@@ -156,7 +156,7 @@ namespace UnitTests.StreamingTests
             await faultGrain.AddFaultOnWrite(pubSubGrain.GetGrainId(), new ApplicationException("Write"));
 
             // expect exception when unregistering a producer
-            await Assert.ThrowsAsync<OrleansException>(
+            await Assert.ThrowsAsync<ForkleansException>(
                     () => pubSubGrain.UnregisterProducer(streamId, firstProducer.GetGrainId()));
 
             // pubsub grain should recover and still function
@@ -168,7 +168,7 @@ namespace UnitTests.StreamingTests
             await faultGrain.AddFaultOnClear(pubSubGrain.GetGrainId(), new ApplicationException("Write"));
 
             // expect exception when unregistering a consumer
-            await Assert.ThrowsAsync<OrleansException>(
+            await Assert.ThrowsAsync<ForkleansException>(
                     () => pubSubGrain.UnregisterProducer(streamId, secondProducer.GetGrainId()));
 
             // pubsub grain should recover and still function

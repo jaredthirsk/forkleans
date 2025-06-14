@@ -128,7 +128,7 @@ namespace DefaultCluster.Tests.General
             {
                 Exception baseException = exc.GetBaseException();
                 this.Logger.LogInformation(baseException, "Received exception");
-                Assert.IsAssignableFrom<OrleansException>(baseException);
+                Assert.IsAssignableFrom<ForkleansException>(baseException);
                 if (!baseException.Message.StartsWith("Cannot subscribe already subscribed observer"))
                 {
                     Assert.Fail("Unexpected exception message: " + baseException);
@@ -207,7 +207,7 @@ namespace DefaultCluster.Tests.General
             catch (Exception exc)
             {
                 Exception baseException = exc.GetBaseException();
-                if (!(baseException is OrleansException))
+                if (!(baseException is ForkleansException))
                     Assert.True(false);
             }
         }

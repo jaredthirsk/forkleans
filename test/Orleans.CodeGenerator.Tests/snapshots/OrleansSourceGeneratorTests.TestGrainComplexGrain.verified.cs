@@ -4,13 +4,13 @@
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Serialization")]
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Core")]
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Runtime")]
-[assembly: global::Forkleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(OrleansCodeGen.TestProject.Metadata_TestProject))]
+[assembly: global::Forkleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(ForkleansCodeGen.TestProject.Metadata_TestProject))]
 namespace ForkleansCodeGen.TestProject
 {
     using global::Forkleans.Serialization.Codecs;
     using global::Forkleans.Serialization.GeneratedCodeHelpers;
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     [global::Forkleans.CompoundTypeAliasAttribute("inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::TestProject.IComplexGrain), "67FE5808")]
     public sealed class Invokable_IComplexGrain_GrainReference_67FE5808 : global::Forkleans.Runtime.TaskRequest<global::TestProject.ComplexData>
     {
@@ -19,7 +19,7 @@ namespace ForkleansCodeGen.TestProject
         public global::TestProject.ComplexData arg2;
         public global::System.Threading.CancellationToken arg3;
         global::TestProject.IComplexGrain _target;
-        private static readonly global::System.Reflection.MethodInfo MethodBackingField = OrleansGeneratedCodeHelper.GetMethodInfoOrDefault(typeof(global::TestProject.IComplexGrain), "ProcessData", null, new[] { typeof(int), typeof(string), typeof(global::TestProject.ComplexData), typeof(global::System.Threading.CancellationToken) });
+        private static readonly global::System.Reflection.MethodInfo MethodBackingField = ForkleansGeneratedCodeHelper.GetMethodInfoOrDefault(typeof(global::TestProject.IComplexGrain), "ProcessData", null, new[] { typeof(int), typeof(string), typeof(global::TestProject.ComplexData), typeof(global::System.Threading.CancellationToken) });
         global::System.Threading.CancellationTokenSource _cts;
         public override int GetArgumentCount() => 4;
         public override string GetMethodName() => "ProcessData";
@@ -59,7 +59,7 @@ namespace ForkleansCodeGen.TestProject
                 case 3:
                     return arg3;
                 default:
-                    return OrleansGeneratedCodeHelper.InvokableThrowArgumentOutOfRange(index, 3);
+                    return ForkleansGeneratedCodeHelper.InvokableThrowArgumentOutOfRange(index, 3);
             }
         }
 
@@ -80,7 +80,7 @@ namespace ForkleansCodeGen.TestProject
                     arg3 = (global::System.Threading.CancellationToken)value;
                     return;
                 default:
-                    OrleansGeneratedCodeHelper.InvokableThrowArgumentOutOfRange(index, 3);
+                    ForkleansGeneratedCodeHelper.InvokableThrowArgumentOutOfRange(index, 3);
                     return;
             }
         }
@@ -94,18 +94,18 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     internal sealed class Proxy_IComplexGrain : global::Forkleans.Runtime.GrainReference, global::TestProject.IComplexGrain
     {
-        private readonly OrleansCodeGen.TestProject.Copier_ComplexData _copier0;
+        private readonly ForkleansCodeGen.TestProject.Copier_ComplexData _copier0;
         public Proxy_IComplexGrain(global::Forkleans.Runtime.GrainReferenceShared arg0, global::Forkleans.Runtime.IdSpan arg1) : base(arg0, arg1)
         {
-            _copier0 = OrleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Copier_ComplexData>(this, CodecProvider);
+            _copier0 = ForkleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Copier_ComplexData>(this, CodecProvider);
         }
 
         global::System.Threading.Tasks.Task<global::TestProject.ComplexData> global::TestProject.IComplexGrain.ProcessData(int arg0, string arg1, global::TestProject.ComplexData arg2, global::System.Threading.CancellationToken arg3)
         {
-            var request = new OrleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808();
+            var request = new ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808();
             request.arg0 = arg0;
             request.arg1 = arg1;
             using var copyContext = base.CopyContextPool.GetContext();
@@ -115,7 +115,7 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Codec_ComplexData : global::Forkleans.Serialization.Codecs.IFieldCodec<global::TestProject.ComplexData>, global::Forkleans.Serialization.Serializers.IBaseCodec<global::TestProject.ComplexData>
     {
         private readonly global::System.Type _codecFieldType = typeof(global::TestProject.ComplexData);
@@ -193,7 +193,7 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Copier_ComplexData : global::Forkleans.Serialization.Cloning.IDeepCopier<global::TestProject.ComplexData>, global::Forkleans.Serialization.Cloning.IBaseCopier<global::TestProject.ComplexData>
     {
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -217,25 +217,25 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     internal sealed class Activator_ComplexData : global::Forkleans.Serialization.Activators.IActivator<global::TestProject.ComplexData>
     {
         public global::TestProject.ComplexData Create() => new global::TestProject.ComplexData();
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Codec_Invokable_IComplexGrain_GrainReference_67FE5808 : global::Forkleans.Serialization.Codecs.IFieldCodec<ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808>
     {
-        private readonly global::System.Type _codecFieldType = typeof(OrleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808);
+        private readonly global::System.Type _codecFieldType = typeof(ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808);
         private readonly global::System.Type _type0 = typeof(global::TestProject.ComplexData);
-        private readonly OrleansCodeGen.TestProject.Codec_ComplexData _codec0;
+        private readonly ForkleansCodeGen.TestProject.Codec_ComplexData _codec0;
         public Codec_Invokable_IComplexGrain_GrainReference_67FE5808(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider)
         {
-            _codec0 = OrleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Codec_ComplexData>(this, codecProvider);
+            _codec0 = ForkleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Codec_ComplexData>(this, codecProvider);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, OrleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808 instance)
+        public void Serialize<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808 instance)
             where TBufferWriter : global::System.Buffers.IBufferWriter<byte>
         {
             global::Forkleans.Serialization.Codecs.Int32Codec.WriteField(ref writer, 0U, instance.arg0);
@@ -244,7 +244,7 @@ namespace ForkleansCodeGen.TestProject
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, OrleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808 instance)
+        public void Deserialize<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808 instance)
         {
             uint id = 0U;
             global::Forkleans.Serialization.WireProtocol.Field header = default;
@@ -284,7 +284,7 @@ namespace ForkleansCodeGen.TestProject
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, global::System.Type expectedType, OrleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808 @value)
+        public void WriteField<TBufferWriter>(ref global::Forkleans.Serialization.Buffers.Writer<TBufferWriter> writer, uint fieldIdDelta, global::System.Type expectedType, ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808 @value)
             where TBufferWriter : global::System.Buffers.IBufferWriter<byte>
         {
             if (@value is null)
@@ -300,28 +300,28 @@ namespace ForkleansCodeGen.TestProject
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public OrleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808 ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field)
+        public ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808 ReadValue<TReaderInput>(ref global::Forkleans.Serialization.Buffers.Reader<TReaderInput> reader, global::Forkleans.Serialization.WireProtocol.Field field)
         {
             if (field.IsReference)
                 return ReferenceCodec.ReadReference<ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808, TReaderInput>(ref reader, field);
             field.EnsureWireTypeTagDelimited();
-            var result = new OrleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808();
+            var result = new ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808();
             ReferenceCodec.MarkValueField(reader.Session);
             Deserialize(ref reader, result);
             return result;
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Copier_Invokable_IComplexGrain_GrainReference_67FE5808 : global::Forkleans.Serialization.Cloning.IDeepCopier<ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808>
     {
-        private readonly OrleansCodeGen.TestProject.Copier_ComplexData _copier0;
+        private readonly ForkleansCodeGen.TestProject.Copier_ComplexData _copier0;
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public OrleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808 DeepCopy(OrleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808 original, global::Forkleans.Serialization.Cloning.CopyContext context)
+        public ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808 DeepCopy(ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808 original, global::Forkleans.Serialization.Cloning.CopyContext context)
         {
             if (original is null)
                 return null;
-            var result = new OrleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808();
+            var result = new ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808();
             result.arg0 = original.arg0;
             result.arg1 = original.arg1;
             result.arg2 = _copier0.DeepCopy(original.arg2, context);
@@ -331,18 +331,18 @@ namespace ForkleansCodeGen.TestProject
 
         public Copier_Invokable_IComplexGrain_GrainReference_67FE5808(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider)
         {
-            _copier0 = OrleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Copier_ComplexData>(this, codecProvider);
+            _copier0 = ForkleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Copier_ComplexData>(this, codecProvider);
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Codec_ComplexGrain : global::Forkleans.Serialization.Codecs.IFieldCodec<global::TestProject.ComplexGrain>, global::Forkleans.Serialization.Serializers.IBaseCodec<global::TestProject.ComplexGrain>
     {
         private readonly global::System.Type _codecFieldType = typeof(global::TestProject.ComplexGrain);
         private readonly global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Grain> _baseTypeSerializer;
         public Codec_ComplexGrain(global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Grain> _baseTypeSerializer)
         {
-            this._baseTypeSerializer = OrleansGeneratedCodeHelper.UnwrapService(this, _baseTypeSerializer);
+            this._baseTypeSerializer = ForkleansGeneratedCodeHelper.UnwrapService(this, _baseTypeSerializer);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -395,7 +395,7 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Copier_ComplexGrain : global::Forkleans.Serialization.Cloning.IDeepCopier<global::TestProject.ComplexGrain>, global::Forkleans.Serialization.Cloning.IBaseCopier<global::TestProject.ComplexGrain>
     {
         private readonly global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Grain> _baseTypeCopier;
@@ -414,7 +414,7 @@ namespace ForkleansCodeGen.TestProject
 
         public Copier_ComplexGrain(global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Grain> _baseTypeCopier)
         {
-            this._baseTypeCopier = OrleansGeneratedCodeHelper.UnwrapService(this, _baseTypeCopier);
+            this._baseTypeCopier = ForkleansGeneratedCodeHelper.UnwrapService(this, _baseTypeCopier);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -424,32 +424,32 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     internal sealed class Activator_ComplexGrain : global::Forkleans.Serialization.Activators.IActivator<global::TestProject.ComplexGrain>
     {
         public global::TestProject.ComplexGrain Create() => new global::TestProject.ComplexGrain();
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     internal sealed class Metadata_TestProject : global::Forkleans.Serialization.Configuration.TypeManifestProviderBase
     {
         protected override void ConfigureInner(global::Forkleans.Serialization.Configuration.TypeManifestOptions config)
         {
-            config.Serializers.Add(typeof(OrleansCodeGen.TestProject.Codec_ComplexData));
-            config.Serializers.Add(typeof(OrleansCodeGen.TestProject.Codec_Invokable_IComplexGrain_GrainReference_67FE5808));
-            config.Serializers.Add(typeof(OrleansCodeGen.TestProject.Codec_ComplexGrain));
-            config.Copiers.Add(typeof(OrleansCodeGen.TestProject.Copier_ComplexData));
-            config.Copiers.Add(typeof(OrleansCodeGen.TestProject.Copier_Invokable_IComplexGrain_GrainReference_67FE5808));
-            config.Copiers.Add(typeof(OrleansCodeGen.TestProject.Copier_ComplexGrain));
-            config.InterfaceProxies.Add(typeof(OrleansCodeGen.TestProject.Proxy_IComplexGrain));
+            config.Serializers.Add(typeof(ForkleansCodeGen.TestProject.Codec_ComplexData));
+            config.Serializers.Add(typeof(ForkleansCodeGen.TestProject.Codec_Invokable_IComplexGrain_GrainReference_67FE5808));
+            config.Serializers.Add(typeof(ForkleansCodeGen.TestProject.Codec_ComplexGrain));
+            config.Copiers.Add(typeof(ForkleansCodeGen.TestProject.Copier_ComplexData));
+            config.Copiers.Add(typeof(ForkleansCodeGen.TestProject.Copier_Invokable_IComplexGrain_GrainReference_67FE5808));
+            config.Copiers.Add(typeof(ForkleansCodeGen.TestProject.Copier_ComplexGrain));
+            config.InterfaceProxies.Add(typeof(ForkleansCodeGen.TestProject.Proxy_IComplexGrain));
             config.Interfaces.Add(typeof(global::TestProject.IComplexGrain));
             config.InterfaceImplementations.Add(typeof(global::TestProject.ComplexGrain));
-            config.Activators.Add(typeof(OrleansCodeGen.TestProject.Activator_ComplexData));
-            config.Activators.Add(typeof(OrleansCodeGen.TestProject.Activator_ComplexGrain));
+            config.Activators.Add(typeof(ForkleansCodeGen.TestProject.Activator_ComplexData));
+            config.Activators.Add(typeof(ForkleansCodeGen.TestProject.Activator_ComplexGrain));
             var n1 = config.CompoundTypeAliases.Add("inv");
             var n2 = n1.Add(typeof(global::Forkleans.Runtime.GrainReference));
             var n3 = n2.Add(typeof(global::TestProject.IComplexGrain));
-            n3.Add("67FE5808", typeof(OrleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808));
+            n3.Add("67FE5808", typeof(ForkleansCodeGen.TestProject.Invokable_IComplexGrain_GrainReference_67FE5808));
         }
     }
 }

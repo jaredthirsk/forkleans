@@ -4,13 +4,13 @@
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Serialization")]
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Core")]
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Runtime")]
-[assembly: global::Forkleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(OrleansCodeGen.TestProject.Metadata_TestProject))]
+[assembly: global::Forkleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(ForkleansCodeGen.TestProject.Metadata_TestProject))]
 namespace ForkleansCodeGen.TestProject
 {
     using global::Forkleans.Serialization.Codecs;
     using global::Forkleans.Serialization.GeneratedCodeHelpers;
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Codec_GenericData<T> : global::Forkleans.Serialization.Codecs.IFieldCodec<global::TestProject.GenericData<T>>, global::Forkleans.Serialization.Serializers.IBaseCodec<global::TestProject.GenericData<T>>
     {
         private readonly global::System.Type _codecFieldType = typeof(global::TestProject.GenericData<T>);
@@ -18,7 +18,7 @@ namespace ForkleansCodeGen.TestProject
         private readonly global::Forkleans.Serialization.Codecs.IFieldCodec<T> _codec0;
         public Codec_GenericData(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider)
         {
-            _codec0 = OrleansGeneratedCodeHelper.GetService<global::Forkleans.Serialization.Codecs.IFieldCodec<T>>(this, codecProvider);
+            _codec0 = ForkleansGeneratedCodeHelper.GetService<global::Forkleans.Serialization.Codecs.IFieldCodec<T>>(this, codecProvider);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -95,7 +95,7 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Copier_GenericData<T> : global::Forkleans.Serialization.Cloning.IDeepCopier<global::TestProject.GenericData<T>>, global::Forkleans.Serialization.Cloning.IBaseCopier<global::TestProject.GenericData<T>>
     {
         private readonly global::Forkleans.Serialization.Cloning.IDeepCopier<T> _copier0;
@@ -114,7 +114,7 @@ namespace ForkleansCodeGen.TestProject
 
         public Copier_GenericData(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider)
         {
-            _copier0 = OrleansGeneratedCodeHelper.GetService<global::Forkleans.Serialization.Cloning.IDeepCopier<T>>(this, codecProvider);
+            _copier0 = ForkleansGeneratedCodeHelper.GetService<global::Forkleans.Serialization.Cloning.IDeepCopier<T>>(this, codecProvider);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -125,24 +125,24 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     internal sealed class Activator_GenericData<T> : global::Forkleans.Serialization.Activators.IActivator<global::TestProject.GenericData<T>>
     {
         public global::TestProject.GenericData<T> Create() => new global::TestProject.GenericData<T>();
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Codec_ConcreteUsage : global::Forkleans.Serialization.Codecs.IFieldCodec<global::TestProject.ConcreteUsage>, global::Forkleans.Serialization.Serializers.IBaseCodec<global::TestProject.ConcreteUsage>
     {
         private readonly global::System.Type _codecFieldType = typeof(global::TestProject.ConcreteUsage);
         private readonly global::System.Type _type0 = typeof(global::TestProject.GenericData<int>);
-        private readonly OrleansCodeGen.TestProject.Codec_GenericData<int> _codec0;
+        private readonly ForkleansCodeGen.TestProject.Codec_GenericData<int> _codec0;
         private readonly global::System.Type _type1 = typeof(global::TestProject.GenericData<string>);
-        private readonly OrleansCodeGen.TestProject.Codec_GenericData<string> _codec1;
+        private readonly ForkleansCodeGen.TestProject.Codec_GenericData<string> _codec1;
         public Codec_ConcreteUsage(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider)
         {
-            _codec0 = OrleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Codec_GenericData<int>>(this, codecProvider);
-            _codec1 = OrleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Codec_GenericData<string>>(this, codecProvider);
+            _codec0 = ForkleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Codec_GenericData<int>>(this, codecProvider);
+            _codec1 = ForkleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Codec_GenericData<string>>(this, codecProvider);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -219,11 +219,11 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Copier_ConcreteUsage : global::Forkleans.Serialization.Cloning.IDeepCopier<global::TestProject.ConcreteUsage>, global::Forkleans.Serialization.Cloning.IBaseCopier<global::TestProject.ConcreteUsage>
     {
-        private readonly OrleansCodeGen.TestProject.Copier_GenericData<int> _copier0;
-        private readonly OrleansCodeGen.TestProject.Copier_GenericData<string> _copier1;
+        private readonly ForkleansCodeGen.TestProject.Copier_GenericData<int> _copier0;
+        private readonly ForkleansCodeGen.TestProject.Copier_GenericData<string> _copier1;
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public global::TestProject.ConcreteUsage DeepCopy(global::TestProject.ConcreteUsage original, global::Forkleans.Serialization.Cloning.CopyContext context)
         {
@@ -239,8 +239,8 @@ namespace ForkleansCodeGen.TestProject
 
         public Copier_ConcreteUsage(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider)
         {
-            _copier0 = OrleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Copier_GenericData<int>>(this, codecProvider);
-            _copier1 = OrleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Copier_GenericData<string>>(this, codecProvider);
+            _copier0 = ForkleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Copier_GenericData<int>>(this, codecProvider);
+            _copier1 = ForkleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Copier_GenericData<string>>(this, codecProvider);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -251,23 +251,23 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     internal sealed class Activator_ConcreteUsage : global::Forkleans.Serialization.Activators.IActivator<global::TestProject.ConcreteUsage>
     {
         public global::TestProject.ConcreteUsage Create() => new global::TestProject.ConcreteUsage();
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     internal sealed class Metadata_TestProject : global::Forkleans.Serialization.Configuration.TypeManifestProviderBase
     {
         protected override void ConfigureInner(global::Forkleans.Serialization.Configuration.TypeManifestOptions config)
         {
-            config.Serializers.Add(typeof(OrleansCodeGen.TestProject.Codec_GenericData<>));
-            config.Serializers.Add(typeof(OrleansCodeGen.TestProject.Codec_ConcreteUsage));
-            config.Copiers.Add(typeof(OrleansCodeGen.TestProject.Copier_GenericData<>));
-            config.Copiers.Add(typeof(OrleansCodeGen.TestProject.Copier_ConcreteUsage));
-            config.Activators.Add(typeof(OrleansCodeGen.TestProject.Activator_GenericData<>));
-            config.Activators.Add(typeof(OrleansCodeGen.TestProject.Activator_ConcreteUsage));
+            config.Serializers.Add(typeof(ForkleansCodeGen.TestProject.Codec_GenericData<>));
+            config.Serializers.Add(typeof(ForkleansCodeGen.TestProject.Codec_ConcreteUsage));
+            config.Copiers.Add(typeof(ForkleansCodeGen.TestProject.Copier_GenericData<>));
+            config.Copiers.Add(typeof(ForkleansCodeGen.TestProject.Copier_ConcreteUsage));
+            config.Activators.Add(typeof(ForkleansCodeGen.TestProject.Activator_GenericData<>));
+            config.Activators.Add(typeof(ForkleansCodeGen.TestProject.Activator_ConcreteUsage));
         }
     }
 }

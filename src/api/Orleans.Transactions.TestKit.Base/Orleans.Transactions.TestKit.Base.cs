@@ -961,7 +961,7 @@ namespace Forkleans.Transactions.TestKit.Correctnesss
 
 namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
 {
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_AddAndThrowException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.AddAndThrowException>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.AddAndThrowException>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -979,7 +979,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_FailOperation : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.FailOperation>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.FailOperation>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -997,7 +997,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_FaultInjectionControl : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.FaultInjectionControl>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.FaultInjectionControl>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -1015,7 +1015,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_GrainData : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.GrainData>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.GrainData>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -1031,7 +1031,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ICreateAttributionGrain_GrainReference_3EFBDD5D : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ICreateAttributionGrain_GrainReference_3EFBDD5D>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1049,7 +1049,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ICreateOrJoinAttributionGrain_GrainReference_C9B8ECB8 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ICreateOrJoinAttributionGrain_GrainReference_C9B8ECB8>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1067,7 +1067,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_70FF7C60 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_70FF7C60>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1085,7 +1085,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_E67D54A5 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_E67D54A5>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1103,7 +1103,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IFaultInjectionTransactionTestGrain_GrainReference_8389970A : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IFaultInjectionTransactionTestGrain_GrainReference_8389970A>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1121,7 +1121,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A4CAE05C : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A4CAE05C>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1139,7 +1139,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A6C1652E : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A6C1652E>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1155,7 +1155,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IFaultInjectionTransactionTestGrain_GrainReference_C752DF7D : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IFaultInjectionTransactionTestGrain_GrainReference_C752DF7D>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1173,7 +1173,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IJoinAttributionGrain_GrainReference_B1619F67 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IJoinAttributionGrain_GrainReference_B1619F67>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1191,7 +1191,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_INoAttributionGrain_GrainReference_BC7E3A79 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_INoAttributionGrain_GrainReference_BC7E3A79>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1209,7 +1209,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_INotAllowedAttributionGrain_GrainReference_891D027E : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_INotAllowedAttributionGrain_GrainReference_891D027E>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1227,7 +1227,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ISupportedAttributionGrain_GrainReference_BC7DBC0A : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ISupportedAttributionGrain_GrainReference_BC7DBC0A>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1245,7 +1245,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ISuppressAttributionGrain_GrainReference_5A02311D : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ISuppressAttributionGrain_GrainReference_5A02311D>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1263,7 +1263,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionCommitterTestGrain_GrainReference_C44BE2A4 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionCommitterTestGrain_GrainReference_C44BE2A4>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1281,7 +1281,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionCoordinatorGrain_GrainReference_2760260D : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionCoordinatorGrain_GrainReference_2760260D>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1299,7 +1299,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionCoordinatorGrain_GrainReference_3A6B9237 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionCoordinatorGrain_GrainReference_3A6B9237>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1317,7 +1317,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionCoordinatorGrain_GrainReference_5FC2E7A1 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionCoordinatorGrain_GrainReference_5FC2E7A1>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1335,7 +1335,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionCoordinatorGrain_GrainReference_5FF4F216 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionCoordinatorGrain_GrainReference_5FF4F216>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1353,7 +1353,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionCoordinatorGrain_GrainReference_78D54907 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionCoordinatorGrain_GrainReference_78D54907>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1371,7 +1371,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionCoordinatorGrain_GrainReference_8EE5E563 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionCoordinatorGrain_GrainReference_8EE5E563>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1389,7 +1389,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionCoordinatorGrain_GrainReference_9EFEA7F3 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionCoordinatorGrain_GrainReference_9EFEA7F3>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1407,7 +1407,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionCoordinatorGrain_GrainReference_B013DBF6 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionCoordinatorGrain_GrainReference_B013DBF6>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1425,7 +1425,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionCoordinatorGrain_GrainReference_B4376B4D : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionCoordinatorGrain_GrainReference_B4376B4D>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1443,7 +1443,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionCoordinatorGrain_GrainReference_D3EF444F : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionCoordinatorGrain_GrainReference_D3EF444F>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1461,7 +1461,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionTestGrain_GrainReference_25B066B5 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionTestGrain_GrainReference_25B066B5>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1479,7 +1479,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionTestGrain_GrainReference_35C87F81 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionTestGrain_GrainReference_35C87F81>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1497,7 +1497,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionTestGrain_GrainReference_35D6FD32 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionTestGrain_GrainReference_35D6FD32>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1513,7 +1513,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionTestGrain_GrainReference_8DAA79AA : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionTestGrain_GrainReference_8DAA79AA>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1531,7 +1531,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionTestGrain_GrainReference_CE9EC80B : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionTestGrain_GrainReference_CE9EC80B>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1549,7 +1549,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionTestGrain_GrainReference_DC07DAEA : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionTestGrain_GrainReference_DC07DAEA>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1567,7 +1567,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_PassOperation : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.PassOperation>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.PassOperation>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -1585,7 +1585,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_SimpleAzureStorageException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.SimpleAzureStorageException>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.SimpleAzureStorageException>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -1603,7 +1603,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_ThrowOperation : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.ThrowOperation>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.ThrowOperation>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -1621,7 +1621,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_TransactionFaultInjectPhase : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.TransactionFaultInjectPhase>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -1632,15 +1632,15 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_AddAndThrowException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Transactions.TestKit.AddAndThrowException, System.Exception>
+    public sealed partial class Copier_AddAndThrowException : global::Forkleans.Serialization.GeneratedCodeHelpers.ForkleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Transactions.TestKit.AddAndThrowException, System.Exception>
     {
         public Copier_AddAndThrowException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_FailOperation : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.FailOperation>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.FailOperation>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -1652,7 +1652,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public void DeepCopy(global::Forkleans.Transactions.TestKit.FailOperation input, global::Forkleans.Transactions.TestKit.FailOperation output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_FaultInjectionControl : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.FaultInjectionControl>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.FaultInjectionControl>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -1662,7 +1662,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public void DeepCopy(global::Forkleans.Transactions.TestKit.FaultInjectionControl input, global::Forkleans.Transactions.TestKit.FaultInjectionControl output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_GrainData : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.GrainData>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.GrainData>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -1672,7 +1672,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public void DeepCopy(global::Forkleans.Transactions.TestKit.GrainData input, global::Forkleans.Transactions.TestKit.GrainData output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ICreateAttributionGrain_GrainReference_3EFBDD5D : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ICreateAttributionGrain_GrainReference_3EFBDD5D>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1682,7 +1682,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ICreateAttributionGrain_GrainReference_3EFBDD5D DeepCopy(Invokable_ICreateAttributionGrain_GrainReference_3EFBDD5D original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ICreateOrJoinAttributionGrain_GrainReference_C9B8ECB8 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ICreateOrJoinAttributionGrain_GrainReference_C9B8ECB8>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1692,7 +1692,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ICreateOrJoinAttributionGrain_GrainReference_C9B8ECB8 DeepCopy(Invokable_ICreateOrJoinAttributionGrain_GrainReference_C9B8ECB8 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_70FF7C60 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_70FF7C60>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1702,7 +1702,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_70FF7C60 DeepCopy(Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_70FF7C60 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_E67D54A5 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_E67D54A5>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1712,7 +1712,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_E67D54A5 DeepCopy(Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_E67D54A5 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IFaultInjectionTransactionTestGrain_GrainReference_8389970A : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IFaultInjectionTransactionTestGrain_GrainReference_8389970A>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1722,7 +1722,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_IFaultInjectionTransactionTestGrain_GrainReference_8389970A DeepCopy(Invokable_IFaultInjectionTransactionTestGrain_GrainReference_8389970A original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A4CAE05C : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A4CAE05C>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1732,7 +1732,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A4CAE05C DeepCopy(Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A4CAE05C original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A6C1652E : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A6C1652E>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1740,7 +1740,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A6C1652E DeepCopy(Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A6C1652E original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IFaultInjectionTransactionTestGrain_GrainReference_C752DF7D : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IFaultInjectionTransactionTestGrain_GrainReference_C752DF7D>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1750,7 +1750,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_IFaultInjectionTransactionTestGrain_GrainReference_C752DF7D DeepCopy(Invokable_IFaultInjectionTransactionTestGrain_GrainReference_C752DF7D original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IJoinAttributionGrain_GrainReference_B1619F67 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IJoinAttributionGrain_GrainReference_B1619F67>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1760,7 +1760,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_IJoinAttributionGrain_GrainReference_B1619F67 DeepCopy(Invokable_IJoinAttributionGrain_GrainReference_B1619F67 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_INoAttributionGrain_GrainReference_BC7E3A79 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_INoAttributionGrain_GrainReference_BC7E3A79>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1770,7 +1770,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_INoAttributionGrain_GrainReference_BC7E3A79 DeepCopy(Invokable_INoAttributionGrain_GrainReference_BC7E3A79 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_INotAllowedAttributionGrain_GrainReference_891D027E : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_INotAllowedAttributionGrain_GrainReference_891D027E>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1780,7 +1780,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_INotAllowedAttributionGrain_GrainReference_891D027E DeepCopy(Invokable_INotAllowedAttributionGrain_GrainReference_891D027E original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ISupportedAttributionGrain_GrainReference_BC7DBC0A : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ISupportedAttributionGrain_GrainReference_BC7DBC0A>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1790,7 +1790,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ISupportedAttributionGrain_GrainReference_BC7DBC0A DeepCopy(Invokable_ISupportedAttributionGrain_GrainReference_BC7DBC0A original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ISuppressAttributionGrain_GrainReference_5A02311D : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ISuppressAttributionGrain_GrainReference_5A02311D>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1800,7 +1800,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ISuppressAttributionGrain_GrainReference_5A02311D DeepCopy(Invokable_ISuppressAttributionGrain_GrainReference_5A02311D original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionCommitterTestGrain_GrainReference_C44BE2A4 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionCommitterTestGrain_GrainReference_C44BE2A4>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1810,7 +1810,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionCommitterTestGrain_GrainReference_C44BE2A4 DeepCopy(Invokable_ITransactionCommitterTestGrain_GrainReference_C44BE2A4 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionCoordinatorGrain_GrainReference_2760260D : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionCoordinatorGrain_GrainReference_2760260D>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1820,7 +1820,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionCoordinatorGrain_GrainReference_2760260D DeepCopy(Invokable_ITransactionCoordinatorGrain_GrainReference_2760260D original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionCoordinatorGrain_GrainReference_3A6B9237 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionCoordinatorGrain_GrainReference_3A6B9237>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1830,7 +1830,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionCoordinatorGrain_GrainReference_3A6B9237 DeepCopy(Invokable_ITransactionCoordinatorGrain_GrainReference_3A6B9237 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionCoordinatorGrain_GrainReference_5FC2E7A1 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionCoordinatorGrain_GrainReference_5FC2E7A1>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1840,7 +1840,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionCoordinatorGrain_GrainReference_5FC2E7A1 DeepCopy(Invokable_ITransactionCoordinatorGrain_GrainReference_5FC2E7A1 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionCoordinatorGrain_GrainReference_5FF4F216 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionCoordinatorGrain_GrainReference_5FF4F216>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1850,7 +1850,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionCoordinatorGrain_GrainReference_5FF4F216 DeepCopy(Invokable_ITransactionCoordinatorGrain_GrainReference_5FF4F216 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionCoordinatorGrain_GrainReference_78D54907 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionCoordinatorGrain_GrainReference_78D54907>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1860,7 +1860,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionCoordinatorGrain_GrainReference_78D54907 DeepCopy(Invokable_ITransactionCoordinatorGrain_GrainReference_78D54907 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionCoordinatorGrain_GrainReference_8EE5E563 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionCoordinatorGrain_GrainReference_8EE5E563>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1870,7 +1870,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionCoordinatorGrain_GrainReference_8EE5E563 DeepCopy(Invokable_ITransactionCoordinatorGrain_GrainReference_8EE5E563 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionCoordinatorGrain_GrainReference_9EFEA7F3 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionCoordinatorGrain_GrainReference_9EFEA7F3>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1880,7 +1880,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionCoordinatorGrain_GrainReference_9EFEA7F3 DeepCopy(Invokable_ITransactionCoordinatorGrain_GrainReference_9EFEA7F3 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionCoordinatorGrain_GrainReference_B013DBF6 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionCoordinatorGrain_GrainReference_B013DBF6>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1890,7 +1890,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionCoordinatorGrain_GrainReference_B013DBF6 DeepCopy(Invokable_ITransactionCoordinatorGrain_GrainReference_B013DBF6 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionCoordinatorGrain_GrainReference_B4376B4D : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionCoordinatorGrain_GrainReference_B4376B4D>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1900,7 +1900,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionCoordinatorGrain_GrainReference_B4376B4D DeepCopy(Invokable_ITransactionCoordinatorGrain_GrainReference_B4376B4D original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionCoordinatorGrain_GrainReference_D3EF444F : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionCoordinatorGrain_GrainReference_D3EF444F>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1910,7 +1910,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionCoordinatorGrain_GrainReference_D3EF444F DeepCopy(Invokable_ITransactionCoordinatorGrain_GrainReference_D3EF444F original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionTestGrain_GrainReference_25B066B5 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionTestGrain_GrainReference_25B066B5>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1920,7 +1920,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionTestGrain_GrainReference_25B066B5 DeepCopy(Invokable_ITransactionTestGrain_GrainReference_25B066B5 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionTestGrain_GrainReference_35C87F81 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionTestGrain_GrainReference_35C87F81>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1930,7 +1930,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionTestGrain_GrainReference_35C87F81 DeepCopy(Invokable_ITransactionTestGrain_GrainReference_35C87F81 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionTestGrain_GrainReference_35D6FD32 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionTestGrain_GrainReference_35D6FD32>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1938,7 +1938,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionTestGrain_GrainReference_35D6FD32 DeepCopy(Invokable_ITransactionTestGrain_GrainReference_35D6FD32 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionTestGrain_GrainReference_8DAA79AA : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionTestGrain_GrainReference_8DAA79AA>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1948,7 +1948,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionTestGrain_GrainReference_8DAA79AA DeepCopy(Invokable_ITransactionTestGrain_GrainReference_8DAA79AA original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionTestGrain_GrainReference_CE9EC80B : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionTestGrain_GrainReference_CE9EC80B>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1958,7 +1958,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionTestGrain_GrainReference_CE9EC80B DeepCopy(Invokable_ITransactionTestGrain_GrainReference_CE9EC80B original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionTestGrain_GrainReference_DC07DAEA : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionTestGrain_GrainReference_DC07DAEA>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -1968,7 +1968,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public Invokable_ITransactionTestGrain_GrainReference_DC07DAEA DeepCopy(Invokable_ITransactionTestGrain_GrainReference_DC07DAEA original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_PassOperation : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.PassOperation>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.PassOperation>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -1980,15 +1980,15 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public void DeepCopy(global::Forkleans.Transactions.TestKit.PassOperation input, global::Forkleans.Transactions.TestKit.PassOperation output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_SimpleAzureStorageException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Transactions.TestKit.SimpleAzureStorageException, Azure.RequestFailedException>
+    public sealed partial class Copier_SimpleAzureStorageException : global::Forkleans.Serialization.GeneratedCodeHelpers.ForkleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Transactions.TestKit.SimpleAzureStorageException, Azure.RequestFailedException>
     {
         public Copier_SimpleAzureStorageException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_ThrowOperation : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.ThrowOperation>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.ThrowOperation>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -2000,7 +2000,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public void DeepCopy(global::Forkleans.Transactions.TestKit.ThrowOperation input, global::Forkleans.Transactions.TestKit.ThrowOperation output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ICreateAttributionGrain), "3EFBDD5D" })]
@@ -2008,7 +2008,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public int arg0;
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionAttributionGrain>[] arg1;
-        public Invokable_ICreateAttributionGrain_GrainReference_3EFBDD5D(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ICreateAttributionGrain_GrainReference_3EFBDD5D(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2035,7 +2035,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ICreateOrJoinAttributionGrain), "C9B8ECB8" })]
@@ -2043,7 +2043,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public int arg0;
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionAttributionGrain>[] arg1;
-        public Invokable_ICreateOrJoinAttributionGrain_GrainReference_C9B8ECB8(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ICreateOrJoinAttributionGrain_GrainReference_C9B8ECB8(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2070,7 +2070,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.IFaultInjectionTransactionCoordinatorGrain), "70FF7C60" })]
@@ -2078,7 +2078,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.IFaultInjectionTransactionTestGrain> arg0;
         public int arg1;
-        public Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_70FF7C60(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_70FF7C60(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2105,7 +2105,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.IFaultInjectionTransactionCoordinatorGrain), "E67D54A5" })]
@@ -2114,7 +2114,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.IFaultInjectionTransactionTestGrain> arg0;
         public int arg1;
         public global::Forkleans.Transactions.TestKit.FaultInjectionControl arg2;
-        public Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_E67D54A5(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_IFaultInjectionTransactionCoordinatorGrain_GrainReference_E67D54A5(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2141,14 +2141,14 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.IFaultInjectionTransactionTestGrain), "8389970A" })]
     public sealed partial class Invokable_IFaultInjectionTransactionTestGrain_GrainReference_8389970A : global::Forkleans.TransactionTaskRequest
     {
         public int arg0;
-        public Invokable_IFaultInjectionTransactionTestGrain_GrainReference_8389970A(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_IFaultInjectionTransactionTestGrain_GrainReference_8389970A(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2175,7 +2175,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.IFaultInjectionTransactionTestGrain), "A4CAE05C" })]
@@ -2183,7 +2183,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public int arg0;
         public global::Forkleans.Transactions.TestKit.FaultInjectionControl arg1;
-        public Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A4CAE05C(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_IFaultInjectionTransactionTestGrain_GrainReference_A4CAE05C(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2210,7 +2210,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.IFaultInjectionTransactionTestGrain), "A6C1652E" })]
@@ -2235,13 +2235,13 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.IFaultInjectionTransactionTestGrain), "C752DF7D" })]
     public sealed partial class Invokable_IFaultInjectionTransactionTestGrain_GrainReference_C752DF7D : global::Forkleans.TransactionTaskRequest<int>
     {
-        public Invokable_IFaultInjectionTransactionTestGrain_GrainReference_C752DF7D(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_IFaultInjectionTransactionTestGrain_GrainReference_C752DF7D(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2262,7 +2262,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.IJoinAttributionGrain), "B1619F67" })]
@@ -2270,7 +2270,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public int arg0;
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionAttributionGrain>[] arg1;
-        public Invokable_IJoinAttributionGrain_GrainReference_B1619F67(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_IJoinAttributionGrain_GrainReference_B1619F67(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2297,7 +2297,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.INoAttributionGrain), "BC7E3A79" })]
@@ -2330,7 +2330,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.INotAllowedAttributionGrain), "891D027E" })]
@@ -2338,7 +2338,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public int arg0;
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionAttributionGrain>[] arg1;
-        public Invokable_INotAllowedAttributionGrain_GrainReference_891D027E(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_INotAllowedAttributionGrain_GrainReference_891D027E(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2365,7 +2365,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ISupportedAttributionGrain), "BC7DBC0A" })]
@@ -2373,7 +2373,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public int arg0;
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionAttributionGrain>[] arg1;
-        public Invokable_ISupportedAttributionGrain_GrainReference_BC7DBC0A(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ISupportedAttributionGrain_GrainReference_BC7DBC0A(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2400,7 +2400,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ISuppressAttributionGrain), "5A02311D" })]
@@ -2408,7 +2408,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public int arg0;
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionAttributionGrain>[] arg1;
-        public Invokable_ISuppressAttributionGrain_GrainReference_5A02311D(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ISuppressAttributionGrain_GrainReference_5A02311D(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2435,14 +2435,14 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionCommitterTestGrain), "C44BE2A4" })]
     public sealed partial class Invokable_ITransactionCommitterTestGrain_GrainReference_C44BE2A4 : global::Forkleans.TransactionTaskRequest
     {
         public global::Forkleans.Transactions.Abstractions.ITransactionCommitOperation<global::Forkleans.Transactions.TestKit.IRemoteCommitService> arg0;
-        public Invokable_ITransactionCommitterTestGrain_GrainReference_C44BE2A4(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionCommitterTestGrain_GrainReference_C44BE2A4(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2469,7 +2469,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionCoordinatorGrain), "2760260D" })]
@@ -2478,7 +2478,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionTestGrain> arg0;
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionTestGrain> arg1;
         public int arg2;
-        public Invokable_ITransactionCoordinatorGrain_GrainReference_2760260D(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionCoordinatorGrain_GrainReference_2760260D(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2505,7 +2505,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionCoordinatorGrain), "3A6B9237" })]
@@ -2513,7 +2513,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionTestGrain> arg0;
         public int arg1;
-        public Invokable_ITransactionCoordinatorGrain_GrainReference_3A6B9237(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionCoordinatorGrain_GrainReference_3A6B9237(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2540,14 +2540,14 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionCoordinatorGrain), "5FC2E7A1" })]
     public sealed partial class Invokable_ITransactionCoordinatorGrain_GrainReference_5FC2E7A1 : global::Forkleans.TransactionTaskRequest
     {
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionTestGrain> arg0;
-        public Invokable_ITransactionCoordinatorGrain_GrainReference_5FC2E7A1(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionCoordinatorGrain_GrainReference_5FC2E7A1(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2574,7 +2574,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionCoordinatorGrain), "5FF4F216" })]
@@ -2582,7 +2582,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.Correctnesss.ITransactionalBitArrayGrain> arg0;
         public int arg1;
-        public Invokable_ITransactionCoordinatorGrain_GrainReference_5FF4F216(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionCoordinatorGrain_GrainReference_5FF4F216(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2609,7 +2609,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionCoordinatorGrain), "78D54907" })]
@@ -2617,7 +2617,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionTestGrain> arg0;
         public int arg1;
-        public Invokable_ITransactionCoordinatorGrain_GrainReference_78D54907(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionCoordinatorGrain_GrainReference_78D54907(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2644,7 +2644,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionCoordinatorGrain), "8EE5E563" })]
@@ -2654,7 +2654,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public global::Forkleans.Transactions.Abstractions.ITransactionCommitOperation<global::Forkleans.Transactions.TestKit.IRemoteCommitService> arg1;
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionTestGrain> arg2;
         public int arg3;
-        public Invokable_ITransactionCoordinatorGrain_GrainReference_8EE5E563(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionCoordinatorGrain_GrainReference_8EE5E563(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2681,7 +2681,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionCoordinatorGrain), "9EFEA7F3" })]
@@ -2689,7 +2689,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionTestGrain> arg0;
         public int arg1;
-        public Invokable_ITransactionCoordinatorGrain_GrainReference_9EFEA7F3(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionCoordinatorGrain_GrainReference_9EFEA7F3(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2716,14 +2716,14 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionCoordinatorGrain), "B013DBF6" })]
     public sealed partial class Invokable_ITransactionCoordinatorGrain_GrainReference_B013DBF6 : global::Forkleans.TransactionTaskRequest
     {
         public global::Forkleans.Transactions.TestKit.ITransactionTestGrain arg0;
-        public Invokable_ITransactionCoordinatorGrain_GrainReference_B013DBF6(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionCoordinatorGrain_GrainReference_B013DBF6(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2750,7 +2750,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionCoordinatorGrain), "B4376B4D" })]
@@ -2758,7 +2758,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.ITransactionTestGrain> arg0;
         public int arg1;
-        public Invokable_ITransactionCoordinatorGrain_GrainReference_B4376B4D(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionCoordinatorGrain_GrainReference_B4376B4D(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2785,7 +2785,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionCoordinatorGrain), "D3EF444F" })]
@@ -2793,7 +2793,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
     {
         public global::Forkleans.Transactions.TestKit.ITransactionTestGrain arg0;
         public int arg1;
-        public Invokable_ITransactionCoordinatorGrain_GrainReference_D3EF444F(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionCoordinatorGrain_GrainReference_D3EF444F(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2820,14 +2820,14 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionTestGrain), "25B066B5" })]
     public sealed partial class Invokable_ITransactionTestGrain_GrainReference_25B066B5 : global::Forkleans.TransactionTaskRequest
     {
         public int arg0;
-        public Invokable_ITransactionTestGrain_GrainReference_25B066B5(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionTestGrain_GrainReference_25B066B5(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2854,14 +2854,14 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionTestGrain), "35C87F81" })]
     public sealed partial class Invokable_ITransactionTestGrain_GrainReference_35C87F81 : global::Forkleans.TransactionTaskRequest
     {
         public int arg0;
-        public Invokable_ITransactionTestGrain_GrainReference_35C87F81(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionTestGrain_GrainReference_35C87F81(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2888,7 +2888,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionTestGrain), "35D6FD32" })]
@@ -2913,13 +2913,13 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionTestGrain), "8DAA79AA" })]
     public sealed partial class Invokable_ITransactionTestGrain_GrainReference_8DAA79AA : global::Forkleans.TransactionTaskRequest<int[]>
     {
-        public Invokable_ITransactionTestGrain_GrainReference_8DAA79AA(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionTestGrain_GrainReference_8DAA79AA(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2940,14 +2940,14 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionTestGrain), "CE9EC80B" })]
     public sealed partial class Invokable_ITransactionTestGrain_GrainReference_CE9EC80B : global::Forkleans.TransactionTaskRequest
     {
         public int arg0;
-        public Invokable_ITransactionTestGrain_GrainReference_CE9EC80B(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionTestGrain_GrainReference_CE9EC80B(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -2974,14 +2974,14 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.ITransactionTestGrain), "DC07DAEA" })]
     public sealed partial class Invokable_ITransactionTestGrain_GrainReference_DC07DAEA : global::Forkleans.TransactionTaskRequest<int[]>
     {
         public int arg0;
-        public Invokable_ITransactionTestGrain_GrainReference_DC07DAEA(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionTestGrain_GrainReference_DC07DAEA(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -3011,7 +3011,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit
 
 namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Consistency
 {
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_ConsistencyTestOptions : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.Consistency.ConsistencyTestOptions>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.Consistency.ConsistencyTestOptions>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -3029,7 +3029,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Consistency
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_IConsistencyTestGrain_GrainReference_2EB318CB : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_IConsistencyTestGrain_GrainReference_2EB318CB>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -3047,7 +3047,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Consistency
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Observation : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.Consistency.Observation>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IValueSerializer<global::Forkleans.Transactions.TestKit.Consistency.Observation>, global::Forkleans.Serialization.Serializers.IValueSerializer
@@ -3063,7 +3063,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Consistency
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_UserAbort : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.Consistency.UserAbort>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.Consistency.UserAbort>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -3081,7 +3081,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Consistency
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_ConsistencyTestOptions : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.Consistency.ConsistencyTestOptions>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.Consistency.ConsistencyTestOptions>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -3091,7 +3091,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Consistency
         public void DeepCopy(global::Forkleans.Transactions.TestKit.Consistency.ConsistencyTestOptions input, global::Forkleans.Transactions.TestKit.Consistency.ConsistencyTestOptions output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_IConsistencyTestGrain_GrainReference_2EB318CB : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_IConsistencyTestGrain_GrainReference_2EB318CB>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -3101,15 +3101,15 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Consistency
         public Invokable_IConsistencyTestGrain_GrainReference_2EB318CB DeepCopy(Invokable_IConsistencyTestGrain_GrainReference_2EB318CB original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_UserAbort : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Transactions.TestKit.Consistency.UserAbort, System.Exception>
+    public sealed partial class Copier_UserAbort : global::Forkleans.Serialization.GeneratedCodeHelpers.ForkleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Transactions.TestKit.Consistency.UserAbort, System.Exception>
     {
         public Copier_UserAbort(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.Consistency.IConsistencyTestGrain), "2EB318CB" })]
@@ -3120,7 +3120,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Consistency
         public string arg2;
         public int arg3;
         public System.DateTime arg4;
-        public Invokable_IConsistencyTestGrain_GrainReference_2EB318CB(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_IConsistencyTestGrain_GrainReference_2EB318CB(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -3150,7 +3150,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Consistency
 
 namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Consistency.ConsistencyTestGrain
 {
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_State : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.Consistency.ConsistencyTestGrain.State>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.Consistency.ConsistencyTestGrain.State>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -3166,7 +3166,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Consistency.Consistenc
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_State : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.Consistency.ConsistencyTestGrain.State>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.Consistency.ConsistencyTestGrain.State>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -3179,7 +3179,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Consistency.Consistenc
 
 namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Correctnesss
 {
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_BitArrayState : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.Correctnesss.BitArrayState>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.Correctnesss.BitArrayState>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -3197,7 +3197,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Correctnesss
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionalBitArrayGrain_GrainReference_0183C2F5 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionalBitArrayGrain_GrainReference_0183C2F5>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -3215,7 +3215,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Correctnesss
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionalBitArrayGrain_GrainReference_9A5740F1 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionalBitArrayGrain_GrainReference_9A5740F1>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -3231,7 +3231,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Correctnesss
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_Invokable_ITransactionalBitArrayGrain_GrainReference_B821F3B1 : global::Forkleans.Serialization.Codecs.IFieldCodec<Invokable_ITransactionalBitArrayGrain_GrainReference_B821F3B1>, global::Forkleans.Serialization.Codecs.IFieldCodec
@@ -3249,7 +3249,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Correctnesss
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_BitArrayState : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.Correctnesss.BitArrayState>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.Correctnesss.BitArrayState>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -3261,7 +3261,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Correctnesss
         public void DeepCopy(global::Forkleans.Transactions.TestKit.Correctnesss.BitArrayState input, global::Forkleans.Transactions.TestKit.Correctnesss.BitArrayState output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionalBitArrayGrain_GrainReference_0183C2F5 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionalBitArrayGrain_GrainReference_0183C2F5>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -3271,7 +3271,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Correctnesss
         public Invokable_ITransactionalBitArrayGrain_GrainReference_0183C2F5 DeepCopy(Invokable_ITransactionalBitArrayGrain_GrainReference_0183C2F5 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionalBitArrayGrain_GrainReference_9A5740F1 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionalBitArrayGrain_GrainReference_9A5740F1>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -3279,7 +3279,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Correctnesss
         public Invokable_ITransactionalBitArrayGrain_GrainReference_9A5740F1 DeepCopy(Invokable_ITransactionalBitArrayGrain_GrainReference_9A5740F1 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_Invokable_ITransactionalBitArrayGrain_GrainReference_B821F3B1 : global::Forkleans.Serialization.Cloning.IDeepCopier<Invokable_ITransactionalBitArrayGrain_GrainReference_B821F3B1>, global::Forkleans.Serialization.Cloning.IDeepCopier
@@ -3289,14 +3289,14 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Correctnesss
         public Invokable_ITransactionalBitArrayGrain_GrainReference_B821F3B1 DeepCopy(Invokable_ITransactionalBitArrayGrain_GrainReference_B821F3B1 original, global::Forkleans.Serialization.Cloning.CopyContext context) { throw null; }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.Correctnesss.ITransactionalBitArrayGrain), "0183C2F5" })]
     public sealed partial class Invokable_ITransactionalBitArrayGrain_GrainReference_0183C2F5 : global::Forkleans.TransactionTaskRequest
     {
         public int arg0;
-        public Invokable_ITransactionalBitArrayGrain_GrainReference_0183C2F5(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionalBitArrayGrain_GrainReference_0183C2F5(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -3323,7 +3323,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Correctnesss
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.Correctnesss.ITransactionalBitArrayGrain), "9A5740F1" })]
@@ -3348,13 +3348,13 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Correctnesss
         public override void SetTarget(global::Forkleans.Serialization.Invocation.ITargetHolder holder) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Forkleans.CompoundTypeAlias(new[] { "inv", typeof(global::Forkleans.Runtime.GrainReference), typeof(global::Forkleans.Transactions.TestKit.Correctnesss.ITransactionalBitArrayGrain), "B821F3B1" })]
     public sealed partial class Invokable_ITransactionalBitArrayGrain_GrainReference_B821F3B1 : global::Forkleans.TransactionTaskRequest<System.Collections.Generic.List<global::Forkleans.Transactions.TestKit.Correctnesss.BitArrayState>>
     {
-        public Invokable_ITransactionalBitArrayGrain_GrainReference_B821F3B1(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.OrleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.OrleansTransactionAbortedException>)!, default!) { }
+        public Invokable_ITransactionalBitArrayGrain_GrainReference_B821F3B1(global::Forkleans.Serialization.Serializer<global::Forkleans.Transactions.ForkleansTransactionAbortedException> base0, System.IServiceProvider base1) : base(default(Serialization.Serializer<Transactions.ForkleansTransactionAbortedException>)!, default!) { }
 
         public override void Dispose() { }
 
@@ -3378,7 +3378,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.Correctnesss
 
 namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.RandomErrorInjector
 {
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_RandomlyInjectedInconsistentStateException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.RandomErrorInjector.RandomlyInjectedInconsistentStateException>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.RandomErrorInjector.RandomlyInjectedInconsistentStateException>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -3396,7 +3396,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.RandomErrorInjector
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_RandomlyInjectedStorageException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.RandomErrorInjector.RandomlyInjectedStorageException>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.RandomErrorInjector.RandomlyInjectedStorageException>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -3414,18 +3414,18 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.RandomErrorInjector
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_RandomlyInjectedInconsistentStateException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Transactions.TestKit.RandomErrorInjector.RandomlyInjectedInconsistentStateException, global::Forkleans.Storage.InconsistentStateException>
+    public sealed partial class Copier_RandomlyInjectedInconsistentStateException : global::Forkleans.Serialization.GeneratedCodeHelpers.ForkleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Transactions.TestKit.RandomErrorInjector.RandomlyInjectedInconsistentStateException, global::Forkleans.Storage.InconsistentStateException>
     {
         public Copier_RandomlyInjectedInconsistentStateException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_RandomlyInjectedStorageException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Transactions.TestKit.RandomErrorInjector.RandomlyInjectedStorageException, System.Exception>
+    public sealed partial class Copier_RandomlyInjectedStorageException : global::Forkleans.Serialization.GeneratedCodeHelpers.ForkleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Transactions.TestKit.RandomErrorInjector.RandomlyInjectedStorageException, System.Exception>
     {
         public Copier_RandomlyInjectedStorageException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
     }
@@ -3433,7 +3433,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.RandomErrorInjector
 
 namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions
 {
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_CreateAttributionGrain : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.CreateAttributionGrain>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.CreateAttributionGrain>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -3451,7 +3451,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttribution
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_CreateOrJoinAttributionGrain : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.CreateOrJoinAttributionGrain>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.CreateOrJoinAttributionGrain>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -3469,7 +3469,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttribution
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_JoinAttributionGrain : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.JoinAttributionGrain>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.JoinAttributionGrain>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -3487,7 +3487,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttribution
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_NoAttributionGrain : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.NoAttributionGrain>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.NoAttributionGrain>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -3505,7 +3505,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttribution
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_NotAllowedAttributionGrain : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.NotAllowedAttributionGrain>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.NotAllowedAttributionGrain>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -3523,7 +3523,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttribution
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_SupportedAttributionGrain : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.SupportedAttributionGrain>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.SupportedAttributionGrain>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -3541,7 +3541,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttribution
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_SuppressAttributionGrain : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.SuppressAttributionGrain>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.SuppressAttributionGrain>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -3559,7 +3559,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttribution
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_CreateAttributionGrain : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.CreateAttributionGrain>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.CreateAttributionGrain>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -3571,7 +3571,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttribution
         public void DeepCopy(global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.CreateAttributionGrain input, global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.CreateAttributionGrain output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_CreateOrJoinAttributionGrain : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.CreateOrJoinAttributionGrain>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.CreateOrJoinAttributionGrain>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -3583,7 +3583,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttribution
         public void DeepCopy(global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.CreateOrJoinAttributionGrain input, global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.CreateOrJoinAttributionGrain output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_JoinAttributionGrain : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.JoinAttributionGrain>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.JoinAttributionGrain>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -3595,7 +3595,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttribution
         public void DeepCopy(global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.JoinAttributionGrain input, global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.JoinAttributionGrain output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_NoAttributionGrain : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.NoAttributionGrain>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.NoAttributionGrain>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -3607,7 +3607,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttribution
         public void DeepCopy(global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.NoAttributionGrain input, global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.NoAttributionGrain output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_NotAllowedAttributionGrain : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.NotAllowedAttributionGrain>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.NotAllowedAttributionGrain>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -3619,7 +3619,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttribution
         public void DeepCopy(global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.NotAllowedAttributionGrain input, global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.NotAllowedAttributionGrain output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_SupportedAttributionGrain : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.SupportedAttributionGrain>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.SupportedAttributionGrain>, global::Forkleans.Serialization.Cloning.IBaseCopier
@@ -3631,7 +3631,7 @@ namespace ForkleansCodeGen.Forkleans.Transactions.TestKit.TransactionAttribution
         public void DeepCopy(global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.SupportedAttributionGrain input, global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.SupportedAttributionGrain output, global::Forkleans.Serialization.Cloning.CopyContext context) { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Copier_SuppressAttributionGrain : global::Forkleans.Serialization.Cloning.IDeepCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.SuppressAttributionGrain>, global::Forkleans.Serialization.Cloning.IDeepCopier, global::Forkleans.Serialization.Cloning.IBaseCopier<global::Forkleans.Transactions.TestKit.TransactionAttributionGrainExtensions.SuppressAttributionGrain>, global::Forkleans.Serialization.Cloning.IBaseCopier

@@ -26,7 +26,7 @@ public sealed class RepeatedFieldCodec<T> : IFieldCodec<RepeatedField<T>>
     /// <param name="fieldCodec">The field codec.</param>
     public RepeatedFieldCodec(IFieldCodec<T> fieldCodec)
     {
-        _fieldCodec = OrleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
+        _fieldCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
     }
 
     /// <inheritdoc/>

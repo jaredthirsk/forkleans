@@ -60,8 +60,8 @@ namespace Forkleans.Serialization.Codecs
 
         public ImmutableDictionaryCopier(IDeepCopier<TKey> keyCopier, IDeepCopier<TValue> valueCopier)
         {
-            _keyCopier = OrleansGeneratedCodeHelper.GetOptionalCopier(keyCopier);
-            _valueCopier = OrleansGeneratedCodeHelper.GetOptionalCopier(valueCopier);
+            _keyCopier = ForkleansGeneratedCodeHelper.GetOptionalCopier(keyCopier);
+            _valueCopier = ForkleansGeneratedCodeHelper.GetOptionalCopier(valueCopier);
         }
 
         public bool IsShallowCopyable() => _keyCopier is null && _valueCopier is null;

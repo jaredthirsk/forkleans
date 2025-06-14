@@ -8,7 +8,7 @@ namespace Forkleans.Runtime
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public sealed class SiloUnavailableException : OrleansMessageRejectionException
+    public sealed class SiloUnavailableException : ForkleansMessageRejectionException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SiloUnavailableException"/> class.

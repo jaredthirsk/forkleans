@@ -8,7 +8,7 @@ namespace Forkleans.Storage
     /// Exception thrown whenever a grain call is attempted with a bad / missing storage provider configuration settings for that grain.
     /// </summary>
     [Serializable, GenerateSerializer]
-    public sealed class BadProviderConfigException : OrleansException
+    public sealed class BadProviderConfigException : ForkleansException
     {
         public BadProviderConfigException()
         { }

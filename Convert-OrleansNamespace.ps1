@@ -1,6 +1,6 @@
 # Orleans to Forkleans Namespace Converter
 # This script helps maintain a fork of Microsoft Orleans with renamed namespaces
-# Updated with lessons learned from debugging conversion issues
+# Updated to also rename Orleans-prefixed types for consistency
 
 param(
     [Parameter(Mandatory=$true)]
@@ -25,23 +25,6 @@ $ErrorActionPreference = "Stop"
 $codeExtensions = @("*.cs", "*.fs", "*.fsx", "*.fsproj", "*.csproj", "*.props", "*.targets", "*.json", "*.xml", "*.config", "*.sln")
 $excludeDirs = @(".git", "bin", "obj", "packages", ".vs", "artifacts", "node_modules")
 
-# Types that should NOT be renamed (Orleans-prefixed exception and serializer types)
-$preservedTypes = @(
-    "OrleansException",
-    "OrleansConfigurationException",
-    "OrleansTransactionAbortedException", 
-    "OrleansJsonSerializer",
-    "OrleansJsonSerializerOptions",
-    "OrleansGrainStorageSerializer",
-    "OrleansLifecycleAttribute",
-    "OrleansGrainReferenceAttribute",
-    "OrleansCopierNotFoundException",
-    "OrleansMessageRejectionException",
-    "OrleansClusterDisconnectedException",
-    "OrleansGatewayTimeoutException",
-    "OrleansLifecycleParticipantAttribute"
-)
-
 function Write-Info($message) {
     Write-Host "[INFO] $message" -ForegroundColor Cyan
 }
@@ -65,7 +48,6 @@ if ($BackupFirst -and -not $DryRun) {
 Write-Info "Converting namespaces from $OldName to $NewName"
 Write-Info "Excluding directories: $($excludeDirs -join ', ')"
 Write-Info "Processing extensions: $($codeExtensions -join ', ')"
-Write-Info "Preserving types: $($preservedTypes.Count) Orleans-prefixed types"
 
 $totalFiles = 0
 $modifiedFiles = 0
@@ -87,7 +69,7 @@ foreach ($extension in $codeExtensions) {
             
             # Apply conversions based on file type
             if ($extension -in "*.cs", "*.fs", "*.fsx") {
-                # Code files - apply smart replacements
+                # Code files - apply comprehensive replacements
                 
                 # 1. Convert using statements
                 $content = $content -replace "using\s+$OldName([\s;.])", "using $NewName`$1"
@@ -97,46 +79,19 @@ foreach ($extension in $codeExtensions) {
                 $content = $content -replace "namespace\s+$OldName([\s\r\n{])", "namespace $NewName`$1"
                 $content = $content -replace "namespace\s+$OldName\.", "namespace $NewName."
                 
-                # 3. Convert Orleans. to Forkleans. carefully
-                # Split into lines for more careful processing
-                $lines = $content -split "`n"
-                $newLines = @()
+                # 3. Convert Orleans. to Forkleans. in qualified names
+                $content = $content -replace "\b$OldName\.", "$NewName."
                 
-                foreach ($line in $lines) {
-                    $newLine = $line
-                    
-                    # Skip if line is a comment or contains a string literal with Orleans.
-                    if ($line -notmatch "^\s*//|^\s*\*|`"[^`"]*Orleans\.[^`"]*`"") {
-                        # Check if line contains any preserved type - if so, skip the line
-                        $skipLine = $false
-                        foreach ($preservedType in $preservedTypes) {
-                            if ($line -match "\b$preservedType\b") {
-                                $skipLine = $true
-                                break
-                            }
-                        }
-                        
-                        if (-not $skipLine) {
-                            # Replace Orleans. with Forkleans. in code
-                            $newLine = $newLine -replace "\b$OldName\.", "$NewName."
-                        }
-                    }
-                    
-                    $newLines += $newLine
-                }
+                # 4. Convert Orleans-prefixed types to Forkleans-prefixed
+                # This includes class names, exception types, attributes, etc.
+                # Match whole words that start with Orleans followed by an uppercase letter
+                $content = $content -replace "\b${OldName}([A-Z][a-zA-Z0-9]*)\b", "${NewName}`$1"
                 
-                $content = $newLines -join "`n"
-                
-                # 4. Final pass: Restore any preserved types that might have been converted
-                foreach ($preservedType in $preservedTypes) {
-                    $incorrectName = $preservedType -replace "^Orleans", $NewName
-                    if ($content -match "\b$incorrectName\b") {
-                        $content = $content -replace "\b$incorrectName\b", $preservedType
-                    }
-                }
+                # 5. Special case: IOrleansX interfaces should become IForkleansX
+                $content = $content -replace "\bI${OldName}([A-Z][a-zA-Z0-9]*)\b", "I${NewName}`$1"
             }
             elseif ($extension -in "*.csproj", "*.fsproj") {
-                # Project files - be very careful
+                # Project files - be careful but still convert type names
                 
                 # Convert Using statements
                 $content = $content -replace "<Using\s+Include=`"$OldName`"", "<Using Include=`"$NewName`""
@@ -145,29 +100,28 @@ foreach ($extension in $codeExtensions) {
                 $content = $content -replace "Alias=`"$OldName`"", "Alias=`"$NewName`""
                 
                 # DO NOT convert:
-                # - ProjectReference Include paths
-                # - PackageReference names
-                # - Assembly names
+                # - ProjectReference Include paths (file names remain Orleans.*.csproj)
                 # - File paths
+                # But DO convert type names in other contexts
             }
             elseif ($extension -in "*.props", "*.targets") {
-                # MSBuild files - minimal changes
+                # MSBuild files - convert namespaces but not property names
                 
-                # Only convert specific namespace imports in code sections
-                # DO NOT convert:
-                # - File paths
-                # - Property names like OrleansBuildTimeCodeGen
-                # - Import paths
+                # Convert namespace usage but keep MSBuild properties like OrleansBuildTimeCodeGen unchanged
+                # This is tricky - we want to change Orleans types but not MSBuild properties
+                
+                # Convert namespace imports
+                $content = $content -replace "<Using\s+Include=`"$OldName`"", "<Using Include=`"$NewName`""
+                
+                # Don't convert property names or file paths
             }
             elseif ($extension -eq "*.sln") {
                 # Solution files - no changes needed
             }
             else {
-                # Other files (json, xml, config) - simple namespace replacement
-                # But avoid changing file paths
-                if ($content -notmatch "[\\/]Orleans[\\/]") {
-                    $content = $content -replace "\b$OldName\.", "$NewName."
-                }
+                # Other files (json, xml, config) - convert namespaces and type names
+                $content = $content -replace "\b$OldName\.", "$NewName."
+                $content = $content -replace "\b${OldName}([A-Z][a-zA-Z0-9]*)\b", "${NewName}`$1"
             }
             
             # Only write if changed
@@ -210,15 +164,18 @@ Total Files: $totalFiles
 Modified Files: $modifiedFiles
 Dry Run: $DryRun
 
-Preserved Types:
-$($preservedTypes | ForEach-Object { "  - $_" } | Out-String)
+Conversion Summary:
+- Namespace declarations: Orleans -> Forkleans
+- Using statements: Orleans -> Forkleans  
+- Type names: Orleans* -> Forkleans*
+- Interfaces: IOrleans* -> IForkleans*
+- Qualified names: Orleans. -> Forkleans.
 
 Important Notes:
-- Project references remain unchanged (Orleans.*.csproj)
-- Microsoft.Orleans package references remain unchanged  
-- Orleans-prefixed exception and serializer types are preserved
+- Project file names remain unchanged (Orleans.*.csproj)
 - MSBuild property names (like OrleansBuildTimeCodeGen) remain unchanged
-- Build file names remain unchanged
+- Microsoft.Orleans package references remain unchanged
+- All Orleans-prefixed types are now Forkleans-prefixed for consistency
 "@ | Set-Content -Path $reportPath
 
 Write-Info "Report saved to: $reportPath"

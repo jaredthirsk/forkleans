@@ -37,7 +37,7 @@ namespace Forkleans.Transactions.TestKit
             Func<Task> act = () => _transactionClient.RunTransaction(TransactionOption.Create, () => grain.SetAndThrow(57));
 
             // Assert
-            await act.Should().ThrowAsync<OrleansTransactionAbortedException>(because: "Failure expected");
+            await act.Should().ThrowAsync<ForkleansTransactionAbortedException>(because: "Failure expected");
         }
 
         public virtual async Task CreateTransactionScopeAndSetValueAndAssert(string grainStates)

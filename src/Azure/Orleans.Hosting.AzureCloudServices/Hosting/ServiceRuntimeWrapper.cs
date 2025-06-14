@@ -147,7 +147,7 @@ namespace Forkleans.Runtime.Host
             {
                 var endpointNames = string.Join(", ", instanceEndpoints);
                 LogErrorUnableToObtainEndpointInfo(RoleName, endpointName, endpointNames);
-                throw new OrleansException(
+                throw new ForkleansException(
                     $"Unable to obtain endpoint info for role {RoleName} from role config parameter {endpointName} -- Endpoints defined = [{endpointNames}]",
                     exc);
             }
@@ -189,7 +189,7 @@ namespace Forkleans.Runtime.Host
                 if (assembly == null)
                 {
                     LogErrorAzureServiceRuntimeFailedToLoad();
-                    throw new OrleansException("Failed to find or load Microsoft.WindowsAzure.ServiceRuntime.");
+                    throw new ForkleansException("Failed to find or load Microsoft.WindowsAzure.ServiceRuntime.");
                 }
             }
 
@@ -202,11 +202,11 @@ namespace Forkleans.Runtime.Host
 
             DeploymentId = (string) roleEnvironmentType.GetProperty("DeploymentId").GetValue(null);
             if (string.IsNullOrWhiteSpace(DeploymentId))
-                throw new OrleansException("DeploymentId is null or whitespace.");
+                throw new ForkleansException("DeploymentId is null or whitespace.");
 
             currentRoleInstance = roleEnvironmentType.GetProperty("CurrentRoleInstance").GetValue(null);
             if (currentRoleInstance == null)
-                throw new OrleansException("CurrentRoleInstance is null.");
+                throw new ForkleansException("CurrentRoleInstance is null.");
 
             InstanceId = currentRoleInstance.Id;
             UpdateDomain = currentRoleInstance.UpdateDomain;

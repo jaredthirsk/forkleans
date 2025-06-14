@@ -12,17 +12,17 @@ public class AdoNetGrainDirectoryOptionsValidator(AdoNetGrainDirectoryOptions op
     {
         if (options is null)
         {
-            throw new OrleansConfigurationException($"Invalid {nameof(AdoNetGrainDirectoryOptions)} values for {nameof(AdoNetGrainDirectory)}|{name}. {nameof(options)} is required.");
+            throw new ForkleansConfigurationException($"Invalid {nameof(AdoNetGrainDirectoryOptions)} values for {nameof(AdoNetGrainDirectory)}|{name}. {nameof(options)} is required.");
         }
 
         if (IsNullOrWhiteSpace(options.Invariant))
         {
-            throw new OrleansConfigurationException($"Invalid {nameof(AdoNetGrainDirectoryOptions)} values for {nameof(AdoNetGrainDirectory)}|{name}. {nameof(options.Invariant)} is required.");
+            throw new ForkleansConfigurationException($"Invalid {nameof(AdoNetGrainDirectoryOptions)} values for {nameof(AdoNetGrainDirectory)}|{name}. {nameof(options.Invariant)} is required.");
         }
 
         if (IsNullOrWhiteSpace(options.ConnectionString))
         {
-            throw new OrleansConfigurationException($"Invalid {nameof(AdoNetGrainDirectoryOptions)} values for {nameof(AdoNetGrainDirectory)}|{name}. {nameof(options.ConnectionString)} is required.");
+            throw new ForkleansConfigurationException($"Invalid {nameof(AdoNetGrainDirectoryOptions)} values for {nameof(AdoNetGrainDirectory)}|{name}. {nameof(options.ConnectionString)} is required.");
         }
     }
 }

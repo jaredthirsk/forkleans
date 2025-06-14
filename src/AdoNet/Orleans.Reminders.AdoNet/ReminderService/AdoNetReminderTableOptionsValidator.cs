@@ -21,12 +21,12 @@ namespace Forkleans.Configuration
         {
             if (string.IsNullOrWhiteSpace(this.options.Invariant))
             {
-                throw new OrleansConfigurationException($"Invalid {nameof(AdoNetReminderTableOptions)} values for {nameof(AdoNetReminderTable)}. {nameof(options.Invariant)} is required.");
+                throw new ForkleansConfigurationException($"Invalid {nameof(AdoNetReminderTableOptions)} values for {nameof(AdoNetReminderTable)}. {nameof(options.Invariant)} is required.");
             }
 
             if (string.IsNullOrWhiteSpace(this.options.ConnectionString))
             {
-                throw new OrleansConfigurationException($"Invalid {nameof(AdoNetReminderTableOptions)} values for {nameof(AdoNetReminderTable)}. {nameof(options.ConnectionString)} is required.");
+                throw new ForkleansConfigurationException($"Invalid {nameof(AdoNetReminderTableOptions)} values for {nameof(AdoNetReminderTable)}. {nameof(options.ConnectionString)} is required.");
             }
         }
     }

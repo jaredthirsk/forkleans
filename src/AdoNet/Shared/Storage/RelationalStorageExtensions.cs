@@ -271,7 +271,7 @@ namespace Forkleans.Tests.SqlUtils
                 return reader.GetStream(ordinal);
             }
 
-            return new OrleansRelationalDownloadStream(reader, ordinal);
+            return new ForkleansRelationalDownloadStream(reader, ordinal);
         }
     }
 }

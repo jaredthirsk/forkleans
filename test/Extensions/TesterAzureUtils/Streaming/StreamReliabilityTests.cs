@@ -637,7 +637,7 @@ namespace UnitTests.Streaming.Reliability
                     await consumerGrain.UnSubscribeFromAllStreams();
                     break;
                 }
-                catch (OrleansMessageRejectionException ex)
+                catch (ForkleansMessageRejectionException ex)
                 {
                     if (!ex.Message.Contains("No gateways available"))
                         throw;

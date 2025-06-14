@@ -57,7 +57,7 @@ namespace Forkleans.GrainDirectory.Redis
                 LogErrorLookupFailed(ex, grainId);
 
                 if (IsRedisException(ex))
-                    throw new OrleansException($"Lookup failed for {grainId} : {ex}");
+                    throw new ForkleansException($"Lookup failed for {grainId} : {ex}");
                 else
                     throw;
             }
@@ -116,7 +116,7 @@ namespace Forkleans.GrainDirectory.Redis
 
                 if (IsRedisException(ex))
                 {
-                    throw new OrleansException($"Register failed for {address.GrainId} ({value}) : {ex}");
+                    throw new ForkleansException($"Register failed for {address.GrainId} ({value}) : {ex}");
                 }
                 else
                 {
@@ -154,7 +154,7 @@ namespace Forkleans.GrainDirectory.Redis
                 LogErrorUnregisterFailed(ex, address.GrainId, new(address));
 
                 if (IsRedisException(ex))
-                    throw new OrleansException($"Unregister failed for {address.GrainId} ({JsonSerializer.Serialize(address)}) : {ex}");
+                    throw new ForkleansException($"Unregister failed for {address.GrainId} ({JsonSerializer.Serialize(address)}) : {ex}");
                 else
                     throw;
             }

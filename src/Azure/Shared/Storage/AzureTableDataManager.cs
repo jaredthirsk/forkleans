@@ -90,7 +90,7 @@ namespace Forkleans.GrainDirectory.AzureStorage
             catch (TimeoutException te)
             {
                 LogErrorTableCreationInTimeout(Logger, te, StoragePolicyOptions.CreationTimeout);
-                throw new OrleansException($"Unable to create or connect to the Azure table in {StoragePolicyOptions.CreationTimeout}", te);
+                throw new ForkleansException($"Unable to create or connect to the Azure table in {StoragePolicyOptions.CreationTimeout}", te);
             }
             catch (Exception exc)
             {
@@ -529,7 +529,7 @@ namespace Forkleans.GrainDirectory.AzureStorage
                         LogWarningReadTable(Logger, exc, TableName);
                     }
 
-                    throw new OrleansException($"Failed to read Azure Storage table {TableName}", exc);
+                    throw new ForkleansException($"Failed to read Azure Storage table {TableName}", exc);
                 }
             }
             finally

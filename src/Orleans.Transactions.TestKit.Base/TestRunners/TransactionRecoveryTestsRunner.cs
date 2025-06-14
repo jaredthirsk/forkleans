@@ -189,7 +189,7 @@ namespace Forkleans.Transactions.TestKit
                     g.Unambiguous.Set(index, true);
                 });
             }
-            catch (OrleansTransactionAbortedException e)
+            catch (ForkleansTransactionAbortedException e)
             {
                 this.Log($"Some transactions failed. Index: {index}: Exception: {e.GetType().Name}");
                 grains.ForEach(g =>

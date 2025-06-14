@@ -247,7 +247,7 @@ namespace Forkleans.Transactions.State
                     {
                         LogTraceAborting(status, entry);
 
-                        entry.ConfirmationResponsePromise?.TrySetException(new OrleansException($"Confirm failed: Status {status}"));
+                        entry.ConfirmationResponsePromise?.TrySetException(new ForkleansException($"Confirm failed: Status {status}"));
 
                         if (entry.LastSent.HasValue)
                             return; // cannot abort anymore if we already sent prepare-ok message

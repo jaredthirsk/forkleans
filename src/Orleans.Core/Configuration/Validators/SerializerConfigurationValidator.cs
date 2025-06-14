@@ -91,7 +91,7 @@ namespace Forkleans
                 result.AppendLine("Applying the [GenerateSerializer] attribute to your type and adding [Id(x)] attributes to serializable properties and fields is the simplest way to accomplish this.");
                 result.AppendLine("Alternatively, for types which are outside of your control, serializers may have to be manually crafted, potentially using surrogate types.");
 
-                throw new OrleansConfigurationException(result.ToString());
+                throw new ForkleansConfigurationException(result.ToString());
             }
         }
     }

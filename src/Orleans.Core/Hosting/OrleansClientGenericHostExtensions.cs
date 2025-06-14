@@ -208,7 +208,7 @@ namespace Microsoft.Extensions.Hosting
             return clientBuilder;
         }
 
-        private static OrleansConfigurationException GetOrleansSiloAddedException() =>
+        private static ForkleansConfigurationException GetOrleansSiloAddedException() =>
             new("Do not use UseOrleans with UseOrleansClient. If you want a client and server in the same process, only UseOrleans is necessary and the UseOrleansClient call can be removed.");
     }
 

@@ -16,7 +16,7 @@ internal sealed class DevelopmentClusteringProvider : IProviderBuilder<ISiloBuil
         IPEndPoint primarySiloEndPoint = null;
         if (configurationSection["PrimarySiloEndPoint"] is { Length: > 0 } primarySiloEndPointValue && !IPEndPoint.TryParse(primarySiloEndPointValue, out primarySiloEndPoint))
         {
-            throw new OrleansConfigurationException($"Unable to parse configuration value at path {configurationSection.Path}:PrimarySiloEndPoint as an IPEndPoint. Value: '{primarySiloEndPointValue}'.");
+            throw new ForkleansConfigurationException($"Unable to parse configuration value at path {configurationSection.Path}:PrimarySiloEndPoint as an IPEndPoint. Value: '{primarySiloEndPointValue}'.");
         }
 
         builder.UseDevelopmentClustering(primarySiloEndPoint);

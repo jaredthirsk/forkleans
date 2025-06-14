@@ -6,7 +6,7 @@ using Forkleans.Tests.SqlUtils;
 using TestExtensions;
 using UnitTests.General;
 using static System.String;
-using RelationalOrleansQueries = Forkleans.Streaming.AdoNet.Storage.RelationalOrleansQueries;
+using RelationalForkleansQueries = Forkleans.Streaming.AdoNet.Storage.RelationalForkleansQueries;
 
 namespace Tester.AdoNet.Streaming;
 
@@ -45,7 +45,7 @@ public abstract class AdoNetQueueAdapterReceiverTests(string invariant, TestEnvi
     private readonly TestEnvironmentFixture _fixture = fixture;
     private RelationalStorageForTesting _testing;
     private IRelationalStorage _storage;
-    private RelationalOrleansQueries _queries;
+    private RelationalForkleansQueries _queries;
 
     private const string TestDatabaseName = "OrleansStreamTest";
 
@@ -55,7 +55,7 @@ public abstract class AdoNetQueueAdapterReceiverTests(string invariant, TestEnvi
         Skip.If(IsNullOrEmpty(_testing.CurrentConnectionString), $"Database '{TestDatabaseName}' not initialized");
 
         _storage = _testing.Storage;
-        _queries = await RelationalOrleansQueries.CreateInstance(invariant, _storage.ConnectionString);
+        _queries = await RelationalForkleansQueries.CreateInstance(invariant, _storage.ConnectionString);
     }
 
     /// <summary>

@@ -394,14 +394,14 @@ namespace Forkleans.CodeGenerator
                 static ExpressionSyntax Unwrapped(ExpressionSyntax expr)
                 {
                     return InvocationExpression(
-                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("OrleansGeneratedCodeHelper"), IdentifierName("UnwrapService")),
+                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("ForkleansGeneratedCodeHelper"), IdentifierName("UnwrapService")),
                         ArgumentList(SeparatedList(new[] { Argument(ThisExpression()), Argument(expr) })));
                 }
 
                 static ExpressionSyntax GetService(TypeSyntax type)
                 {
                     return InvocationExpression(
-                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("OrleansGeneratedCodeHelper"), GenericName(Identifier("GetService"), TypeArgumentList(SingletonSeparatedList(type)))),
+                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("ForkleansGeneratedCodeHelper"), GenericName(Identifier("GetService"), TypeArgumentList(SingletonSeparatedList(type)))),
                         ArgumentList(SeparatedList(new[] { Argument(ThisExpression()), Argument(IdentifierName(CodecProviderMemberName)) })));
                 }
             }

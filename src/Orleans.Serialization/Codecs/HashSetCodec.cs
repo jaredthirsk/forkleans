@@ -33,8 +33,8 @@ namespace Forkleans.Serialization.Codecs
         /// <param name="comparerCodec">The comparer codec.</param>
         public HashSetCodec(IFieldCodec<T> fieldCodec, IFieldCodec<IEqualityComparer<T>> comparerCodec)
         {
-            _fieldCodec = OrleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
-            _comparerCodec = OrleansGeneratedCodeHelper.UnwrapService(this, comparerCodec);
+            _fieldCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
+            _comparerCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, comparerCodec);
             _baseConstructor = typeof(HashSet<T>).GetConstructor([typeof(int), typeof(IEqualityComparer<T>)])!;
         }
 

@@ -9,7 +9,7 @@ namespace Forkleans.Streams
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public sealed class ProviderStartException : OrleansException
+    public sealed class ProviderStartException : ForkleansException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ProviderStartException"/> class.

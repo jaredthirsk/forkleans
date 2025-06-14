@@ -36,7 +36,7 @@ namespace Forkleans.Hosting
             {
                 var pubsubStore = services.GetKeyedService<IGrainStorage>(this.streamProviderName) ?? services.GetKeyedService<IGrainStorage>(ProviderConstants.DEFAULT_PUBSUB_PROVIDER_NAME);
                 if (pubsubStore == null)
-                    throw new OrleansConfigurationException(
+                    throw new ForkleansConfigurationException(
                         $" Streams with pubsub type {StreamPubSubType.ExplicitGrainBasedAndImplicit} and {StreamPubSubType.ExplicitGrainBasedOnly} requires a grain storage named " +
                         $"{ProviderConstants.DEFAULT_PUBSUB_PROVIDER_NAME} or {this.streamProviderName} to be configured with silo. Please configure one for your stream {streamProviderName}.");
             }

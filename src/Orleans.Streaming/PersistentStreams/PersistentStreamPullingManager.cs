@@ -373,7 +373,7 @@ namespace Forkleans.Streams
                     case PersistentStreamProviderCommand.GetNumberRunningAgents:
                         return NumberRunningAgents;
                     default:
-                        throw new OrleansException($"PullingAgentManager does not support command {command}.");
+                        throw new ForkleansException($"PullingAgentManager does not support command {command}.");
                 }
             }
             finally
@@ -408,7 +408,7 @@ namespace Forkleans.Streams
                     case PersistentStreamProviderCommand.StopAgents:
                         return StopAgents();
                     default:
-                        throw new OrleansException($"PullingAgentManager got unsupported command {command}");
+                        throw new ForkleansException($"PullingAgentManager got unsupported command {command}");
                 }
             });
         }

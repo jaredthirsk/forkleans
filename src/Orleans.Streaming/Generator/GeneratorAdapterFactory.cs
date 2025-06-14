@@ -247,7 +247,7 @@ namespace Forkleans.Providers.Streams.Generator
             var generator = (IStreamGenerator)(serviceProvider?.GetService(generatorConfig.StreamGeneratorType) ?? Activator.CreateInstance(generatorConfig.StreamGeneratorType));
             if (generator == null)
             {
-                throw new OrleansException($"StreamGenerator type not supported: {generatorConfig.StreamGeneratorType}");
+                throw new ForkleansException($"StreamGenerator type not supported: {generatorConfig.StreamGeneratorType}");
             }
             generator.Configure(serviceProvider, generatorConfig);
             receiver.QueueGenerator = generator;

@@ -66,7 +66,7 @@ public sealed class GrainDirectoryResilienceTests
                 {
                     log.LogInformation(sue, "Swallowed transient exception.");
                 }
-                catch (OrleansMessageRejectionException omre)
+                catch (ForkleansMessageRejectionException omre)
                 {
                    log.LogInformation(omre, "Swallowed rejection.");
                 }

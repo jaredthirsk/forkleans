@@ -144,7 +144,7 @@ namespace UnitTests.General
             await taintedGrainPrimary.LatchCpuUsage(110.0f);
             await taintedGrainSecondary.LatchCpuUsage(110.0f);
 
-            await Assert.ThrowsAsync<OrleansException>(() =>
+            await Assert.ThrowsAsync<ForkleansException>(() =>
                 this.AddTestGrains(1));
         }
 
@@ -160,11 +160,11 @@ namespace UnitTests.General
             await taintedGrainPrimary.LatchCpuUsage(110.0f);
             await taintedGrainSecondary.LatchOverloaded();
 
-            // OrleansException or GateWayTooBusyException
+            // ForkleansException or GateWayTooBusyException
             var exception = await Assert.ThrowsAnyAsync<Exception>(() =>
                 this.AddTestGrains(1));
 
-            Assert.True(exception is OrleansException || exception is GatewayTooBusyException);
+            Assert.True(exception is ForkleansException || exception is GatewayTooBusyException);
         }
 
 

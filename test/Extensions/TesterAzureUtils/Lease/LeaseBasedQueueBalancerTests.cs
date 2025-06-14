@@ -99,7 +99,7 @@ namespace Tester.AzureUtils.Lease
                 pass = totalQueueCount == sum &&
                     counts.All(startedAgentInEachSilo => startedAgentInEachSilo <= expectedAgentCountMax && startedAgentInEachSilo >= expectedAgentCountMin);
                 if(!pass && assertIsTrue)
-                    throw new OrleansException($"AgentManager doesn't own correct amount of agents: {string.Join(",", counts.Select(startedAgentInEachSilo => startedAgentInEachSilo.ToString()))}");
+                    throw new ForkleansException($"AgentManager doesn't own correct amount of agents: {string.Join(",", counts.Select(startedAgentInEachSilo => startedAgentInEachSilo.ToString()))}");
             }
             catch
             {

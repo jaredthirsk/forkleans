@@ -38,9 +38,9 @@ namespace Forkleans.Hosting
 
 namespace Forkleans.Reminders.AdoNet.Storage
 {
-    public partial class OrleansRelationalDownloadStream : System.IO.Stream
+    public partial class ForkleansRelationalDownloadStream : System.IO.Stream
     {
-        public OrleansRelationalDownloadStream(System.Data.Common.DbDataReader reader, int ordinal) { }
+        public ForkleansRelationalDownloadStream(System.Data.Common.DbDataReader reader, int ordinal) { }
 
         public override bool CanRead { get { throw null; } }
 

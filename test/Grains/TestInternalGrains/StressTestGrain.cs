@@ -255,7 +255,7 @@ namespace UnitTests.Grains
 
             if (numItems != results.Count)
             {
-                //throw new OrleansException(String.Format("numItems != results.Count, {0} != {1}", numItems, results.Count));
+                //throw new ForkleansException(String.Format("numItems != results.Count, {0} != {1}", numItems, results.Count));
             }
 
         }

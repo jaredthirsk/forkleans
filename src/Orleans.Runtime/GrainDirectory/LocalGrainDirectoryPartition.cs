@@ -39,7 +39,7 @@ namespace Forkleans.Runtime.GrainDirectory
                     }
 
                 default:
-                    throw new OrleansException("unhandled case");
+                    throw new ForkleansException("unhandled case");
             }
         }
 
@@ -160,7 +160,7 @@ namespace Forkleans.Runtime.GrainDirectory
             if (!IsValidSilo(address.SiloAddress))
             {
                 var siloStatus = this.siloStatusOracle.GetApproximateSiloStatus(address.SiloAddress);
-                throw new OrleansException($"Trying to register {address.GrainId} on invalid silo: {address.SiloAddress}. Known status: {siloStatus}");
+                throw new ForkleansException($"Trying to register {address.GrainId} on invalid silo: {address.SiloAddress}. Known status: {siloStatus}");
             }
 
             lock (lockable)

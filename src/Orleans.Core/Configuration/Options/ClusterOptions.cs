@@ -62,7 +62,7 @@ namespace Forkleans.Configuration
         {
             if (string.IsNullOrWhiteSpace(this.options.ClusterId))
             {
-                throw new OrleansConfigurationException(
+                throw new ForkleansConfigurationException(
                     $"Configuration for {nameof(ClusterOptions)} is invalid. " +
                     $"A non-empty value for {nameof(options.ClusterId)} is required. " +
                     $"See {Constants.TroubleshootingHelpLink} for more information.");
@@ -70,7 +70,7 @@ namespace Forkleans.Configuration
 
             if (string.IsNullOrWhiteSpace(this.options.ServiceId))
             {
-                throw new OrleansConfigurationException(
+                throw new ForkleansConfigurationException(
                     $"Configuration for {nameof(ClusterOptions)} is invalid. " +
                     $"A non-empty value for {nameof(options.ServiceId)} is required. " +
                     $"See {Constants.TroubleshootingHelpLink} for more information.");

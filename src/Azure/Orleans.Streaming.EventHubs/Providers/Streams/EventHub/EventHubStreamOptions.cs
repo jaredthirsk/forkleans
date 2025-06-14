@@ -175,17 +175,17 @@ namespace Forkleans.Configuration
         {
             if (options.CreateConnection is null)
             {
-                throw new OrleansConfigurationException($"Azure Event Hub connection not configured for stream provider options {nameof(EventHubOptions)} with name \"{name}\". Use the {options.GetType().Name}.{nameof(EventHubOptions.ConfigureEventHubConnection)} method to configure the connection.");
+                throw new ForkleansConfigurationException($"Azure Event Hub connection not configured for stream provider options {nameof(EventHubOptions)} with name \"{name}\". Use the {options.GetType().Name}.{nameof(EventHubOptions.ConfigureEventHubConnection)} method to configure the connection.");
             }
 
             if (string.IsNullOrEmpty(options.ConsumerGroup))
             {
-                throw new OrleansConfigurationException($"{nameof(EventHubOptions)} on stream provider {this.name} is invalid. {nameof(EventHubOptions.ConsumerGroup)} is invalid");
+                throw new ForkleansConfigurationException($"{nameof(EventHubOptions)} on stream provider {this.name} is invalid. {nameof(EventHubOptions.ConsumerGroup)} is invalid");
             }
 
             if (string.IsNullOrEmpty(options.EventHubName))
             {
-                throw new OrleansConfigurationException($"{nameof(EventHubOptions)} on stream provider {this.name} is invalid. {nameof(EventHubOptions.EventHubName)} is invalid");
+                throw new ForkleansConfigurationException($"{nameof(EventHubOptions)} on stream provider {this.name} is invalid. {nameof(EventHubOptions.EventHubName)} is invalid");
             }
         }
     }
@@ -203,7 +203,7 @@ namespace Forkleans.Configuration
         {
             var checkpointerFactory = services.GetKeyedService<IStreamQueueCheckpointerFactory>(this.name);
             if (checkpointerFactory == null)
-                throw new OrleansConfigurationException($"No IStreamQueueCheckpointer is configured with PersistentStreamProvider {this.name}. Please configure one.");
+                throw new ForkleansConfigurationException($"No IStreamQueueCheckpointer is configured with PersistentStreamProvider {this.name}. Please configure one.");
         }
     }
 

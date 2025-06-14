@@ -8,12 +8,12 @@ namespace Forkleans.Storage
     /// </summary>
     public class JsonGrainStorageSerializer : IGrainStorageSerializer
     {
-        private readonly OrleansJsonSerializer _orleansJsonSerializer;
+        private readonly ForkleansJsonSerializer _orleansJsonSerializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JsonGrainStorageSerializer"/> class.
         /// </summary>
-        public JsonGrainStorageSerializer(OrleansJsonSerializer orleansJsonSerializer)
+        public JsonGrainStorageSerializer(ForkleansJsonSerializer orleansJsonSerializer)
         {
             _orleansJsonSerializer = orleansJsonSerializer;
         }

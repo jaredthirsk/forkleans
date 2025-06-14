@@ -27,7 +27,7 @@ public abstract class MessageQueueingBenchmark(string invariant, string database
 
     private readonly Consumer _consumer = new();
     private IRelationalStorage _storage = default!;
-    private RelationalOrleansQueries _queries = default!;
+    private RelationalForkleansQueries _queries = default!;
     private byte[] _payload = [];
     private string[] _queueIds = default!;
 
@@ -66,7 +66,7 @@ public abstract class MessageQueueingBenchmark(string invariant, string database
 
         _storage = RelationalStorage.CreateInstance(invariant, testing.CurrentConnectionString);
 
-        _queries = RelationalOrleansQueries.CreateInstance(invariant, testing.CurrentConnectionString).GetAwaiter().GetResult();
+        _queries = RelationalForkleansQueries.CreateInstance(invariant, testing.CurrentConnectionString).GetAwaiter().GetResult();
     }
 
     [IterationSetup]

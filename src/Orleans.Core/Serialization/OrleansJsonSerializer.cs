@@ -12,7 +12,7 @@ namespace Forkleans.Serialization
     /// <summary>
     /// Utility class for configuring <see cref="JsonSerializerSettings"/> to support Orleans types.
     /// </summary>
-    public class OrleansJsonSerializer
+    public class ForkleansJsonSerializer
     {
         public const string UseFullAssemblyNamesProperty = "UseFullAssemblyNames";
         public const string IndentJsonProperty = "IndentJSON";
@@ -20,9 +20,9 @@ namespace Forkleans.Serialization
         private readonly JsonSerializerSettings settings;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OrleansJsonSerializer"/> class.
+        /// Initializes a new instance of the <see cref="ForkleansJsonSerializer"/> class.
         /// </summary>
-        public OrleansJsonSerializer(IOptions<OrleansJsonSerializerOptions> options)
+        public ForkleansJsonSerializer(IOptions<ForkleansJsonSerializerOptions> options)
         {
             this.settings = options.Value.JsonSerializerSettings;
         }

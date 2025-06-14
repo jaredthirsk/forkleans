@@ -136,7 +136,7 @@ namespace Forkleans.Runtime.Placement
                 var versions = _grainInterfaceVersions.GetSupportedSilos(target.InterfaceType, target.InterfaceVersion).Result;
                 var allWithTypeString = string.Join(", ", allWithType.Select(s => s.ToString())) is string withGrain && !string.IsNullOrWhiteSpace(withGrain) ? withGrain : "none";
                 var allWithInterfaceString = string.Join(", ", versions.Select(s => s.ToString())) is string withIface && !string.IsNullOrWhiteSpace(withIface) ? withIface : "none";
-                throw new OrleansException(
+                throw new ForkleansException(
                     $"No active nodes are compatible with grain {grainType} and interface {target.InterfaceType} version {target.InterfaceVersion}. "
                     + $"Known nodes with grain type: {allWithTypeString}. "
                     + $"All known nodes compatible with interface version: {allWithInterfaceString}");

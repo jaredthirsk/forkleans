@@ -83,7 +83,7 @@ namespace Forkleans.Networking.Shared
 
     [Serializable]
     [GenerateSerializer]
-    public sealed class SocketConnectionException : OrleansException
+    public sealed class SocketConnectionException : ForkleansException
     {
         public SocketConnectionException(string message) : base(message) { }
 

@@ -402,10 +402,10 @@ namespace Forkleans.CodeGenerator
                                 IdentifierName(parameter.FieldName)))));
             }
 
-            // C#: default: return OrleansGeneratedCodeHelper.InvokableThrowArgumentOutOfRange(index, {maxArgs})
+            // C#: default: return ForkleansGeneratedCodeHelper.InvokableThrowArgumentOutOfRange(index, {maxArgs})
             var throwHelperMethod = MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
-                IdentifierName("OrleansGeneratedCodeHelper"),
+                IdentifierName("ForkleansGeneratedCodeHelper"),
                 IdentifierName("InvokableThrowArgumentOutOfRange"));
             cases.Add(
                 SwitchSection(
@@ -471,11 +471,11 @@ namespace Forkleans.CodeGenerator
                             })));
             }
 
-            // C#: default: OrleansGeneratedCodeHelper.InvokableThrowArgumentOutOfRange(index, {maxArgs})
+            // C#: default: ForkleansGeneratedCodeHelper.InvokableThrowArgumentOutOfRange(index, {maxArgs})
             var maxArgs = Math.Max(0, methodDescription.Method.Parameters.Length - 1);
             var throwHelperMethod = MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
-                IdentifierName("OrleansGeneratedCodeHelper"),
+                IdentifierName("ForkleansGeneratedCodeHelper"),
                 IdentifierName("InvokableThrowArgumentOutOfRange"));
             cases.Add(
                 SwitchSection(
@@ -684,7 +684,7 @@ namespace Forkleans.CodeGenerator
                             SingletonSeparatedList(VariableDeclarator(description.FieldName)
                             .WithInitializer(EqualsValueClause(
                                 InvocationExpression(
-                                    IdentifierName("OrleansGeneratedCodeHelper").Member("GetMethodInfoOrDefault"),
+                                    IdentifierName("ForkleansGeneratedCodeHelper").Member("GetMethodInfoOrDefault"),
                                     ArgumentList(SeparatedList(new[]
                                     {
                                         Argument(TypeOfExpression(method.Method.ContainingType.ToTypeSyntax(method.TypeParameterSubstitutions))),

@@ -72,7 +72,7 @@ namespace Forkleans.Providers
     }
 
     [Serializable, GenerateSerializer]
-    public sealed class ProviderStateException : OrleansException
+    public sealed class ProviderStateException : ForkleansException
     {
         public ProviderStateException() : base("Unexpected provider state")
         { }

@@ -4,7 +4,7 @@ internal sealed partial class AdoNetGrainDirectory(string name, AdoNetGrainDirec
 {
     private readonly ILogger _logger = logger;
     private readonly string _clusterId = clusterOptions.Value.ClusterId;
-    private RelationalOrleansQueries? _queries;
+    private RelationalForkleansQueries? _queries;
 
     /// <summary>
     /// Looks up a grain activation.
@@ -133,13 +133,13 @@ internal sealed partial class AdoNetGrainDirectory(string name, AdoNetGrainDirec
     /// <summary>
     /// Ensures queries are loaded only once while allowing for recovery if the load fails.
     /// </summary>
-    private ValueTask<RelationalOrleansQueries> GetQueriesAsync()
+    private ValueTask<RelationalForkleansQueries> GetQueriesAsync()
     {
         // attempt fast path
         return _queries is not null ? new(_queries) : new(CoreAsync());
 
         // slow path
-        async Task<RelationalOrleansQueries> CoreAsync()
+        async Task<RelationalForkleansQueries> CoreAsync()
         {
             await _semaphore.WaitAsync(lifetime.ApplicationStopping);
             try
@@ -151,7 +151,7 @@ internal sealed partial class AdoNetGrainDirectory(string name, AdoNetGrainDirec
                 }
 
                 // slow path - the member variable will only be set if the call succeeds
-                return _queries = await RelationalOrleansQueries
+                return _queries = await RelationalForkleansQueries
                     .CreateInstance(options.Invariant, options.ConnectionString)
                     .WaitAsync(lifetime.ApplicationStopping);
             }

@@ -202,7 +202,7 @@ namespace Forkleans.Runtime.Configuration
                 }
             }
             if (candidates.Count > 0) return PickIPAddress(candidates);
-            throw new OrleansException("Failed to get a local IP address.");
+            throw new ForkleansException("Failed to get a local IP address.");
         }
 
         /// <summary>

@@ -24,7 +24,7 @@ namespace Forkleans.Serialization.Codecs
         /// <param name="fieldCodec">The field codec.</param>
         public NullableCodec(IFieldCodec<T> fieldCodec)
         {
-            _fieldCodec = OrleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
+            _fieldCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
         }
 
         /// <inheritdoc/>
@@ -75,7 +75,7 @@ namespace Forkleans.Serialization.Codecs
         /// Initializes a new instance of the <see cref="NullableCopier{T}"/> class.
         /// </summary>
         /// <param name="copier">The copier.</param>
-        public NullableCopier(IDeepCopier<T> copier) => _copier = OrleansGeneratedCodeHelper.GetOptionalCopier(copier);
+        public NullableCopier(IDeepCopier<T> copier) => _copier = ForkleansGeneratedCodeHelper.GetOptionalCopier(copier);
 
         public bool IsShallowCopyable() => _copier is null;
 

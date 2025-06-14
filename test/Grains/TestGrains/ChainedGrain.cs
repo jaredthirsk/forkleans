@@ -75,7 +75,7 @@ namespace UnitTests.Grains
             }
 
             logger.LogWarning("ChainGrain Id={Id} is in an invalid state. Next={Next}", State.Id, State.Next);
-            throw new OrleansException($"ChainGrain Id={State.Id} is in an invalid state. Next={State.Next}");
+            throw new ForkleansException($"ChainGrain Id={State.Id} is in an invalid state. Next={State.Next}");
         }
 
         public Task PassThis(IChainedGrain next)

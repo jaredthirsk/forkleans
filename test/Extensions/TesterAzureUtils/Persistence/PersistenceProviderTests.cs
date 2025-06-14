@@ -296,11 +296,11 @@ namespace Tester.AzureUtils.Persistence
         {
             if (useStringFormat && !useJson)
             {
-                throw new InvalidOperationException($"Using {nameof(OrleansGrainStorageSerializer)} in conjuction with string data format makes no sense, there for stopping attempt.");
+                throw new InvalidOperationException($"Using {nameof(ForkleansGrainStorageSerializer)} in conjuction with string data format makes no sense, there for stopping attempt.");
             }
 
             var options = new AzureTableStorageOptions();
-            var jsonOptions = this.providerRuntime.ServiceProvider.GetService<IOptions<OrleansJsonSerializerOptions>>();
+            var jsonOptions = this.providerRuntime.ServiceProvider.GetService<IOptions<ForkleansJsonSerializerOptions>>();
             if (typeNameHandling != null)
             {
                 jsonOptions.Value.JsonSerializerSettings.TypeNameHandling = typeNameHandling.Value;
@@ -310,8 +310,8 @@ namespace Tester.AzureUtils.Persistence
             options.UseStringFormat = useStringFormat;
 
             // TODO change test to include more serializer?
-            var binarySerializer = new OrleansGrainStorageSerializer(this.providerRuntime.ServiceProvider.GetRequiredService<Serializer>());
-            var jsonSerializer = new JsonGrainStorageSerializer(new OrleansJsonSerializer(jsonOptions));
+            var binarySerializer = new ForkleansGrainStorageSerializer(this.providerRuntime.ServiceProvider.GetRequiredService<Serializer>());
+            var jsonSerializer = new JsonGrainStorageSerializer(new ForkleansJsonSerializer(jsonOptions));
             if (useFallback)
                 options.GrainStorageSerializer = useJson
                     ? new GrainStorageSerializer(jsonSerializer, binarySerializer)

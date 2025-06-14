@@ -79,7 +79,7 @@ namespace Forkleans.Runtime.ConsistentRing
                 int myOldIndex = membershipRingList.IndexOf(MyAddress);
 
                 if (!(membershipRingList.Count == 0 || myOldIndex != -1))
-                    throw new OrleansException(string.Format("{0}: Couldn't find my position in the ring {1}.", MyAddress, Utils.EnumerableToString(membershipRingList)));
+                    throw new ForkleansException(string.Format("{0}: Couldn't find my position in the ring {1}.", MyAddress, Utils.EnumerableToString(membershipRingList)));
 
                 // insert new silo in the sorted order
                 int hash = silo.GetConsistentHashCode();
@@ -136,7 +136,7 @@ namespace Forkleans.Runtime.ConsistentRing
                 int myNewIndex = membershipRingList.IndexOf(MyAddress);
 
                 if (myNewIndex == -1)
-                    throw new OrleansException($"{MyAddress}: Couldn't find my position in the ring {this}.");
+                    throw new ForkleansException($"{MyAddress}: Couldn't find my position in the ring {this}.");
 
                 bool wasMyPred = ((myNewIndex == indexOfFailedSilo) || (myNewIndex == 0 && indexOfFailedSilo == membershipRingList.Count)); // no need for '- 1'
                 if (wasMyPred) // failed node was our predecessor

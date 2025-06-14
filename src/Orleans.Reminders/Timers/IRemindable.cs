@@ -82,7 +82,7 @@ namespace Forkleans
         /// Exception related to Orleans Reminder functions or Reminder service.
         /// </summary>
         [Serializable, GenerateSerializer]
-        public sealed class ReminderException : OrleansException
+        public sealed class ReminderException : ForkleansException
         {
             /// <summary>
             /// Initializes a new instance of the <see cref="ReminderException"/> class.

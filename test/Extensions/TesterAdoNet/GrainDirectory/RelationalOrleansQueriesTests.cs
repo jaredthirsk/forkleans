@@ -8,7 +8,7 @@ using static System.String;
 namespace Tester.AdoNet.GrainDirectory;
 
 /// <summary>
-/// Tests the relational storage layer via <see cref="RelationalOrleansQueries"/> against Sql Server.
+/// Tests the relational storage layer via <see cref="RelationalForkleansQueries"/> against Sql Server.
 /// </summary>
 [TestCategory("SqlServer")]
 public class SqlServerRelationalOrleansQueriesTests() : RelationalOrleansQueriesTests(AdoNetInvariants.InvariantNameSqlServer, 90)
@@ -16,7 +16,7 @@ public class SqlServerRelationalOrleansQueriesTests() : RelationalOrleansQueries
 }
 
 /// <summary>
-/// Tests the relational storage layer via <see cref="RelationalOrleansQueries"/> against PostgreSQL.
+/// Tests the relational storage layer via <see cref="RelationalForkleansQueries"/> against PostgreSQL.
 /// </summary>
 [TestCategory("PostgreSql")]
 public class PostgreSqlRelationalOrleansQueriesTests : RelationalOrleansQueriesTests
@@ -28,7 +28,7 @@ public class PostgreSqlRelationalOrleansQueriesTests : RelationalOrleansQueriesT
 }
 
 /// <summary>
-/// Tests the relational storage layer via <see cref="RelationalOrleansQueries"/> against MySQL.
+/// Tests the relational storage layer via <see cref="RelationalForkleansQueries"/> against MySQL.
 /// </summary>
 [TestCategory("MySql")]
 public class MySqlRelationalOrleansQueriesTests : RelationalOrleansQueriesTests
@@ -40,7 +40,7 @@ public class MySqlRelationalOrleansQueriesTests : RelationalOrleansQueriesTests
 }
 
 /// <summary>
-/// Tests the relational storage layer via <see cref="RelationalOrleansQueries"/>.
+/// Tests the relational storage layer via <see cref="RelationalForkleansQueries"/>.
 /// </summary>
 [TestCategory("Functional"), TestCategory("AdoNet"), TestCategory("GrainDirectory")]
 public abstract class RelationalOrleansQueriesTests(string invariant, int concurrency = 100) : IAsyncLifetime
@@ -48,7 +48,7 @@ public abstract class RelationalOrleansQueriesTests(string invariant, int concur
     private const string TestDatabaseName = "OrleansGrainDirectoryTest";
 
     private IRelationalStorage _storage;
-    private RelationalOrleansQueries _queries;
+    private RelationalForkleansQueries _queries;
 
     public async Task InitializeAsync()
     {
@@ -57,7 +57,7 @@ public abstract class RelationalOrleansQueriesTests(string invariant, int concur
 
         _storage = RelationalStorage.CreateInstance(invariant, testing.CurrentConnectionString);
 
-        _queries = await RelationalOrleansQueries.CreateInstance(invariant, testing.CurrentConnectionString);
+        _queries = await RelationalForkleansQueries.CreateInstance(invariant, testing.CurrentConnectionString);
     }
 
     private static string RandomClusterId(int max = 10) => $"ClusterId{Random.Shared.Next(max)}";

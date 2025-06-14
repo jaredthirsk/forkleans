@@ -38,9 +38,9 @@ namespace Forkleans.Serialization.Codecs
             IFieldCodec<TValue> valueCodec,
             IFieldCodec<IEqualityComparer<TKey>> comparerCodec)
         {
-            _keyCodec = OrleansGeneratedCodeHelper.UnwrapService(this, keyCodec);
-            _valueCodec = OrleansGeneratedCodeHelper.UnwrapService(this, valueCodec);
-            _comparerCodec = OrleansGeneratedCodeHelper.UnwrapService(this, comparerCodec);
+            _keyCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, keyCodec);
+            _valueCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, valueCodec);
+            _comparerCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, comparerCodec);
         }
 
         /// <inheritdoc/>
@@ -244,9 +244,9 @@ namespace Forkleans.Serialization.Codecs
             IFieldCodec<TValue> valueCodec,
             IFieldCodec<IEqualityComparer<TKey>> comparerCodec)
         {
-            _keyCodec = OrleansGeneratedCodeHelper.UnwrapService(this, keyCodec);
-            _valueCodec = OrleansGeneratedCodeHelper.UnwrapService(this, valueCodec);
-            _comparerCodec = OrleansGeneratedCodeHelper.UnwrapService(this, comparerCodec);
+            _keyCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, keyCodec);
+            _valueCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, valueCodec);
+            _comparerCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, comparerCodec);
             _baseConstructor = typeof(Dictionary<TKey, TValue>).GetConstructor([typeof(int), typeof(IEqualityComparer<TKey>)])!;
         }
 

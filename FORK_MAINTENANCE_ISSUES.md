@@ -2,21 +2,30 @@
 
 This document captures issues discovered during fork maintenance and their solutions.
 
-## Issues Found After Namespace Conversion
+## Design Decision: Complete Type Renaming
 
-### 1. Orleans-Prefixed Types Incorrectly Converted
-
-**Problem**: The namespace conversion was too aggressive and converted type names like `OrleansException` to `ForkleansException`.
-
-**Types affected**:
-- `OrleansException` → `ForkleansException` 
-- `OrleansConfigurationException` → `ForkleansConfigurationException`
-- `OrleansTransactionAbortedException` → `ForkleansTransactionAbortedException`
+After initial implementation, we decided to rename ALL Orleans-prefixed types to Forkleans-prefixed for consistency. This means:
+- `OrleansException` → `ForkleansException`
 - `OrleansJsonSerializer` → `ForkleansJsonSerializer`
-- `OrleansJsonSerializerOptions` → `ForkleansJsonSerializerOptions`
-- `OrleansGrainStorageSerializer` → `ForkleansGrainStorageSerializer`
+- etc.
 
-**Solution**: These type names should be preserved as-is. Only namespace declarations and using statements should change.
+**Rationale**: 
+- **Consistency**: Everything in the Forkleans namespace should be Forkleans-prefixed
+- **Clarity**: No confusion about which fork you're using
+- **Search/Replace**: Easier to find all Forkleans-specific code
+- **Branding**: Clear that this is a fork, not original Orleans
+
+## Issues Found and Fixed
+
+### 1. Namespace Conversion Scope
+
+**Problem**: The initial namespace conversion was both too aggressive and not aggressive enough in different areas.
+
+**Solution**: The converter now:
+- Converts all namespaces from Orleans to Forkleans
+- Converts all Orleans-prefixed type names to Forkleans-prefixed
+- Preserves file names (Orleans.*.csproj remains unchanged)
+- Preserves MSBuild property names (OrleansBuildTimeCodeGen remains unchanged)
 
 ### 2. Analyzer Project References
 
@@ -47,45 +56,37 @@ error NETSDK1005: Assets file doesn't have a target for 'net8.0'
 <ProjectReference Include="..\..\src\Forkleans.Core\Forkleans.Core.csproj" />
 ```
 
-**Solution**: Project reference paths should remain unchanged. Only namespaces in code should change.
+**Solution**: Project reference paths remain unchanged. Only namespaces and type names in code change.
 
 ### 4. SDK Build File Names
 
 **Problem**: Microsoft.Orleans.Sdk.targets was renamed to Microsoft.Forkleans.Sdk.targets, but Directory.Build.targets still looked for the Orleans version.
 
-**Solution**: These build infrastructure files should keep their original names.
+**Solution**: These build infrastructure files keep their original names.
 
 ### 5. Build Property Names
 
 **Problem**: Some build properties like `OrleansBuildTimeCodeGen` were being converted to `ForkleansBuildTimeCodeGen`.
 
-**Solution**: MSBuild property names should remain unchanged.
+**Solution**: MSBuild property names remain unchanged.
 
-## Recommended Script Improvements
+## What Gets Converted
 
-### 1. Update Fix-Fork.ps1
+### ✅ CONVERT These:
+1. **Namespace declarations**: `namespace Orleans` → `namespace Forkleans`
+2. **Using statements**: `using Orleans` → `using Forkleans`
+3. **Type names**: `OrleansException` → `ForkleansException`
+4. **Interface names**: `IOrleansSerializer` → `IForkleansSerializer`
+5. **Qualified names**: `Orleans.Runtime.Foo` → `Forkleans.Runtime.Foo`
+6. **Assembly names**: Output DLLs use Forkleans prefix
+7. **Package names**: NuGet packages use Forkleans prefix
 
-Add these steps after namespace conversion:
-1. Fix Orleans-prefixed type names
-2. Ensure analyzer references are correct
-3. Fix any project reference paths that were incorrectly changed
-
-### 2. Improve Convert-OrleansNamespace.ps1
-
-The script should:
-1. Only convert namespace declarations and using statements
-2. Preserve Orleans-prefixed type names
-3. Not modify project reference paths
-4. Not modify MSBuild property names
-5. Not modify build file names
-
-### 3. Add Validation Step
-
-After running Fix-Fork.ps1, add a validation that:
-1. Runs `dotnet restore`
-2. Runs `dotnet build` 
-3. Reports any errors
-4. Suggests manual fixes if needed
+### ❌ DO NOT Convert These:
+1. **File names**: `Orleans.Core.csproj` remains unchanged
+2. **Project references**: `<ProjectReference Include="Orleans.Core.csproj">`
+3. **MSBuild properties**: `OrleansBuildTimeCodeGen`
+4. **Build file names**: `Microsoft.Orleans.Sdk.targets`
+5. **Package references**: `Microsoft.Orleans.*` NuGet packages
 
 ## Testing Recommendations
 
@@ -95,11 +96,13 @@ After running Fix-Fork.ps1, add a validation that:
    - Run a few unit tests
    - Check that analyzer/code generation still works
    - Verify package names are correct
+   - Ensure all Orleans types are now Forkleans types
 
 ## Manual Review Checklist
 
 After running Fix-Fork.ps1, manually review:
 - [ ] Directory.Build.targets has correct analyzer references
-- [ ] Orleans-prefixed exception types are preserved
+- [ ] All Orleans-prefixed types are now Forkleans-prefixed
 - [ ] Project builds successfully
 - [ ] No Windows-specific paths in project.assets.json files
+- [ ] Test that exceptions can be caught with new names

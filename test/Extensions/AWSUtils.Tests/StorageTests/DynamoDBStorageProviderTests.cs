@@ -178,9 +178,9 @@ namespace AWSUtils.Tests.StorageTests
                 Service = AWSTestConstants.DynamoDbService,
             };
 
-            var jsonOptions = this.providerRuntime.ServiceProvider.GetService<IOptions<OrleansJsonSerializerOptions>>();
-            var binarySerializer = new OrleansGrainStorageSerializer(this.providerRuntime.ServiceProvider.GetRequiredService<Serializer>());
-            var jsonSerializer = new JsonGrainStorageSerializer(new OrleansJsonSerializer(jsonOptions));
+            var jsonOptions = this.providerRuntime.ServiceProvider.GetService<IOptions<ForkleansJsonSerializerOptions>>();
+            var binarySerializer = new ForkleansGrainStorageSerializer(this.providerRuntime.ServiceProvider.GetRequiredService<Serializer>());
+            var jsonSerializer = new JsonGrainStorageSerializer(new ForkleansJsonSerializer(jsonOptions));
 
             if (useFallback)
                 options.GrainStorageSerializer = useJson

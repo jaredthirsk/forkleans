@@ -28,8 +28,8 @@ namespace Forkleans.Serialization.Codecs
         /// <param name="valueCodec">The value codec.</param>
         public KeyValuePairCodec(IFieldCodec<TKey> keyCodec, IFieldCodec<TValue> valueCodec)
         {
-            _keyCodec = OrleansGeneratedCodeHelper.UnwrapService(this, keyCodec);
-            _valueCodec = OrleansGeneratedCodeHelper.UnwrapService(this, valueCodec);
+            _keyCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, keyCodec);
+            _valueCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, valueCodec);
         }
 
         /// <inheritdoc/>
@@ -100,8 +100,8 @@ namespace Forkleans.Serialization.Codecs
         /// <param name="valueCopier">The value copier.</param>
         public KeyValuePairCopier(IDeepCopier<TKey> keyCopier, IDeepCopier<TValue> valueCopier)
         {
-            _keyCopier = OrleansGeneratedCodeHelper.GetOptionalCopier(keyCopier);
-            _valueCopier = OrleansGeneratedCodeHelper.GetOptionalCopier(valueCopier);
+            _keyCopier = ForkleansGeneratedCodeHelper.GetOptionalCopier(keyCopier);
+            _valueCopier = ForkleansGeneratedCodeHelper.GetOptionalCopier(valueCopier);
         }
 
         public bool IsShallowCopyable() => _keyCopier is null && _valueCopier is null;

@@ -45,7 +45,7 @@ namespace Forkleans.Configuration.Validators
             var gatewayProvider = _serviceProvider.GetService<IGatewayListProvider>();
             if (gatewayProvider == null)
             {
-                throw new OrleansConfigurationException(ClusteringNotConfigured);
+                throw new ForkleansConfigurationException(ClusteringNotConfigured);
             }
         }
     }

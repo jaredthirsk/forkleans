@@ -261,7 +261,7 @@ namespace Tester.StreamingTests
             var numProduced = await producer.GetNumberProduced();
             if (assertIsTrue)
             {
-                throw new OrleansException($"Producer has not produced since last check");
+                throw new ForkleansException($"Producer has not produced since last check");
             }
             else
             {

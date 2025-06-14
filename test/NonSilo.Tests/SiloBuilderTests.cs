@@ -90,7 +90,7 @@ namespace NonSilo.Tests
         [Fact]
         public async Task SiloBuilder_GrainCollectionOptionsForZeroSecondsAgeLimitTest()
         {
-            await Assert.ThrowsAsync<OrleansConfigurationException>(async () =>
+            await Assert.ThrowsAsync<ForkleansConfigurationException>(async () =>
             {
                 await new HostBuilder().UseOrleans((ctx, siloBuilder) =>
                 {
@@ -111,7 +111,7 @@ namespace NonSilo.Tests
         [Fact]
         public async Task SiloBuilder_ClusterMembershipOptionsValidators()
         {
-            await Assert.ThrowsAsync<OrleansConfigurationException>(async () =>
+            await Assert.ThrowsAsync<ForkleansConfigurationException>(async () =>
             {
                 await new HostBuilder().UseOrleans((ctx, siloBuilder) =>
                 {
@@ -121,7 +121,7 @@ namespace NonSilo.Tests
                 }).RunConsoleAsync();
             });
 
-            await Assert.ThrowsAsync<OrleansConfigurationException>(async () =>
+            await Assert.ThrowsAsync<ForkleansConfigurationException>(async () =>
             {
                 await new HostBuilder().UseOrleans((ctx, siloBuilder) =>
                 {
@@ -138,7 +138,7 @@ namespace NonSilo.Tests
         [Fact]
         public async Task SiloBuilder_LoadSheddingValidatorAbove100ShouldFail()
         {
-            await Assert.ThrowsAsync<OrleansConfigurationException>(async () =>
+            await Assert.ThrowsAsync<ForkleansConfigurationException>(async () =>
             {
                 await new HostBuilder().UseOrleans((ctx, siloBuilder) =>
                 {
@@ -177,13 +177,13 @@ namespace NonSilo.Tests
                     });
                 }).Build();
 
-            await Assert.ThrowsAsync<OrleansConfigurationException>(() => host.StartAsync());
+            await Assert.ThrowsAsync<ForkleansConfigurationException>(() => host.StartAsync());
         }
 
         [Fact]
         public void SiloBuilderThrowsDuringStartupIfClientBuildersAdded()
         {
-            Assert.Throws<OrleansConfigurationException>(() =>
+            Assert.Throws<ForkleansConfigurationException>(() =>
             {
                 _ = new HostBuilder()
                     .UseOrleansClient((ctx, clientBuilder) =>
@@ -200,7 +200,7 @@ namespace NonSilo.Tests
         [Fact]
         public void SiloBuilderWithHotApplicationBuilderThrowsDuringStartupIfClientBuildersAdded()
         {
-            Assert.Throws<OrleansConfigurationException>(() =>
+            Assert.Throws<ForkleansConfigurationException>(() =>
             {
                 _ = Host.CreateApplicationBuilder()
                     .UseOrleansClient(clientBuilder =>

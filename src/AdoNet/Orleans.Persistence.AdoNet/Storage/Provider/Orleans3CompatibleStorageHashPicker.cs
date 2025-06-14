@@ -8,7 +8,7 @@ namespace Forkleans.Storage
     /// </summary>
     public class Orleans3CompatibleStorageHashPicker : IStorageHasherPicker
     {
-        private readonly Orleans3CompatibleHasher _nonStringHasher;
+        private readonly Forkleans3CompatibleHasher _nonStringHasher;
 
         /// <summary>
         /// <see cref="IStorageHasherPicker.HashProviders"/>.

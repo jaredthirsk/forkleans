@@ -9,7 +9,7 @@ namespace Forkleans.Runtime.Messaging;
 /// Indicates that a message frame is invalid, either when sending a message or receiving a message.
 /// </summary>
 [GenerateSerializer]
-public sealed class InvalidMessageFrameException : OrleansException
+public sealed class InvalidMessageFrameException : ForkleansException
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="InvalidMessageFrameException"/> class.

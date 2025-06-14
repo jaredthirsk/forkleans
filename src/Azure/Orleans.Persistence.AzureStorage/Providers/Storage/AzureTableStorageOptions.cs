@@ -12,7 +12,7 @@ namespace Forkleans.Configuration
         /// Table name where grain stage is stored
         /// </summary>
         public override string TableName { get; set; } = DEFAULT_TABLE_NAME;
-        public const string DEFAULT_TABLE_NAME = "OrleansGrainState";
+        public const string DEFAULT_TABLE_NAME = "ForkleansGrainState";
 
         /// <summary>
         /// Indicates if grain data should be deleted or reset to defaults when a grain clears it's state.

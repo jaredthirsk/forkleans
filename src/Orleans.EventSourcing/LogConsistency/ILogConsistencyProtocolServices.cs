@@ -56,7 +56,7 @@ namespace Forkleans.EventSourcing
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public sealed class ProtocolTransportException : OrleansException
+    public sealed class ProtocolTransportException : ForkleansException
     {
         public ProtocolTransportException()
         { }

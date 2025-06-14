@@ -141,7 +141,7 @@ namespace Forkleans.Configuration
         {
             if (this.options.CreateClient is null)
             {
-                throw new OrleansConfigurationException($"No credentials specified. Use the {options.GetType().Name}.{nameof(AzureBlobStorageOptions.ConfigureBlobServiceClient)} method to configure the Azure Blob Service client.");
+                throw new ForkleansConfigurationException($"No credentials specified. Use the {options.GetType().Name}.{nameof(AzureBlobStorageOptions.ConfigureBlobServiceClient)} method to configure the Azure Blob Service client.");
             }
 
             try
@@ -151,7 +151,7 @@ namespace Forkleans.Configuration
             }
             catch(ArgumentException e)
             {
-                throw new OrleansConfigurationException(
+                throw new ForkleansConfigurationException(
                     $"Configuration for AzureBlobStorageOptions {name} is invalid. {nameof(this.options.ContainerName)} is not valid", e);
             }
         }

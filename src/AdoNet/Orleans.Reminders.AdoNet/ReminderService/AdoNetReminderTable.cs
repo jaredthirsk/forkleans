@@ -10,7 +10,7 @@ namespace Forkleans.Runtime.ReminderService
     {
         private readonly AdoNetReminderTableOptions options;
         private readonly string serviceId;
-        private RelationalOrleansQueries orleansQueries;
+        private RelationalForkleansQueries orleansQueries;
 
         public AdoNetReminderTable(
             IOptions<ClusterOptions> clusterOptions, 
@@ -22,7 +22,7 @@ namespace Forkleans.Runtime.ReminderService
 
         public async Task Init()
         {
-            this.orleansQueries = await RelationalOrleansQueries.CreateInstance(this.options.Invariant, this.options.ConnectionString);
+            this.orleansQueries = await RelationalForkleansQueries.CreateInstance(this.options.Invariant, this.options.ConnectionString);
         }
 
         public Task<ReminderTableData> ReadRows(GrainId grainId)

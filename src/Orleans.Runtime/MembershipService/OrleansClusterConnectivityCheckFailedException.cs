@@ -6,10 +6,10 @@ namespace Forkleans.Runtime.MembershipService
     /// <summary>
     /// Exception used to indicate that a cluster connectivity check failed.
     /// </summary>
-    /// <seealso cref="Forkleans.Runtime.OrleansException" />
+    /// <seealso cref="Forkleans.Runtime.ForkleansException" />
     [Serializable]
     [GenerateSerializer]
-    public sealed class OrleansClusterConnectivityCheckFailedException : OrleansException
+    public sealed class OrleansClusterConnectivityCheckFailedException : ForkleansException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="OrleansClusterConnectivityCheckFailedException"/> class.

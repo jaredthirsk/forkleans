@@ -8,16 +8,16 @@ namespace Forkleans.Runtime
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public sealed class OrleansConfigurationException : Exception
+    public sealed class ForkleansConfigurationException : Exception
     {
         /// <inheritdoc />
-        public OrleansConfigurationException(string message)
+        public ForkleansConfigurationException(string message)
             : base(message)
         {
         }
 
         /// <inheritdoc />
-        public OrleansConfigurationException(string message, Exception innerException)
+        public ForkleansConfigurationException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
@@ -26,7 +26,7 @@ namespace Forkleans.Runtime
         /// <exception cref="SerializationException">The class name is <see langword="null" /> or <see cref="P:System.Exception.HResult" /> is zero (0).</exception>
         /// <exception cref="ArgumentNullException"><paramref name="info" /> is <see langword="null" />.</exception>
         [Obsolete]
-        private OrleansConfigurationException(SerializationInfo info, StreamingContext context) : base(info, context)
+        private ForkleansConfigurationException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

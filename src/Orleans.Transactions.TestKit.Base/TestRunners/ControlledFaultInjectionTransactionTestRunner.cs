@@ -62,7 +62,7 @@ namespace Forkleans.Transactions.TestKit
                 if (injectionPhase == TransactionFaultInjectPhase.BeforeConfirm || injectionPhase == TransactionFaultInjectPhase.AfterConfirm)
                     await Task.Delay(TimeSpan.FromSeconds(30));
             }
-            catch (OrleansTransactionAbortedException)
+            catch (ForkleansTransactionAbortedException)
             {
                 // add delay between transactions so errors don't bleed into neighboring transactions
                 await coordinator.MultiGrainAddAndFaultInjection(grains, addval);

@@ -10,7 +10,7 @@ namespace Forkleans.Clustering.AzureStorage
 {
     public partial class AzureStorageClusteringOptions : AzureStorageOperationOptions
     {
-        public const string DEFAULT_TABLE_NAME = "OrleansSiloInstances";
+        public const string DEFAULT_TABLE_NAME = "ForkleansSiloInstances";
         public override string TableName { get { throw null; } set { } }
     }
 

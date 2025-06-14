@@ -4,13 +4,13 @@
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Serialization")]
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Core")]
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Runtime")]
-[assembly: global::Forkleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(OrleansCodeGen.TestProject.Metadata_TestProject))]
+[assembly: global::Forkleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(ForkleansCodeGen.TestProject.Metadata_TestProject))]
 namespace ForkleansCodeGen.TestProject
 {
     using global::Forkleans.Serialization.Codecs;
     using global::Forkleans.Serialization.GeneratedCodeHelpers;
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Codec_MyCompoundTypeAliasBaseClass : global::Forkleans.Serialization.Codecs.IFieldCodec<global::TestProject.MyCompoundTypeAliasBaseClass>, global::Forkleans.Serialization.Serializers.IBaseCodec<global::TestProject.MyCompoundTypeAliasBaseClass>
     {
         private readonly global::System.Type _codecFieldType = typeof(global::TestProject.MyCompoundTypeAliasBaseClass);
@@ -78,7 +78,7 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Copier_MyCompoundTypeAliasBaseClass : global::Forkleans.Serialization.Cloning.IDeepCopier<global::TestProject.MyCompoundTypeAliasBaseClass>, global::Forkleans.Serialization.Cloning.IBaseCopier<global::TestProject.MyCompoundTypeAliasBaseClass>
     {
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -101,20 +101,20 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     internal sealed class Activator_MyCompoundTypeAliasBaseClass : global::Forkleans.Serialization.Activators.IActivator<global::TestProject.MyCompoundTypeAliasBaseClass>
     {
         public global::TestProject.MyCompoundTypeAliasBaseClass Create() => new global::TestProject.MyCompoundTypeAliasBaseClass();
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Codec_MyCompoundTypeAliasClass : global::Forkleans.Serialization.Codecs.IFieldCodec<global::TestProject.MyCompoundTypeAliasClass>, global::Forkleans.Serialization.Serializers.IBaseCodec<global::TestProject.MyCompoundTypeAliasClass>
     {
         private readonly global::System.Type _codecFieldType = typeof(global::TestProject.MyCompoundTypeAliasClass);
-        private readonly OrleansCodeGen.TestProject.Codec_MyCompoundTypeAliasBaseClass _baseTypeSerializer;
+        private readonly ForkleansCodeGen.TestProject.Codec_MyCompoundTypeAliasBaseClass _baseTypeSerializer;
         public Codec_MyCompoundTypeAliasClass(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider)
         {
-            _baseTypeSerializer = OrleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Codec_MyCompoundTypeAliasBaseClass>(this, codecProvider);
+            _baseTypeSerializer = ForkleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Codec_MyCompoundTypeAliasBaseClass>(this, codecProvider);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -194,10 +194,10 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Copier_MyCompoundTypeAliasClass : global::Forkleans.Serialization.Cloning.IDeepCopier<global::TestProject.MyCompoundTypeAliasClass>, global::Forkleans.Serialization.Cloning.IBaseCopier<global::TestProject.MyCompoundTypeAliasClass>
     {
-        private readonly OrleansCodeGen.TestProject.Copier_MyCompoundTypeAliasBaseClass _baseTypeCopier;
+        private readonly ForkleansCodeGen.TestProject.Copier_MyCompoundTypeAliasBaseClass _baseTypeCopier;
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public global::TestProject.MyCompoundTypeAliasClass DeepCopy(global::TestProject.MyCompoundTypeAliasClass original, global::Forkleans.Serialization.Cloning.CopyContext context)
         {
@@ -213,7 +213,7 @@ namespace ForkleansCodeGen.TestProject
 
         public Copier_MyCompoundTypeAliasClass(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider)
         {
-            _baseTypeCopier = OrleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Copier_MyCompoundTypeAliasBaseClass>(this, codecProvider);
+            _baseTypeCopier = ForkleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Copier_MyCompoundTypeAliasBaseClass>(this, codecProvider);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -225,23 +225,23 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     internal sealed class Activator_MyCompoundTypeAliasClass : global::Forkleans.Serialization.Activators.IActivator<global::TestProject.MyCompoundTypeAliasClass>
     {
         public global::TestProject.MyCompoundTypeAliasClass Create() => new global::TestProject.MyCompoundTypeAliasClass();
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     internal sealed class Metadata_TestProject : global::Forkleans.Serialization.Configuration.TypeManifestProviderBase
     {
         protected override void ConfigureInner(global::Forkleans.Serialization.Configuration.TypeManifestOptions config)
         {
-            config.Serializers.Add(typeof(OrleansCodeGen.TestProject.Codec_MyCompoundTypeAliasBaseClass));
-            config.Serializers.Add(typeof(OrleansCodeGen.TestProject.Codec_MyCompoundTypeAliasClass));
-            config.Copiers.Add(typeof(OrleansCodeGen.TestProject.Copier_MyCompoundTypeAliasBaseClass));
-            config.Copiers.Add(typeof(OrleansCodeGen.TestProject.Copier_MyCompoundTypeAliasClass));
-            config.Activators.Add(typeof(OrleansCodeGen.TestProject.Activator_MyCompoundTypeAliasBaseClass));
-            config.Activators.Add(typeof(OrleansCodeGen.TestProject.Activator_MyCompoundTypeAliasClass));
+            config.Serializers.Add(typeof(ForkleansCodeGen.TestProject.Codec_MyCompoundTypeAliasBaseClass));
+            config.Serializers.Add(typeof(ForkleansCodeGen.TestProject.Codec_MyCompoundTypeAliasClass));
+            config.Copiers.Add(typeof(ForkleansCodeGen.TestProject.Copier_MyCompoundTypeAliasBaseClass));
+            config.Copiers.Add(typeof(ForkleansCodeGen.TestProject.Copier_MyCompoundTypeAliasClass));
+            config.Activators.Add(typeof(ForkleansCodeGen.TestProject.Activator_MyCompoundTypeAliasBaseClass));
+            config.Activators.Add(typeof(ForkleansCodeGen.TestProject.Activator_MyCompoundTypeAliasClass));
             config.WellKnownTypeAliases.Add("_custom_type_alias_", typeof(global::TestProject.MyTypeAliasClass));
             var n1 = config.CompoundTypeAliases.Add("xx_test_xx");
             var n2 = n1.Add(typeof(global::TestProject.MyTypeAliasClass));

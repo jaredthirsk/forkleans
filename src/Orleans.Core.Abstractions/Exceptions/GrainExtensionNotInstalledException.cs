@@ -8,7 +8,7 @@ namespace Forkleans.Runtime
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public sealed class GrainExtensionNotInstalledException : OrleansException
+    public sealed class GrainExtensionNotInstalledException : ForkleansException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="GrainExtensionNotInstalledException"/> class.

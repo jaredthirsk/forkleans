@@ -6,7 +6,7 @@ namespace Forkleans.Runtime.Messaging
     /// <summary>
     /// Indicates that a connection failed.
     /// </summary>
-    public class ConnectionFailedException : OrleansException
+    public class ConnectionFailedException : ForkleansException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionFailedException"/> class.

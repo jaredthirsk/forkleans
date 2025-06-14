@@ -169,7 +169,7 @@ namespace Microsoft.Extensions.Hosting
             return builder;
         }
 
-        private static OrleansConfigurationException GetOrleansClientAddedException() =>
+        private static ForkleansConfigurationException GetOrleansClientAddedException() =>
             new("Do not call both UseOrleansClient/AddOrleansClient with UseOrleans/AddForkleans. If you want a client and server in the same process, only UseOrleans/AddOrleans is necessary and the UseOrleansClient/AddOrleansClient call can be removed.");
     }
 }

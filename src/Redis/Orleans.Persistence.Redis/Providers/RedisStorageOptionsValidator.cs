@@ -17,7 +17,7 @@ namespace Forkleans.Persistence
         {
             if (_options.ConfigurationOptions == null)
             {
-                throw new OrleansConfigurationException($"Invalid configuration for {nameof(RedisGrainStorage)} with name {_name}. {nameof(RedisStorageOptions)}.{nameof(_options.ConfigurationOptions)} is required.");
+                throw new ForkleansConfigurationException($"Invalid configuration for {nameof(RedisGrainStorage)} with name {_name}. {nameof(RedisStorageOptions)}.{nameof(_options.ConfigurationOptions)} is required.");
             }
         }
     }

@@ -66,9 +66,9 @@ namespace Forkleans.Hosting
 
 namespace Forkleans.Persistence.AdoNet.Storage
 {
-    public partial class OrleansRelationalDownloadStream : System.IO.Stream
+    public partial class ForkleansRelationalDownloadStream : System.IO.Stream
     {
-        public OrleansRelationalDownloadStream(System.Data.Common.DbDataReader reader, int ordinal) { }
+        public ForkleansRelationalDownloadStream(System.Data.Common.DbDataReader reader, int ordinal) { }
 
         public override bool CanRead { get { throw null; } }
 
@@ -152,7 +152,7 @@ namespace Forkleans.Storage
         public IHasher PickHasher<T>(string serviceId, string storageProviderInstanceName, string grainType, Runtime.GrainId grainId, IGrainState<T> grainState, string tag = null) { throw null; }
     }
 
-    public sealed partial class OrleansDefaultHasher : IHasher
+    public sealed partial class ForkleansDefaultHasher : IHasher
     {
         public string Description { get { throw null; } }
 

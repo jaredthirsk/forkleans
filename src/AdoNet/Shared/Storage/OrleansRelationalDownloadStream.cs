@@ -26,7 +26,7 @@ namespace Forkleans.Tests.SqlUtils
     /// This is a chunked read implementation for ADO.NET providers which do
     /// not otherwise implement <see cref="DbDataReader.GetStream(int)"/> natively.
     /// </summary>
-    public class OrleansRelationalDownloadStream : Stream
+    public class ForkleansRelationalDownloadStream : Stream
     {
         /// <summary>
         /// A cached task as if there are multiple rounds of reads, it is likely
@@ -62,11 +62,11 @@ namespace Forkleans.Tests.SqlUtils
         private const int InternalReadBufferLength = 4092;
 
         /// <summary>
-        /// Initializes a new <see cref="OrleansRelationalDownloadStream"/> instance.
+        /// Initializes a new <see cref="ForkleansRelationalDownloadStream"/> instance.
         /// </summary>
         /// <param name="reader">The reader to use to read from the database.</param>
         /// <param name="ordinal">The column ordinal to read from.</param>
-        public OrleansRelationalDownloadStream(DbDataReader reader, int ordinal)
+        public ForkleansRelationalDownloadStream(DbDataReader reader, int ordinal)
         {
             _reader = reader;
             _ordinal = ordinal;

@@ -149,7 +149,7 @@ namespace UnitTests.Grains
                 else
                 {
                     //var reminders = await this.GetRemindersList();
-                    throw new OrleansException(string.Format(
+                    throw new ForkleansException(string.Format(
                         "Could not find reminder {0} in grain {1}", reminderName, this.IdentityString));
                 }
             }

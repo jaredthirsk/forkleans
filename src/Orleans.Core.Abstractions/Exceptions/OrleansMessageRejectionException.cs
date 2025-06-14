@@ -8,21 +8,21 @@ namespace Forkleans.Runtime
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public class OrleansMessageRejectionException : OrleansException
+    public class ForkleansMessageRejectionException : ForkleansException
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="OrleansMessageRejectionException"/> class.
+        /// Initializes a new instance of the <see cref="ForkleansMessageRejectionException"/> class.
         /// </summary>
         /// <param name="message">
         /// The message.
         /// </param>
-        internal OrleansMessageRejectionException(string message)
+        internal ForkleansMessageRejectionException(string message)
             : base(message)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OrleansMessageRejectionException"/> class.
+        /// Initializes a new instance of the <see cref="ForkleansMessageRejectionException"/> class.
         /// </summary>
         /// <param name="message">
         /// The message.
@@ -30,13 +30,13 @@ namespace Forkleans.Runtime
         /// <param name="innerException">
         /// The inner exception.
         /// </param>
-        internal OrleansMessageRejectionException(string message, Exception innerException)
+        internal ForkleansMessageRejectionException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OrleansMessageRejectionException"/> class. 
+        /// Initializes a new instance of the <see cref="ForkleansMessageRejectionException"/> class. 
         /// </summary>
         /// <param name="info">
         /// The serialization info.
@@ -51,7 +51,7 @@ namespace Forkleans.Runtime
         /// <paramref name="info"/> is <see langword="null"/>.
         /// </exception>
         [Obsolete]
-        protected OrleansMessageRejectionException(SerializationInfo info, StreamingContext context)
+        protected ForkleansMessageRejectionException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

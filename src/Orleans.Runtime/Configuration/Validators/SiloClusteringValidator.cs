@@ -25,7 +25,7 @@ namespace Forkleans.Runtime.Configuration
             var clusteringTableProvider = this.serviceProvider.GetService<IMembershipTable>();
             if (clusteringTableProvider == null)
             {
-                throw new OrleansConfigurationException(ClientClusteringValidator.ClusteringNotConfigured);
+                throw new ForkleansConfigurationException(ClientClusteringValidator.ClusteringNotConfigured);
             }
 
             var clusterMembershipOptions = this.serviceProvider.GetRequiredService<IOptions<ClusterMembershipOptions>>().Value;
@@ -33,12 +33,12 @@ namespace Forkleans.Runtime.Configuration
             {
                 if (clusterMembershipOptions.NumVotesForDeathDeclaration > clusterMembershipOptions.NumProbedSilos)
                 {
-                    throw new OrleansConfigurationException($"{nameof(ClusterMembershipOptions)}.{nameof(ClusterMembershipOptions.NumVotesForDeathDeclaration)} ({clusterMembershipOptions.NumVotesForDeathDeclaration}) must be less than or equal to {nameof(ClusterMembershipOptions)}.{nameof(ClusterMembershipOptions.NumProbedSilos)} ({clusterMembershipOptions.NumProbedSilos}).");
+                    throw new ForkleansConfigurationException($"{nameof(ClusterMembershipOptions)}.{nameof(ClusterMembershipOptions.NumVotesForDeathDeclaration)} ({clusterMembershipOptions.NumVotesForDeathDeclaration}) must be less than or equal to {nameof(ClusterMembershipOptions)}.{nameof(ClusterMembershipOptions.NumProbedSilos)} ({clusterMembershipOptions.NumProbedSilos}).");
                 }
 
                 if (clusterMembershipOptions.NumVotesForDeathDeclaration <= 0)
                 {
-                    throw new OrleansConfigurationException($"{nameof(ClusterMembershipOptions)}.{nameof(ClusterMembershipOptions.NumVotesForDeathDeclaration)} ({clusterMembershipOptions.NumVotesForDeathDeclaration}) must be greater than 0.");
+                    throw new ForkleansConfigurationException($"{nameof(ClusterMembershipOptions)}.{nameof(ClusterMembershipOptions.NumVotesForDeathDeclaration)} ({clusterMembershipOptions.NumVotesForDeathDeclaration}) must be greater than 0.");
                 }
             }
         }

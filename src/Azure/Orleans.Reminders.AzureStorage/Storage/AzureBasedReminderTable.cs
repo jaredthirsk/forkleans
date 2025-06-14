@@ -119,7 +119,7 @@ namespace Forkleans.Runtime.ReminderService
                 if (!tableEntry.ServiceId.Equals(serviceIdStr))
                 {
                     LogWarningAzureTable_ReadWrongReminder(tableEntry, serviceIdStr);
-                    throw new OrleansException($"Read a reminder entry for wrong Service id. Read {tableEntry}, but my service id is {serviceIdStr}. Going to discard it.");
+                    throw new ForkleansException($"Read a reminder entry for wrong Service id. Read {tableEntry}, but my service id is {serviceIdStr}. Going to discard it.");
                 }
             }
         }

@@ -9,10 +9,10 @@ namespace Forkleans.Storage
     /// </summary>
     internal class Orleans3CompatibleStringKeyHasher : IHasher
     {
-        private readonly Orleans3CompatibleHasher _innerHasher;
+        private readonly Forkleans3CompatibleHasher _innerHasher;
         private readonly string _grainType;
 
-        public Orleans3CompatibleStringKeyHasher(Orleans3CompatibleHasher innerHasher, string grainType)
+        public Orleans3CompatibleStringKeyHasher(Forkleans3CompatibleHasher innerHasher, string grainType)
         {
             _innerHasher = innerHasher;
             _grainType = grainType;

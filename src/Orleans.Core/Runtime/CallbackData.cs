@@ -195,7 +195,7 @@ namespace Forkleans.Runtime
                 }
                 else
                 {
-                    exception = rejection?.Exception ?? new OrleansMessageRejectionException(rejection?.RejectionInfo ?? "Unable to send request - no rejection info available");
+                    exception = rejection?.Exception ?? new ForkleansMessageRejectionException(rejection?.RejectionInfo ?? "Unable to send request - no rejection info available");
                 }
 
                 context.Complete(Response.FromException(exception));

@@ -122,7 +122,7 @@ namespace Forkleans.GrainDirectory.AzureStorage
         {
             if (CreateClient is null)
             {
-                throw new OrleansConfigurationException($"No credentials specified. Use the {GetType().Name}.{nameof(ConfigureTableServiceClient)} method to configure the Azure Table Service client.");
+                throw new ForkleansConfigurationException($"No credentials specified. Use the {GetType().Name}.{nameof(ConfigureTableServiceClient)} method to configure the Azure Table Service client.");
             }
 
             try
@@ -135,7 +135,7 @@ namespace Forkleans.GrainDirectory.AzureStorage
             }
 
             Exception GetException(string message, Exception inner = null) =>
-                new OrleansConfigurationException($"Configuration for {GetType().Name} {name} is invalid. {message}", inner);
+                new ForkleansConfigurationException($"Configuration for {GetType().Name} {name} is invalid. {message}", inner);
         }
     }
 

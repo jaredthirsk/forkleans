@@ -8,7 +8,7 @@ namespace Forkleans.Runtime
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public sealed class OrleansLifecycleCanceledException : OrleansException
+    public sealed class OrleansLifecycleCanceledException : ForkleansException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="OrleansLifecycleCanceledException"/> class.

@@ -70,7 +70,7 @@ namespace Forkleans.Transactions
                     return new OrleansTransactionInDoubtException(transactionId, $"transaction agent timed out waiting for read-only transaction participant responses ({status})", exception);
 
                 case TransactionalStatus.CommitFailure:
-                    return new OrleansTransactionAbortedException(transactionId, $"Unable to commit transaction ({status})", exception);
+                    return new ForkleansTransactionAbortedException(transactionId, $"Unable to commit transaction ({status})", exception);
 
                 default:
                     return new OrleansTransactionInDoubtException(transactionId, $"failure during transaction commit, status={status}", exception);

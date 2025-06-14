@@ -379,7 +379,7 @@ namespace Forkleans.Runtime.GrainDirectory
             if (hopCount >= HOP_LIMIT)
             {
                 // we are not forwarding because there were too many hops already
-                throw new OrleansException($"Silo {MyAddress} is not owner of {grainId}, cannot forward {operationDescription} to owner {owner} because hop limit is reached");
+                throw new ForkleansException($"Silo {MyAddress} is not owner of {grainId}, cannot forward {operationDescription} to owner {owner} because hop limit is reached");
             }
 
             // forward to the silo that we think is the owner
@@ -694,7 +694,7 @@ namespace Forkleans.Runtime.GrainDirectory
                 // Just a optimization. Why sending a message to someone we know is not valid.
                 if (!IsValidSilo(forwardAddress))
                 {
-                    throw new OrleansException($"Current directory at {MyAddress} is not stable to perform the lookup for grainId {grainId} (it maps to {forwardAddress}, which is not a valid silo). Retry later.");
+                    throw new ForkleansException($"Current directory at {MyAddress} is not stable to perform the lookup for grainId {grainId} (it maps to {forwardAddress}, which is not a valid silo). Retry later.");
                 }
 
                 DirectoryInstruments.LookupsRemoteSent.Add(1);

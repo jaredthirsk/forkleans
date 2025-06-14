@@ -496,10 +496,10 @@ namespace Forkleans.Serialization.UnitTests
 
             public SubTypeSerializer(IBaseCodec<BaseType> baseTypeSerializer, IFieldCodec<string> stringCodec, IFieldCodec<int> intCodec, IFieldCodec<object> objectCodec)
             {
-                _baseTypeSerializer = OrleansGeneratedCodeHelper.UnwrapService(this, baseTypeSerializer);
-                _stringCodec = OrleansGeneratedCodeHelper.UnwrapService(this, stringCodec);
-                _intCodec = OrleansGeneratedCodeHelper.UnwrapService(this, intCodec);
-                _objectCodec = OrleansGeneratedCodeHelper.UnwrapService(this, objectCodec);
+                _baseTypeSerializer = ForkleansGeneratedCodeHelper.UnwrapService(this, baseTypeSerializer);
+                _stringCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, stringCodec);
+                _intCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, intCodec);
+                _objectCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, objectCodec);
             }
 
             public void Serialize<TBufferWriter>(ref Writer<TBufferWriter> writer, SubType obj) where TBufferWriter : IBufferWriter<byte>

@@ -171,7 +171,7 @@ namespace Forkleans.Hosting
 
 namespace ForkleansCodeGen.Forkleans.BroadcastChannel
 {
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_ChannelId : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.BroadcastChannel.ChannelId>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IValueSerializer<global::Forkleans.BroadcastChannel.ChannelId>, global::Forkleans.Serialization.Serializers.IValueSerializer

@@ -14,7 +14,7 @@ namespace Forkleans.Runtime.Membership
         private readonly ILogger _logger;
         private readonly string _clusterId;
         private readonly AdoNetClusteringClientOptions _options;
-        private RelationalOrleansQueries _orleansQueries;
+        private RelationalForkleansQueries _orleansQueries;
         private readonly IServiceProvider _serviceProvider;
         private readonly TimeSpan _maxStaleness;
 
@@ -45,7 +45,7 @@ namespace Forkleans.Runtime.Membership
         public async Task InitializeGatewayListProvider()
         {
             LogTraceInitializeGatewayListProvider();
-            _orleansQueries = await RelationalOrleansQueries.CreateInstance(_options.Invariant, _options.ConnectionString);
+            _orleansQueries = await RelationalForkleansQueries.CreateInstance(_options.Invariant, _options.ConnectionString);
         }
 
         public async Task<IList<Uri>> GetGateways()

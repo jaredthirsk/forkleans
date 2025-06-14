@@ -143,16 +143,16 @@ internal sealed class ActivationRepartitionerOptionsValidator(IOptions<Activatio
 
         if (_options.ProbabilisticFilteringMaxAllowedErrorRate < 0.001d || _options.ProbabilisticFilteringMaxAllowedErrorRate > 0.01d)
         {
-            throw new OrleansConfigurationException($"{nameof(ActivationRepartitionerOptions.ProbabilisticFilteringMaxAllowedErrorRate)} must be inclusive between [0.001 - 0.01](0.1% - 1%)");
+            throw new ForkleansConfigurationException($"{nameof(ActivationRepartitionerOptions.ProbabilisticFilteringMaxAllowedErrorRate)} must be inclusive between [0.001 - 0.01](0.1% - 1%)");
         }
     }
 
     private static void ThrowMustBeGreaterThanOrEqualToZero(string propertyName)
-        => throw new OrleansConfigurationException($"{propertyName} must be greater than or equal to 0.");
+        => throw new ForkleansConfigurationException($"{propertyName} must be greater than or equal to 0.");
 
     private static void ThrowMustBeGreaterThanZero(string propertyName)
-        => throw new OrleansConfigurationException($"{propertyName} must be greater than 0.");
+        => throw new ForkleansConfigurationException($"{propertyName} must be greater than 0.");
 
     private static void ThrowMustBeGreaterThanOrEqualTo(string name1, string name2)
-        => throw new OrleansConfigurationException($"{name1} must be greater than or equal to {name2}.");
+        => throw new ForkleansConfigurationException($"{name1} must be greater than or equal to {name2}.");
 }

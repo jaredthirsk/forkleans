@@ -60,7 +60,7 @@ namespace Forkleans.Configuration
     public partial class AzureTableStorageOptions : Persistence.AzureStorage.AzureStorageOperationOptions, Storage.IStorageProviderSerializerOptions
     {
         public const int DEFAULT_INIT_STAGE = 10000;
-        public const string DEFAULT_TABLE_NAME = "OrleansGrainState";
+        public const string DEFAULT_TABLE_NAME = "ForkleansGrainState";
         public bool DeleteStateOnClear { get { throw null; } set { } }
 
         public Storage.IGrainStorageSerializer GrainStorageSerializer { get { throw null; } set { } }
@@ -247,7 +247,7 @@ namespace Forkleans.Storage
 
 namespace ForkleansCodeGen.Forkleans.Storage
 {
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_TableStorageUpdateConditionNotSatisfiedException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Storage.TableStorageUpdateConditionNotSatisfiedException>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Storage.TableStorageUpdateConditionNotSatisfiedException>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -265,10 +265,10 @@ namespace ForkleansCodeGen.Forkleans.Storage
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_TableStorageUpdateConditionNotSatisfiedException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Storage.TableStorageUpdateConditionNotSatisfiedException, global::Forkleans.Storage.InconsistentStateException>
+    public sealed partial class Copier_TableStorageUpdateConditionNotSatisfiedException : global::Forkleans.Serialization.GeneratedCodeHelpers.ForkleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Storage.TableStorageUpdateConditionNotSatisfiedException, global::Forkleans.Storage.InconsistentStateException>
     {
         public Copier_TableStorageUpdateConditionNotSatisfiedException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
 

@@ -12,29 +12,29 @@ namespace Forkleans.Runtime
     /// </remarks>
     [Serializable]
     [GenerateSerializer]
-    public class OrleansException : Exception
+    public class ForkleansException : Exception
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="OrleansException"/> class.
+        /// Initializes a new instance of the <see cref="ForkleansException"/> class.
         /// </summary>
-        public OrleansException()
+        public ForkleansException()
             : base("Unexpected error.")
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OrleansException"/> class.
+        /// Initializes a new instance of the <see cref="ForkleansException"/> class.
         /// </summary>
         /// <param name="message">
         /// The message.
         /// </param>
-        public OrleansException(string message)
+        public ForkleansException(string message)
             : base(message)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OrleansException"/> class.
+        /// Initializes a new instance of the <see cref="ForkleansException"/> class.
         /// </summary>
         /// <param name="message">
         /// The message.
@@ -42,13 +42,13 @@ namespace Forkleans.Runtime
         /// <param name="innerException">
         /// The inner exception.
         /// </param>
-        public OrleansException(string message, Exception innerException)
+        public ForkleansException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OrleansException"/> class.
+        /// Initializes a new instance of the <see cref="ForkleansException"/> class.
         /// </summary>
         /// <param name="info">
         /// The serialization info.
@@ -59,7 +59,7 @@ namespace Forkleans.Runtime
         /// <exception cref="SerializationException">The class name is <see langword="null" /> or <see cref="P:System.Exception.HResult" /> is zero (0).</exception>
         /// <exception cref="ArgumentNullException"><paramref name="info" /> is <see langword="null" />.</exception>
         [Obsolete]
-        protected OrleansException(SerializationInfo info, StreamingContext context)
+        protected ForkleansException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

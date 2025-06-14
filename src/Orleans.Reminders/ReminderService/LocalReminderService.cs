@@ -339,7 +339,7 @@ namespace Forkleans.Runtime.ReminderService
                 else
                 {
                     LogErrorInitialLoadFailed(ex, initialReadCallCount);
-                    startedTask.TrySetException(new OrleansException("ReminderService failed initial load of reminders and cannot guarantee that the service will be eventually start without manual intervention or restarting the silo.", ex));
+                    startedTask.TrySetException(new ForkleansException("ReminderService failed initial load of reminders and cannot guarantee that the service will be eventually start without manual intervention or restarting the silo.", ex));
                 }
             }
         }
@@ -508,7 +508,7 @@ namespace Forkleans.Runtime.ReminderService
                             }
                             catch (TimeoutException ex)
                             {
-                                throw new OrleansException("Reminder Service is still initializing and it is taking a long time. Please retry again later.", ex);
+                                throw new ForkleansException("Reminder Service is still initializing and it is taking a long time. Please retry again later.", ex);
                             }
                             CheckRange();
                         }

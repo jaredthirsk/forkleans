@@ -7,15 +7,15 @@ namespace Forkleans.Storage
     /// <summary>
     /// Grain storage serializer that uses the Orleans <see cref="Serializer"/>.
     /// </summary>
-    public class OrleansGrainStorageSerializer : IGrainStorageSerializer
+    public class ForkleansGrainStorageSerializer : IGrainStorageSerializer
     {
         private readonly Serializer serializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OrleansGrainStorageSerializer"/> class.
+        /// Initializes a new instance of the <see cref="ForkleansGrainStorageSerializer"/> class.
         /// </summary>
         /// <param name="serializer">The serializer.</param>
-        public OrleansGrainStorageSerializer(Serializer serializer)
+        public ForkleansGrainStorageSerializer(Serializer serializer)
         {
             this.serializer = serializer;
         }

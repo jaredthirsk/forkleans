@@ -9,7 +9,7 @@ namespace Forkleans.Runtime
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    internal sealed class InvalidSchedulingContextException : OrleansException
+    internal sealed class InvalidSchedulingContextException : ForkleansException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidSchedulingContextException"/> class.

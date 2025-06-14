@@ -475,7 +475,7 @@ namespace Forkleans.Serialization.Serializers
 
         private object GetServiceOrCreateInstance(Type type, object[] constructorArguments = null)
         {
-            var result = OrleansGeneratedCodeHelper.TryGetService(type);
+            var result = ForkleansGeneratedCodeHelper.TryGetService(type);
             if (result != null)
             {
                 return result;

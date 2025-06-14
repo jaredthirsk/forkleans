@@ -152,44 +152,44 @@ internal sealed class ActivationRebalancerOptionsValidator(
     {
         if (_options.SessionCyclePeriod < 2 * _publisherOptions.DeploymentLoadPublisherRefreshTime)
         {
-            throw new OrleansConfigurationException(
+            throw new ForkleansConfigurationException(
                 $"{nameof(ActivationRebalancerOptions.SessionCyclePeriod)} must be at least " +
                 $"{$"2 x {nameof(DeploymentLoadPublisherOptions.DeploymentLoadPublisherRefreshTime)}"}");
         }
 
         if (_options.MaxStagnantCycles <= 0)
         {
-            throw new OrleansConfigurationException($"{nameof(ActivationRebalancerOptions.MaxStagnantCycles)} must be greater than 0");
+            throw new ForkleansConfigurationException($"{nameof(ActivationRebalancerOptions.MaxStagnantCycles)} must be greater than 0");
         }
 
         if (_options.EntropyQuantum <= 0d || _options.EntropyQuantum > 0.1d)
         {
-            throw new OrleansConfigurationException($"{nameof(ActivationRebalancerOptions.EntropyQuantum)} must be in greater than 0, and less or equal 0.1");
+            throw new ForkleansConfigurationException($"{nameof(ActivationRebalancerOptions.EntropyQuantum)} must be in greater than 0, and less or equal 0.1");
         }
 
         if (_options.AllowedEntropyDeviation <= 0d || _options.AllowedEntropyDeviation > 0.1d)
         {
-            throw new OrleansConfigurationException($"{nameof(ActivationRebalancerOptions.AllowedEntropyDeviation)} must be in greater than 0, and less or equal 0.1");
+            throw new ForkleansConfigurationException($"{nameof(ActivationRebalancerOptions.AllowedEntropyDeviation)} must be in greater than 0, and less or equal 0.1");
         }
 
         if (_options.CycleNumberWeight <= 0d || _options.CycleNumberWeight > 1d)
         {
-            throw new OrleansConfigurationException($"{nameof(ActivationRebalancerOptions.CycleNumberWeight)} must be in greater than 0, and less or equal to 1");
+            throw new ForkleansConfigurationException($"{nameof(ActivationRebalancerOptions.CycleNumberWeight)} must be in greater than 0, and less or equal to 1");
         }
 
         if (_options.SiloNumberWeight < 0d || _options.SiloNumberWeight > 1d)
         {
-            throw new OrleansConfigurationException($"{nameof(ActivationRebalancerOptions.SiloNumberWeight)} must be in greater than or equal to 0, and less or equal to 1");
+            throw new ForkleansConfigurationException($"{nameof(ActivationRebalancerOptions.SiloNumberWeight)} must be in greater than or equal to 0, and less or equal to 1");
         }
 
         if (_options.ActivationMigrationCountLimit < 1)
         {
-            throw new OrleansConfigurationException($"{nameof(ActivationRebalancerOptions.ActivationMigrationCountLimit)} must be greater than 0");
+            throw new ForkleansConfigurationException($"{nameof(ActivationRebalancerOptions.ActivationMigrationCountLimit)} must be greater than 0");
         }
 
         if (_options.ScaledEntropyDeviationActivationThreshold < 1_000)
         {
-            throw new OrleansConfigurationException($"{nameof(ActivationRebalancerOptions.ScaledEntropyDeviationActivationThreshold)} must be greater than or equal to 1000");
+            throw new ForkleansConfigurationException($"{nameof(ActivationRebalancerOptions.ScaledEntropyDeviationActivationThreshold)} must be greater than or equal to 1000");
         }
     }
 }

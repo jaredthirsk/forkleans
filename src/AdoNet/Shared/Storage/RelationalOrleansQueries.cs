@@ -29,7 +29,7 @@ namespace Forkleans.Tests.SqlUtils
     /// <summary>
     /// A class for all relational storages that support all systems stores : membership, reminders and statistics
     /// </summary>
-    internal class RelationalOrleansQueries
+    internal class RelationalForkleansQueries
     {
         /// <summary>
         /// the underlying storage
@@ -56,25 +56,25 @@ namespace Forkleans.Tests.SqlUtils
         /// </summary>
         /// <param name="storage">the underlying relational storage</param>
         /// <param name="dbStoredQueries">Orleans functional queries</param>
-        private RelationalOrleansQueries(IRelationalStorage storage, DbStoredQueries dbStoredQueries)
+        private RelationalForkleansQueries(IRelationalStorage storage, DbStoredQueries dbStoredQueries)
         {
             this.storage = storage;
             this.dbStoredQueries = dbStoredQueries;
         }
 
         /// <summary>
-        /// Creates an instance of a database of type <see cref="RelationalOrleansQueries"/> and Initializes Orleans queries from the database.
+        /// Creates an instance of a database of type <see cref="RelationalForkleansQueries"/> and Initializes Orleans queries from the database.
         /// Orleans uses only these queries and the variables therein, nothing more.
         /// </summary>
         /// <param name="invariantName">The invariant name of the connector for this database.</param>
         /// <param name="connectionString">The connection string this database should use for database operations.</param>
-        internal static async Task<RelationalOrleansQueries> CreateInstance(string invariantName, string connectionString)
+        internal static async Task<RelationalForkleansQueries> CreateInstance(string invariantName, string connectionString)
         {
             var storage = RelationalStorage.CreateInstance(invariantName, connectionString);
 
             var queries = await storage.ReadAsync(DbStoredQueries.GetQueriesKey, DbStoredQueries.Converters.GetQueryKeyAndValue, null);
 
-            return new RelationalOrleansQueries(storage, new DbStoredQueries(queries.ToDictionary(q => q.Key, q => q.Value)));
+            return new RelationalForkleansQueries(storage, new DbStoredQueries(queries.ToDictionary(q => q.Key, q => q.Value)));
         }
 
         private Task ExecuteAsync(string query, Func<IDbCommand, DbStoredQueries.Columns> parameterProvider)

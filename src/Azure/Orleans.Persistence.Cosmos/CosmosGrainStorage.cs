@@ -340,7 +340,7 @@ public sealed partial class CosmosGrainStorage : IGrainStorage, ILifecyclePartic
                 _partitionKeyPath = container.PartitionKeyPath;
                 if (_partitionKeyPath == GRAINTYPE_PARTITION_KEY_PATH &&
                     _partitionKeyProvider is not DefaultPartitionKeyProvider)
-                    throw new OrleansConfigurationException("Custom partition key provider is not compatible with partition key path set to /GrainType");
+                    throw new ForkleansConfigurationException("Custom partition key provider is not compatible with partition key path set to /GrainType");
             }
 
             if (retry == maxRetries || dbResponse.StatusCode != HttpStatusCode.Created || containerResponse.StatusCode == HttpStatusCode.Created)

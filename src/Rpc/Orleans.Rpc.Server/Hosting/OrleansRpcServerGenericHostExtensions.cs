@@ -66,7 +66,7 @@ namespace Microsoft.Extensions.Hosting
 
             if (hostBuilder.Properties.ContainsKey("HasOrleansClientBuilder") || hostBuilder.Properties.ContainsKey("HasOrleansSiloBuilder"))
             {
-                throw new OrleansConfigurationException("Cannot use UseOrleansRpc with UseOrleans or UseOrleansClient. Orleans RPC is a separate, non-clustered implementation.");
+                throw new ForkleansConfigurationException("Cannot use UseOrleansRpc with UseOrleans or UseOrleansClient. Orleans RPC is a separate, non-clustered implementation.");
             }
 
             hostBuilder.Properties["HasOrleansRpcServerBuilder"] = "true";
@@ -107,7 +107,7 @@ namespace Microsoft.Extensions.Hosting
                 }
                 else
                 {
-                    throw new OrleansConfigurationException("Cannot mix Orleans RPC with standard Orleans client/silo configuration.");
+                    throw new ForkleansConfigurationException("Cannot mix Orleans RPC with standard Orleans client/silo configuration.");
                 }
             }
 

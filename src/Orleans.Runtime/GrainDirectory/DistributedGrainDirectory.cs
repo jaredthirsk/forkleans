@@ -168,7 +168,7 @@ internal sealed partial class DistributedGrainDirectory : SystemTarget, IGrainDi
                 RequestContext.Set("gid", partitionReference.GetGrainId());
                 invokeResult = await func(partitionReference, view.Version, state, cancellationToken);
             }
-            catch (OrleansMessageRejectionException) when (attempts < MaxAttempts && !cancellationToken.IsCancellationRequested)
+            catch (ForkleansMessageRejectionException) when (attempts < MaxAttempts && !cancellationToken.IsCancellationRequested)
             {
                 // This likely indicates that the target silo has been declared dead.
                 ++attempts;

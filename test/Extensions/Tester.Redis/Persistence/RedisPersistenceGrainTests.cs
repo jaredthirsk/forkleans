@@ -64,7 +64,7 @@ namespace Tester.Redis.Persistence
             {
                 this.fixture = fixture;
             }
-            catch(OrleansConfigurationException) { }
+            catch(ForkleansConfigurationException) { }
 
             this.fixture.EnsurePreconditionsMet();
 

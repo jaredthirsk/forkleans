@@ -114,7 +114,7 @@ namespace Forkleans.Transactions.TestKit.Consistency
                     }
 
                 }
-                catch (OrleansTransactionAbortedException e)
+                catch (ForkleansTransactionAbortedException e)
                 {
                     output($"{partition}.{i} g{target} -> aborted {e.GetType().Name} {e.InnerException} {e.TransactionId}");
                     lock (aborted)
@@ -131,7 +131,7 @@ namespace Forkleans.Transactions.TestKit.Consistency
                     output($"{partition}.{i} g{target} -> timeout");
                     timeoutsOccurred = true;
                 }
-                catch (OrleansException o)
+                catch (ForkleansException o)
                 {
                     if (o.InnerException is RandomlyInjectedStorageException)
                         output($"{partition}.{i} g{target} -> injected fault");

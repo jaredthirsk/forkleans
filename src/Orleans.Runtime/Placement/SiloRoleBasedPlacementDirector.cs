@@ -27,7 +27,7 @@ namespace Forkleans.Runtime.Placement
 
             if (compatibleSilos == null || compatibleSilos.Length == 0)
             {
-                throw new OrleansException($"Cannot place grain with RoleName {siloRole}. Either Role name is invalid or there are no active silos with type {siloRole} in MembershipTableSnapshot registered yet.");
+                throw new ForkleansException($"Cannot place grain with RoleName {siloRole}. Either Role name is invalid or there are no active silos with type {siloRole} in MembershipTableSnapshot registered yet.");
             }
 
             // If a valid placement hint was specified, use it.

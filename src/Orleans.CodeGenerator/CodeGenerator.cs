@@ -29,7 +29,7 @@ namespace Forkleans.CodeGenerator
 
     public class CodeGenerator
     {
-        internal const string CodeGeneratorName = "OrleansCodeGen";
+        internal const string CodeGeneratorName = "ForkleansCodeGen";
         private readonly Dictionary<string, List<MemberDeclarationSyntax>> _namespacedMembers = new();
         private readonly Dictionary<InvokableMethodId, InvokableMethodDescription> _invokableMethodDescriptions = new();
         private readonly HashSet<INamedTypeSymbol> _visitedInterfaces = new(SymbolEqualityComparer.Default);

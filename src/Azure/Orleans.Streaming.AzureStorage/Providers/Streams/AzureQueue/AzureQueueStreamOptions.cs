@@ -133,11 +133,11 @@ namespace Forkleans.Configuration
         {
             if (this.options.CreateClient is null)
             {
-                throw new OrleansConfigurationException($"No credentials specified. Use the {options.GetType().Name}.{nameof(AzureQueueOptions.ConfigureQueueServiceClient)} method to configure the Azure Queue Service client.");
+                throw new ForkleansConfigurationException($"No credentials specified. Use the {options.GetType().Name}.{nameof(AzureQueueOptions.ConfigureQueueServiceClient)} method to configure the Azure Queue Service client.");
             }
 
             if (options.QueueNames == null || options.QueueNames.Count == 0)
-                throw new OrleansConfigurationException(
+                throw new ForkleansConfigurationException(
                     $"{nameof(AzureQueueOptions)} on stream provider {this.name} is invalid. {nameof(AzureQueueOptions.QueueNames)} is invalid");
         }
 

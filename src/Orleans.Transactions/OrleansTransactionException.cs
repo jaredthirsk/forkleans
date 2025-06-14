@@ -9,7 +9,7 @@ namespace Forkleans.Transactions
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public class OrleansTransactionException : OrleansException
+    public class OrleansTransactionException : ForkleansException
     {
         public OrleansTransactionException() : base("Orleans transaction error.") { }
 
@@ -121,7 +121,7 @@ namespace Forkleans.Transactions
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public class OrleansTransactionAbortedException : OrleansTransactionException
+    public class ForkleansTransactionAbortedException : OrleansTransactionException
     {
         /// <summary>
         /// The unique identifier of the aborted transaction.
@@ -129,24 +129,24 @@ namespace Forkleans.Transactions
         [Id(0)]
         public string TransactionId { get; private set; }
  
-        public OrleansTransactionAbortedException(string transactionId, string msg, Exception innerException) : base(msg, innerException)
+        public ForkleansTransactionAbortedException(string transactionId, string msg, Exception innerException) : base(msg, innerException)
         {
             this.TransactionId = transactionId;
         }
 
-        public OrleansTransactionAbortedException(string transactionId, string msg) : base(msg)
+        public ForkleansTransactionAbortedException(string transactionId, string msg) : base(msg)
         {
             this.TransactionId = transactionId;
         }
 
-        public OrleansTransactionAbortedException(string transactionId, Exception innerException)
+        public ForkleansTransactionAbortedException(string transactionId, Exception innerException)
             : base($"Transaction {transactionId} Aborted because of an unhandled exception in a grain method call. See InnerException for details.", innerException)
         {
             TransactionId = transactionId;
         }
 
         [Obsolete]
-        protected OrleansTransactionAbortedException(SerializationInfo info, StreamingContext context)
+        protected ForkleansTransactionAbortedException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             this.TransactionId = info.GetString(nameof(this.TransactionId));
@@ -206,7 +206,7 @@ namespace Forkleans.Transactions
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public sealed class OrleansOrphanCallException : OrleansTransactionAbortedException
+    public sealed class OrleansOrphanCallException : ForkleansTransactionAbortedException
     {
         public OrleansOrphanCallException(string transactionId, int pendingCalls)
             : base(
@@ -227,7 +227,7 @@ namespace Forkleans.Transactions
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public sealed class OrleansReadOnlyViolatedException : OrleansTransactionAbortedException
+    public sealed class OrleansReadOnlyViolatedException : ForkleansTransactionAbortedException
     {
         public OrleansReadOnlyViolatedException(string transactionId)
             : base(transactionId, string.Format("Transaction {0} aborted because it attempted to write a grain", transactionId))
@@ -324,7 +324,7 @@ namespace Forkleans.Transactions
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public class OrleansTransactionTransientFailureException : OrleansTransactionAbortedException
+    public class OrleansTransactionTransientFailureException : ForkleansTransactionAbortedException
     {
         public OrleansTransactionTransientFailureException(string transactionId, string msg, Exception innerException)
             : base(transactionId, msg, innerException)

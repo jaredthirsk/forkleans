@@ -98,7 +98,7 @@ namespace Forkleans.Persistence.Redis
 
 namespace ForkleansCodeGen.Forkleans.Persistence.Redis
 {
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_RedisStorageException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Persistence.Redis.RedisStorageException>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Persistence.Redis.RedisStorageException>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -116,10 +116,10 @@ namespace ForkleansCodeGen.Forkleans.Persistence.Redis
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_RedisStorageException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Persistence.Redis.RedisStorageException, System.Exception>
+    public sealed partial class Copier_RedisStorageException : global::Forkleans.Serialization.GeneratedCodeHelpers.ForkleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Persistence.Redis.RedisStorageException, System.Exception>
     {
         public Copier_RedisStorageException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
     }

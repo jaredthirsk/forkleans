@@ -173,7 +173,7 @@ namespace Forkleans.Runtime.MembershipService
 
                 if (!refreshed)
                 {
-                    throw new OrleansException("Failed to perform initial membership refresh and cleanup.");
+                    throw new ForkleansException("Failed to perform initial membership refresh and cleanup.");
                 }
 
                 // read the table and look for my node migration occurrences
@@ -351,13 +351,13 @@ namespace Forkleans.Runtime.MembershipService
                 {
                     wasThrownLocally = true;
                     LogInformationFailedToUpdateMyStatusDueToWriteContention(this.log, myAddress, status, numCalls);
-                    throw new OrleansException($"Silo {myAddress} failed to update its status to {status} in the membership table due to write contention on the table after {numCalls} attempts.");
+                    throw new ForkleansException($"Silo {myAddress} failed to update its status to {status} in the membership table due to write contention on the table after {numCalls} attempts.");
                 }
             }
             catch (Exception exc)  when (!wasThrownLocally)
             {
                 LogWarningFailedToUpdateMyStatusDueToFailures(this.log, exc, myAddress, status, numCalls);
-                throw new OrleansException($"Silo {myAddress} failed to update its status to {status} in the table due to failures (socket failures or table read/write failures) after {numCalls} attempts", exc);
+                throw new ForkleansException($"Silo {myAddress} failed to update its status to {status} in the table due to failures (socket failures or table read/write failures) after {numCalls} attempts", exc);
             }
         }
 

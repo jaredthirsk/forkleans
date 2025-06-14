@@ -827,7 +827,7 @@ namespace Forkleans.Transactions.DynamoDB
             catch (Exception exc)
             {
                 LogWarningFailedToReadTable(_logger, exc, tableName);
-                throw new OrleansException($"Failed to read table {tableName}: {exc.Message}", exc);
+                throw new ForkleansException($"Failed to read table {tableName}: {exc.Message}", exc);
             }
         }
 

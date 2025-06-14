@@ -138,6 +138,6 @@ internal sealed class ResourceOptimizedPlacementOptionsValidator
         }
 
         static void ThrowOutOfRange(string propertyName)
-            => throw new OrleansConfigurationException($"{propertyName} must be inclusive between [0-100]");
+            => throw new ForkleansConfigurationException($"{propertyName} must be inclusive between [0-100]");
     }
 }

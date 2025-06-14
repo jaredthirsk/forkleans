@@ -7,7 +7,7 @@ namespace Forkleans.Runtime
     /// Indicates that a <see cref="GrainReference"/> was not bound to the runtime before being used.
     /// </summary>
     [Serializable, GenerateSerializer]
-    public sealed class GrainReferenceNotBoundException : OrleansException
+    public sealed class GrainReferenceNotBoundException : ForkleansException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="GrainReferenceNotBoundException"/> class.

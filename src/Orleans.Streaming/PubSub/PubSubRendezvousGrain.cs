@@ -335,26 +335,26 @@ namespace Forkleans.Streams
 
             if (captureProducers.Count != State.Producers.Count)
             {
-                throw new OrleansException(
+                throw new ForkleansException(
                     $"State mismatch between PubSubRendezvousGrain and its persistent state. captureProducers.Count={captureProducers.Count}, State.Producers.Count={State.Producers.Count}");
             }
 
             if (captureProducers.Any(producer => !State.Producers.Contains(producer)))
             {
-                throw new OrleansException(
+                throw new ForkleansException(
                     $"State mismatch between PubSubRendezvousGrain and its persistent state. captureProducers={Utils.EnumerableToString(captureProducers)}, State.Producers={Utils.EnumerableToString(State.Producers)}");
             }
 
             if (captureConsumers.Count != State.Consumers.Count)
             {
                 LogPubSubCounts("Validate: Consumer count mismatch");
-                throw new OrleansException(
+                throw new ForkleansException(
                     $"State mismatch between PubSubRendezvousGrain and its persistent state. captureConsumers.Count={captureConsumers.Count}, State.Consumers.Count={State.Consumers.Count}");
             }
 
             if (captureConsumers.Any(consumer => !State.Consumers.Contains(consumer)))
             {
-                throw new OrleansException(
+                throw new ForkleansException(
                     $"State mismatch between PubSubRendezvousGrain and its persistent state. captureConsumers={Utils.EnumerableToString(captureConsumers)}, State.Consumers={Utils.EnumerableToString(State.Consumers)}");
             }
         }
@@ -458,7 +458,7 @@ namespace Forkleans.Streams
             {
                 RemoveProducer(producer);
             }
-            catch (OrleansMessageRejectionException)
+            catch (ForkleansMessageRejectionException)
             {
                 // if producer is a system target on and unavailable silo, remove it.
                 if (producer.Producer.IsSystemTarget())

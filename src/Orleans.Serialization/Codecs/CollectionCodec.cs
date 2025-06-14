@@ -28,7 +28,7 @@ public sealed class CollectionCodec<T> : IFieldCodec<Collection<T>>, IBaseCodec<
     /// <param name="fieldCodec">The field codec.</param>
     public CollectionCodec(IFieldCodec<T> fieldCodec)
     {
-        _fieldCodec = OrleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
+        _fieldCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, fieldCodec);
     }
 
     /// <inheritdoc/>

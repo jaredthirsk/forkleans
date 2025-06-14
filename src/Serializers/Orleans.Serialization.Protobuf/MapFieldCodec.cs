@@ -32,8 +32,8 @@ public sealed class MapFieldCodec<TKey, TValue> : IFieldCodec<MapField<TKey, TVa
         IFieldCodec<TKey> keyCodec,
         IFieldCodec<TValue> valueCodec)
     {
-        _keyCodec = OrleansGeneratedCodeHelper.UnwrapService(this, keyCodec);
-        _valueCodec = OrleansGeneratedCodeHelper.UnwrapService(this, valueCodec);
+        _keyCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, keyCodec);
+        _valueCodec = ForkleansGeneratedCodeHelper.UnwrapService(this, valueCodec);
     }
 
     /// <inheritdoc/>

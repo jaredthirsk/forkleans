@@ -52,7 +52,7 @@ namespace Forkleans.Serialization.Codecs
     {
         private readonly IDeepCopier<T> _copier;
 
-        public ImmutableListCopier(IDeepCopier<T> copier) => _copier = OrleansGeneratedCodeHelper.GetOptionalCopier(copier);
+        public ImmutableListCopier(IDeepCopier<T> copier) => _copier = ForkleansGeneratedCodeHelper.GetOptionalCopier(copier);
 
         public bool IsShallowCopyable() => _copier is null;
 

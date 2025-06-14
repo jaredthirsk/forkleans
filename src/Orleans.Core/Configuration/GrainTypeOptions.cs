@@ -99,7 +99,7 @@ namespace Forkleans.Configuration
         {
             if (_options.Value.Interfaces is not { Count: > 0 })
             {
-                throw new OrleansConfigurationException($"No grain interfaces have been configured. Either add some grain interfaces and reference the Forkleans.Sdk package, or remove {nameof(GrainTypeOptionsValidator)} from the services collection.");
+                throw new ForkleansConfigurationException($"No grain interfaces have been configured. Either add some grain interfaces and reference the Forkleans.Sdk package, or remove {nameof(GrainTypeOptionsValidator)} from the services collection.");
             }
 
             var isSilo = _serviceProvider.GetService(typeof(ILocalSiloDetails)) != null;
@@ -107,7 +107,7 @@ namespace Forkleans.Configuration
             {
                 if (_options.Value.Classes is not { Count: > 0 })
                 {
-                    throw new OrleansConfigurationException($"No grain classes have been configured. Either add some grain classes and reference the Forkleans.Sdk package, or remove {nameof(GrainTypeOptionsValidator)} from the services collection.");
+                    throw new ForkleansConfigurationException($"No grain classes have been configured. Either add some grain classes and reference the Forkleans.Sdk package, or remove {nameof(GrainTypeOptionsValidator)} from the services collection.");
                 }
             }
         }

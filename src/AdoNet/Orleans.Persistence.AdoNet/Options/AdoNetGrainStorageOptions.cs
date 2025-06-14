@@ -70,7 +70,7 @@ namespace Forkleans.Configuration
         /// <param name="name">The name of the option to be validated.</param>
         public AdoNetGrainStorageOptionsValidator(AdoNetGrainStorageOptions configurationOptions, string name)
         {
-            this.options = configurationOptions ?? throw new OrleansConfigurationException($"Invalid AdoNetGrainStorageOptions for AdoNetGrainStorage {name}. Options is required.");
+            this.options = configurationOptions ?? throw new ForkleansConfigurationException($"Invalid AdoNetGrainStorageOptions for AdoNetGrainStorage {name}. Options is required.");
             this.name = name;
         }
 
@@ -79,17 +79,17 @@ namespace Forkleans.Configuration
         {
             if (string.IsNullOrWhiteSpace(this.options.Invariant))
             {
-                throw new OrleansConfigurationException($"Invalid {nameof(AdoNetGrainStorageOptions)} values for {nameof(AdoNetGrainStorage)} \"{name}\". {nameof(options.Invariant)} is required.");
+                throw new ForkleansConfigurationException($"Invalid {nameof(AdoNetGrainStorageOptions)} values for {nameof(AdoNetGrainStorage)} \"{name}\". {nameof(options.Invariant)} is required.");
             }
 
             if (string.IsNullOrWhiteSpace(this.options.ConnectionString))
             {
-                throw new OrleansConfigurationException($"Invalid {nameof(AdoNetGrainStorageOptions)} values for {nameof(AdoNetGrainStorage)} \"{name}\". {nameof(options.ConnectionString)} is required.");
+                throw new ForkleansConfigurationException($"Invalid {nameof(AdoNetGrainStorageOptions)} values for {nameof(AdoNetGrainStorage)} \"{name}\". {nameof(options.ConnectionString)} is required.");
             }
 
             if (this.options.HashPicker == null)
             {
-                throw new OrleansConfigurationException($"Invalid {nameof(AdoNetGrainStorageOptions)} values for {nameof(AdoNetGrainStorage)} {name}. {nameof(options.HashPicker)} is required.");
+                throw new ForkleansConfigurationException($"Invalid {nameof(AdoNetGrainStorageOptions)} values for {nameof(AdoNetGrainStorage)} {name}. {nameof(options.HashPicker)} is required.");
             }
         }
     }
@@ -106,7 +106,7 @@ namespace Forkleans.Configuration
                 return;
 
             // set default IHashPicker if not configured yet
-            options.HashPicker = new StorageHasherPicker(new[] { new OrleansDefaultHasher() });
+            options.HashPicker = new StorageHasherPicker(new[] { new ForkleansDefaultHasher() });
         }
     }
 }

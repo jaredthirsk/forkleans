@@ -12,7 +12,7 @@ namespace Forkleans.Runtime.MembershipService
         private readonly string clusterId;
         private readonly IServiceProvider serviceProvider;
         private readonly ILogger logger;
-        private RelationalOrleansQueries orleansQueries;
+        private RelationalForkleansQueries orleansQueries;
         private readonly AdoNetClusteringSiloOptions clusteringTableOptions;
 
         public AdoNetClusteringTable(
@@ -33,7 +33,7 @@ namespace Forkleans.Runtime.MembershipService
 
             //This initializes all of Orleans operational queries from the database using a well known view
             //and assumes the database with appropriate definitions exists already.
-            orleansQueries = await RelationalOrleansQueries.CreateInstance(
+            orleansQueries = await RelationalForkleansQueries.CreateInstance(
                 clusteringTableOptions.Invariant,
                 clusteringTableOptions.ConnectionString);
 

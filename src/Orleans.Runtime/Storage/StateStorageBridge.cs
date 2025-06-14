@@ -179,11 +179,11 @@ namespace Forkleans.Core
             // TODO: pending on https://github.com/dotnet/runtime/issues/110570
             _shared.Logger.LogError((int)id, exception, "Error from storage provider {ProviderName}.{StateName} during {Operation} for grain {GrainId}{ErrorCode}", providerName, _shared.Name, operation, grainId, errorString);
 
-            // If error is not specialization of OrleansException, wrap it
-            if (exception is not OrleansException)
+            // If error is not specialization of ForkleansException, wrap it
+            if (exception is not ForkleansException)
             {
                 var errMsg = $"Error from storage provider {providerName}.{_shared.Name} during {operation} for grain {grainId}{errorString}{Environment.NewLine} {LogFormatter.PrintException(exception)}";
-                throw new OrleansException(errMsg, exception);
+                throw new ForkleansException(errMsg, exception);
             }
 
             ExceptionDispatchInfo.Throw(exception);

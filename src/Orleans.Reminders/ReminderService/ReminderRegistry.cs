@@ -74,7 +74,7 @@ namespace Forkleans.Runtime.ReminderService
         {
             if (serviceProvider is { } sp && sp.GetService<IReminderTable>() is null)
             {
-                throw new OrleansConfigurationException(
+                throw new ForkleansConfigurationException(
                     "The reminder service has not been configured. Reminders can be configured using extension methods from the following packages:"
                     + "\n  * Microsoft.Forkleans.Reminders.AzureStorage via ISiloBuilder.UseAzureTableReminderService(...)"
                     + "\n  * Microsoft.Forkleans.Reminders.AdoNet via ISiloBuilder.UseAdoNetReminderService(...)"

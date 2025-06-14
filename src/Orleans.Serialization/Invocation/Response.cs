@@ -195,7 +195,7 @@ namespace Forkleans.Serialization.Invocation
         private readonly IFieldCodec<TResult> _codec;
 
         public PooledResponseCodec(ICodecProvider codecProvider)
-            => _codec = OrleansGeneratedCodeHelper.GetService<IFieldCodec<TResult>>(this, codecProvider);
+            => _codec = ForkleansGeneratedCodeHelper.GetService<IFieldCodec<TResult>>(this, codecProvider);
 
         public void WriteField<TBufferWriter>(ref Writer<TBufferWriter> writer, uint fieldIdDelta, Type expectedType, Response<TResult> value) where TBufferWriter : IBufferWriter<byte>
         {
@@ -260,7 +260,7 @@ namespace Forkleans.Serialization.Invocation
         private readonly IDeepCopier<TResult> _copier;
 
         public PooledResponseCopier(ICodecProvider codecProvider)
-            => _copier = OrleansGeneratedCodeHelper.GetService<IDeepCopier<TResult>>(this, codecProvider);
+            => _copier = ForkleansGeneratedCodeHelper.GetService<IDeepCopier<TResult>>(this, codecProvider);
 
         public Response<TResult> DeepCopy(Response<TResult>? input, CopyContext context)
         {

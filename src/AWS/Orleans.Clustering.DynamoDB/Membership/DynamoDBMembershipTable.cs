@@ -467,7 +467,7 @@ namespace Forkleans.Clustering.DynamoDB
             }
 
             if (suspectingSilos.Count != suspectingTimes.Count)
-                throw new OrleansException($"SuspectingSilos.Length of {suspectingSilos.Count} as read from Azure table is not equal to SuspectingTimes.Length of {suspectingTimes.Count}");
+                throw new ForkleansException($"SuspectingSilos.Length of {suspectingSilos.Count} as read from Azure table is not equal to SuspectingTimes.Length of {suspectingTimes.Count}");
 
             for (int i = 0; i < suspectingSilos.Count; i++)
                 parse.AddSuspector(suspectingSilos[i], suspectingTimes[i]);

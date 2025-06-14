@@ -4,17 +4,17 @@ using Newtonsoft.Json;
 
 namespace Forkleans.Serialization
 {
-    public class OrleansJsonSerializerOptions
+    public class ForkleansJsonSerializerOptions
     {
         public JsonSerializerSettings JsonSerializerSettings { get; set; }
 
-        public OrleansJsonSerializerOptions()
+        public ForkleansJsonSerializerOptions()
         {
             JsonSerializerSettings = OrleansJsonSerializerSettings.GetDefaultSerializerSettings();
         }
     }
 
-    public class ConfigureOrleansJsonSerializerOptions : IPostConfigureOptions<OrleansJsonSerializerOptions>
+    public class ConfigureOrleansJsonSerializerOptions : IPostConfigureOptions<ForkleansJsonSerializerOptions>
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -23,7 +23,7 @@ namespace Forkleans.Serialization
             _serviceProvider = serviceProvider;
         }
 
-        public void PostConfigure(string name, OrleansJsonSerializerOptions options)
+        public void PostConfigure(string name, ForkleansJsonSerializerOptions options)
         {
             OrleansJsonSerializerSettings.Configure(_serviceProvider, options.JsonSerializerSettings);
         }

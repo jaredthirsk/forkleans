@@ -4,13 +4,13 @@
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Serialization")]
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Core")]
 [assembly: global::Forkleans.ApplicationPartAttribute("Forkleans.Runtime")]
-[assembly: global::Forkleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(OrleansCodeGen.TestProject.Metadata_TestProject))]
+[assembly: global::Forkleans.Serialization.Configuration.TypeManifestProviderAttribute(typeof(ForkleansCodeGen.TestProject.Metadata_TestProject))]
 namespace ForkleansCodeGen.TestProject
 {
     using global::Forkleans.Serialization.Codecs;
     using global::Forkleans.Serialization.GeneratedCodeHelpers;
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Codec_MyCustomEnum : global::Forkleans.Serialization.Codecs.IFieldCodec<global::TestProject.MyCustomEnum>
     {
         private readonly global::System.Type _codecFieldType = typeof(global::TestProject.MyCustomEnum);
@@ -28,19 +28,19 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Codec_ClassWithImplicitFieldIds : global::Forkleans.Serialization.Codecs.IFieldCodec<global::TestProject.ClassWithImplicitFieldIds>, global::Forkleans.Serialization.Serializers.IBaseCodec<global::TestProject.ClassWithImplicitFieldIds>
     {
         private readonly global::System.Type _codecFieldType = typeof(global::TestProject.ClassWithImplicitFieldIds);
         private readonly global::Forkleans.Serialization.Activators.IActivator<global::TestProject.ClassWithImplicitFieldIds> _activator;
         private readonly global::System.Type _type0 = typeof(global::TestProject.MyCustomEnum);
-        private readonly OrleansCodeGen.TestProject.Codec_MyCustomEnum _codec0;
+        private readonly ForkleansCodeGen.TestProject.Codec_MyCustomEnum _codec0;
         private static readonly global::System.Action<global::TestProject.ClassWithImplicitFieldIds, global::TestProject.MyCustomEnum> setField0 = (global::System.Action<global::TestProject.ClassWithImplicitFieldIds, global::TestProject.MyCustomEnum>)global::Forkleans.Serialization.Utilities.FieldAccessor.GetReferenceSetter(typeof(global::TestProject.ClassWithImplicitFieldIds), "<EnumValue>k__BackingField");
         private static readonly global::System.Action<global::TestProject.ClassWithImplicitFieldIds, string> setField1 = (global::System.Action<global::TestProject.ClassWithImplicitFieldIds, string>)global::Forkleans.Serialization.Utilities.FieldAccessor.GetReferenceSetter(typeof(global::TestProject.ClassWithImplicitFieldIds), "<StringValue>k__BackingField");
         public Codec_ClassWithImplicitFieldIds(global::Forkleans.Serialization.Activators.IActivator<global::TestProject.ClassWithImplicitFieldIds> _activator, global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider)
         {
-            this._activator = OrleansGeneratedCodeHelper.UnwrapService(this, _activator);
-            _codec0 = OrleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Codec_MyCustomEnum>(this, codecProvider);
+            this._activator = ForkleansGeneratedCodeHelper.UnwrapService(this, _activator);
+            _codec0 = ForkleansGeneratedCodeHelper.GetService<ForkleansCodeGen.TestProject.Codec_MyCustomEnum>(this, codecProvider);
         }
 
         [global::System.Runtime.CompilerServices.MethodImplAttribute(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -119,7 +119,7 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     public sealed class Copier_ClassWithImplicitFieldIds : global::Forkleans.Serialization.Cloning.IDeepCopier<global::TestProject.ClassWithImplicitFieldIds>, global::Forkleans.Serialization.Cloning.IBaseCopier<global::TestProject.ClassWithImplicitFieldIds>
     {
         private static readonly global::System.Action<global::TestProject.ClassWithImplicitFieldIds, global::TestProject.MyCustomEnum> setField0 = (global::System.Action<global::TestProject.ClassWithImplicitFieldIds, global::TestProject.MyCustomEnum>)global::Forkleans.Serialization.Utilities.FieldAccessor.GetReferenceSetter(typeof(global::TestProject.ClassWithImplicitFieldIds), "<EnumValue>k__BackingField");
@@ -138,14 +138,14 @@ namespace ForkleansCodeGen.TestProject
         }
     }
 
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("OrleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ForkleansCodeGen", "9.0.0.0"), global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never), global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     internal sealed class Metadata_TestProject : global::Forkleans.Serialization.Configuration.TypeManifestProviderBase
     {
         protected override void ConfigureInner(global::Forkleans.Serialization.Configuration.TypeManifestOptions config)
         {
-            config.Serializers.Add(typeof(OrleansCodeGen.TestProject.Codec_MyCustomEnum));
-            config.Serializers.Add(typeof(OrleansCodeGen.TestProject.Codec_ClassWithImplicitFieldIds));
-            config.Copiers.Add(typeof(OrleansCodeGen.TestProject.Copier_ClassWithImplicitFieldIds));
+            config.Serializers.Add(typeof(ForkleansCodeGen.TestProject.Codec_MyCustomEnum));
+            config.Serializers.Add(typeof(ForkleansCodeGen.TestProject.Codec_ClassWithImplicitFieldIds));
+            config.Copiers.Add(typeof(ForkleansCodeGen.TestProject.Copier_ClassWithImplicitFieldIds));
         }
     }
 }

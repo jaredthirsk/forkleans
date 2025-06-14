@@ -31,7 +31,7 @@ namespace Forkleans.Runtime.MembershipService
             var options = this.serviceProvider.GetRequiredService<IOptions<DevelopmentClusterMembershipOptions>>().Value;
             if (options.PrimarySiloEndpoint == null)
             {
-                throw new OrleansConfigurationException(
+                throw new ForkleansConfigurationException(
                     $"{nameof(DevelopmentClusterMembershipOptions)}.{nameof(options.PrimarySiloEndpoint)} must be set when using development clustering.");
             }
 
@@ -64,7 +64,7 @@ namespace Forkleans.Runtime.MembershipService
                 catch (Exception exc)
                 {
                     var type = exc.GetBaseException().GetType();
-                    if (type == typeof(TimeoutException) || type == typeof(OrleansException))
+                    if (type == typeof(TimeoutException) || type == typeof(ForkleansException))
                     {
                         LogInformationWaitingForMembershipTableProvider(logger, timespan);
                     }

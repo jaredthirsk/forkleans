@@ -158,7 +158,7 @@ namespace Forkleans.Persistence.Cosmos
 
 namespace ForkleansCodeGen.Forkleans.Persistence.Cosmos
 {
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class Codec_CosmosConditionNotSatisfiedException : global::Forkleans.Serialization.Codecs.IFieldCodec<global::Forkleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException>, global::Forkleans.Serialization.Codecs.IFieldCodec, global::Forkleans.Serialization.Serializers.IBaseCodec<global::Forkleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException>, global::Forkleans.Serialization.Serializers.IBaseCodec
@@ -176,10 +176,10 @@ namespace ForkleansCodeGen.Forkleans.Persistence.Cosmos
             where TBufferWriter : System.Buffers.IBufferWriter<byte> { }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("OrleansCodeGen", "9.0.0.0")]
+    [System.CodeDom.Compiler.GeneratedCode("ForkleansCodeGen", "9.0.0.0")]
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class Copier_CosmosConditionNotSatisfiedException : global::Forkleans.Serialization.GeneratedCodeHelpers.OrleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException, global::Forkleans.Storage.InconsistentStateException>
+    public sealed partial class Copier_CosmosConditionNotSatisfiedException : global::Forkleans.Serialization.GeneratedCodeHelpers.ForkleansGeneratedCodeHelper.ExceptionCopier<global::Forkleans.Persistence.Cosmos.CosmosConditionNotSatisfiedException, global::Forkleans.Storage.InconsistentStateException>
     {
         public Copier_CosmosConditionNotSatisfiedException(global::Forkleans.Serialization.Serializers.ICodecProvider codecProvider) : base(default(Serialization.Serializers.ICodecProvider)!) { }
 

@@ -9,7 +9,7 @@ namespace Forkleans.Streams
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public class DataNotAvailableException : OrleansException
+    public class DataNotAvailableException : ForkleansException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DataNotAvailableException"/> class.
@@ -46,7 +46,7 @@ namespace Forkleans.Streams
     /// </summary>
     [Serializable]
     [GenerateSerializer]
-    public sealed class CacheFullException : OrleansException
+    public sealed class CacheFullException : ForkleansException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CacheFullException"/> class.

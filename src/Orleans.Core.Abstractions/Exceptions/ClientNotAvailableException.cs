@@ -9,7 +9,7 @@ namespace Forkleans.Runtime
     [Serializable]
     [GenerateSerializer]
 #pragma warning disable RCS1194 // Implement exception constructors.
-    public sealed class ClientNotAvailableException : OrleansException
+    public sealed class ClientNotAvailableException : ForkleansException
 #pragma warning restore RCS1194 // Implement exception constructors.
     {
         /// <summary>

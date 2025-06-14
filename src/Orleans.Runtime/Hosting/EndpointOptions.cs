@@ -22,7 +22,7 @@ namespace Forkleans.Configuration
             {
                 if (value is null)
                 {
-                    throw new OrleansConfigurationException(
+                    throw new ForkleansConfigurationException(
                         $"No listening address specified. Use {nameof(Hosting.ISiloBuilder)}.{nameof(Hosting.EndpointOptionsExtensions.ConfigureEndpoints)}(...) "
                         + $"to configure endpoints and ensure that {nameof(AdvertisedIPAddress)} is set.");
                 }
@@ -32,7 +32,7 @@ namespace Forkleans.Configuration
                     || value == IPAddress.None
                     || value == IPAddress.IPv6None)
                 {
-                    throw new OrleansConfigurationException(
+                    throw new ForkleansConfigurationException(
                         $"Invalid value specified for {nameof(AdvertisedIPAddress)}. The value was {value}");
                 }
 
@@ -50,7 +50,7 @@ namespace Forkleans.Configuration
             {
                 if (value == 0)
                 {
-                    throw new OrleansConfigurationException(
+                    throw new ForkleansConfigurationException(
                         $"No listening port specified. Use {nameof(Hosting.ISiloBuilder)}.{nameof(Hosting.EndpointOptionsExtensions.ConfigureEndpoints)}(...) "
                         + $"to configure endpoints and ensure that {nameof(SiloPort)} is set.");
                 }

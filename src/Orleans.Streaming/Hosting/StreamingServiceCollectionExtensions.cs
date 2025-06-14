@@ -47,7 +47,7 @@ namespace Forkleans.Hosting
             services.AddSingleton<IStreamSubscriptionManagerAdmin>(sp =>
                 new StreamSubscriptionManagerAdmin(sp.GetRequiredService<IStreamProviderRuntime>()));
             services.AddTransient<IStreamQueueBalancer, ConsistentRingQueueBalancer>();
-            services.AddSingleton<IPostConfigureOptions<OrleansJsonSerializerOptions>, StreamingConverterConfigurator>();
+            services.AddSingleton<IPostConfigureOptions<ForkleansJsonSerializerOptions>, StreamingConverterConfigurator>();
 
             // One stream directory per activation
             services.AddScoped<StreamDirectory>();
@@ -72,7 +72,7 @@ namespace Forkleans.Hosting
             services.AddSingleton<IStreamNamespacePredicateProvider, ConstructorStreamNamespacePredicateProvider>();
             services.AddKeyedSingleton<IStreamIdMapper, DefaultStreamIdMapper>(DefaultStreamIdMapper.Name);
             services.AddFromExisting<ILifecycleParticipant<IClusterClientLifecycle>, ClientStreamingProviderRuntime>();
-            services.AddSingleton<IPostConfigureOptions<OrleansJsonSerializerOptions>, StreamingConverterConfigurator>();
+            services.AddSingleton<IPostConfigureOptions<ForkleansJsonSerializerOptions>, StreamingConverterConfigurator>();
         }
 
         /// <summary>

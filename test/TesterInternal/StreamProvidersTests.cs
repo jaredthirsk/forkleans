@@ -103,7 +103,7 @@ namespace UnitTests.Streaming
                         Assert.Equal(this.fixture.ServiceId, serviceId); // "ServiceId active in silo"
                     },
                     30,
-                    (ex, i) => ex is OrleansException,
+                    (ex, i) => ex is ForkleansException,
                     TimeSpan.FromSeconds(60),
                     new FixedBackoff(TimeSpan.FromSeconds(2)));
             }

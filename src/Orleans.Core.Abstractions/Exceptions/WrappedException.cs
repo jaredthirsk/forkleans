@@ -15,7 +15,7 @@ namespace Forkleans.Runtime
     /// </remarks>
     [Serializable]
     [GenerateSerializer]
-    public class WrappedException : OrleansException
+    public class WrappedException : ForkleansException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="WrappedException"/> class.

@@ -60,7 +60,7 @@ internal sealed partial class ReminderOptionsValidator : IConfigurationValidator
     {
         if (options.Value.MinimumReminderPeriod < TimeSpan.Zero)
         {
-            throw new OrleansConfigurationException($"{nameof(ReminderOptions)}.{nameof(ReminderOptions.MinimumReminderPeriod)} must not be less than {TimeSpan.Zero}");
+            throw new ForkleansConfigurationException($"{nameof(ReminderOptions)}.{nameof(ReminderOptions.MinimumReminderPeriod)} must not be less than {TimeSpan.Zero}");
         }
 
         if (options.Value.MinimumReminderPeriod.TotalMinutes < ReminderOptionsDefaults.MinimumReminderPeriodMinutes)

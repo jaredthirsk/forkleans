@@ -262,7 +262,7 @@ namespace DefaultCluster.Tests.ActivationsLifeCycleTests
                 string activation = await grain.DoSomething();
                 Assert.Fail("Should have thrown.");
             }
-            catch (OrleansMessageRejectionException exc)
+            catch (ForkleansMessageRejectionException exc)
             {
                 this.Logger.LogInformation(exc, "Thrown as expected");
                 Assert.True(

@@ -21,7 +21,7 @@ namespace Forkleans.Configuration
         {
             if (this.membershipTable is SystemTargetBasedMembershipTable && this.options.PrimarySiloEndpoint is null)
             {
-                throw new OrleansConfigurationException("Development clustering is enabled but no value is specified ");
+                throw new ForkleansConfigurationException("Development clustering is enabled but no value is specified ");
             }
         }
     }
