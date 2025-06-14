@@ -4,20 +4,17 @@
     <InformationalVersion>$(Version). Commit Hash: $(GitHeadSha)</InformationalVersion>
   </PropertyGroup>
 
-  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Orleans.CodeGenerator/build/Microsoft.Orleans.CodeGenerator.props" />
-  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Orleans.Sdk/build/Microsoft.Orleans.Sdk.targets" />
+  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Forkleans.CodeGenerator/build/Microsoft.Forkleans.CodeGenerator.props" />
+  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Forkleans.Sdk/build/Microsoft.Forkleans.Sdk.targets" />
   <ItemGroup>
     <!-- Enable code generator -->
     <ProjectReference
-      Include="$(SourceRoot)src/Orleans.CodeGenerator/Orleans.CodeGenerator.csproj"
-      AssetTargetFallback="netstandard2.0"
-      UndefineProperties="TargetFramework"
-      SkipGetTargetFrameworkProperties="true"
+      Include="$(SourceRoot)src/Forkleans.CodeGenerator/Forkleans.CodeGenerator.csproj"
       OutputItemType="Analyzer"
       PrivateAssets="None"
       Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' "/>
     <ProjectReference
-      Include="$(SourceRoot)src/Orleans.Analyzers/Orleans.Analyzers.csproj"
+      Include="$(SourceRoot)src/Forkleans.Analyzers/Forkleans.Analyzers.csproj"
       AssetTargetFallback="netstandard2.0"
       UndefineProperties="TargetFramework"
       SkipGetTargetFrameworkProperties="true"
