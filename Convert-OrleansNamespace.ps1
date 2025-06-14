@@ -1,5 +1,6 @@
 # Orleans to Forkleans Namespace Converter
 # This script helps maintain a fork of Microsoft Orleans with renamed namespaces
+# Updated with lessons learned from debugging conversion issues
 
 param(
     [Parameter(Mandatory=$true)]
@@ -24,6 +25,23 @@ $ErrorActionPreference = "Stop"
 $codeExtensions = @("*.cs", "*.fs", "*.fsx", "*.fsproj", "*.csproj", "*.props", "*.targets", "*.json", "*.xml", "*.config", "*.sln")
 $excludeDirs = @(".git", "bin", "obj", "packages", ".vs", "artifacts", "node_modules")
 
+# Types that should NOT be renamed (Orleans-prefixed exception and serializer types)
+$preservedTypes = @(
+    "OrleansException",
+    "OrleansConfigurationException",
+    "OrleansTransactionAbortedException", 
+    "OrleansJsonSerializer",
+    "OrleansJsonSerializerOptions",
+    "OrleansGrainStorageSerializer",
+    "OrleansLifecycleAttribute",
+    "OrleansGrainReferenceAttribute",
+    "OrleansCopierNotFoundException",
+    "OrleansMessageRejectionException",
+    "OrleansClusterDisconnectedException",
+    "OrleansGatewayTimeoutException",
+    "OrleansLifecycleParticipantAttribute"
+)
+
 function Write-Info($message) {
     Write-Host "[INFO] $message" -ForegroundColor Cyan
 }
@@ -36,10 +54,6 @@ function Write-Success($message) {
     Write-Host "[SUCCESS] $message" -ForegroundColor Green
 }
 
-function Write-Error($message) {
-    Write-Host "[ERROR] $message" -ForegroundColor Red
-}
-
 # Create backup if requested
 if ($BackupFirst -and -not $DryRun) {
     $backupPath = "$RootPath.backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
@@ -48,201 +62,163 @@ if ($BackupFirst -and -not $DryRun) {
     Write-Success "Backup created"
 }
 
-# Function to check if path should be excluded
-function Should-Exclude($path) {
-    foreach ($exclude in $excludeDirs) {
-        if ($path -like "*\$exclude\*" -or $path -like "*/$exclude/*" -or $path -like "*\$exclude" -or $path -like "*/$exclude") {
-            return $true
-        }
-    }
-    # Also check if any parent directory is in the exclude list
-    $directory = Split-Path -Path $path -Parent
-    if ($directory) {
-        $dirName = Split-Path -Path $directory -Leaf
-        if ($dirName -in $excludeDirs) {
-            return $true
-        }
-    }
-    return $false
-}
+Write-Info "Converting namespaces from $OldName to $NewName"
+Write-Info "Excluding directories: $($excludeDirs -join ', ')"
+Write-Info "Processing extensions: $($codeExtensions -join ', ')"
+Write-Info "Preserving types: $($preservedTypes.Count) Orleans-prefixed types"
 
-# Function to process file content
-function Process-FileContent($filePath, $content) {
-    $changes = @()
-    $newContent = $content
-    
-    # Define replacement patterns based on file type
-    $patterns = @()
-    
-    if ($filePath -match '\.(cs|fs|fsx|csproj|fsproj|props|targets|xml)$') {
-        # C# and project files
-        $patterns += @(
-            @{ Pattern = "namespace\s+$OldName"; Replace = "namespace $NewName" },
-            @{ Pattern = "using\s+$OldName"; Replace = "using $NewName" },
-            @{ Pattern = "$OldName\."; Replace = "$NewName." },
-            @{ Pattern = "<$OldName"; Replace = "<$NewName" },
-            @{ Pattern = "</$OldName"; Replace = "</$NewName" },
-            @{ Pattern = "`"$OldName`""; Replace = "`"$NewName`"" },
-            @{ Pattern = "'$OldName'"; Replace = "'$NewName'" }
-        )
-    }
-    
-    if ($filePath -match '\.csproj$') {
-        # Additional patterns for csproj files
-        $patterns += @(
-            @{ Pattern = "<AssemblyName>$OldName"; Replace = "<AssemblyName>$NewName" },
-            @{ Pattern = "<RootNamespace>$OldName"; Replace = "<RootNamespace>$NewName" },
-            @{ Pattern = "<PackageId>$OldName"; Replace = "<PackageId>$NewName" },
-            @{ Pattern = "<Product>$OldName"; Replace = "<Product>$NewName" }
-        )
-    }
-    
-    if ($filePath -match '\.(json|config)$') {
-        # JSON and config files
-        $patterns += @(
-            @{ Pattern = "`"$OldName"; Replace = "`"$NewName" },
-            @{ Pattern = "$OldName\."; Replace = "$NewName." }
-        )
-    }
-    
-    # Apply replacements
-    foreach ($pattern in $patterns) {
-        $regex = [regex]$pattern.Pattern
-        $matches = $regex.Matches($newContent)
-        if ($matches.Count -gt 0) {
-            $newContent = $regex.Replace($newContent, $pattern.Replace)
-            $changes += "$($matches.Count) occurrences of '$($pattern.Pattern)'"
-        }
-    }
-    
-    # Special handling for assembly attributes
-    $assemblyPatterns = @(
-        @{ Pattern = '\[assembly:\s*AssemblyTitle\("([^"]*Orleans[^"]*)"\)\]'; Replace = '[assembly: AssemblyTitle("$1")]' },
-        @{ Pattern = '\[assembly:\s*AssemblyProduct\("([^"]*Orleans[^"]*)"\)\]'; Replace = '[assembly: AssemblyProduct("$1")]' }
-    )
-    
-    foreach ($pattern in $assemblyPatterns) {
-        $newContent = $newContent -replace $pattern.Pattern, ($pattern.Replace -replace 'Orleans', $NewName)
-    }
-    
-    return @{
-        Content = $newContent
-        Changes = $changes
-        HasChanges = $changes.Count -gt 0
-    }
-}
-
-# Function to update DLL references in csproj files
-function Update-ProjectReferences($filePath, $content) {
-    $newContent = $content
-    
-    # Update package references
-    $newContent = $newContent -replace "(<PackageReference\s+Include=`"$OldName[^`"]*`")", {
-        $match = $_.Groups[1].Value
-        $match -replace $OldName, $NewName
-    }
-    
-    # Update project references - DO NOT change the path, only the filename
-    $newContent = $newContent -replace "(<ProjectReference\s+Include=`"[^`"]*\\)($OldName[^\\`"]*\.csproj`")", {
-        $path = $_.Groups[1].Value
-        $filename = $_.Groups[2].Value
-        # Keep the path intact, only change the filename if needed
-        $newFilename = $filename -replace "^$OldName", $NewName
-        "${path}${filename}"  # Keep original for now
-    }
-    
-    return $newContent
-}
-
-# Process all files
-$processedFiles = 0
+$totalFiles = 0
 $modifiedFiles = 0
-$skippedFiles = 0
 
-Write-Info "Starting namespace conversion from $OldName to $NewName"
-Write-Info "Root path: $RootPath"
-Write-Info "Dry run: $DryRun"
-
-# First, close any Visual Studio instances that might have files locked
-Write-Info "Note: Please close Visual Studio if it's open to avoid file locking issues"
-
-Get-ChildItem -Path $RootPath -Recurse -File -Include $codeExtensions | ForEach-Object {
-    $file = $_
+# Process each file type
+foreach ($extension in $codeExtensions) {
+    Write-Info "Processing $extension files..."
     
-    # Skip excluded directories
-    if (Should-Exclude $file.FullName) {
-        $skippedFiles++
-        return
-    }
-    
-    $processedFiles++
-    $relativePath = $file.FullName.Substring($RootPath.Length + 1)
-    
-    try {
-        # Skip if file is locked (common for .vs folder files)
+    Get-ChildItem -Path $RootPath -Recurse -Filter $extension | Where-Object {
+        $dir = $_.Directory.Name
+        $excludeDirs -notcontains $dir
+    } | ForEach-Object {
+        $file = $_
+        $totalFiles++
+        
         try {
-            $fileStream = [System.IO.File]::Open($file.FullName, 'Open', 'Read', 'Read')
-            $fileStream.Close()
-        }
-        catch {
-            Write-Warning "Skipping locked file: $relativePath"
-            $skippedFiles++
-            return
-        }
-        
-        $content = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
-        if ([string]::IsNullOrWhiteSpace($content)) {
-            return
-        }
-        
-        $result = Process-FileContent $file.FullName $content
-        
-        if ($result.HasChanges) {
-            $modifiedFiles++
-            Write-Change "File: $relativePath"
-            foreach ($change in $result.Changes) {
-                Write-Host "  - $change" -ForegroundColor Gray
-            }
+            $content = Get-Content -Path $file.FullName -Raw
+            $originalContent = $content
             
-            if (-not $DryRun) {
-                # Special handling for csproj files
-                if ($file.Extension -eq ".csproj") {
-                    $result.Content = Update-ProjectReferences $file.FullName $result.Content
+            # Apply conversions based on file type
+            if ($extension -in "*.cs", "*.fs", "*.fsx") {
+                # Code files - apply smart replacements
+                
+                # 1. Convert using statements
+                $content = $content -replace "using\s+$OldName([\s;.])", "using $NewName`$1"
+                $content = $content -replace "using\s+$OldName\.", "using $NewName."
+                
+                # 2. Convert namespace declarations
+                $content = $content -replace "namespace\s+$OldName([\s\r\n{])", "namespace $NewName`$1"
+                $content = $content -replace "namespace\s+$OldName\.", "namespace $NewName."
+                
+                # 3. Convert Orleans. to Forkleans. carefully
+                # Split into lines for more careful processing
+                $lines = $content -split "`n"
+                $newLines = @()
+                
+                foreach ($line in $lines) {
+                    $newLine = $line
+                    
+                    # Skip if line is a comment or contains a string literal with Orleans.
+                    if ($line -notmatch "^\s*//|^\s*\*|`"[^`"]*Orleans\.[^`"]*`"") {
+                        # Check if line contains any preserved type - if so, skip the line
+                        $skipLine = $false
+                        foreach ($preservedType in $preservedTypes) {
+                            if ($line -match "\b$preservedType\b") {
+                                $skipLine = $true
+                                break
+                            }
+                        }
+                        
+                        if (-not $skipLine) {
+                            # Replace Orleans. with Forkleans. in code
+                            $newLine = $newLine -replace "\b$OldName\.", "$NewName."
+                        }
+                    }
+                    
+                    $newLines += $newLine
                 }
                 
-                Set-Content -Path $file.FullName -Value $result.Content -NoNewline -Force
+                $content = $newLines -join "`n"
+                
+                # 4. Final pass: Restore any preserved types that might have been converted
+                foreach ($preservedType in $preservedTypes) {
+                    $incorrectName = $preservedType -replace "^Orleans", $NewName
+                    if ($content -match "\b$incorrectName\b") {
+                        $content = $content -replace "\b$incorrectName\b", $preservedType
+                    }
+                }
+            }
+            elseif ($extension -in "*.csproj", "*.fsproj") {
+                # Project files - be very careful
+                
+                # Convert Using statements
+                $content = $content -replace "<Using\s+Include=`"$OldName`"", "<Using Include=`"$NewName`""
+                
+                # Convert Alias attributes
+                $content = $content -replace "Alias=`"$OldName`"", "Alias=`"$NewName`""
+                
+                # DO NOT convert:
+                # - ProjectReference Include paths
+                # - PackageReference names
+                # - Assembly names
+                # - File paths
+            }
+            elseif ($extension -in "*.props", "*.targets") {
+                # MSBuild files - minimal changes
+                
+                # Only convert specific namespace imports in code sections
+                # DO NOT convert:
+                # - File paths
+                # - Property names like OrleansBuildTimeCodeGen
+                # - Import paths
+            }
+            elseif ($extension -eq "*.sln") {
+                # Solution files - no changes needed
+            }
+            else {
+                # Other files (json, xml, config) - simple namespace replacement
+                # But avoid changing file paths
+                if ($content -notmatch "[\\/]Orleans[\\/]") {
+                    $content = $content -replace "\b$OldName\.", "$NewName."
+                }
+            }
+            
+            # Only write if changed
+            if ($content -ne $originalContent) {
+                $modifiedFiles++
+                
+                if (-not $DryRun) {
+                    Set-Content -Path $file.FullName -Value $content -NoNewline
+                    Write-Change "Modified: $($file.FullName)"
+                }
+                else {
+                    Write-Change "Would modify: $($file.FullName)"
+                }
             }
         }
-    }
-    catch {
-        Write-Error "Failed to process $relativePath : $_"
+        catch {
+            Write-Error "Error processing $($file.FullName): $_"
+        }
     }
 }
 
-Write-Success "Processing complete!"
-Write-Info "Files processed: $processedFiles"
+Write-Success "`nConversion complete!"
+Write-Info "Total files scanned: $totalFiles"
 Write-Info "Files modified: $modifiedFiles"
-Write-Info "Files skipped: $skippedFiles"
 
-# Generate summary report
-if (-not $DryRun) {
-    $reportPath = Join-Path $RootPath "namespace_conversion_report.txt"
-    @"
+if ($DryRun) {
+    Write-Info "`nThis was a dry run. No files were actually modified."
+    Write-Info "Run without -DryRun to apply changes."
+}
+
+# Create a summary report
+$reportPath = Join-Path $RootPath "namespace-conversion-report.txt"
+@"
 Namespace Conversion Report
 ==========================
 Date: $(Get-Date)
 From: $OldName
 To: $NewName
-Files Processed: $processedFiles
-Files Modified: $modifiedFiles
-"@ | Set-Content -Path $reportPath
-    Write-Info "Report saved to: $reportPath"
-}
+Total Files: $totalFiles  
+Modified Files: $modifiedFiles
+Dry Run: $DryRun
 
-# Additional recommendations
-Write-Host "`nRecommendations for maintaining your fork:" -ForegroundColor Magenta
-Write-Host "1. Keep source file names unchanged (as you mentioned) for easier merging"
-Write-Host "2. Create a .gitattributes file with merge strategies"
-Write-Host "3. Use a custom merge driver for namespace conflicts"
-Write-Host "4. Consider using git subtree or submodules for specific components"
-Write-Host "5. Set up automated testing to verify the conversion"
+Preserved Types:
+$($preservedTypes | ForEach-Object { "  - $_" } | Out-String)
+
+Important Notes:
+- Project references remain unchanged (Orleans.*.csproj)
+- Microsoft.Orleans package references remain unchanged  
+- Orleans-prefixed exception and serializer types are preserved
+- MSBuild property names (like OrleansBuildTimeCodeGen) remain unchanged
+- Build file names remain unchanged
+"@ | Set-Content -Path $reportPath
+
+Write-Info "Report saved to: $reportPath"
