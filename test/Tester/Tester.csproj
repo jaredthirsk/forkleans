@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <GenerateProgramFile>false</GenerateProgramFile>
@@ -19,14 +19,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Azure\Forkleans.Clustering.AzureStorage\Forkleans.Clustering.AzureStorage.csproj" />
-    <ProjectReference Include="..\..\src\Azure\Forkleans.GrainDirectory.AzureStorage\Forkleans.GrainDirectory.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\src\Azure\Orleans.Clustering.AzureStorage\Orleans.Clustering.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\src\Azure\Orleans.GrainDirectory.AzureStorage\Orleans.GrainDirectory.AzureStorage.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Grains\TestInternalGrains\TestInternalGrains.csproj" />
     <ProjectReference Include="$(SourceRoot)test\TestInfrastructure\TestExtensions\TestExtensions.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Grains\TestVersionGrains\TestVersionGrains.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Grains\TestFSharp\TestFSharp.fsproj" />
-    <ProjectReference Include="..\..\src\Forkleans.Reminders\Forkleans.Reminders.csproj" />
-    <ProjectReference Include="..\..\src\Forkleans.Sdk\Forkleans.Sdk.csproj" />
-    <ProjectReference Include="..\..\src\Forkleans.BroadcastChannel\Forkleans.BroadcastChannel.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Reminders\Orleans.Reminders.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Sdk\Orleans.Sdk.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.BroadcastChannel\Orleans.BroadcastChannel.csproj" />
   </ItemGroup>
 </Project>

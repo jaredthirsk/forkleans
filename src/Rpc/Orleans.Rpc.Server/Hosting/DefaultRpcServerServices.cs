@@ -152,8 +152,8 @@ namespace Forkleans.Rpc.Hosting
             // Note: GrainReferenceCodecProvider and GrainReferenceCopierProvider are internal types
             // Serialization will handle grain references automatically
             services.AddSingleton<OnDeserializedCallbacks>();
-            services.AddSingleton<IPostConfigureOptions<ForkleansJsonSerializerOptions>, ConfigureOrleansJsonSerializerOptions>();
-            services.AddSingleton<ForkleansJsonSerializer>();
+            services.AddSingleton<IPostConfigureOptions<OrleansJsonSerializerOptions>, ConfigureOrleansJsonSerializerOptions>();
+            services.AddSingleton<OrleansJsonSerializer>();
 
             // RPC Server
             services.TryAddSingleton<RpcServer>();

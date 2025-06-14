@@ -7,13 +7,13 @@
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <AssemblyName>Forkleans.Clustering.Cassandra</AssemblyName>
     <RootNamespace>Forkleans.Clustering.Cassandra</RootNamespace>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <DefineConstants>$(DefineConstants);ORLEANS_CLUSTERING</DefineConstants>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
     <PackageReference Include="CassandraCSharpDriver" />
   </ItemGroup>
 

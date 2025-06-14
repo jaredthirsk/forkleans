@@ -7,6 +7,6 @@
     <SuppressTfmSupportBuildWarnings Condition="'$(TargetFramework)' == 'netcoreapp3.1'">true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Forkleans.Serialization.Abstractions\Forkleans.Serialization.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Serialization.Abstractions\Orleans.Serialization.Abstractions.csproj" />
   </ItemGroup>
 </Project>

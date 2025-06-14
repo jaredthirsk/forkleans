@@ -3,7 +3,7 @@
     <RootNamespace>Forkleans.Transactions.Azure.Tests</RootNamespace>
     <AssemblyName>Forkleans.Transactions.Azure.Test</AssemblyName>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,9 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Forkleans.Transactions.Tests\Forkleans.Transactions.Tests.csproj" />
-    <ProjectReference Include="..\..\..\src\Azure\Forkleans.Clustering.AzureStorage\Forkleans.Clustering.AzureStorage.csproj" />
-    <ProjectReference Include="..\..\..\src\Azure\Forkleans.Transactions.AzureStorage\Forkleans.Transactions.AzureStorage.csproj" />
+    <ProjectReference Include="..\Orleans.Transactions.Tests\Orleans.Transactions.Tests.csproj" />
+    <ProjectReference Include="..\..\..\src\Azure\Orleans.Clustering.AzureStorage\Orleans.Clustering.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\..\src\Azure\Orleans.Transactions.AzureStorage\Orleans.Transactions.AzureStorage.csproj" />
     <ProjectReference Include="..\..\Extensions\TesterAzureUtils\Tester.AzureUtils.csproj" />
   </ItemGroup>
 </Project>

@@ -8,7 +8,7 @@
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <AssemblyName>Forkleans.Streaming.EventHubs</AssemblyName>
     <RootNamespace>Forkleans.Streaming.EventHubs</RootNamespace>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
@@ -25,7 +25,7 @@
     <PackageReference Include="Azure.Data.Tables" />
     <PackageReference Include="System.Net.NameResolution" />
     <PackageReference Include="Azure.Messaging.EventHubs" />
-    <ProjectReference Include="..\..\Forkleans.Streaming\Forkleans.Streaming.csproj" />
+    <ProjectReference Include="..\..\Orleans.Streaming\Orleans.Streaming.csproj" />
   </ItemGroup>
 
   <ItemGroup>

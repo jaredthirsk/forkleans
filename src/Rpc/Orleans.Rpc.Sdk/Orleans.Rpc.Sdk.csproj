@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Forkleans.Core.Abstractions\Forkleans.Core.Abstractions.csproj" />
-    <ProjectReference Include="..\..\Forkleans.Sdk\Forkleans.Sdk.csproj" />
-    <ProjectReference Include="..\..\Forkleans.CodeGenerator\Forkleans.CodeGenerator.csproj" PrivateAssets="None" />
+    <ProjectReference Include="..\..\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Orleans.Sdk\Orleans.Sdk.csproj" />
+    <ProjectReference Include="..\..\Orleans.CodeGenerator\Orleans.CodeGenerator.csproj" PrivateAssets="None" />
   </ItemGroup>
 
   <ItemGroup>

@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <!-- Only add Forkleans implicit usings to projects that aren't Aspire hosts -->
-  <ItemGroup Condition="('$(ImplicitUsings)' == 'enable' or '$(ImplicitUsings)' == 'true') and '$(IsAspireHost)' != 'true' and '$(DisableForkleanseImplicitUsings)' != 'true'">
+  <ItemGroup Condition="('$(ImplicitUsings)' == 'enable' or '$(ImplicitUsings)' == 'true') and '$(IsAspireHost)' != 'true' and '$(DisableForkleanseImplicitUsings)' != 'true' and '$(DisableForkleanseImplicitUsings)' != 'true'">
     <Using Include="Forkleans"/>
     <Using Include="Forkleans.Hosting"/>
     <Using Include="Forkleans.Runtime"/>

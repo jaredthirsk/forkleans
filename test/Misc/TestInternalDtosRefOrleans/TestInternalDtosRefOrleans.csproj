@@ -3,7 +3,7 @@
     <RootNamespace>TestInternalDtosRefOrleans</RootNamespace>
     <AssemblyName>TestInternalDtosRefOrleans</AssemblyName>
     <TargetFramework>$(MinTestTargetFramework)</TargetFramework>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>

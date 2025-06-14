@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <OutputPath Condition=" '$(DistributedTestsOutputPath)'!='' ">$(DistributedTestsOutputPath)/DistributedTests.Server</OutputPath>
   </PropertyGroup>
 
@@ -14,9 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Azure\Forkleans.Clustering.AzureStorage\Forkleans.Clustering.AzureStorage.csproj" />
-    <ProjectReference Include="..\..\..\src\Forkleans.Persistence.Memory\Forkleans.Persistence.Memory.csproj" />
-    <ProjectReference Include="..\..\..\src\Forkleans.Server\Forkleans.Server.csproj" />
+    <ProjectReference Include="..\..\..\src\Azure\Orleans.Clustering.AzureStorage\Orleans.Clustering.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Persistence.Memory\Orleans.Persistence.Memory.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Server\Orleans.Server.csproj" />
     <ProjectReference Include="$(SourceRoot)test\DistributedTests\DistributedTests.Common\DistributedTests.Common.csproj" />
     <ProjectReference Include="$(SourceRoot)test\DistributedTests\DistributedTests.Grains\DistributedTests.Grains.csproj" />
   </ItemGroup>

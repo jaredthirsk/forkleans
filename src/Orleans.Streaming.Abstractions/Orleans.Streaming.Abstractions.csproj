@@ -9,11 +9,11 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>Forkleans</RootNamespace>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Forkleans.Core.Abstractions\Forkleans.Core.Abstractions.csproj" />
+    <ProjectReference Include="..\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);TESTER_SQLUTILS</DefineConstants>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,14 +32,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\AdoNet\Forkleans.Clustering.AdoNet\Forkleans.Clustering.AdoNet.csproj" />
-    <ProjectReference Include="..\..\..\src\AdoNet\Forkleans.Persistence.AdoNet\Forkleans.Persistence.AdoNet.csproj" />
-    <ProjectReference Include="..\..\..\src\AdoNet\Forkleans.Reminders.AdoNet\Forkleans.Reminders.AdoNet.csproj" />
+    <ProjectReference Include="..\..\..\src\AdoNet\Orleans.Clustering.AdoNet\Orleans.Clustering.AdoNet.csproj" />
+    <ProjectReference Include="..\..\..\src\AdoNet\Orleans.Persistence.AdoNet\Orleans.Persistence.AdoNet.csproj" />
+    <ProjectReference Include="..\..\..\src\AdoNet\Orleans.Reminders.AdoNet\Orleans.Reminders.AdoNet.csproj" />
     <ProjectReference Include="$(SourceRoot)test\TesterInternal\TesterInternal.csproj" />
-    <ProjectReference Include="..\..\..\src\Forkleans.Reminders\Forkleans.Reminders.csproj" />
-    <ProjectReference Include="..\..\..\src\AdoNet\Forkleans.Streaming.AdoNet\Forkleans.Streaming.AdoNet.csproj" />
-    <ProjectReference Include="..\..\..\src\Forkleans.Streaming\Forkleans.Streaming.csproj" />
-    <ProjectReference Include="..\..\..\src\AdoNet\Forkleans.GrainDirectory.AdoNet\Forkleans.GrainDirectory.AdoNet.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Reminders\Orleans.Reminders.csproj" />
+    <ProjectReference Include="..\..\..\src\AdoNet\Orleans.Streaming.AdoNet\Orleans.Streaming.AdoNet.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Streaming\Orleans.Streaming.csproj" />
+    <ProjectReference Include="..\..\..\src\AdoNet\Orleans.GrainDirectory.AdoNet\Orleans.GrainDirectory.AdoNet.csproj" />
   </ItemGroup>
 
   <ItemGroup>

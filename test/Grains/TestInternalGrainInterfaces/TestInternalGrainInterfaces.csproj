@@ -2,7 +2,7 @@
   <PropertyGroup>
     <RootNamespace>UnitTests.GrainInterfaces</RootNamespace>
     <AssemblyName>TestInternalGrainInterfaces</AssemblyName>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <TargetFramework>$(MinTestTargetFramework)</TargetFramework>
   </PropertyGroup>
 

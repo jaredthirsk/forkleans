@@ -5,14 +5,14 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <ServerGarbageCollection>true</ServerGarbageCollection>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Azure\Forkleans.Clustering.AzureStorage\Forkleans.Clustering.AzureStorage.csproj" />
-    <ProjectReference Include="..\..\..\src\Forkleans.Server\Forkleans.Server.csproj" />
-    <ProjectReference Include="..\..\..\src\Forkleans.TestingHost\Forkleans.TestingHost.csproj" />
+    <ProjectReference Include="..\..\..\src\Azure\Orleans.Clustering.AzureStorage\Orleans.Clustering.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Server\Orleans.Server.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.TestingHost\Orleans.TestingHost.csproj" />
     <ProjectReference Include="..\ChaoticCluster.ServiceDefaults\ChaoticCluster.ServiceDefaults.csproj" />
   </ItemGroup>
 

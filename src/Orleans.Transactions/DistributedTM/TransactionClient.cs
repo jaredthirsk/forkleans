@@ -10,9 +10,9 @@ namespace Forkleans.Transactions;
 internal class TransactionClient : ITransactionClient
 {
     private readonly ITransactionAgent _transactionAgent;
-    private readonly Serializer<ForkleansTransactionAbortedException> _serializer;
+    private readonly Serializer<OrleansTransactionAbortedException> _serializer;
 
-    public TransactionClient(ITransactionAgent transactionAgent, Serializer<ForkleansTransactionAbortedException> serializer)
+    public TransactionClient(ITransactionAgent transactionAgent, Serializer<OrleansTransactionAbortedException> serializer)
     {
         _transactionAgent = transactionAgent;
         _serializer = serializer;

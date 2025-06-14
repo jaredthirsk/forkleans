@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>Forkleans.Rpc.DebugTest</AssemblyName>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -13,11 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Rpc\Forkleans.Rpc.Client\Forkleans.Rpc.Client.csproj" />
-    <ProjectReference Include="..\..\..\src\Rpc\Forkleans.Rpc.Server\Forkleans.Rpc.Server.csproj" />
-    <ProjectReference Include="..\..\..\src\Rpc\Forkleans.Rpc.Transport.LiteNetLib\Forkleans.Rpc.Transport.LiteNetLib.csproj" />
-    <ProjectReference Include="..\Forkleans.Rpc.TestGrainInterfaces\Forkleans.Rpc.TestGrainInterfaces.csproj" />
-    <ProjectReference Include="..\Forkleans.Rpc.TestGrains\Forkleans.Rpc.TestGrains.csproj" />
+    <ProjectReference Include="..\..\..\src\Rpc\Orleans.Rpc.Client\Orleans.Rpc.Client.csproj" />
+    <ProjectReference Include="..\..\..\src\Rpc\Orleans.Rpc.Server\Orleans.Rpc.Server.csproj" />
+    <ProjectReference Include="..\..\..\src\Rpc\Orleans.Rpc.Transport.LiteNetLib\Orleans.Rpc.Transport.LiteNetLib.csproj" />
+    <ProjectReference Include="..\Orleans.Rpc.TestGrainInterfaces\Orleans.Rpc.TestGrainInterfaces.csproj" />
+    <ProjectReference Include="..\Orleans.Rpc.TestGrains\Orleans.Rpc.TestGrains.csproj" />
   </ItemGroup>
 
 </Project>

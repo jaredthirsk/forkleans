@@ -5,7 +5,7 @@
     <Description>xUnit testkit library for transactions</Description>
     <PackageTags>$(PackageTags) TransactionTestKit</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
   </PropertyGroup>
 
@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Forkleans.Transactions.TestKit.Base\Forkleans.Transactions.TestKit.Base.csproj" />
+    <ProjectReference Include="..\Orleans.Transactions.TestKit.Base\Orleans.Transactions.TestKit.Base.csproj" />
   </ItemGroup>
 
 </Project>

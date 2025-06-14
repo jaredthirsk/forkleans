@@ -6,7 +6,7 @@
     <PackageId>Microsoft.Forkleans.Serialization.Protobuf</PackageId>
     <TargetFrameworks>$(DefaultTargetFrameworks);netstandard2.1</TargetFrameworks>
     <PackageDescription>Google.Protobuf integration for Forkleans.Serialization</PackageDescription>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
   </PropertyGroup>
 
@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Forkleans.Serialization\Forkleans.Serialization.csproj" />
+    <ProjectReference Include="..\..\Orleans.Serialization\Orleans.Serialization.csproj" />
   </ItemGroup>
 
 

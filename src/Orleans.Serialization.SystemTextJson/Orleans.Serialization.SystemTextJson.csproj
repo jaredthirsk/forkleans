@@ -6,12 +6,12 @@
     <PackageId>Microsoft.Forkleans.Serialization.SystemTextJson</PackageId>
     <TargetFrameworks>$(DefaultTargetFrameworks);netstandard2.1</TargetFrameworks>
     <PackageDescription>System.Text.Json integration for Forkleans.Serialization</PackageDescription>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Forkleans.Serialization\Forkleans.Serialization.csproj" />
+    <ProjectReference Include="..\Orleans.Serialization\Orleans.Serialization.csproj" />
   </ItemGroup>
 
   <ItemGroup>

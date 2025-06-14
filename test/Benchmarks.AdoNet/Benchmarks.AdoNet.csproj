@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AdoNet\Forkleans.Streaming.AdoNet\Forkleans.Streaming.AdoNet.csproj" />
+    <ProjectReference Include="..\..\src\AdoNet\Orleans.Streaming.AdoNet\Orleans.Streaming.AdoNet.csproj" />
     <ProjectReference Include="..\Extensions\TesterAdoNet\Tester.AdoNet.csproj" />
   </ItemGroup>
 

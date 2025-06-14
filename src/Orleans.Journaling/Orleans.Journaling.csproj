@@ -6,7 +6,7 @@
     <Title>Microsoft Orleans Journaling</Title>
     <Description>Extensible persistence for grains based on replicated state machines.</Description>
     <PackageTags>$(PackageTags) Persistence State Machines</PackageTags>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -23,9 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Forkleans.Core\Forkleans.Core.csproj" />
-    <ProjectReference Include="..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
-    <ProjectReference Include="..\Forkleans.Serialization\Forkleans.Serialization.csproj" />
+    <ProjectReference Include="..\Orleans.Core\Orleans.Core.csproj" />
+    <ProjectReference Include="..\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\Orleans.Serialization\Orleans.Serialization.csproj" />
   </ItemGroup>
 
 </Project>

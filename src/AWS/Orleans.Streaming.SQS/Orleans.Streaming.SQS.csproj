@@ -8,7 +8,7 @@
     <PackageTags>$(PackageTags) AWS SQS</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <DefineConstants>$(DefineConstants);STREAMING_SQS</DefineConstants>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Forkleans.Streaming\Forkleans.Streaming.csproj" />
+    <ProjectReference Include="..\..\Orleans.Streaming\Orleans.Streaming.csproj" />
     <PackageReference Include="AWSSDK.SQS" />
   </ItemGroup>
 

@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Forkleans.Rpc.Server\Forkleans.Rpc.Server.csproj" />
+    <ProjectReference Include="..\Orleans.Rpc.Server\Orleans.Rpc.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>

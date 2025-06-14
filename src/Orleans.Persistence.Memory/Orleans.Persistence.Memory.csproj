@@ -6,10 +6,10 @@
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <AssemblyName>Forkleans.Persistence.Memory</AssemblyName>
     <RootNamespace>Forkleans.Persistence.Memory</RootNamespace>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="..\Orleans.Runtime\Orleans.Runtime.csproj" />
   </ItemGroup>
 </Project>

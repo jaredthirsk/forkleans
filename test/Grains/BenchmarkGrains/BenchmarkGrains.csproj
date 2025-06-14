@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Forkleans.Transactions\Forkleans.Transactions.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Transactions\Orleans.Transactions.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Grains\BenchmarkGrainInterfaces\BenchmarkGrainInterfaces.csproj" />
   </ItemGroup>
 </Project>

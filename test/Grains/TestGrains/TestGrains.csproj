@@ -2,15 +2,15 @@
   <PropertyGroup>
     <RootNamespace>UnitTests.Grains</RootNamespace>
     <TargetFramework>$(MinTestTargetFramework)</TargetFramework>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <NoWarn>$(NoWarn);1591;1591;618</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Forkleans.EventSourcing\Forkleans.EventSourcing.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.EventSourcing\Orleans.EventSourcing.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Grains\TestGrainInterfaces\TestGrainInterfaces.csproj" />
     <ProjectReference Include="$(SourceRoot)test\Grains\TestFSharpGrainInterfaces\TestFSharpGrainInterfaces.csproj" />
-    <ProjectReference Include="..\..\..\src\Forkleans.Reminders\Forkleans.Reminders.csproj" />
-    <ProjectReference Include="..\..\..\src\Forkleans.BroadcastChannel\Forkleans.BroadcastChannel.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Reminders\Orleans.Reminders.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.BroadcastChannel\Orleans.BroadcastChannel.csproj" />
   </ItemGroup>
 </Project>

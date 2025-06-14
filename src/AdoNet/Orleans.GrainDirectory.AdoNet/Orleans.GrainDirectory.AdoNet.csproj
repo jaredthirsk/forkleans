@@ -6,7 +6,7 @@
     <Description>Microsoft Orleans grain directory provider backed by ADO.NET</Description>
     <PackageTags>$(PackageTags) ADO.NET SQL</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <VersionSuffix Condition="$(VersionSuffix) == ''">alpha.1</VersionSuffix>
     <Nullable>Enable</Nullable>
     <ImplicitUsings>Enable</ImplicitUsings>
@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
   </ItemGroup>
 
 </Project>

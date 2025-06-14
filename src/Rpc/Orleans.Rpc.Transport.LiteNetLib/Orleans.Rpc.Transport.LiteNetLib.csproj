@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Forkleans.Rpc.Abstractions\Forkleans.Rpc.Abstractions.csproj" />
+    <ProjectReference Include="..\Orleans.Rpc.Abstractions\Orleans.Rpc.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

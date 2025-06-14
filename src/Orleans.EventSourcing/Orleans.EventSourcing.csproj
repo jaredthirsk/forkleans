@@ -5,14 +5,14 @@
     <Description>Base types for creating Microsoft Orleans grains with event-sourced state.</Description>
     <PackageTags>$(PackageTags) EventSourcing</PackageTags>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <AssemblyName>Forkleans.EventSourcing</AssemblyName>
     <RootNamespace>ForkleansEventSourcing</RootNamespace>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="..\Orleans.Runtime\Orleans.Runtime.csproj" />
     <PackageReference Include="Microsoft.CSharp" />
   </ItemGroup>
 

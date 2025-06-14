@@ -4,7 +4,7 @@
     <AssemblyName>Forkleans.CodeGenerator.Tests</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
 
@@ -38,9 +38,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Forkleans.CodeGenerator\Forkleans.CodeGenerator.csproj" />
-    <ProjectReference Include="..\..\src\Forkleans.Sdk\Forkleans.Sdk.csproj" />
-    <ProjectReference Include="..\..\src\Forkleans.Runtime\Forkleans.Runtime.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.CodeGenerator\Orleans.CodeGenerator.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Sdk\Orleans.Sdk.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Runtime\Orleans.Runtime.csproj" />
   </ItemGroup>
 
 

@@ -6,13 +6,13 @@
     <PackageId>Microsoft.Forkleans.Serialization.FSharp</PackageId>
     <TargetFrameworks>$(DefaultTargetFrameworks);netstandard2.1</TargetFrameworks>
     <PackageDescription>F# core type support for Forkleans.Serialization</PackageDescription>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FSharp.Core" />
-    <ProjectReference Include="..\Forkleans.Serialization\Forkleans.Serialization.csproj" />
+    <ProjectReference Include="..\Orleans.Serialization\Orleans.Serialization.csproj" />
   </ItemGroup>
 
   <ItemGroup>

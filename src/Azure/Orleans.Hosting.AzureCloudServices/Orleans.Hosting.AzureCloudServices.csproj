@@ -8,11 +8,11 @@
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <AssemblyName>Forkleans.Hosting.AzureCloudServices</AssemblyName>
     <RootNamespace>Forkleans.Hosting.AzureCloudServices</RootNamespace>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Forkleans.Streaming\Forkleans.Streaming.csproj" />
+    <ProjectReference Include="..\..\Orleans.Streaming\Orleans.Streaming.csproj" />
     <PackageReference Include="Microsoft.CSharp" />
   </ItemGroup>
 

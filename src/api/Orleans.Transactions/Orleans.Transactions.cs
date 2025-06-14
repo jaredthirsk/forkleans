@@ -615,11 +615,11 @@ namespace Forkleans.Transactions
 
         public void Join(TransactionInfo x) { }
 
-        public OrleansTransactionAbortedException MustAbort(Serialization.Serializer<ForkleansTransactionAbortedException> serializer) { throw null; }
+        public OrleansTransactionAbortedException MustAbort(Serialization.Serializer<OrleansTransactionAbortedException> serializer) { throw null; }
 
         public void ReconcilePending() { }
 
-        public void RecordException(System.Exception e, Serialization.Serializer<ForkleansTransactionAbortedException> sm) { }
+        public void RecordException(System.Exception e, Serialization.Serializer<OrleansTransactionAbortedException> sm) { }
 
         public void RecordRead(ParticipantId id, System.DateTime minTime) { }
 

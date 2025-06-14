@@ -5,14 +5,14 @@
     <Title>Microsoft Orleans Reminders Library</Title>
     <Description>Reminders library for Microsoft Orleans used on the server.</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <DefineConstants>$(DefineConstants);ORLEANS_REMINDERS_PROVIDER</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Forkleans.Runtime\Forkleans.Runtime.csproj" />
-    <ProjectReference Include="..\Forkleans.Core.Abstractions\Forkleans.Core.Abstractions.csproj" />
-    <ProjectReference Include="..\Forkleans.Sdk\Forkleans.Sdk.csproj" />
+    <ProjectReference Include="..\Orleans.Runtime\Orleans.Runtime.csproj" />
+    <ProjectReference Include="..\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
+    <ProjectReference Include="..\Orleans.Sdk\Orleans.Sdk.csproj" />
   </ItemGroup>
 </Project>

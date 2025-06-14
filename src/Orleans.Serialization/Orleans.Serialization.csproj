@@ -6,7 +6,7 @@
     <PackageDescription>Fast, flexible, and version-tolerant serializer for .NET</PackageDescription>
     <TargetFrameworks>$(DefaultTargetFrameworks);netstandard2.1</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
     <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Forkleans.Serialization.Abstractions\Forkleans.Serialization.Abstractions.csproj" />
+    <ProjectReference Include="..\Orleans.Serialization.Abstractions\Orleans.Serialization.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

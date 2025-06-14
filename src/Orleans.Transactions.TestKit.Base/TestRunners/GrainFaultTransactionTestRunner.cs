@@ -21,7 +21,7 @@ namespace Forkleans.Transactions.TestKit
 
             await coordinator.MultiGrainSet(new List<ITransactionTestGrain> { grain }, expected);
             Func<Task> task = () => coordinator.AddAndThrow(grain, expected);
-            await task.Should().ThrowAsync<ForkleansTransactionAbortedException>();
+            await task.Should().ThrowAsync<OrleansTransactionAbortedException>();
 
             await TestAfterDustSettles(async () =>
             {
@@ -42,7 +42,7 @@ namespace Forkleans.Transactions.TestKit
 
             await coordinator.MultiGrainSet(new List<ITransactionTestGrain> { grain }, expected);
             Func<Task> task = () => coordinator.UpdateViolated(grain, expected);
-            await task.Should().ThrowAsync<ForkleansReadOnlyViolatedException>();
+            await task.Should().ThrowAsync<OrleansReadOnlyViolatedException>();
 
             await TestAfterDustSettles(async () =>
             {
@@ -72,7 +72,7 @@ namespace Forkleans.Transactions.TestKit
             {
                 throwGrain
             }, grains, expected);
-            await task.Should().ThrowAsync<ForkleansTransactionAbortedException>();
+            await task.Should().ThrowAsync<OrleansTransactionAbortedException>();
             grains.Add(throwGrain);
 
             await TestAfterDustSettles(async () =>
@@ -120,7 +120,7 @@ namespace Forkleans.Transactions.TestKit
             }
 
             Func<Task> task = () => InnerExceptionCheck();
-            await task.Should().ThrowAsync<ForkleansTransactionAbortedException>();
+            await task.Should().ThrowAsync<OrleansTransactionAbortedException>();
 
             grains.AddRange(throwGrains);
 
@@ -146,7 +146,7 @@ namespace Forkleans.Transactions.TestKit
 
             await grain.Set(expected);
             Func<Task> task = () => coordinator.OrphanCallTransaction(grain);
-            await task.Should().ThrowAsync<ForkleansOrphanCallException>();
+            await task.Should().ThrowAsync<OrleansOrphanCallException>();
 
             //await Task.Delay(20000); // give time for GC
 

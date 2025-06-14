@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Forkleans.Connections.Security.Tests</AssemblyName>
     <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Forkleans.Connections.Security\Forkleans.Connections.Security.csproj" />
-    <ProjectReference Include="..\..\src\Forkleans.TestingHost\Forkleans.TestingHost.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.Connections.Security\Orleans.Connections.Security.csproj" />
+    <ProjectReference Include="..\..\src\Orleans.TestingHost\Orleans.TestingHost.csproj" />
   </ItemGroup>
 
 </Project>

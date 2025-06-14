@@ -27,7 +27,7 @@ internal sealed class OrleansQueries
     private PreparedStatement? _membershipReadRowPreparedStatement;
     private PreparedStatement? _membershipGatewaysQueryPreparedStatement;
 
-    public static Task<ForkleansQueries> CreateInstance(ISession session)
+    public static Task<OrleansQueries> CreateInstance(ISession session)
     {
         return Task.FromResult(new OrleansQueries(session));
     }

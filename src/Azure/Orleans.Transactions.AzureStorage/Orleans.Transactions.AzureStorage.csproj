@@ -9,7 +9,7 @@
     <AssemblyName>Forkleans.Transactions.AzureStorage</AssemblyName>
     <RootNamespace>Forkleans.Transactions.AzureStorage</RootNamespace>
     <DefineConstants>$(DefineConstants);ORLEANS_TRANSACTIONS</DefineConstants>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +24,7 @@
     <PackageReference Include="Azure.Core" />
     <PackageReference Include="Azure.Data.Tables" />
     <PackageReference Include="System.Net.NameResolution" />
-    <ProjectReference Include="..\..\Forkleans.Transactions\Forkleans.Transactions.csproj" />
+    <ProjectReference Include="..\..\Orleans.Transactions\Orleans.Transactions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

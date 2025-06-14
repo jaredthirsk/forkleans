@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
     <VersionSuffix Condition="$(VersionSuffix) != ''">$(VersionSuffix).alpha.1</VersionSuffix>
     <VersionSuffix Condition="$(VersionSuffix) == ''">alpha.1</VersionSuffix>
-    <ForkleansBuildTimeCodeGen>true</ForkleansBuildTimeCodeGen>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Forkleans.Journaling\Forkleans.Journaling.csproj" />
+    <ProjectReference Include="..\..\Orleans.Journaling\Orleans.Journaling.csproj" />
   </ItemGroup>
 
   <ItemGroup>

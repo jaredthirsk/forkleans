@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <!-- Only add Forkleans implicit usings to projects that aren't Aspire hosts -->
-  <ItemGroup Condition="('$(ImplicitUsings)' == 'enable' or '$(ImplicitUsings)' == 'true') and '$(IsAspireHost)' != 'true' and '$(IsAspireSharedProject)' != 'true'">
+  <ItemGroup Condition="('$(ImplicitUsings)' == 'enable' or '$(ImplicitUsings)' == 'true') and '$(IsAspireHost)' != 'true' and '$(IsAspireSharedProject)' != 'true' and '$(IsAspireSharedProject)' != 'true'">
     <Using Include="Forkleans"/>
     <Using Include="Forkleans.Hosting"/>
     <Using Include="Forkleans.Runtime"/>

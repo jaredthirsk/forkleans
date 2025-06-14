@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Forkleans.Server\Forkleans.Server.csproj" />
+    <ProjectReference Include="..\..\..\src\Orleans.Server\Orleans.Server.csproj" />
     <ProjectReference Include="..\ActivationRebalancing.Cluster\ActivationRebalancing.Cluster.csproj" />
   </ItemGroup>
 
