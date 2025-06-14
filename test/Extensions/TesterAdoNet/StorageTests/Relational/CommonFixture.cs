@@ -89,7 +89,7 @@ namespace UnitTests.StorageTests.Relational
                             {
                                 ConnectionString = Storage.Storage.ConnectionString,
                                 Invariant = storageInvariant,
-                                GrainStorageSerializer = new JsonGrainStorageSerializer(this.DefaultProviderRuntime.ServiceProvider.GetService<ForkleansJsonSerializer>())
+                                GrainStorageSerializer = new JsonGrainStorageSerializer(this.DefaultProviderRuntime.ServiceProvider.GetService<OrleansJsonSerializer>())
                             };
                             var clusterOptions = new ClusterOptions()
                             {

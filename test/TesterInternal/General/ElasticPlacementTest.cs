@@ -144,7 +144,7 @@ namespace UnitTests.General
             await taintedGrainPrimary.LatchCpuUsage(110.0f);
             await taintedGrainSecondary.LatchCpuUsage(110.0f);
 
-            await Assert.ThrowsAsync<ForkleansException>(() =>
+            await Assert.ThrowsAsync<OrleansException>(() =>
                 this.AddTestGrains(1));
         }
 

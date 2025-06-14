@@ -15,7 +15,7 @@ namespace DefaultCluster.Tests.General
         public async Task SiloRoleBasedPlacementDirector_CantFindSilo()
         {
             var grain = this.GrainFactory.GetGrain<ISiloRoleBasedPlacementGrain>("Sibyl.Silo");
-            await Assert.ThrowsAsync<ForkleansException>(() => grain.Ping());
+            await Assert.ThrowsAsync<OrleansException>(() => grain.Ping());
         }
 
         [Fact, TestCategory("Functional")]

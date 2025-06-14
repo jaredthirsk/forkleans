@@ -39,7 +39,7 @@ namespace Tester.Redis.Persistence
 
             if (string.IsNullOrWhiteSpace(connectionString))
             {
-                Assert.Throws<ForkleansConfigurationException>(() => host.Start());
+                Assert.Throws<OrleansConfigurationException>(() => host.Start());
             }
         }
     }

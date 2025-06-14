@@ -39,7 +39,7 @@ namespace NonSilo.Tests
         [Fact]
         public void ClientBuilder_ClusterOptionsTest()
         {
-            Assert.Throws<ForkleansConfigurationException>(() =>
+            Assert.Throws<OrleansConfigurationException>(() =>
             {
                 var host = new HostBuilder()
                     .UseOrleansClient((ctx, clientBuilder) =>
@@ -58,7 +58,7 @@ namespace NonSilo.Tests
                 _ = host.Services.GetRequiredService<IClusterClient>();
             });
 
-            Assert.Throws<ForkleansConfigurationException>(() =>
+            Assert.Throws<OrleansConfigurationException>(() =>
             {
                 var host = new HostBuilder()
                     .UseOrleansClient((ctx, clientBuilder) =>
@@ -77,7 +77,7 @@ namespace NonSilo.Tests
                 _ = host.Services.GetRequiredService<IClusterClient>();
             });
 
-            Assert.Throws<ForkleansConfigurationException>(() =>
+            Assert.Throws<OrleansConfigurationException>(() =>
             {
                 var host = new HostBuilder()
                     .UseOrleansClient((ctx, clientBuilder) =>
@@ -150,7 +150,7 @@ namespace NonSilo.Tests
 
             var host = hostBuilder.Build();
 
-            Assert.Throws<ForkleansConfigurationException>(() => _ = host.Services.GetRequiredService<IClusterClient>());
+            Assert.Throws<OrleansConfigurationException>(() => _ = host.Services.GetRequiredService<IClusterClient>());
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace NonSilo.Tests
         [Fact]
         public void ClientBuilderThrowsDuringStartupIfSiloBuildersAdded()
         {
-            Assert.Throws<ForkleansConfigurationException>(() =>
+            Assert.Throws<OrleansConfigurationException>(() =>
             {
                 _ = new HostBuilder()
                     .UseOrleans((ctx, siloBuilder) =>
@@ -224,7 +224,7 @@ namespace NonSilo.Tests
         [Fact]
         public void ClientBuilderWithHotApplicationBuilderThrowsDuringStartupIfSiloBuildersAdded()
         {
-            Assert.Throws<ForkleansConfigurationException>(() =>
+            Assert.Throws<OrleansConfigurationException>(() =>
             {
                 _ = Host.CreateApplicationBuilder()
                     .UseOrleans(siloBuilder =>

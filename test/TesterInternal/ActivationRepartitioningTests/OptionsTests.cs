@@ -47,6 +47,6 @@ public class OptionsTests
         };
 
         var validator = new ActivationRepartitionerOptionsValidator(Options.Create(options));
-        Assert.Throws<ForkleansConfigurationException>(validator.ValidateConfiguration);
+        Assert.Throws<OrleansConfigurationException>(validator.ValidateConfiguration);
     }
 }
