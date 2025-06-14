@@ -1,8 +1,9 @@
 using System.Net;
 using Microsoft.Extensions.Configuration;
-using Forkleans.Configuration;
-using Forkleans.Runtime;
-using Forkleans.TestingHost;
+using Orleans.Configuration;
+using Orleans.Runtime;
+using Orleans.Runtime.Placement;
+using Orleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using Xunit;
@@ -59,6 +60,7 @@ namespace UnitTests.MembershipTests
             const int maxRetry = 10;
             for (int i = 0; i < maxRetry; i++)
             {
+                RequestContext.Set(IPlacementDirector.PlacementHintKey, siloHandle.SiloAddress);
                 var grain = GrainFactory.GetGrain<ILongRunningTaskGrain<bool>>(Guid.NewGuid());
                 var instanceId = await grain.GetRuntimeInstanceId();
                 if (instanceId.Contains(siloHandle.SiloAddress.Endpoint.ToString()))

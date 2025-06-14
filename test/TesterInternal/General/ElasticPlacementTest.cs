@@ -1,9 +1,10 @@
 using System.Net;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Forkleans.Configuration;
-using Forkleans.Runtime;
-using Forkleans.TestingHost;
+using Orleans.Configuration;
+using Orleans.Runtime;
+using Orleans.Runtime.Placement;
+using Orleans.TestingHost;
 using TestExtensions;
 using UnitTests.GrainInterfaces;
 using Xunit;
@@ -198,6 +199,7 @@ namespace UnitTests.General
         {
             while (true)
             {
+                RequestContext.Set(IPlacementDirector.PlacementHintKey, silo);
                 IPlacementTestGrain grain = this.GrainFactory.GetGrain<IRandomPlacementTestGrain>(Guid.NewGuid());
                 SiloAddress address = await grain.GetLocation();
                 if (address.Equals(silo))

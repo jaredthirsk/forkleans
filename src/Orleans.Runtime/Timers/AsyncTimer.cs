@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Forkleans.Runtime
 {
-    internal class AsyncTimer : IAsyncTimer
+    internal partial class AsyncTimer : IAsyncTimer
     {
         /// <summary>
         /// Timers can fire up to 3 seconds late before a warning is emitted and the instance is deemed unhealthy.
@@ -79,11 +79,7 @@ namespace Forkleans.Runtime
             {
                 if (!Debugger.IsAttached)
                 {
-                    this.log?.LogWarning(
-                        "Timer should have fired at {DueTime} but fired at {CurrentTime}, which is {Overshoot} longer than expected",
-                        dueTime,
-                        now,
-                        overshoot);
+                    LogTimerOvershoot(this.log, dueTime, now, overshoot);
                 }
             }
 
@@ -122,5 +118,11 @@ namespace Forkleans.Runtime
             this.expected = default;
             this.cancellation.Cancel();
         }
+
+        [LoggerMessage(
+            Level = LogLevel.Warning,
+            Message = "Timer should have fired at {DueTime} but fired at {CurrentTime}, which is {Overshoot} longer than expected"
+        )]
+        private static partial void LogTimerOvershoot(ILogger logger, DateTime dueTime, DateTime currentTime, TimeSpan overshoot);
     }
 }
