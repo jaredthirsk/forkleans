@@ -6,20 +6,40 @@ param(
     [string]$RootPath,
 
     [Parameter()]
-    [switch]$DryRun = $false
+    [switch]$DryRun = $false,
+
+    [Parameter()]
+    [switch]$BackupFirst = $true
 )
 
 $ErrorActionPreference = "Stop"
 
 Write-Host "Starting fork maintenance process..." -ForegroundColor Cyan
 
-# Step 1: Convert namespaces from Orleans to Forkleans
+# Step 1: Convert namespaces from Orleans to Forkleans (using fixed version)
 Write-Host "`nStep 1: Converting namespaces..." -ForegroundColor Green
-.\Convert-OrleansNamespace.ps1 -RootPath $RootPath -DryRun:$DryRun
+if (Test-Path ".\Convert-OrleansNamespace-Fixed.ps1") {
+    Write-Host "  Using improved conversion script..." -ForegroundColor Gray
+    .\Convert-OrleansNamespace-Fixed.ps1 -RootPath $RootPath -DryRun:$DryRun -BackupFirst:$BackupFirst
+} else {
+    .\Convert-OrleansNamespace.ps1 -RootPath $RootPath -DryRun:$DryRun -BackupFirst:$BackupFirst
+}
+
+# Step 1.5: Fix ALL project reference issues comprehensively
+Write-Host "`nStep 1.5: Fixing all project reference issues..." -ForegroundColor Green
+.\Fix-AllProjectReferences.ps1 -RootPath $RootPath -DryRun:$DryRun
+
+# Step 1.6: Fix Directory.Build files
+Write-Host "`nStep 1.6: Fixing Directory.Build files..." -ForegroundColor Green
+.\Fix-DirectoryBuildFiles.ps1 -RootPath $RootPath -DryRun:$DryRun
+
+# Step 1.7: Fix SDK build file names
+Write-Host "`nStep 1.7: Fixing SDK build file names..." -ForegroundColor Green
+.\Fix-SdkBuildFiles.ps1 -RootPath $RootPath -DryRun:$DryRun
 
 # Step 2: Fix project references
 Write-Host "`nStep 2: Fixing project references..." -ForegroundColor Green
-.\Smart-Fix-References.ps1 -RootPath $RootPath -DryRun:$DryRun
+.\Smart-Fix-References.ps1 -RootPath $RootPath -DryRun:$DryRun -BackupFirst:$BackupFirst
 
 # Step 3: Fix assembly names
 Write-Host "`nStep 3: Fixing assembly names..." -ForegroundColor Green

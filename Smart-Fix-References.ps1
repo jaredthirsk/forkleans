@@ -7,7 +7,10 @@ param(
     [string]$RootPath,
 
     [Parameter()]
-    [switch]$DryRun = $false
+    [switch]$DryRun = $false,
+
+    [Parameter()]
+    [switch]$BackupFirst = $true
 )
 
 $ErrorActionPreference = "Stop"
@@ -191,10 +194,12 @@ Get-ChildItem -Path $RootPath -Recurse -Filter "*.csproj" | ForEach-Object {
         $fixedProjects++
 
         if (-not $DryRun) {
-            # Backup original file
-            $backupPath = "$($projectFile.FullName).bak"
-            if (-not (Test-Path $backupPath)) {
-                Copy-Item -Path $projectFile.FullName -Destination $backupPath
+            # Backup original file if requested
+            if ($BackupFirst) {
+                $backupPath = "$($projectFile.FullName).bak"
+                if (-not (Test-Path $backupPath)) {
+                    Copy-Item -Path $projectFile.FullName -Destination $backupPath
+                }
             }
 
             # Write updated content
