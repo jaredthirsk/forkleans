@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyName>Forkleans.Core.Abstractions</AssemblyName>
-    <PackageId>Microsoft.Forkleans.Core.Abstractions</PackageId>
+    <PackageId>Forkleans.Core.Abstractions</PackageId>
     <Title>Microsoft Orleans Core Abstractions</Title>
     <Description>Core abstractions library of Microsoft Orleans</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>

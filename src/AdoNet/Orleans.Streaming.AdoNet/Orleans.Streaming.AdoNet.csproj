@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Forkleans.Streaming.AdoNet</PackageId>
+    <PackageId>Forkleans.Streaming.AdoNet</PackageId>
     <Title>Microsoft Orleans ADO.NET Streaming Provider</Title>
     <Description>Microsoft Orleans streaming provider backed by ADO.NET</Description>
     <PackageTags>$(PackageTags) ADO.NET SQL</PackageTags>

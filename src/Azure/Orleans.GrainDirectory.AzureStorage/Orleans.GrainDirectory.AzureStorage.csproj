@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Forkleans.GrainDirectory.AzureStorage</PackageId>
+    <PackageId>Forkleans.GrainDirectory.AzureStorage</PackageId>
     <Title>Microsoft Orleans Azure Storage Grain Directory Provider</Title>
     <Description>Microsoft Orleans Grain Directory provider backed by Azure Storage</Description>
     <PackageTags>$(PackageTags) Azure Grain Directory</PackageTags>

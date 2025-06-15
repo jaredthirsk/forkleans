@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Forkleans.Reminders.Cosmos</PackageId>
+    <PackageId>Forkleans.Reminders.Cosmos</PackageId>
     <Title>Microsoft Orleans Reminders Azure Cosmos DB</Title>
     <Description>Microsoft Orleans reminders provider for Azure Cosmos DB</Description>
     <PackageTags>$(PackageTags) Azure Cosmos DB</PackageTags>

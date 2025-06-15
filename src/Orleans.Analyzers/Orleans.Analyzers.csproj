@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Forkleans.Analyzers</AssemblyName>
-    <PackageId>Microsoft.Forkleans.Analyzers</PackageId>
+    <PackageId>Forkleans.Analyzers</PackageId>
     <Title>Microsoft Orleans Analyzers</Title>
     <Description>C# Analyzers for Microsoft Forkleans.</Description>
     <TargetFramework>netstandard2.0</TargetFramework>

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Forkleans.Persistence.Memory</PackageId>
+    <PackageId>Forkleans.Persistence.Memory</PackageId>
     <Title>Microsoft Orleans grain persistence provider which holds state only in memory.</Title>
     <Description>In-memory storage for Microsoft Orleans</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>

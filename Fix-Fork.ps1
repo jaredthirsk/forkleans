@@ -43,8 +43,12 @@ Write-Host "`nStep 1.6: Fixing Directory.Build files..." -ForegroundColor Green
 Write-Host "`nStep 1.7: Fixing SDK build file names..." -ForegroundColor Green
 .\Fix-SdkBuildFiles.ps1 -RootPath $RootPath -DryRun:$DryRun
 
-# Step 1.8: Ensure analyzer references are correct in Directory.Build.targets
-Write-Host "`nStep 1.8: Verifying analyzer references..." -ForegroundColor Green
+# Step 1.8: Fix build props/targets file names
+Write-Host "`nStep 1.8: Fixing build props/targets file names..." -ForegroundColor Green
+.\Fix-BuildPropFileNames.ps1 -RootPath $RootPath -DryRun:$DryRun
+
+# Step 1.9: Ensure analyzer references are correct in Directory.Build.targets
+Write-Host "`nStep 1.9: Verifying analyzer references..." -ForegroundColor Green
 
 $targetFile = Join-Path $RootPath "Directory.Build.targets"
 if (Test-Path $targetFile) {
@@ -68,34 +72,38 @@ if (Test-Path $targetFile) {
 Write-Host "`nStep 2: Fixing project references..." -ForegroundColor Green
 .\Smart-Fix-References.ps1 -RootPath $RootPath -DryRun:$DryRun -BackupFirst:$BackupFirst
 
-# Step 3: Fix assembly names
-Write-Host "`nStep 3: Fixing assembly names..." -ForegroundColor Green
+# Step 3: Fix PackageId values
+Write-Host "`nStep 3: Fixing PackageId values..." -ForegroundColor Green
+.\Fix-PackageIds.ps1 -RootPath $RootPath -DryRun:$DryRun
+
+# Step 4: Fix assembly names
+Write-Host "`nStep 4: Fixing assembly names..." -ForegroundColor Green
 .\Fix-AssemblyNames.ps1 -RootPath $RootPath -CheckOnly:$DryRun
 
-# Step 4: Fix F# specific namespace issues
-Write-Host "`nStep 4: Fixing F# namespaces..." -ForegroundColor Green
+# Step 5: Fix F# specific namespace issues
+Write-Host "`nStep 5: Fixing F# namespaces..." -ForegroundColor Green
 .\Fix-FSharp-Namespaces.ps1 -Path $RootPath -DryRun:$DryRun
 
-# Step 5: Fix SDK targets files
-Write-Host "`nStep 5: Fixing SDK targets files..." -ForegroundColor Green
+# Step 6: Fix SDK targets files
+Write-Host "`nStep 6: Fixing SDK targets files..." -ForegroundColor Green
 .\Fix-SDK-Targets.ps1 -RootPath $RootPath -DryRun:$DryRun
 
-# Step 6: Fix special projects with unique requirements
-Write-Host "`nStep 6: Fixing special projects..." -ForegroundColor Green
+# Step 7: Fix special projects with unique requirements
+Write-Host "`nStep 7: Fixing special projects..." -ForegroundColor Green
 .\Fix-Special-Projects.ps1 -RootPath $RootPath -DryRun:$DryRun
 
-# Step 7: Clean NuGet cache artifacts if not dry run
+# Step 8: Clean NuGet cache artifacts if not dry run
 if (-not $DryRun) {
-    Write-Host "`nStep 7: Cleaning build artifacts..." -ForegroundColor Green
+    Write-Host "`nStep 8: Cleaning build artifacts..." -ForegroundColor Green
     Write-Host "  Removing project.assets.json files..." -ForegroundColor Gray
     Get-ChildItem -Path $RootPath -Recurse -Filter "project.assets.json" -ErrorAction SilentlyContinue | Remove-Item -Force
     Write-Host "  Removing .nuget.* files..." -ForegroundColor Gray
     Get-ChildItem -Path $RootPath -Recurse -Filter "*.csproj.nuget.*" -ErrorAction SilentlyContinue | Remove-Item -Force
 }
 
-# Step 8: Restore and build to verify
+# Step 9: Restore and build to verify
 if (-not $DryRun) {
-    Write-Host "`nStep 8: Restoring NuGet packages..." -ForegroundColor Green
+    Write-Host "`nStep 9: Restoring NuGet packages..." -ForegroundColor Green
     try {
         & dotnet restore "$RootPath\Orleans.sln" --force
         Write-Host "  Restore completed successfully" -ForegroundColor Green
@@ -104,7 +112,7 @@ if (-not $DryRun) {
         Write-Warning "Restore failed. You may need to run 'dotnet restore' manually."
     }
 
-    Write-Host "`nStep 9: Building solution to verify fixes..." -ForegroundColor Green
+    Write-Host "`nStep 10: Building solution to verify fixes..." -ForegroundColor Green
     try {
         # Clear any remaining bin/obj folders that might have cached data
         Write-Host "  Cleaning bin/obj folders..." -ForegroundColor Gray
@@ -160,10 +168,12 @@ Steps Completed:
 3. Project reference fixes
 4. Directory.Build file fixes
 5. SDK build file name fixes
-6. Assembly name updates
-7. F# namespace fixes
-8. SDK targets fixes
-9. Special project fixes
+6. Build props/targets file renames (Microsoft.Orleans.* -> Forkleans.*)
+7. PackageId fixes (Microsoft.Orleans.* -> Forkleans.*)
+8. Assembly name updates
+9. F# namespace fixes
+10. SDK targets fixes
+11. Special project fixes
 
 Conversion Summary:
 - All Orleans namespaces -> Forkleans
@@ -174,8 +184,8 @@ Conversion Summary:
 Known Issues to Watch:
 - Analyzer projects need ReferenceOutputAssembly="false"
 - Project reference paths should not change (Orleans.*.csproj)
-- Build file names (Microsoft.Orleans.*) should not change
 - MSBuild properties (OrleansBuildTimeCodeGen) remain unchanged
+- Build props/targets files are renamed to Forkleans.*
 
 Next Steps:
 1. Run 'dotnet build' to verify all projects compile

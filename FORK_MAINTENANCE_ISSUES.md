@@ -98,11 +98,24 @@ error NETSDK1005: Assets file doesn't have a target for 'net8.0'
    - Verify package names are correct
    - Ensure all Orleans types are now Forkleans types
 
+### 8. Build Props/Targets File Names
+
+**Problem**: Build props and targets files in CodeGenerator and Sdk projects retained Microsoft.Orleans.* naming:
+- `Microsoft.Orleans.CodeGenerator.props`
+- `Microsoft.Orleans.Sdk.targets`
+
+**Solution**: These files are now renamed to Forkleans.* by Fix-BuildPropFileNames.ps1:
+- `Microsoft.Orleans.CodeGenerator.props` → `Forkleans.CodeGenerator.props`
+- `Microsoft.Orleans.Sdk.targets` → `Forkleans.Sdk.targets`
+
+This ensures consistency in naming across all build artifacts.
+
 ## Manual Review Checklist
 
 After running Fix-Fork.ps1, manually review:
 - [ ] Directory.Build.targets has correct analyzer references
 - [ ] All Orleans-prefixed types are now Forkleans-prefixed
+- [ ] Build props/targets files are renamed to Forkleans.*
 - [ ] Project builds successfully
 - [ ] No Windows-specific paths in project.assets.json files
 - [ ] Test that exceptions can be caught with new names

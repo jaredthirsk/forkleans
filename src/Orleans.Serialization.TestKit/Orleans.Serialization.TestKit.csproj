@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Forkleans.Serialization.TestKit</AssemblyName>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Forkleans.Serialization.TestKit</PackageId>
+    <PackageId>Forkleans.Serialization.TestKit</PackageId>
     <TargetFrameworks>$(DefaultTargetFrameworks);netstandard2.1</TargetFrameworks>
     <PackageDescription>Test kit for projects using Forkleans.Serialization</PackageDescription>
     <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>

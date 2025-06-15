@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Forkleans.Runtime</AssemblyName>
-    <PackageId>Microsoft.Forkleans.Runtime</PackageId>
+    <PackageId>Forkleans.Runtime</PackageId>
     <Title>Microsoft Orleans Runtime</Title>
     <Description>Core runtime library of Microsoft Orleans that hosts and executes grains within a silo.</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>

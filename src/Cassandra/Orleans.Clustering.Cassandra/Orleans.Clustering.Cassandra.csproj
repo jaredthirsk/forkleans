@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Forkleans.Clustering.Cassandra</PackageId>
+    <PackageId>Forkleans.Clustering.Cassandra</PackageId>
     <Title>Microsoft Orleans Cassandra Clustering Provider</Title>
     <Description>Microsoft Orleans clustering provider backed by Cassandra</Description>
     <PackageTags>$(PackageTags) Cassandra</PackageTags>

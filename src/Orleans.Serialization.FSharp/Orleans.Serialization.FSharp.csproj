@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Forkleans.Serialization.FSharp</AssemblyName>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Forkleans.Serialization.FSharp</PackageId>
+    <PackageId>Forkleans.Serialization.FSharp</PackageId>
     <TargetFrameworks>$(DefaultTargetFrameworks);netstandard2.1</TargetFrameworks>
     <PackageDescription>F# core type support for Forkleans.Serialization</PackageDescription>
     <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>

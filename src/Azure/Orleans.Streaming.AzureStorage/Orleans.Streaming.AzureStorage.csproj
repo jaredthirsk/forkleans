@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Forkleans.Streaming.AzureStorage</PackageId>
+    <PackageId>Forkleans.Streaming.AzureStorage</PackageId>
     <Title>Microsoft Orleans Azure Queue Storage Streaming Provider</Title>
     <Description>Microsoft Orleans streaming provider backed by Azure Queue Storage</Description>
     <PackageTags>$(PackageTags) Azure Table Blob Storage</PackageTags>

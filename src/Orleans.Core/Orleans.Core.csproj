@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Forkleans.Core</AssemblyName>
-    <PackageId>Microsoft.Forkleans.Core</PackageId>
+    <PackageId>Forkleans.Core</PackageId>
     <Title>Microsoft Orleans Core Library</Title>
     <Description>Core library of Microsoft Orleans used both on the client and server.</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyName>Forkleans.Sdk</AssemblyName>
-    <PackageId>Microsoft.Forkleans.Sdk</PackageId>
+    <PackageId>Forkleans.Sdk</PackageId>
     <Description>Microsoft Orleans meta package to bring in the base Orleans packages for all project types.</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <IncludeBuildOutput>false</IncludeBuildOutput>

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Forkleans.BroadcastChannel</AssemblyName>
-    <PackageId>Microsoft.Forkleans.BroadcastChannel</PackageId>
+    <PackageId>Forkleans.BroadcastChannel</PackageId>
     <Title>Microsoft Orleans Broadcast Channel Library</Title>
     <Description>Broadcast Channel library for Microsoft Orleans used both on the client and server.</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>

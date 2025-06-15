@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Forkleans.Streaming</AssemblyName>
-    <PackageId>Microsoft.Forkleans.Streaming</PackageId>
+    <PackageId>Forkleans.Streaming</PackageId>
     <Title>Microsoft Orleans Streaming Library</Title>
     <Description>Streaming library for Microsoft Orleans used both on the client and server.</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>

@@ -4,8 +4,8 @@
     <InformationalVersion>$(Version). Commit Hash: $(GitHeadSha)</InformationalVersion>
   </PropertyGroup>
 
-  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Orleans.CodeGenerator/build/Microsoft.Orleans.CodeGenerator.props" />
-  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Orleans.Sdk/build/Microsoft.Orleans.Sdk.targets" />
+  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Orleans.CodeGenerator/build/Forkleans.CodeGenerator.props" />
+  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Orleans.Sdk/build/Forkleans.Sdk.targets" />
   
   <!-- Conditionally reference the analyzer projects based on OrleansBuildTimeCodeGen -->
   <ItemGroup Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' ">

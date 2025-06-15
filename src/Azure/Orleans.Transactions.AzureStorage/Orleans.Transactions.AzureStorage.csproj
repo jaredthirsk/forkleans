@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Forkleans.Transactions.AzureStorage</PackageId>
+    <PackageId>Forkleans.Transactions.AzureStorage</PackageId>
     <Title>Microsoft Orleans Azure Storage Transactions Provider</Title>
     <Description>Microsoft Orleans transactions storage provider backed by Azure Storage</Description>
     <PackageTags>$(PackageTags) Azure Transactions</PackageTags>

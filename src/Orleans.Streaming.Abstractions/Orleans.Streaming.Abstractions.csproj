@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyName>Forkleans.Streaming.Abstractions</AssemblyName>
-    <PackageId>Microsoft.Forkleans.Streaming.Abstractions</PackageId>
+    <PackageId>Forkleans.Streaming.Abstractions</PackageId>
     <Title>Microsoft Orleans Streaming Abstractions</Title>
     <Description>Streaming abstractions library for Microsoft Orleans</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>

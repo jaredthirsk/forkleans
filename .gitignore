@@ -227,3 +227,4 @@ reference-fix-report.txt
 /.claude/settings.local.json
 
 /.claude
+NuGet.config.local

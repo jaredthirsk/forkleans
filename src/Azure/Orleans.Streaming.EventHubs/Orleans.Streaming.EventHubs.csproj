@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Forkleans.Streaming.EventHubs</PackageId>
+    <PackageId>Forkleans.Streaming.EventHubs</PackageId>
     <Title>Microsoft Orleans Azure Event Hubs Streaming Provider</Title>
     <Description>Microsoft Orleans streaming provider backed by Azure Event Hubs</Description>
     <PackageTags>$(PackageTags) Azure EventHubs</PackageTags>

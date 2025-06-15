@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Forkleans.Reminders</AssemblyName>
-    <PackageId>Microsoft.Forkleans.Reminders</PackageId>
+    <PackageId>Forkleans.Reminders</PackageId>
     <Title>Microsoft Orleans Reminders Library</Title>
     <Description>Reminders library for Microsoft Orleans used on the server.</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>

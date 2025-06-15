@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Forkleans.Transactions.TestKit.xUnit</PackageId>
+    <PackageId>Forkleans.Transactions.TestKit.xUnit</PackageId>
     <Title>Microsoft Orleans Transactions test kit for xUnit</Title>
     <Description>xUnit testkit library for transactions</Description>
     <PackageTags>$(PackageTags) TransactionTestKit</PackageTags>

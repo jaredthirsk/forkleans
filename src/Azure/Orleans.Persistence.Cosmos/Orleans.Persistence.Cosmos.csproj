@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Forkleans.Persistence.Cosmos</PackageId>
+    <PackageId>Forkleans.Persistence.Cosmos</PackageId>
     <Title>Microsoft Orleans Grain Storage for Azure Cosmos DB</Title>
     <Description>Microsoft Orleans persistence providers for Azure Cosmos DB</Description>
     <PackageTags>$(PackageTags) Azure Cosmos DB Storage</PackageTags>

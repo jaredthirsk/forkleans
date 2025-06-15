@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Forkleans.Serialization.NewtonsoftJson</AssemblyName>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Forkleans.Serialization.NewtonsoftJson</PackageId>
+    <PackageId>Forkleans.Serialization.NewtonsoftJson</PackageId>
     <TargetFrameworks>$(DefaultTargetFrameworks);netstandard2.1</TargetFrameworks>
     <PackageDescription>Newtonsoft.Json integration for Forkleans.Serialization</PackageDescription>
     <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>

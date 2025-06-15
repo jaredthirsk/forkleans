@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Forkleans.Clustering.Consul</PackageId>
+    <PackageId>Forkleans.Clustering.Consul</PackageId>
     <Title>Microsoft Orleans clustering provider for Consul</Title>
     <Description>Microsoft Orleans clustering provider backed by Consul</Description>
     <PackageTags>$(PackageTags) Consul</PackageTags>

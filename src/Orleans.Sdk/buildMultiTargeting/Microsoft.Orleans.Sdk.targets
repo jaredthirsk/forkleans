@@ -1,3 +1,0 @@
-<Project>
-  <Import Project="..\build\Microsoft.Forkleans.Sdk.targets" />
-</Project>

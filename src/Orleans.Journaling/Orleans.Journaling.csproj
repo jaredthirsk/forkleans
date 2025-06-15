@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyName>Forkleans.Journaling</AssemblyName>
-    <PackageId>Microsoft.Forkleans.Journaling</PackageId>
+    <PackageId>Forkleans.Journaling</PackageId>
     <Title>Microsoft Orleans Journaling</Title>
     <Description>Extensible persistence for grains based on replicated state machines.</Description>
     <PackageTags>$(PackageTags) Persistence State Machines</PackageTags>

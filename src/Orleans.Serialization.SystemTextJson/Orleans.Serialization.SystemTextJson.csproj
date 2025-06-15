@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Forkleans.Serialization.SystemTextJson</AssemblyName>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Forkleans.Serialization.SystemTextJson</PackageId>
+    <PackageId>Forkleans.Serialization.SystemTextJson</PackageId>
     <TargetFrameworks>$(DefaultTargetFrameworks);netstandard2.1</TargetFrameworks>
     <PackageDescription>System.Text.Json integration for Forkleans.Serialization</PackageDescription>
     <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>

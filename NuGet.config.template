@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <!-- Add your local feed here -->
+    <add key="LocalForkleansRpc" value="C:\NuGetLocalFeed" />
+    <!-- You can also use a relative path -->
+    <!-- <add key="LocalForkleansRpc" value="../../orleans/artifacts/packages" /> -->
+    
+    <!-- Keep the default nuget.org feed -->
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+  </packageSources>
+  
+  <packageSourceMapping>
+    <!-- Map Forkleans.Rpc.* packages to your local feed -->
+    <packageSource key="LocalForkleansRpc">
+      <package pattern="Forkleans.Rpc.*" />
+    </packageSource>
+    
+    <!-- Everything else comes from nuget.org -->
+    <packageSource key="nuget.org">
+      <package pattern="*" />
+    </packageSource>
+  </packageSourceMapping>
+</configuration>

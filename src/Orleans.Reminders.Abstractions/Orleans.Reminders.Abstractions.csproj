@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyName>Forkleans.Reminders.Abstractions</AssemblyName>
-    <PackageId>Microsoft.Forkleans.Reminders.Abstractions</PackageId>
+    <PackageId>Forkleans.Reminders.Abstractions</PackageId>
     <Title>Microsoft Orleans Reminders Abstractions</Title>
     <Description>Reminders abstractions library for Microsoft Orleans</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>

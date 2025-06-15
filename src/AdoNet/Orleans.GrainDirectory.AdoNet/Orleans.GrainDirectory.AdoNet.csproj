@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Microsoft.Forkleans.GrainDirectory.AdoNet</PackageId>
+    <PackageId>Forkleans.GrainDirectory.AdoNet</PackageId>
     <Title>Microsoft Orleans ADO.NET Grain Directory Provider</Title>
     <Description>Microsoft Orleans grain directory provider backed by ADO.NET</Description>
     <PackageTags>$(PackageTags) ADO.NET SQL</PackageTags>

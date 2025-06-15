@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Forkleans.TestingHost</AssemblyName>
-    <PackageId>Microsoft.Forkleans.TestingHost</PackageId>
+    <PackageId>Forkleans.TestingHost</PackageId>
     <Title>Microsoft Orleans Testing Host Library</Title>
     <Description>Microsoft Orleans library for hosting a silo in a testing project.</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>

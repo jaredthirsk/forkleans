@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyName>Forkleans.Connections.Security</AssemblyName>
-    <PackageId>Microsoft.Forkleans.Connections.Security</PackageId>
+    <PackageId>Forkleans.Connections.Security</PackageId>
     <Title>Microsoft Orleans TLS support</Title>
     <Description>Support for security communication using TLS in Microsoft Forkleans.</Description>
     <PackageTags>$(PackageTags) TLS SSL</PackageTags>

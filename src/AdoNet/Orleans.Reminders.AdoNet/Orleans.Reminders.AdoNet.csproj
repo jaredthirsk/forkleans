@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Forkleans.Reminders.AdoNet</PackageId>
+    <PackageId>Forkleans.Reminders.AdoNet</PackageId>
     <Title>Microsoft Orleans ADO.NET Reminders Provider</Title>
     <Description>Microsoft Orleans reminders provider backed by ADO.NET</Description>
     <PackageTags>$(PackageTags) ADO.NET SQL MySQL PostgreSQL Oracle</PackageTags>

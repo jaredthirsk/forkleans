@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Forkleans.Persistence.DynamoDB</PackageId>
+    <PackageId>Forkleans.Persistence.DynamoDB</PackageId>
     <Title>Microsoft Orleans AWS DynamoDB Persistence Provider</Title>
     <Description>Microsoft Orleans persistence providers backed by AWS DynamoDB</Description>
     <PackageTags>$(PackageTags) AWS DynamoDB</PackageTags>

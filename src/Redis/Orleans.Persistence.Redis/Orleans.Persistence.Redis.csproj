@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Forkleans.Persistence.Redis</AssemblyName>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Forkleans.Persistence.Redis</PackageId>
+    <PackageId>Forkleans.Persistence.Redis</PackageId>
     <Title>Microsoft Orleans Persistence Redis Provider</Title>
     <Description>Microsoft Orleans Persistence implementation that uses Redis</Description>
     <PackageTags>$(PackageTags) Redis Persistence</PackageTags>

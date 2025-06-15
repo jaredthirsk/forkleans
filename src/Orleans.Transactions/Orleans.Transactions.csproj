@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Forkleans.Transactions</PackageId>
+    <PackageId>Forkleans.Transactions</PackageId>
     <Title>Microsoft Orleans Transactions support</Title>
     <Description>Core Transaction library of Microsoft Orleans used on the server.</Description>
     <PackageTags>$(PackageTags) Transactions</PackageTags>

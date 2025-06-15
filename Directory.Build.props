@@ -60,7 +60,7 @@
     <VersionSuffix Condition=" '$(VersionDateSuffix)'!='' ">$(VersionSuffix)-$(VersionDateSuffix)</VersionSuffix>
   </PropertyGroup>
 
-  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Orleans.CodeGenerator/build/Microsoft.Orleans.CodeGenerator.props" />
+  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Orleans.CodeGenerator/build/Forkleans.CodeGenerator.props" />
 
   <!-- Set output folder for created NuGet packages -->
   <PropertyGroup>
@@ -105,7 +105,7 @@
   </Choose>
   <PropertyGroup>
     <PackageIdPrefix>Forkleans.</PackageIdPrefix>
-    <Version>1.0.0-fork</Version>
+    <Version>9.2.0.1-preview3</Version>
     <PackageProjectUrl>https://github.com/jaredthirsk/forkleans</PackageProjectUrl>
   </PropertyGroup>
 </Project>

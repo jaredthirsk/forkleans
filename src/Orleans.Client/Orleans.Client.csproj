@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Forkleans.Client</AssemblyName>
-    <PackageId>Microsoft.Forkleans.Client</PackageId>
+    <PackageId>Forkleans.Client</PackageId>
     <Title>Microsoft Orleans Client Libraries</Title>
     <Description>Collection of Microsoft Orleans libraries and files needed on the client.</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>

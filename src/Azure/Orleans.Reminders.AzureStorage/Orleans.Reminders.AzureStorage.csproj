@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Microsoft.Forkleans.Reminders.AzureStorage</PackageId>
+    <PackageId>Forkleans.Reminders.AzureStorage</PackageId>
     <Title>Microsoft Orleans Azure Table Storage Reminders Provider</Title>
     <Description>Microsoft Orleans reminders provider backed by Azure Table Storage</Description>
     <PackageTags>$(PackageTags) Azure Table Storage</PackageTags>

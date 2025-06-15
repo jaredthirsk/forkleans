@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyName>Forkleans.Serialization.Abstractions</AssemblyName>
-    <PackageId>Microsoft.Forkleans.Serialization.Abstractions</PackageId>
+    <PackageId>Forkleans.Serialization.Abstractions</PackageId>
     <Title>Microsoft Orleans Serialization Abstractions</Title>
     <Description>Serialization abstractions for Microsoft Orleans</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks);$(CompatibilityTargetFrameworks)</TargetFrameworks>
