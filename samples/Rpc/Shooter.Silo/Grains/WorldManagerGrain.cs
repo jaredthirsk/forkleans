@@ -5,7 +5,7 @@ using Shooter.Shared.Models;
 
 namespace Shooter.Silo.Grains;
 
-public class WorldManagerGrain : Grain, IWorldManagerGrain
+public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
 {
     private readonly IPersistentState<WorldManagerState> _state;
     private readonly Dictionary<GridSquare, ActionServerInfo> _gridToServer = new();
@@ -29,7 +29,7 @@ public class WorldManagerGrain : Grain, IWorldManagerGrain
         return base.OnActivateAsync(cancellationToken);
     }
 
-    public async Task<ActionServerInfo> RegisterActionServer(string serverId, string ipAddress, int udpPort)
+    public async Task<ActionServerInfo> RegisterActionServer(string serverId, string ipAddress, int udpPort, string httpEndpoint)
     {
         // Create a 3x3 grid pattern
         // Server 0: (0,0), Server 1: (1,0), Server 2: (2,0)
@@ -42,7 +42,7 @@ public class WorldManagerGrain : Grain, IWorldManagerGrain
         
         _nextServerIndex++;
 
-        var serverInfo = new ActionServerInfo(serverId, ipAddress, udpPort, assignedSquare, DateTime.UtcNow);
+        var serverInfo = new ActionServerInfo(serverId, ipAddress, udpPort, httpEndpoint, assignedSquare, DateTime.UtcNow);
         
         // If a server already manages this square, remove it first
         if (_gridToServer.ContainsKey(assignedSquare))
@@ -165,7 +165,7 @@ public class WorldManagerGrain : Grain, IWorldManagerGrain
     }
 }
 
-[GenerateSerializer]
+[Orleans.GenerateSerializer]
 public class WorldManagerState
 {
     public List<ActionServerInfo> ActionServers { get; set; } = new();

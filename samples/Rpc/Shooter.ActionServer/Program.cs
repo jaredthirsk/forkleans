@@ -62,6 +62,13 @@ builder.Services.AddHostedService(provider => (WorldSimulation)provider.GetRequi
 builder.Services.AddSingleton<GameService>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<GameService>());
 
+// Add UDP game server
+builder.Services.AddSingleton<UdpGameServer>();
+builder.Services.AddHostedService(provider => provider.GetRequiredService<UdpGameServer>());
+
+// Direct UDP implementation using LiteNetLib
+// Orleans RPC cannot be mixed with Orleans hosting, so we use LiteNetLib directly
+
 // Add background service for registration
 builder.Services.AddHostedService<ActionServerRegistrationService>();
 
@@ -137,6 +144,7 @@ public class ActionServerRegistrationService : BackgroundService
     private readonly IConfiguration _configuration;
     private readonly IHostApplicationLifetime _lifetime;
     private readonly IServiceProvider _serviceProvider;
+    private readonly UdpGameServer _udpGameServer;
     private string? _serverId;
     private string? _siloUrl;
 
@@ -146,7 +154,8 @@ public class ActionServerRegistrationService : BackgroundService
         IWorldSimulation simulation,
         IConfiguration configuration,
         IHostApplicationLifetime lifetime,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        UdpGameServer udpGameServer)
     {
         _logger = logger;
         _httpClientFactory = httpClientFactory;
@@ -154,6 +163,7 @@ public class ActionServerRegistrationService : BackgroundService
         _configuration = configuration;
         _lifetime = lifetime;
         _serviceProvider = serviceProvider;
+        _udpGameServer = udpGameServer;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -200,7 +210,30 @@ public class ActionServerRegistrationService : BackgroundService
         _serverId = Guid.NewGuid().ToString();
         _siloUrl = _configuration["Orleans:SiloUrl"] ?? "https://localhost:7071";
         
-        _logger.LogInformation("ActionServer starting with ID: {ServerId}, Port: {Port}", _serverId, actualPort);
+        _logger.LogInformation("ActionServer starting with ID: {ServerId}, HTTP Port: {Port}", _serverId, actualPort);
+        
+        // Wait for UDP server to start and get its port
+        var maxWaitTime = TimeSpan.FromSeconds(10);
+        var startTime = DateTime.UtcNow;
+        int rpcUdpPort = 0;
+        
+        while (rpcUdpPort == 0 && DateTime.UtcNow - startTime < maxWaitTime)
+        {
+            rpcUdpPort = _udpGameServer.UdpPort;
+            if (rpcUdpPort == 0)
+            {
+                _logger.LogInformation("Waiting for UDP server to start...");
+                await Task.Delay(500, stoppingToken);
+            }
+        }
+        
+        if (rpcUdpPort == 0)
+        {
+            _logger.LogError("UDP server failed to start within timeout");
+            return;
+        }
+        
+        _logger.LogInformation("UDP server started on port {Port}", rpcUdpPort);
         
         // Retry registration with exponential backoff
         var retryCount = 0;
@@ -213,15 +246,42 @@ public class ActionServerRegistrationService : BackgroundService
             {
                 _logger.LogInformation("Attempting to register with silo (attempt {Attempt}/{MaxAttempts})", retryCount + 1, maxRetries);
                 
-                // In Aspire, use the service instance name (e.g., shooter-actionserver-0, shooter-actionserver-1)
+                // Determine the best IP/hostname to use
+                string ipAddress;
+                
+                // First try Aspire service instance name
                 var serviceName = Environment.GetEnvironmentVariable("ASPIRE_SERVICE_INSTANCE_NAME");
-                var ipAddress = string.IsNullOrEmpty(serviceName) ? "127.0.0.1" : serviceName;
+                if (!string.IsNullOrEmpty(serviceName))
+                {
+                    ipAddress = serviceName;
+                    _logger.LogInformation("Using Aspire service name: {IpAddress}", ipAddress);
+                }
+                else if (!string.IsNullOrEmpty(actualAddress))
+                {
+                    // Extract hostname from the actual HTTP address
+                    try
+                    {
+                        var uri = new Uri(actualAddress);
+                        ipAddress = uri.Host;
+                        _logger.LogInformation("Using hostname from HTTP endpoint: {IpAddress}", ipAddress);
+                    }
+                    catch
+                    {
+                        ipAddress = "127.0.0.1";
+                        _logger.LogWarning("Failed to extract hostname, using localhost");
+                    }
+                }
+                else
+                {
+                    ipAddress = "127.0.0.1";
+                    _logger.LogInformation("Using default localhost");
+                }
                 
                 _logger.LogInformation("Registering with IP/hostname: {IpAddress}", ipAddress);
                 
                 var response = await httpClient.PostAsJsonAsync(
                     $"{_siloUrl}/api/world/action-servers/register",
-                    new { ServerId = _serverId, IpAddress = ipAddress, UdpPort = actualPort },
+                    new { ServerId = _serverId, IpAddress = ipAddress, UdpPort = rpcUdpPort, HttpEndpoint = actualAddress },
                     stoppingToken);
                     
                 if (response.IsSuccessStatusCode)
@@ -320,3 +380,61 @@ public class OrleansStartupDelayService : IHostedService
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }
+
+// TODO: Implement RPC server hosted service when Orleans RPC integration is configured
+// Hosted service to manage RPC server lifecycle
+// public class RpcServerHostedService : IHostedService
+// {
+//     private readonly IRpcServer _rpcServer;
+//     private readonly ILogger<RpcServerHostedService> _logger;
+//     private readonly IConfiguration _configuration;
+//     private int _actualPort;
+// 
+//     public RpcServerHostedService(IRpcServer rpcServer, ILogger<RpcServerHostedService> logger, IConfiguration configuration)
+//     {
+//         _rpcServer = rpcServer;
+//         _logger = logger;
+//         _configuration = configuration;
+//     }
+// 
+//     public async Task StartAsync(CancellationToken cancellationToken)
+//     {
+//         try
+//         {
+//             await _rpcServer.StartAsync(cancellationToken);
+//             
+//             // Get the actual port that was bound
+//             var transport = _rpcServer.Transport as LiteNetLibTransport;
+//             if (transport != null)
+//             {
+//                 _actualPort = transport.LocalPort;
+//                 _logger.LogInformation("RPC server started on UDP port {Port}", _actualPort);
+//                 
+//                 // Store the UDP port in configuration for registration
+//                 _configuration["RpcServer:UdpPort"] = _actualPort.ToString();
+//             }
+//             else
+//             {
+//                 _logger.LogError("Failed to get RPC server port - transport is not LiteNetLib");
+//             }
+//         }
+//         catch (Exception ex)
+//         {
+//             _logger.LogError(ex, "Failed to start RPC server");
+//             throw;
+//         }
+//     }
+// 
+//     public async Task StopAsync(CancellationToken cancellationToken)
+//     {
+//         try
+//         {
+//             await _rpcServer.StopAsync(cancellationToken);
+//             _logger.LogInformation("RPC server stopped");
+//         }
+//         catch (Exception ex)
+//         {
+//             _logger.LogError(ex, "Error stopping RPC server");
+//         }
+//     }
+// }

@@ -2,7 +2,9 @@
 @using Shooter.Client.Services
 @using Shooter.Client.Components
 @using Shooter.Shared.Models
-@inject GameClientService GameClient
+@inject GameClientService HttpGameClient
+@inject UdpGameClientService UdpGameClient
+@inject IGameClientProvider ClientProvider
 @inject NavigationManager Navigation
 @implements IDisposable
 
@@ -29,6 +31,10 @@
             {
                 <div class="error">@_errorMessage</div>
             }
+            
+            <div class="connection-type">
+                <small>Using: @(ClientProvider.UseRpc ? "UDP" : "HTTP") connection</small>
+            </div>
         </div>
     }
     else
@@ -38,7 +44,7 @@
                 <GameCanvas Width="1200" Height="800" 
                            WorldState="@_currentWorldState" 
                            PlayerId="@_playerId"
-                           ServerId="@GameClient.CurrentServerId"
+                           ServerId="@_currentServerId"
                            AvailableZones="@_availableZones" />
             </div>
             <div class="game-sidebar">
@@ -48,12 +54,17 @@
                              
                 <div class="game-stats">
                     <h4>Stats</h4>
-                    <p>Entities: @(_currentWorldState?.Entities.Count ?? 0)</p>
                     <p>FPS: @_fps</p>
+                    <p>Entities: @(_currentWorldState?.Entities?.Count ?? 0)</p>
+                    <p>Connection: @(ClientProvider.UseRpc ? "UDP" : "HTTP")</p>
+                    <p>Server: @_currentServerId</p>
                 </div>
                 
-                <button class="disconnect-btn" @onclick="Disconnect">
-                    Disconnect
+                <button class="disconnect-btn" @onclick="Disconnect">Disconnect</button>
+                
+                <!-- Manual navbar toggle -->
+                <button class="navbar-toggle-btn" @onclick="ToggleNavbar">
+                    Toggle Navbar
                 </button>
             </div>
         </div>
@@ -62,32 +73,31 @@
 
 <style>
     .game-container {
-        height: 100vh;
+        padding: 20px;
+        min-height: calc(100vh - 56px);
         background-color: #1a1a1a;
-        display: flex;
-        justify-content: center;
-        align-items: center;
     }
     
     .connection-form {
+        max-width: 400px;
+        margin: 100px auto;
+        padding: 30px;
         background-color: #2a2a2a;
-        padding: 40px;
         border-radius: 8px;
         text-align: center;
-        color: white;
     }
     
     .connection-form h2 {
-        margin-top: 0;
+        color: #888;
+        margin-bottom: 20px;
     }
     
     .connection-form input {
-        display: block;
         width: 100%;
         padding: 10px;
-        margin: 20px 0;
+        margin-bottom: 20px;
+        background-color: #333;
         border: 1px solid #444;
-        background-color: #1a1a1a;
         color: white;
         border-radius: 4px;
     }
@@ -111,6 +121,11 @@
     .error {
         color: #ff4444;
         margin-top: 10px;
+    }
+    
+    .connection-type {
+        margin-top: 10px;
+        color: #888;
     }
     
     .game-layout {
@@ -144,11 +159,21 @@
         border-radius: 4px;
         cursor: pointer;
     }
+    
+    .navbar-toggle-btn {
+        padding: 10px 20px;
+        background-color: #555;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
 </style>
 
 @code {
     private string _playerName = "";
     private string _playerId = "";
+    private string _currentServerId = "";
     private bool _isConnected = false;
     private bool _isConnecting = false;
     private string _errorMessage = "";
@@ -162,8 +187,18 @@
     
     protected override void OnInitialized()
     {
-        GameClient.WorldStateUpdated += OnWorldStateUpdated;
-        GameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
+        if (ClientProvider.UseRpc)
+        {
+            UdpGameClient.WorldStateUpdated += OnWorldStateUpdated;
+            UdpGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
+            UdpGameClient.ServerChanged += OnServerChanged;
+        }
+        else
+        {
+            HttpGameClient.WorldStateUpdated += OnWorldStateUpdated;
+            HttpGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
+            HttpGameClient.ServerChanged += OnServerChanged;
+        }
     }
     
     private async Task ConnectToGame()
@@ -179,11 +214,29 @@
         
         try
         {
-            var connected = await GameClient.ConnectAsync(_playerName);
+            bool connected;
+            if (ClientProvider.UseRpc)
+            {
+                connected = await UdpGameClient.ConnectAsync(_playerName);
+                if (connected)
+                {
+                    _playerId = UdpGameClient.PlayerId ?? string.Empty;
+                    _currentServerId = UdpGameClient.CurrentServerId ?? "Unknown";
+                }
+            }
+            else
+            {
+                connected = await HttpGameClient.ConnectAsync(_playerName);
+                if (connected)
+                {
+                    _playerId = HttpGameClient.PlayerId ?? string.Empty;
+                    _currentServerId = HttpGameClient.CurrentServerId ?? "Unknown";
+                }
+            }
+            
             if (connected)
             {
                 _isConnected = true;
-                _playerId = GameClient.PlayerId ?? string.Empty; // Get the actual player ID from service
             }
             else
             {
@@ -202,7 +255,15 @@
     
     private async Task Disconnect()
     {
-        await GameClient.DisconnectAsync();
+        if (ClientProvider.UseRpc)
+        {
+            await UdpGameClient.DisconnectAsync();
+        }
+        else
+        {
+            await HttpGameClient.DisconnectAsync();
+        }
+        
         _isConnected = false;
         Navigation.NavigateTo("/");
     }
@@ -212,7 +273,14 @@
         _currentMoveDirection = direction;
         if (_isConnected)
         {
-            await GameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
+            if (ClientProvider.UseRpc)
+            {
+                await UdpGameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
+            }
+            else
+            {
+                await HttpGameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
+            }
         }
     }
     
@@ -221,7 +289,14 @@
         _currentIsShooting = isShooting;
         if (_isConnected)
         {
-            await GameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
+            if (ClientProvider.UseRpc)
+            {
+                await UdpGameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
+            }
+            else
+            {
+                await HttpGameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
+            }
         }
     }
     
@@ -248,9 +323,32 @@
         InvokeAsync(StateHasChanged);
     }
     
+    private void OnServerChanged(string serverId)
+    {
+        _currentServerId = serverId;
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private void ToggleNavbar()
+    {
+        // Toggle navbar visibility - simple implementation
+        // In a real app, you'd want to use JavaScript interop to toggle Bootstrap navbar
+        Navigation.NavigateTo(Navigation.Uri + "#toggle", forceLoad: false);
+    }
+    
     public void Dispose()
     {
-        GameClient.WorldStateUpdated -= OnWorldStateUpdated;
-        GameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
+        if (ClientProvider.UseRpc)
+        {
+            UdpGameClient.WorldStateUpdated -= OnWorldStateUpdated;
+            UdpGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
+            UdpGameClient.ServerChanged -= OnServerChanged;
+        }
+        else
+        {
+            HttpGameClient.WorldStateUpdated -= OnWorldStateUpdated;
+            HttpGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
+            HttpGameClient.ServerChanged -= OnServerChanged;
+        }
     }
 }

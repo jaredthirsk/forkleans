@@ -5,7 +5,7 @@ using Shooter.Shared.Models;
 
 namespace Shooter.Silo.Grains;
 
-public class PlayerGrain : Grain, IPlayerGrain
+public class PlayerGrain : Orleans.Grain, IPlayerGrain
 {
     private readonly IPersistentState<PlayerState> _state;
 
@@ -60,7 +60,7 @@ public class PlayerGrain : Grain, IPlayerGrain
     }
 }
 
-[GenerateSerializer]
+[Orleans.GenerateSerializer]
 public class PlayerState
 {
     public string Name { get; set; } = "";

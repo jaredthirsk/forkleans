@@ -9,9 +9,9 @@ namespace Shooter.Silo.Controllers;
 [Route("api/[controller]")]
 public class WorldController : ControllerBase
 {
-    private readonly IGrainFactory _grainFactory;
+    private readonly Orleans.IGrainFactory _grainFactory;
 
-    public WorldController(IGrainFactory grainFactory)
+    public WorldController(Orleans.IGrainFactory grainFactory)
     {
         _grainFactory = grainFactory;
     }
@@ -23,7 +23,8 @@ public class WorldController : ControllerBase
         var serverInfo = await worldManager.RegisterActionServer(
             request.ServerId, 
             request.IpAddress, 
-            request.UdpPort);
+            request.UdpPort,
+            request.HttpEndpoint);
         return Ok(serverInfo);
     }
 
@@ -95,7 +96,7 @@ public class WorldController : ControllerBase
     }
 }
 
-public record RegisterActionServerRequest(string ServerId, string IpAddress, int UdpPort);
+public record RegisterActionServerRequest(string ServerId, string IpAddress, int UdpPort, string HttpEndpoint);
 public record RegisterPlayerRequest(string PlayerId, string Name);
 public record PlayerRegistrationResponse
 {

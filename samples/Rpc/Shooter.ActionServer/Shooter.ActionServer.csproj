@@ -8,8 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Forkleans.Rpc.Server" Version="9.2.0.1-preview3" />
-    <PackageReference Include="Forkleans.Rpc.Transport.LiteNetLib" Version="9.2.0.1-preview3" />
+    <PackageReference Include="LiteNetLib" Version="1.2.0" />
     <PackageReference Include="Microsoft.Orleans.Client" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.*" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.*" />

@@ -24,6 +24,7 @@ public record ActionServerInfo(
     string ServerId,
     string IpAddress,
     int UdpPort,
+    string HttpEndpoint,
     GridSquare AssignedSquare,
     DateTime RegisteredAt);
 

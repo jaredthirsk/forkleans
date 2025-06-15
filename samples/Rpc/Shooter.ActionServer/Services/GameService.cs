@@ -151,11 +151,7 @@ public class GameService : IGameService, IHostedService
     {
         try
         {
-            var baseUrl = targetServer.IpAddress.Any(char.IsLetter) 
-                ? $"http://{targetServer.IpAddress}/"
-                : $"http://{targetServer.IpAddress}:{targetServer.UdpPort}/";
-                
-            using var client = new HttpClient { BaseAddress = new Uri(baseUrl) };
+            using var client = new HttpClient { BaseAddress = new Uri(targetServer.HttpEndpoint) };
             
             var response = await client.PostAsJsonAsync($"game/transfer-entity", new
             {

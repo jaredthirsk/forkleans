@@ -50,7 +50,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Add a simple endpoint to check if Orleans is ready
-app.MapGet("/orleans-ready", (IGrainFactory grainFactory) =>
+app.MapGet("/orleans-ready", (Orleans.IGrainFactory grainFactory) =>
 {
     return Results.Ok(new { Ready = true });
 });
