@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Shooter.Shared.GrainInterfaces;
 using Shooter.Shared.Models;
+using System.Linq;
 
 namespace Shooter.ActionServer.Simulation;
 
@@ -16,6 +17,8 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private GridSquare _assignedSquare = new GridSquare(0, 0);
     private DateTime _lastUpdate = DateTime.UtcNow;
     private int _nextEntityId = 1;
+    private HashSet<GridSquare> _availableZones = new();
+    private DateTime _lastZoneCheck = DateTime.MinValue;
 
     public WorldSimulation(ILogger<WorldSimulation> logger, Orleans.IClusterClient orleansClient)
     {
@@ -34,7 +37,39 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         try
         {
             var playerGrain = _orleansClient.GetGrain<IPlayerGrain>(playerId);
-            var playerInfo = await playerGrain.GetInfo();
+            
+            // Retry up to 3 times with delays to ensure position is updated
+            PlayerInfo? playerInfo = null;
+            for (int i = 0; i < 3; i++)
+            {
+                playerInfo = await playerGrain.GetInfo();
+                
+                // Check if the position looks valid (not at 0,0 unless that's actually in the zone)
+                var playerZone = GridSquare.FromPosition(playerInfo.Position);
+                if (playerZone == _assignedSquare || i == 2) // Accept on last try regardless
+                {
+                    break;
+                }
+                
+                _logger.LogWarning("Player {PlayerId} position {Position} is in zone {PlayerZone} but we are zone {AssignedZone}, retrying...", 
+                    playerId, playerInfo.Position, playerZone, _assignedSquare);
+                    
+                await Task.Delay(100); // Wait 100ms before retry
+            }
+            
+            if (playerInfo == null)
+            {
+                _logger.LogError("Failed to get player info for {PlayerId}", playerId);
+                return false;
+            }
+            
+            if (string.IsNullOrEmpty(playerInfo.Name))
+            {
+                _logger.LogWarning("Player {PlayerId} has no name, may not be initialized", playerId);
+            }
+            
+            _logger.LogInformation("Retrieved player info: {PlayerId} at position {Position} with health {Health}", 
+                playerId, playerInfo.Position, playerInfo.Health);
             
             var entity = new SimulatedEntity
             {
@@ -43,13 +78,16 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 Position = playerInfo.Position,
                 Velocity = playerInfo.Velocity,
                 Health = playerInfo.Health,
-                Rotation = 0
+                Rotation = 0,
+                State = EntityStateType.Active,
+                StateTimer = 0f
             };
             
             _entities[playerId] = entity;
             _playerInputs[playerId] = new PlayerInput();
             
-            _logger.LogInformation("Player {PlayerId} added to simulation", playerId);
+            _logger.LogInformation("Player {PlayerId} added to simulation at position {Position} in zone {Zone}", 
+                playerId, entity.Position, _assignedSquare);
             return true;
         }
         catch (Exception ex)
@@ -73,6 +111,16 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             input.MoveDirection = moveDirection;
             input.IsShooting = isShooting;
             input.LastUpdated = DateTime.UtcNow;
+            
+            if (moveDirection.Length() > 0)
+            {
+                _logger.LogDebug("Player {PlayerId} input: Move={Move}, Shoot={Shoot}", 
+                    playerId, moveDirection, isShooting);
+            }
+        }
+        else
+        {
+            _logger.LogWarning("Player {PlayerId} not found in inputs", playerId);
         }
     }
 
@@ -85,7 +133,10 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 e.Position,
                 e.Velocity,
                 e.Health,
-                e.Rotation))
+                e.Rotation,
+                e.SubType,
+                e.State,
+                e.StateTimer))
             .ToList();
             
         return new WorldState(entities, DateTime.UtcNow);
@@ -93,8 +144,10 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // Spawn some initial enemies
-        SpawnEnemies(5);
+        // Spawn some initial enemies of different types
+        SpawnEnemies(2, EnemySubType.Kamikaze);
+        SpawnEnemies(2, EnemySubType.Sniper);
+        SpawnEnemies(1, EnemySubType.Strafing);
         
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -103,42 +156,73 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             _lastUpdate = now;
             
             // Update simulation
-            UpdatePhysics(deltaTime);
+            await UpdatePhysicsAsync(deltaTime);
             UpdateAI(deltaTime);
             CheckCollisions();
+            UpdateEntityStates(deltaTime);
             CleanupDeadEntities();
             
             // Spawn new enemies occasionally
-            if (_random.NextDouble() < 0.01) // 1% chance per frame
+            if (_random.NextDouble() < 0.001) // 0.1% chance per frame (10% of previous rate)
             {
-                SpawnEnemies(1);
+                var enemyType = (EnemySubType)_random.Next(1, 4);
+                SpawnEnemies(1, enemyType);
             }
             
             await Task.Delay(16, stoppingToken); // ~60 FPS
         }
     }
 
-    private void UpdatePhysics(float deltaTime)
+    private async Task UpdatePhysicsAsync(float deltaTime)
     {
         // Update player positions based on input
         foreach (var (playerId, input) in _playerInputs)
         {
             if (_entities.TryGetValue(playerId, out var player))
             {
-                var speed = 200f; // units per second
-                player.Velocity = input.MoveDirection.Normalized() * speed;
-                player.Position += player.Velocity * deltaTime;
+                // Skip dead/respawning players
+                if (player.State == EntityStateType.Dead || player.State == EntityStateType.Respawning)
+                    continue;
                 
-                // Keep player in bounds
-                var (min, max) = _assignedSquare.GetBounds();
-                player.Position = new Vector2(
-                    Math.Clamp(player.Position.X, min.X, max.X),
-                    Math.Clamp(player.Position.Y, min.Y, max.Y));
+                var speed = 200f; // units per second
+                var oldPos = player.Position;
+                player.Velocity = input.MoveDirection.Normalized() * speed;
+                var newPos = player.Position + player.Velocity * deltaTime;
+                
+                // Check if the new position would be in an unavailable zone
+                var newZone = GridSquare.FromPosition(newPos);
+                var isNewZoneAvailable = await IsZoneAvailable(newZone);
+                
+                if (isNewZoneAvailable)
+                {
+                    player.Position = newPos;
+                }
+                else
+                {
+                    // Stop at zone boundary
+                    _logger.LogWarning("Player {PlayerId} blocked from entering unavailable zone {Zone}", 
+                        playerId, newZone);
+                    player.Velocity = Vector2.Zero;
+                }
+                    
+                if (oldPos != player.Position)
+                {
+                    _logger.LogDebug("Player {PlayerId} moved from {OldPos} to {NewPos}", 
+                        playerId, oldPos, player.Position);
+                }
+                
+                // Update rotation based on movement
+                if (player.Velocity.Length() > 0)
+                {
+                    player.Rotation = MathF.Atan2(player.Velocity.Y, player.Velocity.X);
+                }
                 
                 // Handle shooting
                 if (input.IsShooting && DateTime.UtcNow - input.LastShot > TimeSpan.FromMilliseconds(250))
                 {
-                    SpawnBullet(player.Position, input.MoveDirection.Normalized());
+                    var shootDirection = input.MoveDirection.Length() > 0 ? input.MoveDirection.Normalized() : 
+                        new Vector2(MathF.Cos(player.Rotation), MathF.Sin(player.Rotation));
+                    SpawnBullet(player.Position, shootDirection);
                     input.LastShot = DateTime.UtcNow;
                 }
             }
@@ -147,32 +231,82 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         // Update all entities
         foreach (var entity in _entities.Values)
         {
-            if (entity.Type != EntityType.Player)
+            if (entity.Type != EntityType.Player && entity.State == EntityStateType.Active)
             {
                 entity.Position += entity.Velocity * deltaTime;
+                
+                // Update rotation for moving entities
+                if (entity.Velocity.Length() > 0)
+                {
+                    entity.Rotation = MathF.Atan2(entity.Velocity.Y, entity.Velocity.X);
+                }
             }
         }
     }
 
     private void UpdateAI(float deltaTime)
     {
-        var players = _entities.Values.Where(e => e.Type == EntityType.Player).ToList();
+        var players = _entities.Values.Where(e => e.Type == EntityType.Player && e.State == EntityStateType.Active).ToList();
         
-        foreach (var enemy in _entities.Values.Where(e => e.Type == EntityType.Enemy))
+        foreach (var enemy in _entities.Values.Where(e => e.Type == EntityType.Enemy && e.State == EntityStateType.Active))
         {
             if (!players.Any()) continue;
             
             // Find closest player
             var closestPlayer = players.OrderBy(p => p.Position.DistanceTo(enemy.Position)).First();
-            
-            // Move towards player
             var direction = (closestPlayer.Position - enemy.Position).Normalized();
-            enemy.Velocity = direction * 100f; // Enemy speed
+            var distance = enemy.Position.DistanceTo(closestPlayer.Position);
             
-            // Shoot at player occasionally
-            if (_random.NextDouble() < 0.02 && enemy.Position.DistanceTo(closestPlayer.Position) < 300f)
+            switch ((EnemySubType)enemy.SubType)
             {
-                SpawnBullet(enemy.Position, direction, isEnemyBullet: true);
+                case EnemySubType.Kamikaze:
+                    // Always move towards player at high speed
+                    enemy.Velocity = direction * 45f; // 30% of 150f
+                    break;
+                    
+                case EnemySubType.Sniper:
+                    // Move to range then stop and shoot
+                    if (distance > 250f)
+                    {
+                        enemy.Velocity = direction * 24f; // 30% of 80f
+                    }
+                    else
+                    {
+                        enemy.Velocity = Vector2.Zero; // Stop and shoot
+                        if (_random.NextDouble() < 0.04) // Higher chance to shoot
+                        {
+                            SpawnBullet(enemy.Position, direction, isEnemyBullet: true);
+                        }
+                    }
+                    break;
+                    
+                case EnemySubType.Strafing:
+                    // Move to range then strafe while shooting
+                    if (distance > 200f)
+                    {
+                        enemy.Velocity = direction * 30f; // 30% of 100f
+                    }
+                    else
+                    {
+                        // Strafe perpendicular to player
+                        var strafeDirection = new Vector2(-direction.Y, direction.X);
+                        enemy.StrafeDirection ??= _random.NextDouble() > 0.5 ? 1f : -1f;
+                        
+                        // Change strafe direction occasionally
+                        if (_random.NextDouble() < 0.02)
+                        {
+                            enemy.StrafeDirection *= -1f;
+                        }
+                        
+                        enemy.Velocity = strafeDirection * enemy.StrafeDirection.Value * 36f; // 30% of 120f
+                        
+                        // Shoot while strafing
+                        if (_random.NextDouble() < 0.03)
+                        {
+                            SpawnBullet(enemy.Position, direction, isEnemyBullet: true);
+                        }
+                    }
+                    break;
             }
         }
     }
@@ -187,6 +321,10 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             {
                 var e1 = entities[i];
                 var e2 = entities[j];
+                
+                // Skip dead/dying entities
+                if (e1.State != EntityStateType.Active || e2.State != EntityStateType.Active)
+                    continue;
                 
                 var distance = e1.Position.DistanceTo(e2.Position);
                 var collisionRadius = 20f; // Simple circular collision
@@ -206,27 +344,121 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     }
                     else if (e1.Type == EntityType.Player && e2.Type == EntityType.Enemy)
                     {
-                        e1.Health -= 10f;
+                        // Kamikaze enemies do more damage
+                        var damage = (EnemySubType)e2.SubType == EnemySubType.Kamikaze ? 30f : 10f;
+                        e1.Health -= damage;
                         e2.Health -= 10f;
+                    }
+                    else if (e2.Type == EntityType.Player && e1.Type == EntityType.Enemy)
+                    {
+                        var damage = (EnemySubType)e1.SubType == EnemySubType.Kamikaze ? 30f : 10f;
+                        e2.Health -= damage;
+                        e1.Health -= 10f;
                     }
                 }
             }
         }
     }
 
-    private void CleanupDeadEntities()
+    private void UpdateEntityStates(float deltaTime)
     {
-        var deadEntities = _entities.Where(kvp => kvp.Value.Health <= 0).ToList();
-        foreach (var (id, entity) in deadEntities)
+        foreach (var entity in _entities.Values)
         {
-            if (entity.Type != EntityType.Player)
+            // Update state timers
+            entity.StateTimer += deltaTime;
+            
+            // Handle player death and respawn
+            if (entity.Type == EntityType.Player)
             {
-                _entities.TryRemove(id, out _);
+                switch (entity.State)
+                {
+                    case EntityStateType.Active:
+                        if (entity.Health <= 0)
+                        {
+                            entity.State = EntityStateType.Dying;
+                            entity.StateTimer = 0f;
+                            SpawnExplosion(entity.Position);
+                            _logger.LogInformation("Player {PlayerId} died", entity.EntityId);
+                        }
+                        break;
+                        
+                    case EntityStateType.Dying:
+                        if (entity.StateTimer >= 0.5f) // Death animation time
+                        {
+                            entity.State = EntityStateType.Dead;
+                            entity.StateTimer = 0f;
+                        }
+                        break;
+                        
+                    case EntityStateType.Dead:
+                        if (entity.StateTimer >= 5f) // 5 second respawn delay
+                        {
+                            entity.State = EntityStateType.Respawning;
+                            entity.StateTimer = 0f;
+                            
+                            // Respawn at random location within the assigned zone
+                            var (min, max) = _assignedSquare.GetBounds();
+                            var respawnX = min.X + _random.NextSingle() * (max.X - min.X);
+                            var respawnY = min.Y + _random.NextSingle() * (max.Y - min.Y);
+                            entity.Position = new Vector2(respawnX, respawnY);
+                            entity.Health = 1000f;
+                            entity.Velocity = Vector2.Zero;
+                            
+                            _logger.LogInformation("Player {PlayerId} respawning at position {Position} in zone {Zone}", 
+                                entity.EntityId, entity.Position, _assignedSquare);
+                                
+                            // Update player position in Orleans to ensure consistency
+                            _ = Task.Run(async () => {
+                                try
+                                {
+                                    var playerGrain = _orleansClient.GetGrain<IPlayerGrain>(entity.EntityId);
+                                    await playerGrain.UpdatePosition(entity.Position, Vector2.Zero);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(ex, "Failed to update player position during respawn");
+                                }
+                            });
+                        }
+                        break;
+                        
+                    case EntityStateType.Respawning:
+                        if (entity.StateTimer >= 0.5f) // Brief invulnerability
+                        {
+                            entity.State = EntityStateType.Active;
+                            entity.StateTimer = 0f;
+                        }
+                        break;
+                }
+            }
+            // Handle enemy death
+            else if (entity.Type == EntityType.Enemy && entity.State == EntityStateType.Active && entity.Health <= 0)
+            {
+                entity.State = EntityStateType.Dying;
+                SpawnExplosion(entity.Position, isSmall: true);
+            }
+            // Handle explosion lifetime
+            else if (entity.Type == EntityType.Explosion && entity.StateTimer >= 0.5f)
+            {
+                entity.Health = 0; // Mark for cleanup
             }
         }
     }
 
-    private void SpawnEnemies(int count)
+    private void CleanupDeadEntities()
+    {
+        var deadEntities = _entities.Where(kvp => 
+            kvp.Value.Health <= 0 && 
+            kvp.Value.Type != EntityType.Player && 
+            kvp.Value.State != EntityStateType.Respawning).ToList();
+            
+        foreach (var (id, entity) in deadEntities)
+        {
+            _entities.TryRemove(id, out _);
+        }
+    }
+
+    private void SpawnEnemies(int count, EnemySubType enemyType)
     {
         var (min, max) = _assignedSquare.GetBounds();
         
@@ -240,10 +472,13 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             {
                 EntityId = $"enemy_{_nextEntityId++}",
                 Type = EntityType.Enemy,
+                SubType = (int)enemyType,
                 Position = position,
                 Velocity = Vector2.Zero,
-                Health = 50f,
-                Rotation = 0
+                Health = enemyType == EnemySubType.Kamikaze ? 30f : 50f, // Kamikaze has less health
+                Rotation = 0,
+                State = EntityStateType.Active,
+                StateTimer = 0f
             };
             
             _entities[enemy.EntityId] = enemy;
@@ -252,27 +487,55 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
 
     private void SpawnBullet(Vector2 position, Vector2 direction, bool isEnemyBullet = false)
     {
+        // Enemy bullets are 40% of normal speed (60% slower)
+        var bulletSpeed = isEnemyBullet ? 200f : 500f;
+        
         var bullet = new SimulatedEntity
         {
             EntityId = $"bullet_{_nextEntityId++}",
             Type = EntityType.Bullet,
             Position = position + direction * 30f, // Spawn slightly ahead
-            Velocity = direction * 500f, // Bullet speed
+            Velocity = direction * bulletSpeed,
             Health = 1f,
-            Rotation = MathF.Atan2(direction.Y, direction.X)
+            Rotation = MathF.Atan2(direction.Y, direction.X),
+            State = EntityStateType.Active,
+            StateTimer = 0f,
+            SubType = isEnemyBullet ? 1 : 0 // Track bullet type
         };
         
         _entities[bullet.EntityId] = bullet;
+    }
+
+    private void SpawnExplosion(Vector2 position, bool isSmall = false)
+    {
+        var explosion = new SimulatedEntity
+        {
+            EntityId = $"explosion_{_nextEntityId++}",
+            Type = EntityType.Explosion,
+            Position = position,
+            Velocity = Vector2.Zero,
+            Health = 1f,
+            Rotation = 0,
+            State = EntityStateType.Active,
+            StateTimer = 0f,
+            SubType = isSmall ? 1 : 0
+        };
+        
+        _entities[explosion.EntityId] = explosion;
     }
 
     private class SimulatedEntity
     {
         public required string EntityId { get; set; }
         public EntityType Type { get; set; }
+        public int SubType { get; set; }
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
         public float Health { get; set; }
         public float Rotation { get; set; }
+        public EntityStateType State { get; set; }
+        public float StateTimer { get; set; }
+        public float? StrafeDirection { get; set; } // For strafing enemies
     }
 
     private class PlayerInput
@@ -281,5 +544,103 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         public bool IsShooting { get; set; }
         public DateTime LastUpdated { get; set; }
         public DateTime LastShot { get; set; }
+    }
+    
+    public Task<List<string>> GetPlayersOutsideZone()
+    {
+        var playersOutside = new List<string>();
+        var (min, max) = _assignedSquare.GetBounds();
+        
+        foreach (var (playerId, entity) in _entities.Where(e => e.Value.Type == EntityType.Player))
+        {
+            var pos = entity.Position;
+            if (pos.X < min.X || pos.X >= max.X || pos.Y < min.Y || pos.Y >= max.Y)
+            {
+                playersOutside.Add(playerId);
+                _logger.LogInformation("Player {PlayerId} at position {Position} is outside assigned zone {Zone}", 
+                    playerId, pos, _assignedSquare);
+            }
+        }
+        
+        return Task.FromResult(playersOutside);
+    }
+    
+    public Task<List<(string entityId, Vector2 position, EntityType type, int subType)>> GetEntitiesOutsideZone()
+    {
+        var entitiesOutside = new List<(string, Vector2, EntityType, int)>();
+        var (min, max) = _assignedSquare.GetBounds();
+        
+        foreach (var (entityId, entity) in _entities.Where(e => e.Value.Type == EntityType.Enemy || e.Value.Type == EntityType.Bullet))
+        {
+            var pos = entity.Position;
+            if (pos.X < min.X || pos.X >= max.X || pos.Y < min.Y || pos.Y >= max.Y)
+            {
+                entitiesOutside.Add((entityId, pos, entity.Type, entity.SubType));
+            }
+        }
+        
+        return Task.FromResult(entitiesOutside);
+    }
+    
+    public Task<bool> TransferEntityIn(string entityId, EntityType type, int subType, Vector2 position, Vector2 velocity, float health)
+    {
+        try
+        {
+            var entity = new SimulatedEntity
+            {
+                EntityId = entityId,
+                Type = type,
+                SubType = subType,
+                Position = position,
+                Velocity = velocity,
+                Health = health,
+                Rotation = velocity.Length() > 0 ? MathF.Atan2(velocity.Y, velocity.X) : 0,
+                State = EntityStateType.Active,
+                StateTimer = 0f
+            };
+            
+            _entities[entityId] = entity;
+            _logger.LogInformation("Transferred in {Type} {EntityId} at position {Position}", type, entityId, position);
+            return Task.FromResult(true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to transfer in entity {EntityId}", entityId);
+            return Task.FromResult(false);
+        }
+    }
+    
+    private async Task<bool> IsZoneAvailable(GridSquare zone)
+    {
+        // Cache available zones for 10 seconds
+        if (DateTime.UtcNow - _lastZoneCheck > TimeSpan.FromSeconds(10))
+        {
+            try
+            {
+                var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
+                var servers = await worldManager.GetAllActionServers();
+                _availableZones = servers.Select(s => s.AssignedSquare).ToHashSet();
+                _lastZoneCheck = DateTime.UtcNow;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to fetch available zones");
+            }
+        }
+        
+        // Always allow current zone
+        if (zone == _assignedSquare)
+            return true;
+            
+        return _availableZones.Contains(zone);
+    }
+    
+    public PlayerInfo? GetPlayerInfo(string playerId)
+    {
+        if (_entities.TryGetValue(playerId, out var entity) && entity.Type == EntityType.Player)
+        {
+            return new PlayerInfo(playerId, playerId, entity.Position, entity.Velocity, entity.Health);
+        }
+        return null;
     }
 }

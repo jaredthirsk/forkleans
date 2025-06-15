@@ -10,8 +10,7 @@ public class WorldManagerGrain : Grain, IWorldManagerGrain
     private readonly IPersistentState<WorldManagerState> _state;
     private readonly Dictionary<GridSquare, ActionServerInfo> _gridToServer = new();
     private readonly Dictionary<string, ActionServerInfo> _serverIdToInfo = new();
-    private int _nextGridX = 0;
-    private int _nextGridY = 0;
+    private int _nextServerIndex = 0;
 
     public WorldManagerGrain(
         [PersistentState("worldManager", "worldStore")] IPersistentState<WorldManagerState> state)
@@ -32,30 +31,26 @@ public class WorldManagerGrain : Grain, IWorldManagerGrain
 
     public async Task<ActionServerInfo> RegisterActionServer(string serverId, string ipAddress, int udpPort)
     {
-        // Assign next available grid square
-        var assignedSquare = new GridSquare(_nextGridX, _nextGridY);
+        // Create a 3x3 grid pattern
+        // Server 0: (0,0), Server 1: (1,0), Server 2: (2,0)
+        // Server 3: (0,1), Server 4: (1,1), Server 5: (2,1)
+        // Server 6: (0,2), Server 7: (1,2), Server 8: (2,2)
         
-        // Simple grid expansion pattern
-        if (_nextGridX == 0 && _nextGridY == 0)
-        {
-            _nextGridX = 1;
-        }
-        else if (_nextGridX > 0 && _nextGridY == 0)
-        {
-            _nextGridY = 1;
-        }
-        else if (_nextGridX > 0 && _nextGridY > 0)
-        {
-            _nextGridX = 0;
-            _nextGridY = 1;
-        }
-        else
-        {
-            _nextGridX++;
-            _nextGridY = 0;
-        }
+        var gridX = _nextServerIndex % 3;
+        var gridY = (_nextServerIndex / 3) % 3;
+        var assignedSquare = new GridSquare(gridX, gridY);
+        
+        _nextServerIndex++;
 
         var serverInfo = new ActionServerInfo(serverId, ipAddress, udpPort, assignedSquare, DateTime.UtcNow);
+        
+        // If a server already manages this square, remove it first
+        if (_gridToServer.ContainsKey(assignedSquare))
+        {
+            var oldServer = _gridToServer[assignedSquare];
+            _serverIdToInfo.Remove(oldServer.ServerId);
+            _state.State.ActionServers.RemoveAll(s => s.ServerId == oldServer.ServerId);
+        }
         
         _gridToServer[assignedSquare] = serverInfo;
         _serverIdToInfo[serverId] = serverInfo;
@@ -93,7 +88,10 @@ public class WorldManagerGrain : Grain, IWorldManagerGrain
         var playerGrain = GrainFactory.GetGrain<IPlayerGrain>(playerId);
         var startPosition = await GetPlayerStartPosition(playerId);
         
-        var playerInfo = new PlayerInfo(playerId, name, startPosition, Vector2.Zero, 100f);
+        // Initialize the player grain with name and starting position
+        await playerGrain.Initialize(name, startPosition);
+        
+        var playerInfo = new PlayerInfo(playerId, name, startPosition, Vector2.Zero, 1000f);
         _state.State.Players[playerId] = playerInfo;
         await _state.WriteStateAsync();
         
@@ -102,9 +100,68 @@ public class WorldManagerGrain : Grain, IWorldManagerGrain
 
     public Task<Vector2> GetPlayerStartPosition(string playerId)
     {
-        // Start players in the center of the first grid square
-        var startSquare = new GridSquare(0, 0);
-        return Task.FromResult(startSquare.GetCenter());
+        // Start players randomly in one of the 3x3 zones
+        var random = new Random(playerId.GetHashCode());
+        var gridX = random.Next(0, 3);
+        var gridY = random.Next(0, 3);
+        var startSquare = new GridSquare(gridX, gridY);
+        
+        // Random position within the grid square
+        var (min, max) = startSquare.GetBounds();
+        var x = min.X + (float)random.NextDouble() * (max.X - min.X);
+        var y = min.Y + (float)random.NextDouble() * (max.Y - min.Y);
+        
+        return Task.FromResult(new Vector2(x, y));
+    }
+    
+    public async Task<PlayerTransferInfo?> InitiatePlayerTransfer(string playerId, Vector2 currentPosition)
+    {
+        // Get the new grid square for the player's current position
+        var newGridSquare = GridSquare.FromPosition(currentPosition);
+        
+        // Get the new server for this position
+        var newServer = _gridToServer.TryGetValue(newGridSquare, out var server) ? server : null;
+        if (newServer == null)
+        {
+            // No server available for this zone
+            return null;
+        }
+        
+        // Get player info
+        if (!_state.State.Players.TryGetValue(playerId, out var playerInfo))
+        {
+            return null;
+        }
+        
+        // Get the player's current server based on their previous position
+        var oldGridSquare = GridSquare.FromPosition(playerInfo.Position);
+        var oldServer = _gridToServer.TryGetValue(oldGridSquare, out var old) ? old : null;
+        
+        // Update player position in state
+        playerInfo = playerInfo with { Position = currentPosition };
+        _state.State.Players[playerId] = playerInfo;
+        await _state.WriteStateAsync();
+        
+        // If the player is already on the correct server, no transfer needed
+        if (oldServer?.ServerId == newServer.ServerId)
+        {
+            return null;
+        }
+        
+        return new PlayerTransferInfo(playerId, newServer, oldServer, playerInfo);
+    }
+    
+    public async Task UpdatePlayerPosition(string playerId, Vector2 position)
+    {
+        if (_state.State.Players.TryGetValue(playerId, out var playerInfo))
+        {
+            _state.State.Players[playerId] = playerInfo with { Position = position };
+            await _state.WriteStateAsync();
+            
+            // Also update the player grain
+            var playerGrain = GrainFactory.GetGrain<IPlayerGrain>(playerId);
+            await playerGrain.UpdatePosition(position, Vector2.Zero);
+        }
     }
 }
 

@@ -60,6 +60,7 @@ builder.Services.AddHostedService(provider => (WorldSimulation)provider.GetRequi
 
 // Add game service
 builder.Services.AddSingleton<GameService>();
+builder.Services.AddHostedService(provider => provider.GetRequiredService<GameService>());
 
 // Add background service for registration
 builder.Services.AddHostedService<ActionServerRegistrationService>();
@@ -104,6 +105,25 @@ app.MapPost("/game/input/{playerId}", async (string playerId, PlayerInput input,
 {
     await gameService.UpdatePlayerInput(playerId, input.MoveDirection, input.IsShooting);
     return Results.Ok();
+});
+
+app.MapPost("/game/transfer-entity", async (HttpContext context, IWorldSimulation simulation) =>
+{
+    var request = await context.Request.ReadFromJsonAsync<EntityTransferRequest>();
+    if (request == null)
+    {
+        return Results.BadRequest("Invalid transfer request");
+    }
+    
+    var success = await simulation.TransferEntityIn(
+        request.EntityId,
+        request.Type,
+        request.SubType,
+        request.Position,
+        request.Velocity,
+        request.Health);
+        
+    return success ? Results.Ok() : Results.StatusCode(500);
 });
 
 app.Run();
@@ -273,6 +293,7 @@ public class ActionServerRegistrationService : BackgroundService
 }
 
 public record PlayerInput(Vector2 MoveDirection, bool IsShooting);
+public record EntityTransferRequest(string EntityId, EntityType Type, int SubType, Vector2 Position, Vector2 Velocity, float Health);
 
 // Service to delay Orleans client startup to ensure silo is ready
 public class OrleansStartupDelayService : IHostedService

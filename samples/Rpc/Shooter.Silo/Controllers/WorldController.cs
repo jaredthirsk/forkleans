@@ -78,6 +78,21 @@ public class WorldController : ControllerBase
         var info = await playerGrain.GetInfo();
         return Ok(info);
     }
+    
+    [HttpGet("players/{playerId}/server")]
+    public async Task<ActionResult<ActionServerInfo>> GetPlayerServer(string playerId)
+    {
+        var playerGrain = _grainFactory.GetGrain<IPlayerGrain>(playerId);
+        var info = await playerGrain.GetInfo();
+        
+        var worldManager = _grainFactory.GetGrain<IWorldManagerGrain>(0);
+        var server = await worldManager.GetActionServerForPosition(info.Position);
+        
+        if (server == null)
+            return NotFound();
+            
+        return Ok(server);
+    }
 }
 
 public record RegisterActionServerRequest(string ServerId, string IpAddress, int UdpPort);

@@ -5,7 +5,7 @@ namespace Shooter.Shared.Models;
 [Orleans.GenerateSerializer]
 public record GridSquare(int X, int Y)
 {
-    public const int Size = 1000; // Size of each grid square in world units
+    public const int Size = 500; // Size of each grid square in world units
     
     public static GridSquare FromPosition(Vector2 position)
     {
@@ -42,7 +42,10 @@ public record EntityState(
     [property: JsonPropertyName("position")] Vector2 Position,
     [property: JsonPropertyName("velocity")] Vector2 Velocity,
     [property: JsonPropertyName("health")] float Health,
-    [property: JsonPropertyName("rotation")] float Rotation);
+    [property: JsonPropertyName("rotation")] float Rotation,
+    [property: JsonPropertyName("subType")] int SubType = 0,
+    [property: JsonPropertyName("state")] EntityStateType State = EntityStateType.Active,
+    [property: JsonPropertyName("stateTimer")] float StateTimer = 0f);
 
 [Orleans.GenerateSerializer]
 [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -50,10 +53,37 @@ public enum EntityType
 {
     Player,
     Enemy,
-    Bullet
+    Bullet,
+    Explosion
+}
+
+[Orleans.GenerateSerializer]
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum EntityStateType
+{
+    Active,
+    Dying,
+    Dead,
+    Respawning
+}
+
+[Orleans.GenerateSerializer]
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum EnemySubType
+{
+    Kamikaze = 1,
+    Sniper = 2,
+    Strafing = 3
 }
 
 [Orleans.GenerateSerializer]
 public record WorldState(
     [property: JsonPropertyName("entities")] List<EntityState> Entities,
     [property: JsonPropertyName("timestamp")] DateTime Timestamp);
+
+[Orleans.GenerateSerializer]
+public record PlayerTransferInfo(
+    string PlayerId,
+    ActionServerInfo? NewServer,
+    ActionServerInfo? OldServer,
+    PlayerInfo PlayerState);

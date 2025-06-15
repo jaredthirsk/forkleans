@@ -5,6 +5,7 @@ namespace Shooter.Shared.GrainInterfaces;
 
 public interface IPlayerGrain : Orleans.IGrainWithStringKey
 {
+    Task Initialize(string name, Vector2 startPosition);
     Task<PlayerInfo> GetInfo();
     Task UpdatePosition(Vector2 position, Vector2 velocity);
     Task<GridSquare> GetCurrentGridSquare();

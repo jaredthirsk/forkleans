@@ -4,21 +4,61 @@
 @inject IJSRuntime JS
 
 <div class="game-canvas-container">
-    <canvas @ref="canvasElement" width="@Width" height="@Height"></canvas>
+    <div class="canvas-wrapper">
+        <canvas @ref="canvasElementA" width="@Width" height="@Height" class="game-canvas"></canvas>
+        <canvas @ref="canvasElementB" width="@Width" height="@Height" class="game-canvas" style="display: none;"></canvas>
+        <div class="game-info">
+            <div class="zone-info">Current Zone: @currentZone</div>
+            <div class="server-info">Server: @currentServer</div>
+            <div class="player-info">Player: @playerDebugInfo</div>
+        </div>
+    </div>
 </div>
 
 <style>
     .game-canvas-container {
         display: flex;
-        justify-content: center;
+        flex-direction: column;
         align-items: center;
         background-color: #1a1a1a;
         padding: 20px;
+        position: relative;
     }
     
-    canvas {
+    .canvas-wrapper {
+        position: relative;
+        width: @(Width + 4)px;  /* Account for border */
+        height: @(Height + 4)px;  /* Account for border */
+    }
+    
+    .game-canvas {
         border: 2px solid #444;
         background-color: #000;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    
+    .game-info {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: #fff;
+        font-family: monospace;
+        font-size: 14px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 10;
+    }
+    
+    .zone-info {
+        color: #88ff88;
+        margin-bottom: 5px;
+    }
+    
+    .server-info {
+        color: #8888ff;
     }
 </style>
 
@@ -27,18 +67,23 @@
     [Parameter] public int Height { get; set; } = 600;
     [Parameter] public WorldState? WorldState { get; set; }
     [Parameter] public string? PlayerId { get; set; }
-    [Parameter] public Vector2 CameraOffset { get; set; } = Vector2.Zero;
+    [Parameter] public string? ServerId { get; set; }
+    [Parameter] public List<GridSquare>? AvailableZones { get; set; }
     
-    private ElementReference canvasElement;
+    private ElementReference canvasElementA;
+    private ElementReference canvasElementB;
     private IJSObjectReference? canvasContext;
     private System.Timers.Timer? renderTimer;
+    private string currentZone = "Unknown";
+    private string currentServer = "Unknown";
+    private string playerDebugInfo = "Not found";
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/gameCanvas.js");
-            canvasContext = await module.InvokeAsync<IJSObjectReference>("initCanvas", canvasElement);
+            canvasContext = await module.InvokeAsync<IJSObjectReference>("initDualCanvas", canvasElementA, canvasElementB);
             
             renderTimer = new System.Timers.Timer(33); // ~30 FPS
             renderTimer.Elapsed += async (s, e) => await RenderFrame();
@@ -50,28 +95,79 @@
     {
         if (canvasContext != null && WorldState != null)
         {
-            await canvasContext.InvokeVoidAsync("clearCanvas", Width, Height);
+            // Start a new frame
+            await canvasContext.InvokeVoidAsync("beginFrame");
             
             // Find player position for camera centering
             var player = WorldState.Entities.FirstOrDefault(e => e.EntityId == PlayerId);
             var cameraPos = player?.Position ?? Vector2.Zero;
+            var cameraOffset = new { x = cameraPos.X - Width / 2, y = cameraPos.Y - Height / 2 };
             
-            foreach (var entity in WorldState.Entities)
+            // Clear canvas with camera offset
+            await canvasContext.InvokeVoidAsync("clearCanvas", Width, Height, cameraOffset);
+            
+            // Draw zone boundaries with available zones
+            var availableZonesArray = AvailableZones?.Select(z => new { x = z.X, y = z.Y }).ToArray() ?? Array.Empty<object>();
+            await canvasContext.InvokeVoidAsync("drawZoneBoundaries", Width, Height, cameraOffset, availableZonesArray);
+            
+            // Sort entities for proper layering (bullets on top, explosions last)
+            var sortedEntities = WorldState.Entities
+                .OrderBy(e => e.Type == EntityType.Explosion ? 1 : 0)
+                .ThenBy(e => e.Type == EntityType.Bullet ? 1 : 0);
+            
+            foreach (var entity in sortedEntities)
             {
                 var screenPos = WorldToScreen(entity.Position, cameraPos);
-                var color = GetEntityColor(entity.Type);
-                var size = GetEntitySize(entity.Type);
+                
+                // Skip entities outside screen
+                if (screenPos.X < -50 || screenPos.X > Width + 50 || 
+                    screenPos.Y < -50 || screenPos.Y > Height + 50)
+                    continue;
+                
+                var color = GetEntityColor(entity);
+                var size = GetEntitySize(entity);
                 
                 await canvasContext.InvokeVoidAsync("drawEntity", 
-                    screenPos.X, screenPos.Y, size, color, entity.Rotation);
+                    screenPos.X, screenPos.Y, size, color, entity.Rotation,
+                    entity.Type.ToString(), entity.SubType, entity.State.ToString(), entity.StateTimer);
                     
-                // Draw health bar for non-bullets
-                if (entity.Type != EntityType.Bullet)
+                // Draw health bar for living entities
+                if (entity.Type != EntityType.Bullet && entity.Type != EntityType.Explosion && 
+                    entity.State == EntityStateType.Active && entity.Health > 0)
                 {
+                    var maxHealth = entity.Type == EntityType.Player ? 1000f : 
+                                   entity.SubType == (int)EnemySubType.Kamikaze ? 30f : 50f;
                     await canvasContext.InvokeVoidAsync("drawHealthBar",
-                        screenPos.X, screenPos.Y - 20, size * 2, entity.Health / 100f);
+                        screenPos.X, screenPos.Y - size - 10, size * 2, entity.Health / maxHealth);
                 }
             }
+            
+            // Draw death message if player is dead
+            if (player != null && (player.State == EntityStateType.Dead || player.State == EntityStateType.Dying))
+            {
+                var respawnTimer = 5f - player.StateTimer;
+                if (respawnTimer > 0)
+                {
+                    await canvasContext.InvokeVoidAsync("drawDeathMessage", Width, Height, respawnTimer);
+                }
+            }
+            
+            // End frame and flip buffers
+            await canvasContext.InvokeVoidAsync("endFrame");
+            
+            // Update zone info
+            if (player != null)
+            {
+                var zone = GridSquare.FromPosition(player.Position);
+                currentZone = $"{zone.X}, {zone.Y}";
+                currentServer = ServerId ?? "Unknown";
+                playerDebugInfo = $"Pos: ({player.Position.X:F0}, {player.Position.Y:F0}) State: {player.State}";
+            }
+            else
+            {
+                playerDebugInfo = $"Not found (ID: {PlayerId})";
+            }
+            await InvokeAsync(StateHasChanged);
         }
     }
     
@@ -83,19 +179,34 @@
         );
     }
     
-    private string GetEntityColor(EntityType type) => type switch
+    private string GetEntityColor(EntityState entity)
     {
-        EntityType.Player => "#00ff00",
-        EntityType.Enemy => "#ff0000",
-        EntityType.Bullet => "#ffff00",
-        _ => "#ffffff"
-    };
+        if (entity.Type == EntityType.Player)
+        {
+            return entity.EntityId == PlayerId ? "#00ff00" : "#00aa00";
+        }
+        
+        return entity.Type switch
+        {
+            EntityType.Enemy => entity.SubType switch
+            {
+                (int)EnemySubType.Kamikaze => "#ff4444",
+                (int)EnemySubType.Sniper => "#44ff44",
+                (int)EnemySubType.Strafing => "#ffaa44",
+                _ => "#ff0000"
+            },
+            EntityType.Bullet => "#ffff00",
+            EntityType.Explosion => "#ff8800",
+            _ => "#ffffff"
+        };
+    }
     
-    private int GetEntitySize(EntityType type) => type switch
+    private int GetEntitySize(EntityState entity) => entity.Type switch
     {
         EntityType.Player => 15,
-        EntityType.Enemy => 12,
+        EntityType.Enemy => entity.SubType == (int)EnemySubType.Kamikaze ? 10 : 12,
         EntityType.Bullet => 3,
+        EntityType.Explosion => entity.SubType == 1 ? 15 : 25,
         _ => 10
     };
     

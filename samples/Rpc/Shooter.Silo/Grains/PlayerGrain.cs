@@ -25,6 +25,16 @@ public class PlayerGrain : Grain, IPlayerGrain
             _state.State.Health));
     }
 
+    public async Task Initialize(string name, Vector2 startPosition)
+    {
+        _state.State.Name = name;
+        _state.State.Position = startPosition;
+        _state.State.Velocity = Vector2.Zero;
+        _state.State.Health = 1000f;
+        _state.State.LastUpdated = DateTime.UtcNow;
+        await _state.WriteStateAsync();
+    }
+    
     public async Task UpdatePosition(Vector2 position, Vector2 velocity)
     {
         _state.State.Position = position;
@@ -56,6 +66,6 @@ public class PlayerState
     public string Name { get; set; } = "";
     public Vector2 Position { get; set; } = Vector2.Zero;
     public Vector2 Velocity { get; set; } = Vector2.Zero;
-    public float Health { get; set; } = 100f;
+    public float Health { get; set; } = 1000f;
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 }

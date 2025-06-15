@@ -35,9 +35,11 @@
     {
         <div class="game-layout">
             <div class="game-main">
-                <GameCanvas Width="800" Height="600" 
-                           WorldState="_currentWorldState" 
-                           PlayerId="_playerId" />
+                <GameCanvas Width="1200" Height="800" 
+                           WorldState="@_currentWorldState" 
+                           PlayerId="@_playerId"
+                           ServerId="@GameClient.CurrentServerId"
+                           AvailableZones="@_availableZones" />
             </div>
             <div class="game-sidebar">
                 <GameControls IsConnected="_isConnected"
@@ -154,10 +156,14 @@
     private int _fps = 0;
     private DateTime _lastFpsUpdate = DateTime.UtcNow;
     private int _frameCount = 0;
+    private Vector2 _currentMoveDirection = Vector2.Zero;
+    private bool _currentIsShooting = false;
+    private List<GridSquare> _availableZones = new();
     
     protected override void OnInitialized()
     {
         GameClient.WorldStateUpdated += OnWorldStateUpdated;
+        GameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
     }
     
     private async Task ConnectToGame()
@@ -203,17 +209,19 @@
     
     private async Task HandleMove(Vector2 direction)
     {
+        _currentMoveDirection = direction;
         if (_isConnected)
         {
-            await GameClient.SendPlayerInput(direction, false);
+            await GameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
         }
     }
     
     private async Task HandleShoot(bool isShooting)
     {
+        _currentIsShooting = isShooting;
         if (_isConnected)
         {
-            await GameClient.SendPlayerInput(Vector2.Zero, isShooting);
+            await GameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
         }
     }
     
@@ -234,8 +242,15 @@
         InvokeAsync(StateHasChanged);
     }
     
+    private void OnAvailableZonesUpdated(List<GridSquare> availableZones)
+    {
+        _availableZones = availableZones;
+        InvokeAsync(StateHasChanged);
+    }
+    
     public void Dispose()
     {
         GameClient.WorldStateUpdated -= OnWorldStateUpdated;
+        GameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
     }
 }
