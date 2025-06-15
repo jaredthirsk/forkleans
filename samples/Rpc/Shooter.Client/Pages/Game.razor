@@ -1,0 +1,241 @@
+@page "/game"
+@using Shooter.Client.Services
+@using Shooter.Client.Components
+@using Shooter.Shared.Models
+@inject GameClientService GameClient
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<PageTitle>Space Shooter</PageTitle>
+
+<div class="game-container">
+    @if (!_isConnected)
+    {
+        <div class="connection-form">
+            <h2>Enter Game</h2>
+            <input @bind="_playerName" placeholder="Enter your name" />
+            <button @onclick="ConnectToGame" disabled="@_isConnecting">
+                @if (_isConnecting)
+                {
+                    <span>Connecting...</span>
+                }
+                else
+                {
+                    <span>Connect</span>
+                }
+            </button>
+            
+            @if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <div class="error">@_errorMessage</div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="game-layout">
+            <div class="game-main">
+                <GameCanvas Width="800" Height="600" 
+                           WorldState="_currentWorldState" 
+                           PlayerId="_playerId" />
+            </div>
+            <div class="game-sidebar">
+                <GameControls IsConnected="_isConnected"
+                             OnMove="HandleMove"
+                             OnShoot="HandleShoot" />
+                             
+                <div class="game-stats">
+                    <h4>Stats</h4>
+                    <p>Entities: @(_currentWorldState?.Entities.Count ?? 0)</p>
+                    <p>FPS: @_fps</p>
+                </div>
+                
+                <button class="disconnect-btn" @onclick="Disconnect">
+                    Disconnect
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .game-container {
+        height: 100vh;
+        background-color: #1a1a1a;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .connection-form {
+        background-color: #2a2a2a;
+        padding: 40px;
+        border-radius: 8px;
+        text-align: center;
+        color: white;
+    }
+    
+    .connection-form h2 {
+        margin-top: 0;
+    }
+    
+    .connection-form input {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        margin: 20px 0;
+        border: 1px solid #444;
+        background-color: #1a1a1a;
+        color: white;
+        border-radius: 4px;
+    }
+    
+    .connection-form button {
+        width: 100%;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    
+    .connection-form button:disabled {
+        background-color: #666;
+        cursor: not-allowed;
+    }
+    
+    .error {
+        color: #ff4444;
+        margin-top: 10px;
+    }
+    
+    .game-layout {
+        display: flex;
+        gap: 20px;
+    }
+    
+    .game-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .game-stats {
+        background-color: #2a2a2a;
+        padding: 20px;
+        border-radius: 8px;
+        color: white;
+    }
+    
+    .game-stats h4 {
+        margin-top: 0;
+        color: #888;
+    }
+    
+    .disconnect-btn {
+        padding: 10px 20px;
+        background-color: #d32f2f;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+</style>
+
+@code {
+    private string _playerName = "";
+    private string _playerId = "";
+    private bool _isConnected = false;
+    private bool _isConnecting = false;
+    private string _errorMessage = "";
+    private WorldState? _currentWorldState;
+    private int _fps = 0;
+    private DateTime _lastFpsUpdate = DateTime.UtcNow;
+    private int _frameCount = 0;
+    
+    protected override void OnInitialized()
+    {
+        GameClient.WorldStateUpdated += OnWorldStateUpdated;
+    }
+    
+    private async Task ConnectToGame()
+    {
+        if (string.IsNullOrWhiteSpace(_playerName))
+        {
+            _errorMessage = "Please enter your name";
+            return;
+        }
+        
+        _isConnecting = true;
+        _errorMessage = "";
+        
+        try
+        {
+            var connected = await GameClient.ConnectAsync(_playerName);
+            if (connected)
+            {
+                _isConnected = true;
+                _playerId = GameClient.PlayerId ?? string.Empty; // Get the actual player ID from service
+            }
+            else
+            {
+                _errorMessage = "Failed to connect to game server";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Connection error: {ex.Message}";
+        }
+        finally
+        {
+            _isConnecting = false;
+        }
+    }
+    
+    private async Task Disconnect()
+    {
+        await GameClient.DisconnectAsync();
+        _isConnected = false;
+        Navigation.NavigateTo("/");
+    }
+    
+    private async Task HandleMove(Vector2 direction)
+    {
+        if (_isConnected)
+        {
+            await GameClient.SendPlayerInput(direction, false);
+        }
+    }
+    
+    private async Task HandleShoot(bool isShooting)
+    {
+        if (_isConnected)
+        {
+            await GameClient.SendPlayerInput(Vector2.Zero, isShooting);
+        }
+    }
+    
+    private void OnWorldStateUpdated(WorldState worldState)
+    {
+        _currentWorldState = worldState;
+        
+        // Update FPS counter
+        _frameCount++;
+        var now = DateTime.UtcNow;
+        if ((now - _lastFpsUpdate).TotalSeconds >= 1)
+        {
+            _fps = _frameCount;
+            _frameCount = 0;
+            _lastFpsUpdate = now;
+        }
+        
+        InvokeAsync(StateHasChanged);
+    }
+    
+    public void Dispose()
+    {
+        GameClient.WorldStateUpdated -= OnWorldStateUpdated;
+    }
+}

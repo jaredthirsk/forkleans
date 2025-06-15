@@ -1,0 +1,122 @@
+@namespace Shooter.Client.Components
+@using Shooter.Shared.Models
+@inject IJSRuntime JS
+
+<div class="game-controls">
+    <div class="control-info">
+        <h4>Controls</h4>
+        <p>WASD - Move</p>
+        <p>Space - Shoot</p>
+    </div>
+    
+    @if (IsConnected)
+    {
+        <div class="status connected">
+            <span class="status-dot"></span>
+            Connected to server
+        </div>
+    }
+    else
+    {
+        <div class="status disconnected">
+            <span class="status-dot"></span>
+            Disconnected
+        </div>
+    }
+</div>
+
+<style>
+    .game-controls {
+        background-color: #2a2a2a;
+        padding: 20px;
+        border-radius: 8px;
+        color: white;
+        min-width: 200px;
+    }
+    
+    .control-info h4 {
+        margin-top: 0;
+        color: #888;
+    }
+    
+    .control-info p {
+        margin: 5px 0;
+        font-size: 14px;
+    }
+    
+    .status {
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+    }
+    
+    .status.connected {
+        background-color: #1a4d1a;
+    }
+    
+    .status.disconnected {
+        background-color: #4d1a1a;
+    }
+    
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    
+    .connected .status-dot {
+        background-color: #00ff00;
+    }
+    
+    .disconnected .status-dot {
+        background-color: #ff0000;
+    }
+</style>
+
+@code {
+    [Parameter] public bool IsConnected { get; set; }
+    [Parameter] public EventCallback<Vector2> OnMove { get; set; }
+    [Parameter] public EventCallback<bool> OnShoot { get; set; }
+    
+    private readonly Dictionary<string, bool> _keysPressed = new();
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("addKeyboardListeners", 
+                DotNetObjectReference.Create(this));
+        }
+    }
+    
+    [JSInvokable]
+    public async Task OnKeyDown(string key)
+    {
+        _keysPressed[key.ToLower()] = true;
+        await UpdateInput();
+    }
+    
+    [JSInvokable]
+    public async Task OnKeyUp(string key)
+    {
+        _keysPressed[key.ToLower()] = false;
+        await UpdateInput();
+    }
+    
+    private async Task UpdateInput()
+    {
+        var moveDir = Vector2.Zero;
+        
+        if (_keysPressed.GetValueOrDefault("w")) moveDir.Y -= 1;
+        if (_keysPressed.GetValueOrDefault("s")) moveDir.Y += 1;
+        if (_keysPressed.GetValueOrDefault("a")) moveDir.X -= 1;
+        if (_keysPressed.GetValueOrDefault("d")) moveDir.X += 1;
+        
+        await OnMove.InvokeAsync(moveDir);
+        await OnShoot.InvokeAsync(_keysPressed.GetValueOrDefault(" "));
+    }
+}

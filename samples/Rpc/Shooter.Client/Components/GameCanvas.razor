@@ -1,0 +1,108 @@
+@namespace Shooter.Client.Components
+@using Shooter.Shared.Models
+@implements IDisposable
+@inject IJSRuntime JS
+
+<div class="game-canvas-container">
+    <canvas @ref="canvasElement" width="@Width" height="@Height"></canvas>
+</div>
+
+<style>
+    .game-canvas-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #1a1a1a;
+        padding: 20px;
+    }
+    
+    canvas {
+        border: 2px solid #444;
+        background-color: #000;
+    }
+</style>
+
+@code {
+    [Parameter] public int Width { get; set; } = 800;
+    [Parameter] public int Height { get; set; } = 600;
+    [Parameter] public WorldState? WorldState { get; set; }
+    [Parameter] public string? PlayerId { get; set; }
+    [Parameter] public Vector2 CameraOffset { get; set; } = Vector2.Zero;
+    
+    private ElementReference canvasElement;
+    private IJSObjectReference? canvasContext;
+    private System.Timers.Timer? renderTimer;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/gameCanvas.js");
+            canvasContext = await module.InvokeAsync<IJSObjectReference>("initCanvas", canvasElement);
+            
+            renderTimer = new System.Timers.Timer(33); // ~30 FPS
+            renderTimer.Elapsed += async (s, e) => await RenderFrame();
+            renderTimer.Start();
+        }
+    }
+    
+    private async Task RenderFrame()
+    {
+        if (canvasContext != null && WorldState != null)
+        {
+            await canvasContext.InvokeVoidAsync("clearCanvas", Width, Height);
+            
+            // Find player position for camera centering
+            var player = WorldState.Entities.FirstOrDefault(e => e.EntityId == PlayerId);
+            var cameraPos = player?.Position ?? Vector2.Zero;
+            
+            foreach (var entity in WorldState.Entities)
+            {
+                var screenPos = WorldToScreen(entity.Position, cameraPos);
+                var color = GetEntityColor(entity.Type);
+                var size = GetEntitySize(entity.Type);
+                
+                await canvasContext.InvokeVoidAsync("drawEntity", 
+                    screenPos.X, screenPos.Y, size, color, entity.Rotation);
+                    
+                // Draw health bar for non-bullets
+                if (entity.Type != EntityType.Bullet)
+                {
+                    await canvasContext.InvokeVoidAsync("drawHealthBar",
+                        screenPos.X, screenPos.Y - 20, size * 2, entity.Health / 100f);
+                }
+            }
+        }
+    }
+    
+    private Vector2 WorldToScreen(Vector2 worldPos, Vector2 cameraPos)
+    {
+        return new Vector2(
+            Width / 2 + (worldPos.X - cameraPos.X),
+            Height / 2 + (worldPos.Y - cameraPos.Y)
+        );
+    }
+    
+    private string GetEntityColor(EntityType type) => type switch
+    {
+        EntityType.Player => "#00ff00",
+        EntityType.Enemy => "#ff0000",
+        EntityType.Bullet => "#ffff00",
+        _ => "#ffffff"
+    };
+    
+    private int GetEntitySize(EntityType type) => type switch
+    {
+        EntityType.Player => 15,
+        EntityType.Enemy => 12,
+        EntityType.Bullet => 3,
+        _ => 10
+    };
+    
+    public void Dispose()
+    {
+        renderTimer?.Stop();
+        renderTimer?.Dispose();
+        _ = canvasContext?.DisposeAsync();
+    }
+}
