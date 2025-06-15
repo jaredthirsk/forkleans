@@ -2,10 +2,10 @@
 @using Shooter.Client.Services
 @using Shooter.Client.Components
 @using Shooter.Shared.Models
-@inject GameClientService HttpGameClient
-@inject UdpGameClientService UdpGameClient
-@inject IGameClientProvider ClientProvider
+@inject ForleansRpcGameClientService RpcGameClient
+@inject IJSRuntime JS
 @inject NavigationManager Navigation
+@inject ILogger<Game> _logger
 @implements IDisposable
 
 <PageTitle>Space Shooter</PageTitle>
@@ -33,7 +33,7 @@
             }
             
             <div class="connection-type">
-                <small>Using: @(ClientProvider.UseRpc ? "UDP" : "HTTP") connection</small>
+                <small>Using: Forkleans RPC (UDP/LiteNetLib)</small>
             </div>
         </div>
     }
@@ -56,7 +56,7 @@
                     <h4>Stats</h4>
                     <p>FPS: @_fps</p>
                     <p>Entities: @(_currentWorldState?.Entities?.Count ?? 0)</p>
-                    <p>Connection: @(ClientProvider.UseRpc ? "UDP" : "HTTP")</p>
+                    <p>Connection: Forkleans RPC</p>
                     <p>Server: @_currentServerId</p>
                 </div>
                 
@@ -187,17 +187,33 @@
     
     protected override void OnInitialized()
     {
-        if (ClientProvider.UseRpc)
+        // Subscribe to RPC client events
+        RpcGameClient.WorldStateUpdated += OnWorldStateUpdated;
+        RpcGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
+        RpcGameClient.ServerChanged += OnServerChanged;
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
         {
-            UdpGameClient.WorldStateUpdated += OnWorldStateUpdated;
-            UdpGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
-            UdpGameClient.ServerChanged += OnServerChanged;
-        }
-        else
-        {
-            HttpGameClient.WorldStateUpdated += OnWorldStateUpdated;
-            HttpGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
-            HttpGameClient.ServerChanged += OnServerChanged;
+            // Check localStorage for remembered player name after first render
+            try
+            {
+                var rememberedName = await JS.InvokeAsync<string>("localStorage.getItem", "playerName");
+                if (!string.IsNullOrEmpty(rememberedName))
+                {
+                    _playerName = rememberedName;
+                    // Auto-connect with remembered name
+                    await ConnectToGame();
+                    // Trigger UI update
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking localStorage for player name");
+            }
         }
     }
     
@@ -214,28 +230,15 @@
         
         try
         {
-            bool connected;
-            if (ClientProvider.UseRpc)
-            {
-                connected = await UdpGameClient.ConnectAsync(_playerName);
-                if (connected)
-                {
-                    _playerId = UdpGameClient.PlayerId ?? string.Empty;
-                    _currentServerId = UdpGameClient.CurrentServerId ?? "Unknown";
-                }
-            }
-            else
-            {
-                connected = await HttpGameClient.ConnectAsync(_playerName);
-                if (connected)
-                {
-                    _playerId = HttpGameClient.PlayerId ?? string.Empty;
-                    _currentServerId = HttpGameClient.CurrentServerId ?? "Unknown";
-                }
-            }
+            // Save player name to localStorage
+            await JS.InvokeVoidAsync("localStorage.setItem", "playerName", _playerName);
             
+            // Connect using Forkleans RPC
+            var connected = await RpcGameClient.ConnectAsync(_playerName);
             if (connected)
             {
+                _playerId = RpcGameClient.PlayerId ?? string.Empty;
+                _currentServerId = RpcGameClient.CurrentServerId ?? "Unknown";
                 _isConnected = true;
             }
             else
@@ -255,16 +258,12 @@
     
     private async Task Disconnect()
     {
-        if (ClientProvider.UseRpc)
-        {
-            await UdpGameClient.DisconnectAsync();
-        }
-        else
-        {
-            await HttpGameClient.DisconnectAsync();
-        }
-        
+        await RpcGameClient.DisconnectAsync();
         _isConnected = false;
+        
+        // Clear remembered player name on disconnect
+        await JS.InvokeVoidAsync("localStorage.removeItem", "playerName");
+        
         Navigation.NavigateTo("/");
     }
     
@@ -273,14 +272,7 @@
         _currentMoveDirection = direction;
         if (_isConnected)
         {
-            if (ClientProvider.UseRpc)
-            {
-                await UdpGameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
-            }
-            else
-            {
-                await HttpGameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
-            }
+            await RpcGameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
         }
     }
     
@@ -289,14 +281,7 @@
         _currentIsShooting = isShooting;
         if (_isConnected)
         {
-            if (ClientProvider.UseRpc)
-            {
-                await UdpGameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
-            }
-            else
-            {
-                await HttpGameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
-            }
+            await RpcGameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
         }
     }
     
@@ -338,17 +323,8 @@
     
     public void Dispose()
     {
-        if (ClientProvider.UseRpc)
-        {
-            UdpGameClient.WorldStateUpdated -= OnWorldStateUpdated;
-            UdpGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
-            UdpGameClient.ServerChanged -= OnServerChanged;
-        }
-        else
-        {
-            HttpGameClient.WorldStateUpdated -= OnWorldStateUpdated;
-            HttpGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
-            HttpGameClient.ServerChanged -= OnServerChanged;
-        }
+        RpcGameClient.WorldStateUpdated -= OnWorldStateUpdated;
+        RpcGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
+        RpcGameClient.ServerChanged -= OnServerChanged;
     }
 }

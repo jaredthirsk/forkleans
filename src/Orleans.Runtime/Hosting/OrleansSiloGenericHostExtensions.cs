@@ -113,12 +113,12 @@ namespace Microsoft.Extensions.Hosting
             ArgumentNullException.ThrowIfNull(hostBuilder);
             ArgumentNullException.ThrowIfNull(configureDelegate);
 
-            if (hostBuilder.Properties.ContainsKey("HasOrleansClientBuilder"))
+            if (hostBuilder.Properties.ContainsKey("HasForkleansClientBuilder"))
             {
                 throw GetOrleansClientAddedException();
             }
 
-            hostBuilder.Properties["HasOrleansSiloBuilder"] = "true";
+            hostBuilder.Properties["HasForkleansSiloBuilder"] = "true";
 
             return hostBuilder.ConfigureServices((context, services) => configureDelegate(context, AddOrleansCore(services, context.Configuration)));
         }

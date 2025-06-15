@@ -9,8 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.*" />
-    <PackageReference Include="LiteNetLib" Version="1.2.0" />
-    <PackageReference Include="Microsoft.Orleans.Serialization" Version="8.*" />
+    <PackageReference Include="Forkleans.Rpc.Client" Version="9.2.0.1-preview3" />
+    <PackageReference Include="Forkleans.Rpc.Transport.LiteNetLib" Version="9.2.0.1-preview3" />
   </ItemGroup>
   
   <ItemGroup>

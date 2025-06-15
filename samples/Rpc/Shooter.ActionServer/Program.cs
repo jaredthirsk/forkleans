@@ -5,9 +5,15 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans.Configuration;
 using Orleans.Hosting;
+using Forkleans.Rpc;
+using Forkleans.Rpc.Hosting;
+using Forkleans.Rpc.Transport;
+using Forkleans.Rpc.Transport.LiteNetLib;
+using Shooter.ActionServer.Grains;
 using Shooter.ActionServer.Services;
 using Shooter.ActionServer.Simulation;
 using Shooter.Shared.Models;
+using Shooter.Shared.RpcInterfaces;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -62,12 +68,52 @@ builder.Services.AddHostedService(provider => (WorldSimulation)provider.GetRequi
 builder.Services.AddSingleton<GameService>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<GameService>());
 
-// Add UDP game server
-builder.Services.AddSingleton<UdpGameServer>();
-builder.Services.AddHostedService(provider => provider.GetRequiredService<UdpGameServer>());
+// UDP game server removed - using Forkleans RPC instead
 
-// Direct UDP implementation using LiteNetLib
-// Orleans RPC cannot be mixed with Orleans hosting, so we use LiteNetLib directly
+// Add Forkleans RPC server alongside Orleans client
+// After fixing the property keys in Forkleans, RPC can now coexist with Orleans
+// Configure RPC server port tracking
+var rpcPortProvider = new RpcServerPortProvider();
+builder.Services.AddSingleton(rpcPortProvider);
+
+// Find an available port in the range 12000-12999
+var rpcPort = 0;
+for (int port = 12000; port < 13000; port++)
+{
+    try
+    {
+        using var socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, System.Net.Sockets.ProtocolType.Udp);
+        socket.Bind(new IPEndPoint(IPAddress.Any, port));
+        socket.Close();
+        rpcPort = port;
+        break;
+    }
+    catch
+    {
+        // Port is in use, try next
+    }
+}
+
+if (rpcPort == 0)
+{
+    throw new InvalidOperationException("No available ports found in range 12000-12999");
+}
+
+rpcPortProvider.SetPort(rpcPort);
+builder.Configuration["RpcPort"] = rpcPort.ToString();
+
+builder.Host.UseOrleansRpc(rpcBuilder =>
+{
+    // Use the selected port
+    rpcBuilder.ConfigureEndpoint(rpcPort);
+    
+    // Use LiteNetLib transport for UDP
+    rpcBuilder.UseLiteNetLib();
+    
+    // Add assemblies containing grains
+    rpcBuilder.AddAssemblyContaining<GameRpcGrain>()           // Grain implementations
+             .AddAssemblyContaining<IGameRpcGrain>();          // Grain interfaces
+});
 
 // Add background service for registration
 builder.Services.AddHostedService<ActionServerRegistrationService>();
@@ -144,7 +190,7 @@ public class ActionServerRegistrationService : BackgroundService
     private readonly IConfiguration _configuration;
     private readonly IHostApplicationLifetime _lifetime;
     private readonly IServiceProvider _serviceProvider;
-    private readonly UdpGameServer _udpGameServer;
+    private readonly RpcServerPortProvider _rpcPortProvider;
     private string? _serverId;
     private string? _siloUrl;
 
@@ -155,7 +201,7 @@ public class ActionServerRegistrationService : BackgroundService
         IConfiguration configuration,
         IHostApplicationLifetime lifetime,
         IServiceProvider serviceProvider,
-        UdpGameServer udpGameServer)
+        RpcServerPortProvider rpcPortProvider)
     {
         _logger = logger;
         _httpClientFactory = httpClientFactory;
@@ -163,7 +209,7 @@ public class ActionServerRegistrationService : BackgroundService
         _configuration = configuration;
         _lifetime = lifetime;
         _serviceProvider = serviceProvider;
-        _udpGameServer = udpGameServer;
+        _rpcPortProvider = rpcPortProvider;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -212,28 +258,19 @@ public class ActionServerRegistrationService : BackgroundService
         
         _logger.LogInformation("ActionServer starting with ID: {ServerId}, HTTP Port: {Port}", _serverId, actualPort);
         
-        // Wait for UDP server to start and get its port
-        var maxWaitTime = TimeSpan.FromSeconds(10);
-        var startTime = DateTime.UtcNow;
-        int rpcUdpPort = 0;
-        
-        while (rpcUdpPort == 0 && DateTime.UtcNow - startTime < maxWaitTime)
+        // Wait for RPC server to start and get its port
+        int rpcPort;
+        try
         {
-            rpcUdpPort = _udpGameServer.UdpPort;
-            if (rpcUdpPort == 0)
-            {
-                _logger.LogInformation("Waiting for UDP server to start...");
-                await Task.Delay(500, stoppingToken);
-            }
+            _logger.LogInformation("Waiting for RPC server to start...");
+            rpcPort = await _rpcPortProvider.WaitForPortAsync(TimeSpan.FromSeconds(10), stoppingToken);
+            _logger.LogInformation("RPC server started on port {Port}", rpcPort);
         }
-        
-        if (rpcUdpPort == 0)
+        catch (TimeoutException)
         {
-            _logger.LogError("UDP server failed to start within timeout");
+            _logger.LogError("RPC server failed to start within timeout");
             return;
         }
-        
-        _logger.LogInformation("UDP server started on port {Port}", rpcUdpPort);
         
         // Retry registration with exponential backoff
         var retryCount = 0;
@@ -281,7 +318,7 @@ public class ActionServerRegistrationService : BackgroundService
                 
                 var response = await httpClient.PostAsJsonAsync(
                     $"{_siloUrl}/api/world/action-servers/register",
-                    new { ServerId = _serverId, IpAddress = ipAddress, UdpPort = rpcUdpPort, HttpEndpoint = actualAddress },
+                    new { ServerId = _serverId, IpAddress = ipAddress, UdpPort = rpcPort, HttpEndpoint = actualAddress, RpcPort = rpcPort },
                     stoppingToken);
                     
                 if (response.IsSuccessStatusCode)

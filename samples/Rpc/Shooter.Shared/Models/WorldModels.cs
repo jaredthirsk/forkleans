@@ -26,7 +26,8 @@ public record ActionServerInfo(
     int UdpPort,
     string HttpEndpoint,
     GridSquare AssignedSquare,
-    DateTime RegisteredAt);
+    DateTime RegisteredAt,
+    int RpcPort = 0);
 
 [Orleans.GenerateSerializer]
 public record PlayerInfo(

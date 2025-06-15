@@ -1,10 +1,15 @@
 # UDP Implementation Status
 
 ## Overview
-This document tracks the implementation of UDP-based communication using LiteNetLib for the Shooter sample, replacing the initial Orleans RPC approach.
+This document tracks the implementation of UDP-based communication for the Shooter sample, including both direct LiteNetLib and Forkleans RPC approaches.
 
-## Background
-Orleans RPC cannot be mixed with Orleans clustering/hosting. Since the Shooter sample uses Orleans for distributed state management, a direct LiteNetLib UDP implementation was created instead.
+## Update: Forkleans RPC Now Supported!
+We discovered that the incompatibility between Orleans RPC and Orleans clustering was due to a property key validation issue. After fixing this in the Forkleans fork, we can now use both:
+- **Orleans clustering** for distributed state management
+- **Forkleans RPC** for UDP-based RPC communication
+- **Direct LiteNetLib** for custom game protocols
+
+See [FORKLEANS-RPC-STATUS.md](FORKLEANS-RPC-STATUS.md) for details on the RPC implementation.
 
 ## Current Status: COMPLETED ✅
 

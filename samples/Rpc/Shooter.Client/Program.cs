@@ -1,6 +1,5 @@
 using Shooter.Client.Data;
 using Shooter.Client.Services;
-using Orleans.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,30 +10,24 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 
-// Add Orleans serializer
-builder.Services.AddSerializer();
+// Add Forkleans RPC game client service as singleton
+var siloUrl = builder.Configuration["SiloUrl"] ?? "https://localhost:61311/";
+if (!siloUrl.EndsWith("/"))
+    siloUrl += "/";
 
-// Add game services
-builder.Services.AddHttpClient<GameClientService>(client =>
+// Register HttpClient factory
+builder.Services.AddHttpClient();
+
+// Register the RPC game client service
+builder.Services.AddSingleton<ForleansRpcGameClientService>(serviceProvider =>
 {
-    var siloUrl = builder.Configuration["SiloUrl"] ?? "https://localhost:61311/";
-    if (!siloUrl.EndsWith("/"))
-        siloUrl += "/";
-    client.BaseAddress = new Uri(siloUrl);
+    var logger = serviceProvider.GetRequiredService<ILogger<ForleansRpcGameClientService>>();
+    var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient();
+    httpClient.BaseAddress = new Uri(siloUrl);
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    return new ForleansRpcGameClientService(logger, httpClient, configuration);
 });
-
-// Add UDP-based game client service with HttpClient
-builder.Services.AddHttpClient<UdpGameClientService>(client =>
-{
-    var siloUrl = builder.Configuration["SiloUrl"] ?? "https://localhost:61311/";
-    if (!siloUrl.EndsWith("/"))
-        siloUrl += "/";
-    client.BaseAddress = new Uri(siloUrl);
-});
-
-// Configuration for which client to use (HTTP vs UDP)
-var useUdp = builder.Configuration.GetValue<bool>("UseUdpClient", true);
-builder.Services.AddSingleton<IGameClientProvider>(sp => new GameClientProvider(useUdp));
 
 var app = builder.Build();
 
