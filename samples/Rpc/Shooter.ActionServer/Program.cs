@@ -1,92 +1,65 @@
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Orleans.Configuration;
-using Orleans.Hosting;
-using Forkleans.Rpc;
-using Forkleans.Rpc.Hosting;
-using Forkleans.Rpc.Transport;
-using Forkleans.Rpc.Transport.LiteNetLib;
-using Shooter.ActionServer.Grains;
+using Microsoft.AspNetCore.Hosting.Server;
 using Shooter.ActionServer.Services;
 using Shooter.ActionServer.Simulation;
-using Shooter.Shared.Models;
-using Shooter.Shared.RpcInterfaces;
 using System.Net;
-using System.Net.Http.Json;
+using Shooter.ActionServer.Grains;
+using Shooter.Shared.Models;
+using System.Numerics;
+using Shooter.Shared.RpcInterfaces;
+using Forkleans.Configuration;
+using Forkleans.Rpc;
+using Forkleans.Rpc.Hosting;
+using Forkleans.Rpc.Transport.LiteNetLib;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Let the host environment (Aspire, Docker, etc.) assign ports dynamically
-// Only use explicit URLs if provided via command line or environment
-if (string.IsNullOrEmpty(builder.Configuration["urls"]) && 
-    string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
-{
-    // No URLs specified, use dynamic port assignment
-    // Use 127.0.0.1:0 instead of localhost:0 as required by Kestrel
-    builder.WebHost.UseUrls("http://127.0.0.1:0");
-}
-
 builder.AddServiceDefaults();
 
-// Add a startup delay to allow Orleans silo to fully initialize
+// Add services
+builder.Services.AddSingleton<IWorldSimulation, WorldSimulation>();
+builder.Services.AddSingleton<GameService>();
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<RpcServerPortProvider>();
+
+// Add Orleans startup delay service
 builder.Services.AddHostedService<OrleansStartupDelayService>();
 
-// Configure Orleans client
-builder.Services.AddOrleansClient((Orleans.Hosting.IClientBuilder clientBuilder) =>
+// Configure Orleans client with retry
+builder.UseOrleansClient((Forkleans.Hosting.IClientBuilder clientBuilder) =>
 {
+    // In Aspire, use the configured gateway endpoint
     var gatewayEndpoint = builder.Configuration["Orleans:GatewayEndpoint"];
-    
     if (!string.IsNullOrEmpty(gatewayEndpoint))
     {
-        // Parse the endpoint from Aspire (format: "tcp://host:port" or "host:port")
-        var uri = new Uri(gatewayEndpoint);
-        var host = uri.Host;
-        var port = uri.Port;
-        
-        clientBuilder
-            .UseStaticClustering(new IPEndPoint(IPAddress.Parse(host == "localhost" ? "127.0.0.1" : host), port))
-            .Configure<ClusterOptions>(options =>
-            {
-                options.ClusterId = "dev";
-                options.ServiceId = "ShooterDemo";
-            });
+        var parts = gatewayEndpoint.Split(':');
+        var host = parts[0];
+        var port = int.Parse(parts[1]);
+        clientBuilder.UseStaticClustering(new IPEndPoint(IPAddress.Parse(host), port));
     }
     else
     {
-        // Fallback to localhost clustering for local development without Aspire
-        clientBuilder
-            .UseLocalhostClustering()
-            .Configure<ClusterOptions>(options =>
-            {
-                options.ClusterId = "dev";
-                options.ServiceId = "ShooterDemo";
-            });
+        clientBuilder.UseLocalhostClustering();
     }
 });
 
-// Add HTTP client for registering with silo
-builder.Services.AddHttpClient();
+// Ensure simulation runs after Orleans client is ready
+builder.Services.AddHostedService<WorldSimulation>();
 
-// Add world simulation
-builder.Services.AddSingleton<IWorldSimulation, WorldSimulation>();
-builder.Services.AddHostedService(provider => (WorldSimulation)provider.GetRequiredService<IWorldSimulation>());
+// Configure dynamic HTTP port assignment
+if (builder.Environment.IsDevelopment())
+{
+    // Don't use a specific port in development - let the system assign one
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.Listen(IPAddress.Any, 0); // 0 means let the OS assign a port
+    });
+}
 
-// Add game service
-builder.Services.AddSingleton<GameService>();
-builder.Services.AddHostedService(provider => provider.GetRequiredService<GameService>());
-
-// UDP game server removed - using Forkleans RPC instead
-
-// Add Forkleans RPC server alongside Orleans client
-// After fixing the property keys in Forkleans, RPC can now coexist with Orleans
-// Configure RPC server port tracking
+// Determine RPC port BEFORE building the app
 var rpcPortProvider = new RpcServerPortProvider();
 builder.Services.AddSingleton(rpcPortProvider);
 
-// Determine RPC port based on instance ID or environment
 int rpcPort;
 
 // First, try to get port from environment variable (useful for Aspire)
@@ -176,244 +149,10 @@ app.MapGet("/status", (IWorldSimulation simulation) =>
     };
 });
 
-// Game endpoints
-app.MapPost("/game/connect/{playerId}", async (string playerId, GameService gameService) =>
-{
-    var connected = await gameService.ConnectPlayer(playerId);
-    return Results.Ok(new { Connected = connected });
-});
-
-app.MapDelete("/game/disconnect/{playerId}", async (string playerId, GameService gameService) =>
-{
-    await gameService.DisconnectPlayer(playerId);
-    return Results.Ok();
-});
-
-app.MapGet("/game/state", async (GameService gameService) =>
-{
-    var state = await gameService.GetWorldState();
-    return Results.Ok(state);
-});
-
-app.MapPost("/game/input/{playerId}", async (string playerId, PlayerInput input, GameService gameService) =>
-{
-    await gameService.UpdatePlayerInput(playerId, input.MoveDirection, input.IsShooting);
-    return Results.Ok();
-});
-
-// Entity transfers now happen via RPC only
+// All game communication now happens via RPC only
+// HTTP endpoints are only used for health/status monitoring
 
 app.Run();
-
-// Background service to handle registration with Orleans silo
-public class ActionServerRegistrationService : BackgroundService
-{
-    private readonly ILogger<ActionServerRegistrationService> _logger;
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IWorldSimulation _simulation;
-    private readonly IConfiguration _configuration;
-    private readonly IHostApplicationLifetime _lifetime;
-    private readonly IServiceProvider _serviceProvider;
-    private readonly RpcServerPortProvider _rpcPortProvider;
-    private string? _serverId;
-    private string? _siloUrl;
-
-    public ActionServerRegistrationService(
-        ILogger<ActionServerRegistrationService> logger,
-        IHttpClientFactory httpClientFactory,
-        IWorldSimulation simulation,
-        IConfiguration configuration,
-        IHostApplicationLifetime lifetime,
-        IServiceProvider serviceProvider,
-        RpcServerPortProvider rpcPortProvider)
-    {
-        _logger = logger;
-        _httpClientFactory = httpClientFactory;
-        _simulation = simulation;
-        _configuration = configuration;
-        _lifetime = lifetime;
-        _serviceProvider = serviceProvider;
-        _rpcPortProvider = rpcPortProvider;
-    }
-
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        // Wait for the app to start
-        var tcs = new TaskCompletionSource();
-        using var registration = _lifetime.ApplicationStarted.Register(() => tcs.SetResult());
-        await tcs.Task;
-        
-        var httpClient = _httpClientFactory.CreateClient();
-        
-        // Wait a bit for the server to fully start
-        await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
-        
-        // Get the server's actual addresses
-        var server = _serviceProvider.GetService<IServer>();
-        var addresses = server?.Features.Get<IServerAddressesFeature>()?.Addresses;
-        
-        string? actualAddress = null;
-        int actualPort = 5100;
-        
-        if (addresses != null && addresses.Any())
-        {
-            actualAddress = addresses.First();
-            _logger.LogInformation("Server listening on: {Addresses}", string.Join(", ", addresses));
-            
-            var uri = new Uri(actualAddress);
-            actualPort = uri.Port;
-        }
-        else
-        {
-            // Fallback to environment variable or configuration
-            var serverAddresses = Environment.GetEnvironmentVariable("ASPNETCORE_URLS") 
-                ?? _configuration["urls"] 
-                ?? "http://localhost:5100";
-            
-            _logger.LogInformation("Using configured addresses: {Addresses}", serverAddresses);
-            
-            var firstAddress = serverAddresses.Split(';')[0];
-            var uri = new Uri(firstAddress);
-            actualPort = uri.Port;
-        }
-        
-        _serverId = Guid.NewGuid().ToString();
-        _siloUrl = _configuration["Orleans:SiloUrl"] ?? "https://localhost:7071";
-        
-        _logger.LogInformation("ActionServer starting with ID: {ServerId}, HTTP Port: {Port}", _serverId, actualPort);
-        
-        // Wait for RPC server to start and get its port
-        int rpcPort;
-        try
-        {
-            _logger.LogInformation("Waiting for RPC server to start...");
-            rpcPort = await _rpcPortProvider.WaitForPortAsync(TimeSpan.FromSeconds(10), stoppingToken);
-            _logger.LogInformation("RPC server started on port {Port}", rpcPort);
-        }
-        catch (TimeoutException)
-        {
-            _logger.LogError("RPC server failed to start within timeout");
-            return;
-        }
-        
-        // Retry registration with exponential backoff
-        var retryCount = 0;
-        var maxRetries = 10;
-        var registered = false;
-        
-        while (!registered && retryCount < maxRetries && !stoppingToken.IsCancellationRequested)
-        {
-            try
-            {
-                _logger.LogInformation("Attempting to register with silo (attempt {Attempt}/{MaxAttempts})", retryCount + 1, maxRetries);
-                
-                // Determine the best IP/hostname to use
-                string ipAddress;
-                
-                // First try Aspire service instance name
-                var serviceName = Environment.GetEnvironmentVariable("ASPIRE_SERVICE_INSTANCE_NAME");
-                if (!string.IsNullOrEmpty(serviceName))
-                {
-                    ipAddress = serviceName;
-                    _logger.LogInformation("Using Aspire service name: {IpAddress}", ipAddress);
-                }
-                else if (!string.IsNullOrEmpty(actualAddress))
-                {
-                    // Extract hostname from the actual HTTP address
-                    try
-                    {
-                        var uri = new Uri(actualAddress);
-                        ipAddress = uri.Host;
-                        _logger.LogInformation("Using hostname from HTTP endpoint: {IpAddress}", ipAddress);
-                    }
-                    catch
-                    {
-                        ipAddress = "127.0.0.1";
-                        _logger.LogWarning("Failed to extract hostname, using localhost");
-                    }
-                }
-                else
-                {
-                    ipAddress = "127.0.0.1";
-                    _logger.LogInformation("Using default localhost");
-                }
-                
-                _logger.LogInformation("Registering with IP/hostname: {IpAddress}", ipAddress);
-                
-                var response = await httpClient.PostAsJsonAsync(
-                    $"{_siloUrl}/api/world/action-servers/register",
-                    new { ServerId = _serverId, IpAddress = ipAddress, UdpPort = rpcPort, HttpEndpoint = actualAddress, RpcPort = rpcPort },
-                    stoppingToken);
-                    
-                if (response.IsSuccessStatusCode)
-                {
-                    var serverInfo = await response.Content.ReadFromJsonAsync<ActionServerInfo>(cancellationToken: stoppingToken);
-                    if (serverInfo != null)
-                    {
-                        ((WorldSimulation)_simulation).SetAssignedSquare(serverInfo.AssignedSquare);
-                        _logger.LogInformation("Registered with silo, assigned square: ({X}, {Y})", 
-                            serverInfo.AssignedSquare.X, serverInfo.AssignedSquare.Y);
-                        registered = true;
-                    }
-                }
-                else
-                {
-                    _logger.LogWarning("Failed to register with silo: {Status}", response.StatusCode);
-                }
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogWarning(ex, "Failed to connect to silo, will retry");
-            }
-            
-            if (!registered)
-            {
-                retryCount++;
-                var delay = TimeSpan.FromSeconds(Math.Min(Math.Pow(2, retryCount), 30)); // Exponential backoff with 30s max
-                _logger.LogInformation("Waiting {Delay} before retry", delay);
-                await Task.Delay(delay, stoppingToken);
-            }
-        }
-        
-        if (!registered)
-        {
-            _logger.LogError("Failed to register with silo after {MaxRetries} attempts", maxRetries);
-            throw new InvalidOperationException("Unable to register with Orleans silo");
-        }
-        
-        try
-        {
-            // Keep the registration alive
-            await Task.Delay(Timeout.Infinite, stoppingToken);
-        }
-        catch (OperationCanceledException)
-        {
-            // Expected when cancellation is requested
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "ActionServer registration failed");
-        }
-        finally
-        {
-            // Unregister on shutdown
-            if (!string.IsNullOrEmpty(_serverId) && !string.IsNullOrEmpty(_siloUrl))
-            {
-                try
-                {
-                    await httpClient.DeleteAsync($"{_siloUrl}/api/world/action-servers/{_serverId}");
-                    _logger.LogInformation("Unregistered from silo");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to unregister from silo");
-                }
-            }
-        }
-    }
-}
-
-public record PlayerInput(Vector2 MoveDirection, bool IsShooting);
 
 // Service to delay Orleans client startup to ensure silo is ready
 public class OrleansStartupDelayService : IHostedService
@@ -441,60 +180,30 @@ public class OrleansStartupDelayService : IHostedService
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }
 
-// TODO: Implement RPC server hosted service when Orleans RPC integration is configured
-// Hosted service to manage RPC server lifecycle
-// public class RpcServerHostedService : IHostedService
-// {
-//     private readonly IRpcServer _rpcServer;
-//     private readonly ILogger<RpcServerHostedService> _logger;
-//     private readonly IConfiguration _configuration;
-//     private int _actualPort;
-// 
-//     public RpcServerHostedService(IRpcServer rpcServer, ILogger<RpcServerHostedService> logger, IConfiguration configuration)
-//     {
-//         _rpcServer = rpcServer;
-//         _logger = logger;
-//         _configuration = configuration;
-//     }
-// 
-//     public async Task StartAsync(CancellationToken cancellationToken)
-//     {
-//         try
-//         {
-//             await _rpcServer.StartAsync(cancellationToken);
-//             
-//             // Get the actual port that was bound
-//             var transport = _rpcServer.Transport as LiteNetLibTransport;
-//             if (transport != null)
-//             {
-//                 _actualPort = transport.LocalPort;
-//                 _logger.LogInformation("RPC server started on UDP port {Port}", _actualPort);
-//                 
-//                 // Store the UDP port in configuration for registration
-//                 _configuration["RpcServer:UdpPort"] = _actualPort.ToString();
-//             }
-//             else
-//             {
-//                 _logger.LogError("Failed to get RPC server port - transport is not LiteNetLib");
-//             }
-//         }
-//         catch (Exception ex)
-//         {
-//             _logger.LogError(ex, "Failed to start RPC server");
-//             throw;
-//         }
-//     }
-// 
-//     public async Task StopAsync(CancellationToken cancellationToken)
-//     {
-//         try
-//         {
-//             await _rpcServer.StopAsync(cancellationToken);
-//             _logger.LogInformation("RPC server stopped");
-//         }
-//         catch (Exception ex)
-//         {
-//             _logger.LogError(ex, "Error stopping RPC server");
-//         }
-//     }
-// }
+// Service to provide RPC port to other services
+public class RpcServerPortProvider
+{
+    private readonly TaskCompletionSource<int> _portTcs = new();
+    
+    public void SetPort(int port)
+    {
+        _portTcs.TrySetResult(port);
+    }
+    
+    public async Task<int> WaitForPortAsync(TimeSpan timeout, CancellationToken cancellationToken)
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        cts.CancelAfter(timeout);
+        
+        try
+        {
+            return await _portTcs.Task.WaitAsync(cts.Token);
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            throw new TimeoutException("RPC port was not set within the timeout period");
+        }
+    }
+    
+    public int Port => _portTcs.Task.IsCompletedSuccessfully ? _portTcs.Task.Result : 0;
+}

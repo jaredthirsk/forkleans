@@ -522,3 +522,8 @@ public class ForleansRpcGameClientService : IDisposable
     }
 }
 
+// Response types from Silo HTTP endpoints
+public record PlayerRegistrationResponse(PlayerInfo PlayerInfo, ActionServerInfo ActionServer);
+public record PlayerInfo(string PlayerId, string Name, Vector2 Position);
+public record ActionServerInfo(string ServerId, string IpAddress, int UdpPort, string HttpEndpoint, int RpcPort, GridSquare AssignedSquare);
+
