@@ -31,28 +31,37 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         _assignedSquare = square;
         _logger.LogInformation("Assigned to grid square: {X}, {Y}", square.X, square.Y);
     }
+    
+    public GridSquare GetAssignedSquare()
+    {
+        return _assignedSquare;
+    }
 
     public async Task<bool> AddPlayer(string playerId)
     {
         try
         {
+            _logger.LogInformation("AddPlayer called for {PlayerId}", playerId);
             var playerGrain = _orleansClient.GetGrain<IPlayerGrain>(playerId);
+            _logger.LogInformation("Got player grain reference for {PlayerId}", playerId);
             
             // Retry up to 3 times with delays to ensure position is updated
             PlayerInfo? playerInfo = null;
             for (int i = 0; i < 3; i++)
             {
                 playerInfo = await playerGrain.GetInfo();
+                _logger.LogInformation("Got player info on attempt {Attempt}: {PlayerId} - Name: {Name}, Position: {Position}, Health: {Health}", 
+                    i + 1, playerId, playerInfo?.Name ?? "null", playerInfo?.Position ?? Vector2.Zero, playerInfo?.Health ?? 0);
                 
                 // Check if the position looks valid (not at 0,0 unless that's actually in the zone)
-                var playerZone = GridSquare.FromPosition(playerInfo.Position);
+                var playerZone = playerInfo != null ? GridSquare.FromPosition(playerInfo.Position) : null;
                 if (playerZone == _assignedSquare || i == 2) // Accept on last try regardless
                 {
                     break;
                 }
                 
                 _logger.LogWarning("Player {PlayerId} position {Position} is in zone {PlayerZone} but we are zone {AssignedZone}, retrying...", 
-                    playerId, playerInfo.Position, playerZone, _assignedSquare);
+                    playerId, playerInfo?.Position ?? Vector2.Zero, playerZone, _assignedSquare);
                     
                 await Task.Delay(100); // Wait 100ms before retry
             }
@@ -120,7 +129,65 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         }
         else
         {
-            _logger.LogWarning("Player {PlayerId} not found in inputs", playerId);
+            // Check if player exists in entities but not in inputs (race condition during initialization)
+            if (_entities.ContainsKey(playerId))
+            {
+                _logger.LogDebug("Adding input tracking for player {PlayerId}", playerId);
+                _playerInputs[playerId] = new PlayerInput 
+                { 
+                    MoveDirection = moveDirection, 
+                    IsShooting = isShooting,
+                    LastUpdated = DateTime.UtcNow
+                };
+            }
+            else
+            {
+                // Player might not be fully initialized yet - this can happen during connection
+                // or server transitions. Log at debug level to reduce noise.
+                _logger.LogDebug("Player {PlayerId} not yet initialized, ignoring input", playerId);
+            }
+        }
+    }
+    
+    public void UpdatePlayerInputEx(string playerId, Vector2? moveDirection, Vector2? shootDirection)
+    {
+        if (_playerInputs.TryGetValue(playerId, out var input))
+        {
+            if (moveDirection.HasValue)
+            {
+                input.MoveDirection = moveDirection.Value;
+            }
+            
+            input.ShootDirection = shootDirection;
+            input.IsShooting = shootDirection.HasValue;
+            input.LastUpdated = DateTime.UtcNow;
+            
+            if (moveDirection.HasValue && moveDirection.Value.Length() > 0)
+            {
+                _logger.LogDebug("Player {PlayerId} input: Move={Move}, ShootDir={ShootDir}", 
+                    playerId, moveDirection, shootDirection);
+            }
+        }
+        else
+        {
+            // Check if player exists in entities but not in inputs (race condition during initialization)
+            if (_entities.ContainsKey(playerId))
+            {
+                _logger.LogDebug("Adding input tracking for player {PlayerId}", playerId);
+                _playerInputs[playerId] = new PlayerInput 
+                { 
+                    MoveDirection = moveDirection ?? Vector2.Zero,
+                    ShootDirection = shootDirection,
+                    IsShooting = shootDirection.HasValue,
+                    LastUpdated = DateTime.UtcNow
+                };
+            }
+            else
+            {
+                // Player might not be fully initialized yet - this can happen during connection
+                // or server transitions. Log at debug level to reduce noise.
+                _logger.LogDebug("Player {PlayerId} not yet initialized, ignoring input", playerId);
+            }
         }
     }
 
@@ -189,26 +256,72 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 player.Velocity = input.MoveDirection.Normalized() * speed;
                 var newPos = player.Position + player.Velocity * deltaTime;
                 
-                // Check if the new position would be in an unavailable zone
+                // Check if the new position would be in our assigned zone
                 var newZone = GridSquare.FromPosition(newPos);
-                var isNewZoneAvailable = await IsZoneAvailable(newZone);
                 
-                if (isNewZoneAvailable)
+                if (newZone == _assignedSquare)
                 {
+                    // Still in our zone, allow movement
                     player.Position = newPos;
                 }
                 else
                 {
-                    // Stop at zone boundary
-                    _logger.LogWarning("Player {PlayerId} blocked from entering unavailable zone {Zone}", 
-                        playerId, newZone);
-                    player.Velocity = Vector2.Zero;
+                    // Player is trying to leave our zone
+                    var isNewZoneAvailable = await IsZoneAvailable(newZone);
+                    
+                    if (isNewZoneAvailable)
+                    {
+                        // Another server handles that zone - allow the movement
+                        // The zone transition monitor will handle the transfer
+                        player.Position = newPos;
+                        _logger.LogInformation("Player {PlayerId} moving from zone {OldZone} to {NewZone} - position updated to {Position}", 
+                            playerId, _assignedSquare, newZone, newPos);
+                        
+                        // Update position in WorldManager when crossing zone boundaries
+                        _ = Task.Run(async () => {
+                            try
+                            {
+                                var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
+                                await worldManager.UpdatePlayerPosition(playerId, newPos);
+                                _logger.LogInformation("Updated WorldManager position for player {PlayerId} to {Position} in zone {Zone}", 
+                                    playerId, newPos, newZone);
+                                
+                                // Also update the player grain position
+                                var playerGrain = _orleansClient.GetGrain<IPlayerGrain>(playerId);
+                                await playerGrain.UpdatePosition(newPos, player.Velocity);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Failed to update player position in WorldManager");
+                            }
+                        });
+                    }
+                    else
+                    {
+                        // No server for that zone - block movement
+                        _logger.LogDebug("Player {PlayerId} blocked from entering unavailable zone {Zone}", 
+                            playerId, newZone);
+                        player.Velocity = Vector2.Zero;
+                    }
                 }
                     
                 if (oldPos != player.Position)
                 {
                     _logger.LogDebug("Player {PlayerId} moved from {OldPos} to {NewPos}", 
                         playerId, oldPos, player.Position);
+                    
+                    // Check if player is approaching zone boundary
+                    var (min, max) = _assignedSquare.GetBounds();
+                    var distToEdge = Math.Min(
+                        Math.Min(player.Position.X - min.X, max.X - player.Position.X),
+                        Math.Min(player.Position.Y - min.Y, max.Y - player.Position.Y)
+                    );
+                    
+                    if (distToEdge < 50)
+                    {
+                        _logger.LogInformation("Player {PlayerId} is near zone boundary (distance: {Distance}) at position {Position} in zone {Zone}", 
+                            playerId, distToEdge, player.Position, _assignedSquare);
+                    }
                 }
                 
                 // Update rotation based on movement
@@ -220,8 +333,23 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 // Handle shooting
                 if (input.IsShooting && DateTime.UtcNow - input.LastShot > TimeSpan.FromMilliseconds(250))
                 {
-                    var shootDirection = input.MoveDirection.Length() > 0 ? input.MoveDirection.Normalized() : 
-                        new Vector2(MathF.Cos(player.Rotation), MathF.Sin(player.Rotation));
+                    Vector2 shootDirection;
+                    
+                    // Use explicit shoot direction if provided
+                    if (input.ShootDirection.HasValue)
+                    {
+                        shootDirection = input.ShootDirection.Value.Normalized();
+                    }
+                    // Otherwise fall back to movement direction or current rotation
+                    else if (input.MoveDirection.Length() > 0)
+                    {
+                        shootDirection = input.MoveDirection.Normalized();
+                    }
+                    else
+                    {
+                        shootDirection = new Vector2(MathF.Cos(player.Rotation), MathF.Sin(player.Rotation));
+                    }
+                    
                     SpawnBullet(player.Position, shootDirection);
                     input.LastShot = DateTime.UtcNow;
                 }
@@ -541,6 +669,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private class PlayerInput
     {
         public Vector2 MoveDirection { get; set; }
+        public Vector2? ShootDirection { get; set; }
         public bool IsShooting { get; set; }
         public DateTime LastUpdated { get; set; }
         public DateTime LastShot { get; set; }
@@ -556,10 +685,18 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             var pos = entity.Position;
             if (pos.X < min.X || pos.X >= max.X || pos.Y < min.Y || pos.Y >= max.Y)
             {
+                _logger.LogInformation("Player {PlayerId} at position {Position} is outside zone bounds ({MinX},{MinY}) to ({MaxX},{MaxY})", 
+                    playerId, pos, min.X, min.Y, max.X, max.Y);
                 playersOutside.Add(playerId);
                 _logger.LogInformation("Player {PlayerId} at position {Position} is outside assigned zone {Zone}", 
                     playerId, pos, _assignedSquare);
             }
+        }
+        
+        if (playersOutside.Count > 0)
+        {
+            _logger.LogInformation("GetPlayersOutsideZone returning {Count} players: {Players}", 
+                playersOutside.Count, string.Join(", ", playersOutside));
         }
         
         return Task.FromResult(playersOutside);
@@ -600,7 +737,25 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             };
             
             _entities[entityId] = entity;
-            _logger.LogInformation("Transferred in {Type} {EntityId} at position {Position}", type, entityId, position);
+            
+            // If it's a player, also add to player inputs
+            if (type == EntityType.Player)
+            {
+                _playerInputs[entityId] = new PlayerInput
+                {
+                    MoveDirection = Vector2.Zero,
+                    ShootDirection = null,
+                    IsShooting = false,
+                    LastUpdated = DateTime.UtcNow
+                };
+                _logger.LogInformation("Transferred in player {EntityId} at position {Position} to zone {Zone}", 
+                    entityId, position, _assignedSquare);
+            }
+            else
+            {
+                _logger.LogInformation("Transferred in {Type} {EntityId} at position {Position}", type, entityId, position);
+            }
+            
             return Task.FromResult(true);
         }
         catch (Exception ex)

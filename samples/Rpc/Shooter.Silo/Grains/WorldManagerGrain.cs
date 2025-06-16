@@ -2,20 +2,24 @@ using Orleans;
 using Orleans.Runtime;
 using Shooter.Shared.GrainInterfaces;
 using Shooter.Shared.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Shooter.Silo.Grains;
 
 public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
 {
     private readonly IPersistentState<WorldManagerState> _state;
+    private readonly ILogger<WorldManagerGrain> _logger;
     private readonly Dictionary<GridSquare, ActionServerInfo> _gridToServer = new();
     private readonly Dictionary<string, ActionServerInfo> _serverIdToInfo = new();
     private int _nextServerIndex = 0;
 
     public WorldManagerGrain(
-        [PersistentState("worldManager", "worldStore")] IPersistentState<WorldManagerState> state)
+        [PersistentState("worldManager", "worldStore")] IPersistentState<WorldManagerState> state,
+        ILogger<WorldManagerGrain> logger)
     {
         _state = state;
+        _logger = logger;
     }
 
     public override Task OnActivateAsync(CancellationToken cancellationToken)
@@ -29,7 +33,7 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
         return base.OnActivateAsync(cancellationToken);
     }
 
-    public async Task<ActionServerInfo> RegisterActionServer(string serverId, string ipAddress, int udpPort, string httpEndpoint)
+    public async Task<ActionServerInfo> RegisterActionServer(string serverId, string ipAddress, int udpPort, string httpEndpoint, int rpcPort = 0)
     {
         // Create a 3x3 grid pattern
         // Server 0: (0,0), Server 1: (1,0), Server 2: (2,0)
@@ -42,7 +46,7 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
         
         _nextServerIndex++;
 
-        var serverInfo = new ActionServerInfo(serverId, ipAddress, udpPort, httpEndpoint, assignedSquare, DateTime.UtcNow);
+        var serverInfo = new ActionServerInfo(serverId, ipAddress, udpPort, httpEndpoint, assignedSquare, DateTime.UtcNow, rpcPort);
         
         // If a server already manages this square, remove it first
         if (_gridToServer.ContainsKey(assignedSquare))
@@ -118,20 +122,32 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
     {
         // Get the new grid square for the player's current position
         var newGridSquare = GridSquare.FromPosition(currentPosition);
+        _logger.LogInformation("InitiatePlayerTransfer: Player {PlayerId} at position {Position} is in zone {Zone}", 
+            playerId, currentPosition, newGridSquare);
         
         // Get the new server for this position
         var newServer = _gridToServer.TryGetValue(newGridSquare, out var server) ? server : null;
         if (newServer == null)
         {
+            _logger.LogWarning("No server available for zone {Zone}. Available zones: {Zones}", 
+                newGridSquare, string.Join(", ", _gridToServer.Keys.Select(z => $"({z.X},{z.Y})")));
             // No server available for this zone
             return null;
         }
+        _logger.LogInformation("Found server {ServerId} for zone {Zone}", newServer.ServerId, newGridSquare);
         
         // Get player info
         if (!_state.State.Players.TryGetValue(playerId, out var playerInfo))
         {
-            return null;
+            _logger.LogWarning("Player {PlayerId} not found in WorldManager state. Total registered players: {Count}", 
+                playerId, _state.State.Players.Count);
+            _logger.LogWarning("Registered players: {Players}", string.Join(", ", _state.State.Players.Keys));
+            
+            // Auto-register the player if not found
+            _logger.LogInformation("Auto-registering player {PlayerId} with unknown name", playerId);
+            playerInfo = await RegisterPlayer(playerId, "Unknown");
         }
+        _logger.LogInformation("Player {PlayerId} current stored position: {Position}", playerId, playerInfo.Position);
         
         // Get the player's current server based on their previous position
         var oldGridSquare = GridSquare.FromPosition(playerInfo.Position);
@@ -141,13 +157,16 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
         playerInfo = playerInfo with { Position = currentPosition };
         _state.State.Players[playerId] = playerInfo;
         await _state.WriteStateAsync();
-        
+
         // If the player is already on the correct server, no transfer needed
         if (oldServer?.ServerId == newServer.ServerId)
         {
+            _logger.LogInformation("Player {PlayerId} is already on server {ServerId}, no transfer needed", playerId, newServer.ServerId);
             return null;
         }
-        
+
+        _logger.LogInformation("Player {PlayerId} needs transfer from server {OldServer} to {NewServer}", 
+            playerId, oldServer?.ServerId ?? "none", newServer.ServerId);
         return new PlayerTransferInfo(playerId, newServer, oldServer, playerInfo);
     }
     

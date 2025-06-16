@@ -19,6 +19,16 @@ using System.Net.Http.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Let the host environment (Aspire, Docker, etc.) assign ports dynamically
+// Only use explicit URLs if provided via command line or environment
+if (string.IsNullOrEmpty(builder.Configuration["urls"]) && 
+    string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
+{
+    // No URLs specified, use dynamic port assignment
+    // Use 127.0.0.1:0 instead of localhost:0 as required by Kestrel
+    builder.WebHost.UseUrls("http://127.0.0.1:0");
+}
+
 builder.AddServiceDefaults();
 
 // Add a startup delay to allow Orleans silo to fully initialize
@@ -76,27 +86,58 @@ builder.Services.AddHostedService(provider => provider.GetRequiredService<GameSe
 var rpcPortProvider = new RpcServerPortProvider();
 builder.Services.AddSingleton(rpcPortProvider);
 
-// Find an available port in the range 12000-12999
-var rpcPort = 0;
-for (int port = 12000; port < 13000; port++)
-{
-    try
-    {
-        using var socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, System.Net.Sockets.ProtocolType.Udp);
-        socket.Bind(new IPEndPoint(IPAddress.Any, port));
-        socket.Close();
-        rpcPort = port;
-        break;
-    }
-    catch
-    {
-        // Port is in use, try next
-    }
-}
+// Determine RPC port based on instance ID or environment
+int rpcPort;
 
-if (rpcPort == 0)
+// First, try to get port from environment variable (useful for Aspire)
+var envPort = Environment.GetEnvironmentVariable("RPC_PORT");
+if (!string.IsNullOrEmpty(envPort) && int.TryParse(envPort, out var parsedPort))
 {
-    throw new InvalidOperationException("No available ports found in range 12000-12999");
+    rpcPort = parsedPort;
+    builder.Logging.AddConsole();
+    Console.WriteLine($"Using RPC port from environment: {rpcPort}");
+}
+else
+{
+    // Try to get instance ID from Aspire
+    var instanceId = Environment.GetEnvironmentVariable("ASPIRE_INSTANCE_ID");
+    var baseRpcPort = 12000;
+    
+    if (!string.IsNullOrEmpty(instanceId) && int.TryParse(instanceId, out var id))
+    {
+        // Use instance ID to calculate port offset
+        rpcPort = baseRpcPort + id;
+        Console.WriteLine($"Using RPC port based on instance ID {id}: {rpcPort}");
+    }
+    else
+    {
+        // Fallback: find an available port with retry and random delay
+        var random = new Random();
+        await Task.Delay(random.Next(100, 500)); // Random delay to reduce race conditions
+        
+        rpcPort = 0;
+        for (int port = baseRpcPort; port < baseRpcPort + 1000; port++)
+        {
+            try
+            {
+                using var socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, System.Net.Sockets.ProtocolType.Udp);
+                socket.Bind(new IPEndPoint(IPAddress.Any, port));
+                socket.Close();
+                rpcPort = port;
+                break;
+            }
+            catch
+            {
+                // Port is in use, try next
+            }
+        }
+        
+        if (rpcPort == 0)
+        {
+            throw new InvalidOperationException($"No available ports found in range {baseRpcPort}-{baseRpcPort + 999}");
+        }
+        Console.WriteLine($"Found available RPC port: {rpcPort}");
+    }
 }
 
 rpcPortProvider.SetPort(rpcPort);
@@ -160,24 +201,7 @@ app.MapPost("/game/input/{playerId}", async (string playerId, PlayerInput input,
     return Results.Ok();
 });
 
-app.MapPost("/game/transfer-entity", async (HttpContext context, IWorldSimulation simulation) =>
-{
-    var request = await context.Request.ReadFromJsonAsync<EntityTransferRequest>();
-    if (request == null)
-    {
-        return Results.BadRequest("Invalid transfer request");
-    }
-    
-    var success = await simulation.TransferEntityIn(
-        request.EntityId,
-        request.Type,
-        request.SubType,
-        request.Position,
-        request.Velocity,
-        request.Health);
-        
-    return success ? Results.Ok() : Results.StatusCode(500);
-});
+// Entity transfers now happen via RPC only
 
 app.Run();
 
@@ -390,7 +414,6 @@ public class ActionServerRegistrationService : BackgroundService
 }
 
 public record PlayerInput(Vector2 MoveDirection, bool IsShooting);
-public record EntityTransferRequest(string EntityId, EntityType Type, int SubType, Vector2 Position, Vector2 Velocity, float Health);
 
 // Service to delay Orleans client startup to ensure silo is ready
 public class OrleansStartupDelayService : IHostedService

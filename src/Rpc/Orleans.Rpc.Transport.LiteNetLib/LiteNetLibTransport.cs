@@ -83,9 +83,30 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
                 throw new InvalidOperationException("Transport is not started.");
             }
 
-            var peer = _netManager.FirstPeer;
+            // For server mode, find the peer by endpoint
+            NetPeer peer = null;
+            if (_isServer)
+            {
+                // Try to find peer by endpoint using the tracked endpoints
+                foreach (var kvp in _peerEndpoints)
+                {
+                    if (kvp.Value.Equals(remoteEndpoint))
+                    {
+                        peer = _netManager.GetPeerById(kvp.Key);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                // For client mode, use the first peer
+                peer = _netManager.FirstPeer;
+            }
+
             if (peer == null || peer.ConnectionState != ConnectionState.Connected)
             {
+                _logger.LogWarning("No connected peer available for endpoint {Endpoint}. Connection state: {State}", 
+                    remoteEndpoint, peer?.ConnectionState.ToString() ?? "null");
                 throw new InvalidOperationException("No connected peer available.");
             }
 

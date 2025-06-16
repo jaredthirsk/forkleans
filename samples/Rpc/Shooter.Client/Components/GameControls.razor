@@ -6,7 +6,9 @@
     <div class="control-info">
         <h4>Controls</h4>
         <p>WASD - Move</p>
-        <p>Space - Shoot</p>
+        <p>0-9 - Set Speed</p>
+        <p>Right Click - Set Heading</p>
+        <p>Left Click - Shoot</p>
     </div>
     
     @if (IsConnected)
@@ -81,6 +83,7 @@
     [Parameter] public bool IsConnected { get; set; }
     [Parameter] public EventCallback<Vector2> OnMove { get; set; }
     [Parameter] public EventCallback<bool> OnShoot { get; set; }
+    [Parameter] public EventCallback<float> OnSpeedChange { get; set; }
     
     private readonly Dictionary<string, bool> _keysPressed = new();
     
@@ -105,6 +108,17 @@
     {
         _keysPressed[key.ToLower()] = false;
         await UpdateInput();
+    }
+    
+    [JSInvokable]
+    public async Task OnSpeedKey(string key)
+    {
+        if (int.TryParse(key, out var speedLevel))
+        {
+            // Map 0-9 to speed multiplier (0 = stop, 1-9 = increasing speed)
+            var speed = speedLevel / 9.0f;
+            await OnSpeedChange.InvokeAsync(speed);
+        }
     }
     
     private async Task UpdateInput()

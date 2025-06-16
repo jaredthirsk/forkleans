@@ -1,50 +1,90 @@
-// Dual canvas rendering context wrapper that toggles between two canvases for flicker-free rendering
-class DualCanvasContext {
-    constructor(canvasA, canvasB) {
-        this.canvasA = canvasA;
-        this.canvasB = canvasB;
-        this.ctxA = canvasA.getContext('2d');
-        this.ctxB = canvasB.getContext('2d');
+// Triple canvas rendering context wrapper that rotates between three canvases for reduced flicker
+class TripleCanvasContext {
+    constructor(canvasA, canvasB, canvasC, dotNetRef) {
+        this.canvases = [canvasA, canvasB, canvasC];
+        this.contexts = [
+            canvasA.getContext('2d'),
+            canvasB.getContext('2d'),
+            canvasC.getContext('2d')
+        ];
+        this.dotNetRef = dotNetRef;
         
-        // Start with canvas A visible, B hidden
-        this.currentCanvas = canvasA;
-        this.currentCtx = this.ctxA;
-        this.backCanvas = canvasB;
-        this.backCtx = this.ctxB;
+        // Initialize buffer indices
+        this.displayIndex = 0;  // Currently displayed canvas
+        this.drawIndex = 1;     // Canvas being drawn to
+        this.readyIndex = 2;    // Canvas ready to be displayed
         
-        // Track which canvas is active
-        this.useCanvasA = true;
+        // Start with first canvas visible, others hidden
+        this.canvases[0].style.display = 'block';
+        this.canvases[1].style.display = 'none';
+        this.canvases[2].style.display = 'none';
         
         this.explosionParticles = [];
+        
+        // Add mouse listeners to all canvases
+        this.canvases.forEach(canvas => this.addMouseListeners(canvas));
     }
     
-    // Start a new frame - swap to the back buffer
-    beginFrame() {
-        // Swap buffers
-        if (this.useCanvasA) {
-            this.currentCanvas = this.canvasB;
-            this.currentCtx = this.ctxB;
-            this.backCanvas = this.canvasA;
-            this.backCtx = this.ctxA;
-        } else {
-            this.currentCanvas = this.canvasA;
-            this.currentCtx = this.ctxA;
-            this.backCanvas = this.canvasB;
-            this.backCtx = this.ctxB;
-        }
+    addMouseListeners(canvas) {
+        // Right click for setting heading
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            if (this.dotNetRef) {
+                this.dotNetRef.invokeMethodAsync('OnRightClick', x, y);
+            }
+        });
         
-        // Clear the current buffer we'll draw to
+        // Left click for shooting
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.button === 0) { // Left button
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                if (this.dotNetRef) {
+                    this.dotNetRef.invokeMethodAsync('OnLeftClick', x, y);
+                }
+            }
+        });
+        
+        canvas.addEventListener('mouseup', (e) => {
+            if (e.button === 0) { // Left button
+                if (this.dotNetRef) {
+                    this.dotNetRef.invokeMethodAsync('OnLeftRelease');
+                }
+            }
+        });
+    }
+    
+    // Start a new frame - prepare the draw buffer
+    beginFrame() {
+        // Get the current drawing context
+        this.currentCtx = this.contexts[this.drawIndex];
+        this.currentCanvas = this.canvases[this.drawIndex];
+        
+        // Clear the draw buffer
         this.currentCtx.clearRect(0, 0, this.currentCanvas.width, this.currentCanvas.height);
     }
     
-    // End frame - swap visibility
+    // End frame - rotate buffers
     endFrame() {
-        // Toggle visibility
-        this.currentCanvas.style.display = 'block';
-        this.backCanvas.style.display = 'none';
+        // The draw buffer becomes ready
+        const oldReadyIndex = this.readyIndex;
+        this.readyIndex = this.drawIndex;
         
-        // Toggle which canvas we'll use next time
-        this.useCanvasA = !this.useCanvasA;
+        // The ready buffer becomes displayed
+        const oldDisplayIndex = this.displayIndex;
+        this.displayIndex = oldReadyIndex;
+        
+        // The old display buffer becomes the new draw buffer
+        this.drawIndex = oldDisplayIndex;
+        
+        // Update visibility - only the display buffer is visible
+        this.canvases.forEach((canvas, index) => {
+            canvas.style.display = index === this.displayIndex ? 'block' : 'none';
+        });
     }
     
     clearCanvas(width, height, cameraOffset = { x: 0, y: 0 }) {
@@ -358,6 +398,15 @@ export function initCanvas(canvas) {
     return new CanvasContext(canvas);
 }
 
-export function initDualCanvas(canvasA, canvasB) {
-    return new DualCanvasContext(canvasA, canvasB);
+export function initDualCanvas(canvasA, canvasB, dotNetRef) {
+    // For backward compatibility - create a triple canvas with only two canvases
+    // Third canvas will be created dynamically
+    const canvasC = canvasA.cloneNode(false);
+    canvasC.style.display = 'none';
+    canvasA.parentNode.appendChild(canvasC);
+    return new TripleCanvasContext(canvasA, canvasB, canvasC, dotNetRef);
+}
+
+export function initTripleCanvas(canvasA, canvasB, canvasC, dotNetRef) {
+    return new TripleCanvasContext(canvasA, canvasB, canvasC, dotNetRef);
 }

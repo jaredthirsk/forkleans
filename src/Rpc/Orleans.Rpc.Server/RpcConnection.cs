@@ -36,7 +36,7 @@ namespace Forkleans.Rpc
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly ConcurrentDictionary<Guid, Protocol.RpcRequest> _pendingRequests = new();
         private readonly InterfaceToImplementationMappingCache _interfaceToImplementationMapping;
-        
+
         private int _disposed;
 
         public RpcConnection(
@@ -87,7 +87,7 @@ namespace Forkleans.Rpc
                 // For now, let's use a simpler approach - invoke the grain method directly
                 // This bypasses Orleans' message pump but is simpler for RPC
                 var result = await InvokeGrainMethodAsync(request);
-                
+
                 // Send success response
                 var response = new Protocol.RpcResponse
                 {
@@ -95,14 +95,14 @@ namespace Forkleans.Rpc
                     Success = true,
                     Payload = SerializeResult(result)
                 };
-                
+
                 await SendResponseAsync(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing request {MessageId}: {ErrorMessage}. Stack trace: {StackTrace}", 
+                _logger.LogError(ex, "Error processing request {MessageId}: {ErrorMessage}. Stack trace: {StackTrace}",
                     request.MessageId, ex.Message, ex.StackTrace);
-                
+
                 // Send error response
                 var errorResponse = new Protocol.RpcResponse
                 {
@@ -110,7 +110,7 @@ namespace Forkleans.Rpc
                     Success = false,
                     ErrorMessage = ex.Message
                 };
-                
+
                 await SendResponseAsync(errorResponse);
             }
         }
@@ -126,9 +126,15 @@ namespace Forkleans.Rpc
                 var responseData = messageSerializer.SerializeMessage(response);
                 await _transport.SendAsync(_remoteEndPoint, responseData, CancellationToken.None);
             }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("No connected peer"))
+            {
+                // Client has disconnected - this is expected if the client lost interest in this server
+                _logger.LogDebug("Client disconnected before response could be sent for request {MessageId}", response.MessageId);
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to send response {MessageId}", response.MessageId);
+                throw;
             }
         }
 
@@ -176,34 +182,34 @@ namespace Forkleans.Rpc
         {
             // Get or create the grain activation
             var grainContext = await _catalog.GetOrCreateActivationAsync(request.GrainId);
-            
+
             var grain = grainContext.GrainInstance;
-            
+
             if (grain == null)
             {
                 throw new InvalidOperationException($"Grain instance not found for {request.GrainId}");
             }
-            
+
             // For a simplified RPC approach, we'll use reflection to invoke the method
             // In a production system, you'd want to use the generated invokables
-            
+
             // Get the interface type - need to resolve the actual Type from GrainInterfaceType
             var grainType = grain.GetType();
-            
+
             // Find the grain interface on the implementation
             Type interfaceType = null;
             foreach (var iface in grainType.GetInterfaces())
             {
                 // Check if this is a grain interface (inherits from IGrain but not the base types)
-                if (!iface.IsClass && 
+                if (!iface.IsClass &&
                     typeof(IGrain).IsAssignableFrom(iface) &&
-                    iface != typeof(IGrainObserver) && 
-                    iface != typeof(IAddressable) && 
+                    iface != typeof(IGrainObserver) &&
+                    iface != typeof(IAddressable) &&
                     iface != typeof(IGrainExtension) &&
-                    iface != typeof(IGrain) && 
-                    iface != typeof(IGrainWithGuidKey) && 
+                    iface != typeof(IGrain) &&
+                    iface != typeof(IGrainWithGuidKey) &&
                     iface != typeof(IGrainWithIntegerKey) &&
-                    iface != typeof(IGrainWithGuidCompoundKey) && 
+                    iface != typeof(IGrainWithGuidCompoundKey) &&
                     iface != typeof(IGrainWithIntegerCompoundKey) &&
                     iface != typeof(ISystemTarget))
                 {
@@ -211,39 +217,39 @@ namespace Forkleans.Rpc
                     break;
                 }
             }
-            
+
             if (interfaceType == null)
             {
                 throw new InvalidOperationException($"No grain interface found on type {grainType.Name}");
             }
-            
+
             // Get methods sorted alphabetically by name for consistent ordering
             var methods = interfaceType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .Where(m => !m.IsSpecialName) // Exclude property getters/setters
                 .OrderBy(m => m.Name, StringComparer.Ordinal)
                 .ToArray();
-            
-            
+
+
             if (request.MethodId >= methods.Length)
             {
                 throw new InvalidOperationException($"Method ID {request.MethodId} not found on interface {interfaceType.Name}. Interface has {methods.Length} methods.");
             }
-            
+
             var method = methods[request.MethodId];
-            
+
             // Deserialize arguments
             object[] arguments = null;
             var parameters = method.GetParameters();
-            
+
             if (request.Arguments != null && request.Arguments.Length > 0)
             {
                 try
                 {
                     var jsonString = System.Text.Encoding.UTF8.GetString(request.Arguments);
-                    
+
                     var jsonArray = JsonSerializer.Deserialize<JsonElement[]>(request.Arguments);
                     arguments = new object[parameters.Length];
-                    
+
                     for (int i = 0; i < Math.Min(jsonArray.Length, parameters.Length); i++)
                     {
                         var paramType = parameters[i].ParameterType;
@@ -260,7 +266,7 @@ namespace Forkleans.Rpc
             {
                 arguments = new object[parameters.Length];
             }
-            
+
             try
             {
                 // Find the implementation method
@@ -269,9 +275,9 @@ namespace Forkleans.Rpc
                 {
                     throw new InvalidOperationException($"Implementation not found for method {method.Name}");
                 }
-                
+
                 // Invoke the method
-                
+
                 object result = null;
                 try
                 {
@@ -282,40 +288,51 @@ namespace Forkleans.Rpc
                     _logger.LogError(ex, "Exception during method.Invoke");
                     throw;
                 }
-                
+
                 // Handle async methods
                 if (result is Task task)
                 {
                     await task;
-                    
-                    // Get the result from Task<T> or ValueTask<T>
+
+                    // Get the result from Task<T>
+                    // Check if this task has a result (is Task<T> or derived from it)
                     var taskType = task.GetType();
-                    if (taskType.IsGenericType)
+                    Type currentType = taskType;
+
+                    // Walk up the inheritance chain to find Task<T>
+                    while (currentType != null && currentType != typeof(object))
                     {
-                        var genericDef = taskType.GetGenericTypeDefinition();
-                        if (genericDef == typeof(Task<>) || genericDef == typeof(ValueTask<>))
+                        if (currentType.IsGenericType && currentType.GetGenericTypeDefinition() == typeof(Task<>))
                         {
-                            var resultProperty = taskType.GetProperty("Result");
-                            var taskResult = resultProperty.GetValue(task);
-                            return taskResult;
+                            // Found Task<T>, get the result
+                            var resultProperty = currentType.GetProperty("Result");
+                            if (resultProperty != null)
+                            {
+                                var taskResult = resultProperty.GetValue(task);
+                                _logger.LogDebug("Successfully extracted Task<T> result of type {ResultType}: {Result}",
+                                    taskResult?.GetType().Name ?? "null", taskResult);
+                                return taskResult;
+                            }
+                            break;
                         }
+                        currentType = currentType.BaseType;
                     }
-                    
+
                     return null; // Task without result
                 }
-                else if (result != null && result.GetType().IsGenericType && 
+                else if (result != null && result.GetType().IsGenericType &&
                          result.GetType().GetGenericTypeDefinition() == typeof(ValueTask<>))
                 {
                     // Handle ValueTask<T>
                     var asTaskMethod = result.GetType().GetMethod("AsTask");
                     var task2 = (Task)asTaskMethod.Invoke(result, null);
                     await task2;
-                    
+
                     var resultProperty = task2.GetType().GetProperty("Result");
                     var taskResult = resultProperty.GetValue(task2);
                     return taskResult;
                 }
-                
+
                 return result;
             }
             catch (TargetInvocationException tie)
@@ -323,14 +340,14 @@ namespace Forkleans.Rpc
                 throw tie.InnerException ?? tie;
             }
         }
-        
+
         private byte[] SerializeResult(object result)
         {
             if (result == null)
             {
                 return Array.Empty<byte>();
             }
-            
+
             // For now, use JSON serialization for results
             var json = System.Text.Json.JsonSerializer.Serialize(result);
             return System.Text.Encoding.UTF8.GetBytes(json);

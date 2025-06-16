@@ -3,6 +3,7 @@ using Shooter.ActionServer.Services;
 using Shooter.ActionServer.Simulation;
 using Shooter.Shared.Models;
 using Shooter.Shared.RpcInterfaces;
+using Shooter.Shared.GrainInterfaces;
 
 namespace Shooter.ActionServer.Grains;
 
@@ -16,15 +17,18 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
     private readonly GameService _gameService;
     private readonly IWorldSimulation _worldSimulation;
     private readonly ILogger<GameRpcGrain> _logger;
+    private readonly Orleans.IClusterClient _orleansClient;
 
     public GameRpcGrain(
         GameService gameService,
         IWorldSimulation worldSimulation,
-        ILogger<GameRpcGrain> logger)
+        ILogger<GameRpcGrain> logger,
+        Orleans.IClusterClient orleansClient)
     {
         _gameService = gameService;
         _worldSimulation = worldSimulation;
         _logger = logger;
+        _orleansClient = orleansClient;
     }
 
     public async Task<bool> ConnectPlayer(string playerId)
@@ -49,10 +53,32 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
     {
         await _gameService.UpdatePlayerInput(playerId, moveDirection, isShooting);
     }
+    
+    public async Task UpdatePlayerInputEx(string playerId, Vector2? moveDirection, Vector2? shootDirection)
+    {
+        await _gameService.UpdatePlayerInputEx(playerId, moveDirection, shootDirection);
+    }
 
     public async Task<bool> TransferEntityIn(string entityId, EntityType type, int subType, Vector2 position, Vector2 velocity, float health)
     {
         _logger.LogInformation("RPC: Transferring entity {EntityId} via Forkleans RPC", entityId);
         return await _worldSimulation.TransferEntityIn(entityId, type, subType, position, velocity, health);
+    }
+
+    public async Task<List<GridSquare>> GetAvailableZones()
+    {
+        try
+        {
+            var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
+            var servers = await worldManager.GetAllActionServers();
+            var zones = servers.Select(s => s.AssignedSquare).ToList();
+            _logger.LogInformation("RPC: Returning {Count} available zones", zones.Count);
+            return zones;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get available zones");
+            return new List<GridSquare>();
+        }
     }
 }

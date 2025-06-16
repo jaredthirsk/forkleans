@@ -133,14 +133,14 @@ namespace Forkleans.Rpc
         {
             try
             {
-                _logger.LogInformation("OnDataReceived: Received {ByteCount} bytes from {Endpoint}", 
+                _logger.LogTrace("OnDataReceived: Received {ByteCount} bytes from {Endpoint}", 
                     e.Data.Length, e.RemoteEndPoint);
                 
                 // Deserialize the message
                 var messageSerializer = _catalog.ServiceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
                 var message = messageSerializer.DeserializeMessage(e.Data);
                 
-                _logger.LogInformation("OnDataReceived: Deserialized message of type {MessageType} from {Endpoint}", 
+                _logger.LogTrace("OnDataReceived: Deserialized message of type {MessageType} from {Endpoint}", 
                     message?.GetType().Name ?? "null", e.RemoteEndPoint);
 
                 // Handle different message types

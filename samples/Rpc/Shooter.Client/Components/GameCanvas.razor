@@ -2,11 +2,13 @@
 @using Shooter.Shared.Models
 @implements IDisposable
 @inject IJSRuntime JS
+@inject ILogger<GameCanvas> Logger
 
 <div class="game-canvas-container">
     <div class="canvas-wrapper">
         <canvas @ref="canvasElementA" width="@Width" height="@Height" class="game-canvas"></canvas>
         <canvas @ref="canvasElementB" width="@Width" height="@Height" class="game-canvas" style="display: none;"></canvas>
+        <canvas @ref="canvasElementC" width="@Width" height="@Height" class="game-canvas" style="display: none;"></canvas>
         <div class="game-info">
             <div class="zone-info">Current Zone: @currentZone</div>
             <div class="server-info">Server: @currentServer</div>
@@ -69,9 +71,13 @@
     [Parameter] public string? PlayerId { get; set; }
     [Parameter] public string? ServerId { get; set; }
     [Parameter] public List<GridSquare>? AvailableZones { get; set; }
+    [Parameter] public EventCallback<(float x, float y)> OnMouseClick { get; set; }
+    [Parameter] public EventCallback<(float x, float y)> OnMouseRightClick { get; set; }
+    [Parameter] public EventCallback OnMouseRelease { get; set; }
     
     private ElementReference canvasElementA;
     private ElementReference canvasElementB;
+    private ElementReference canvasElementC;
     private IJSObjectReference? canvasContext;
     private System.Timers.Timer? renderTimer;
     private string currentZone = "Unknown";
@@ -82,12 +88,19 @@
     {
         if (firstRender)
         {
-            var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/gameCanvas.js");
-            canvasContext = await module.InvokeAsync<IJSObjectReference>("initDualCanvas", canvasElementA, canvasElementB);
-            
-            renderTimer = new System.Timers.Timer(33); // ~30 FPS
-            renderTimer.Elapsed += async (s, e) => await RenderFrame();
-            renderTimer.Start();
+            try
+            {
+                var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/gameCanvas.js");
+                canvasContext = await module.InvokeAsync<IJSObjectReference>("initTripleCanvas", canvasElementA, canvasElementB, canvasElementC, DotNetObjectReference.Create(this));
+                
+                renderTimer = new System.Timers.Timer(33); // ~30 FPS
+                renderTimer.Elapsed += async (s, e) => await RenderFrame();
+                renderTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to initialize game canvas");
+            }
         }
     }
     
@@ -165,7 +178,16 @@
             }
             else
             {
-                playerDebugInfo = $"Not found (ID: {PlayerId})";
+                // More detailed debug info when player not found
+                var playerCount = WorldState.Entities.Count(e => e.Type == EntityType.Player);
+                var totalEntities = WorldState.Entities.Count;
+                playerDebugInfo = $"Not found - PlayerId: {PlayerId ?? "null"}, Players: {playerCount}, Total: {totalEntities}";
+                
+                // Log for debugging
+                if (!string.IsNullOrEmpty(PlayerId))
+                {
+                    Logger.LogWarning("Player {PlayerId} not found in world state. Total entities: {Count}", PlayerId, totalEntities);
+                }
             }
             await InvokeAsync(StateHasChanged);
         }
@@ -209,6 +231,27 @@
         EntityType.Explosion => entity.SubType == 1 ? 15 : 25,
         _ => 10
     };
+    
+    [JSInvokable]
+    public async Task OnLeftClick(float x, float y)
+    {
+        Logger.LogDebug("Left click at {X}, {Y}", x, y);
+        await OnMouseClick.InvokeAsync((x, y));
+    }
+    
+    [JSInvokable]
+    public async Task OnRightClick(float x, float y)
+    {
+        Logger.LogDebug("Right click at {X}, {Y}", x, y);
+        await OnMouseRightClick.InvokeAsync((x, y));
+    }
+    
+    [JSInvokable]
+    public async Task OnLeftRelease()
+    {
+        Logger.LogDebug("Left button released");
+        await OnMouseRelease.InvokeAsync();
+    }
     
     public void Dispose()
     {

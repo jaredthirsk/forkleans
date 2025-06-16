@@ -1,0 +1,177 @@
+@using Microsoft.JSInterop
+@using Shooter.Client.Services
+@using Shooter.Shared.Models
+@inject IJSRuntime JS
+@inject ForleansRpcGameClientService RpcGameClient
+@inject NavigationManager Navigation
+@inject ILogger<GamePhaser> Logger
+@implements IDisposable
+@implements IAsyncDisposable
+
+<div class="game-container">
+    <div id="phaser-container" style="width: 800px; height: 600px; margin: 0 auto;"></div>
+    
+    <div class="game-info mt-3">
+        <p>
+            <strong>Controls:</strong><br/>
+            Movement: WASD + Numbers 0-9 for speed<br/>
+            Right Click: Set heading direction<br/>
+            Left Click: Shoot
+        </p>
+        @if (!string.IsNullOrEmpty(_error))
+        {
+            <div class="alert alert-danger">@_error</div>
+        }
+    </div>
+</div>
+
+@code {
+    private DotNetObjectReference<GamePhaser>? _dotNetRef;
+    private IJSObjectReference? _gameModule;
+    private string? _error;
+    private bool _isInitialized = false;
+    private System.Timers.Timer? _updateTimer;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Get player ID from RPC client
+                var playerId = RpcGameClient.PlayerId;
+                if (string.IsNullOrEmpty(playerId))
+                {
+                    Logger.LogError("No player ID available from RPC client");
+                    Navigation.NavigateTo("/");
+                    return;
+                }
+
+                // Create DotNet reference
+                _dotNetRef = DotNetObjectReference.Create(this);
+
+                // Initialize Phaser
+                await JS.InvokeVoidAsync("gamePhaser.init", _dotNetRef, "phaser-container", playerId);
+                
+                // Subscribe to game events
+                RpcGameClient.WorldStateUpdated += OnWorldStateUpdated;
+                RpcGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
+                
+                _isInitialized = true;
+                
+                // Start update timer for server info
+                _updateTimer = new System.Timers.Timer(1000);
+                _updateTimer.Elapsed += async (sender, e) => await UpdateServerInfo();
+                _updateTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                _error = $"Failed to initialize game: {ex.Message}";
+                Logger.LogError(ex, "Failed to initialize Phaser game");
+            }
+        }
+    }
+
+    private void OnWorldStateUpdated(WorldState worldState)
+    {
+        if (_isInitialized)
+        {
+            _ = InvokeAsync(async () =>
+            {
+                try
+                {
+                    await JS.InvokeVoidAsync("gamePhaser.updateWorldState", worldState);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to update world state");
+                }
+            });
+        }
+    }
+
+    private void OnAvailableZonesUpdated(List<GridSquare> zones)
+    {
+        if (_isInitialized)
+        {
+            _ = InvokeAsync(async () =>
+            {
+                try
+                {
+                    await JS.InvokeVoidAsync("gamePhaser.updateZoneInfo", zones);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to update zone info");
+                }
+            });
+        }
+    }
+
+    private async Task UpdateServerInfo()
+    {
+        if (_isInitialized)
+        {
+            await InvokeAsync(async () =>
+            {
+                try
+                {
+                    await JS.InvokeVoidAsync("gamePhaser.updateServerInfo", RpcGameClient.CurrentServerId);
+                }
+                catch { }
+            });
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnMovementInput(float x, float y)
+    {
+        try
+        {
+            var moveDir = new Vector2(x, y).Length() > 0 ? new Vector2(x, y) : (Vector2?)null;
+            await RpcGameClient.SendPlayerInputEx(moveDir, null);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to send movement input");
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnShootInput(float x, float y)
+    {
+        try
+        {
+            await RpcGameClient.SendPlayerInputEx(null, new Vector2(x, y));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to send shoot input");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _updateTimer?.Dispose();
+        
+        if (_isInitialized)
+        {
+            RpcGameClient.WorldStateUpdated -= OnWorldStateUpdated;
+            RpcGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
+            
+            try
+            {
+                await JS.InvokeVoidAsync("gamePhaser.destroy");
+            }
+            catch { }
+        }
+        
+        _dotNetRef?.Dispose();
+    }
+
+    public void Dispose()
+    {
+        _updateTimer?.Dispose();
+        _dotNetRef?.Dispose();
+    }
+}

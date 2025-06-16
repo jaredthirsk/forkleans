@@ -24,7 +24,8 @@ public class WorldController : ControllerBase
             request.ServerId, 
             request.IpAddress, 
             request.UdpPort,
-            request.HttpEndpoint);
+            request.HttpEndpoint,
+            request.RpcPort);
         return Ok(serverInfo);
     }
 
@@ -96,7 +97,7 @@ public class WorldController : ControllerBase
     }
 }
 
-public record RegisterActionServerRequest(string ServerId, string IpAddress, int UdpPort, string HttpEndpoint);
+public record RegisterActionServerRequest(string ServerId, string IpAddress, int UdpPort, string HttpEndpoint, int RpcPort = 0);
 public record RegisterPlayerRequest(string PlayerId, string Name);
 public record PlayerRegistrationResponse
 {

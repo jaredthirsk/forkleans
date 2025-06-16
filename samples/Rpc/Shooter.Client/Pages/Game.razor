@@ -41,16 +41,27 @@
     {
         <div class="game-layout">
             <div class="game-main">
-                <GameCanvas Width="1200" Height="800" 
-                           WorldState="@_currentWorldState" 
-                           PlayerId="@_playerId"
-                           ServerId="@_currentServerId"
-                           AvailableZones="@_availableZones" />
+                @if (_usePhaser)
+                {
+                    <GamePhaser />
+                }
+                else
+                {
+                    <GameCanvas Width="1200" Height="800" 
+                               WorldState="@_currentWorldState" 
+                               PlayerId="@_playerId"
+                               ServerId="@_currentServerId"
+                               AvailableZones="@_availableZones"
+                               OnMouseClick="HandleMouseClick"
+                               OnMouseRightClick="HandleMouseRightClick"
+                               OnMouseRelease="HandleMouseRelease" />
+                }
             </div>
             <div class="game-sidebar">
                 <GameControls IsConnected="_isConnected"
                              OnMove="HandleMove"
-                             OnShoot="HandleShoot" />
+                             OnShoot="HandleShoot"
+                             OnSpeedChange="HandleSpeedChange" />
                              
                 <div class="game-stats">
                     <h4>Stats</h4>
@@ -58,14 +69,11 @@
                     <p>Entities: @(_currentWorldState?.Entities?.Count ?? 0)</p>
                     <p>Connection: Forkleans RPC</p>
                     <p>Server: @_currentServerId</p>
+                    <p>Renderer: @(_usePhaser ? "Phaser" : "Canvas")</p>
                 </div>
                 
                 <button class="disconnect-btn" @onclick="Disconnect">Disconnect</button>
-                
-                <!-- Manual navbar toggle -->
-                <button class="navbar-toggle-btn" @onclick="ToggleNavbar">
-                    Toggle Navbar
-                </button>
+                <button class="toggle-btn" @onclick="ToggleRenderer">Switch to @(_usePhaser ? "Canvas" : "Phaser")</button>
             </div>
         </div>
     }
@@ -160,13 +168,14 @@
         cursor: pointer;
     }
     
-    .navbar-toggle-btn {
+    .toggle-btn {
         padding: 10px 20px;
-        background-color: #555;
+        background-color: #2196F3;
         color: white;
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        margin-top: 10px;
     }
 </style>
 
@@ -184,6 +193,10 @@
     private Vector2 _currentMoveDirection = Vector2.Zero;
     private bool _currentIsShooting = false;
     private List<GridSquare> _availableZones = new();
+    private float _currentSpeed = 1.0f;
+    private Vector2 _shootDirection = Vector2.Zero;
+    private bool _isMoving = false;
+    private bool _usePhaser = false; // Default to Canvas renderer
     
     protected override void OnInitialized()
     {
@@ -240,6 +253,9 @@
                 _playerId = RpcGameClient.PlayerId ?? string.Empty;
                 _currentServerId = RpcGameClient.CurrentServerId ?? "Unknown";
                 _isConnected = true;
+                
+                // Store player ID in localStorage for GamePhaser component
+                await JS.InvokeVoidAsync("localStorage.setItem", "playerId", _playerId);
             }
             else
             {
@@ -261,27 +277,33 @@
         await RpcGameClient.DisconnectAsync();
         _isConnected = false;
         
-        // Clear remembered player name on disconnect
+        // Clear remembered player name and ID on disconnect
         await JS.InvokeVoidAsync("localStorage.removeItem", "playerName");
+        await JS.InvokeVoidAsync("localStorage.removeItem", "playerId");
         
         Navigation.NavigateTo("/");
     }
     
     private async Task HandleMove(Vector2 direction)
     {
-        _currentMoveDirection = direction;
-        if (_isConnected)
-        {
-            await RpcGameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
-        }
+        _currentMoveDirection = direction * _currentSpeed;
+        await UpdatePlayerInput();
     }
     
     private async Task HandleShoot(bool isShooting)
     {
         _currentIsShooting = isShooting;
-        if (_isConnected)
+        await UpdatePlayerInput();
+    }
+    
+    private async Task HandleSpeedChange(float speed)
+    {
+        _currentSpeed = speed;
+        // Update movement with new speed
+        if (_currentMoveDirection.Length() > 0)
         {
-            await RpcGameClient.SendPlayerInput(_currentMoveDirection, _currentIsShooting);
+            _currentMoveDirection = _currentMoveDirection.Normalized() * _currentSpeed;
+            await UpdatePlayerInput();
         }
     }
     
@@ -314,11 +336,55 @@
         InvokeAsync(StateHasChanged);
     }
     
-    private void ToggleNavbar()
+    private async Task HandleMouseClick((float x, float y) position)
     {
-        // Toggle navbar visibility - simple implementation
-        // In a real app, you'd want to use JavaScript interop to toggle Bootstrap navbar
-        Navigation.NavigateTo(Navigation.Uri + "#toggle", forceLoad: false);
+        if (!_isConnected || _currentWorldState == null) return;
+        
+        // Calculate direction from center to click position for shooting
+        var centerX = 600; // Half of canvas width
+        var centerY = 400; // Half of canvas height
+        _shootDirection = new Vector2(position.x - centerX, position.y - centerY).Normalized();
+        
+        _currentIsShooting = true;
+        await UpdatePlayerInput();
+    }
+    
+    private async Task HandleMouseRightClick((float x, float y) position)
+    {
+        if (!_isConnected || _currentWorldState == null) return;
+        
+        // Calculate direction from center to click position for movement
+        var centerX = 600; // Half of canvas width
+        var centerY = 400; // Half of canvas height
+        var direction = new Vector2(position.x - centerX, position.y - centerY).Normalized();
+        
+        _currentMoveDirection = direction * _currentSpeed;
+        await UpdatePlayerInput();
+    }
+    
+    private async Task HandleMouseRelease()
+    {
+        if (!_isConnected) return;
+        
+        _currentIsShooting = false;
+        await UpdatePlayerInput();
+    }
+    
+    private async Task UpdatePlayerInput()
+    {
+        if (!_isConnected) return;
+        
+        // Use the new extended input method that supports separate move and shoot directions
+        Vector2? moveDir = _currentMoveDirection.Length() > 0 ? _currentMoveDirection : null;
+        Vector2? shootDir = _currentIsShooting && _shootDirection.Length() > 0 ? _shootDirection : null;
+        
+        await RpcGameClient.SendPlayerInputEx(moveDir, shootDir);
+    }
+    
+    private void ToggleRenderer()
+    {
+        _usePhaser = !_usePhaser;
+        StateHasChanged();
     }
     
     public void Dispose()
