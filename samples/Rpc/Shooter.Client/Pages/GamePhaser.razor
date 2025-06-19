@@ -113,7 +113,7 @@
         }
     }
 
-    private void OnPreEstablishedConnectionsUpdated(Dictionary<string, bool> connections)
+    private void OnPreEstablishedConnectionsUpdated(Dictionary<string, (bool isConnected, bool isNeighbor)> connections)
     {
         if (_isInitialized)
         {
@@ -121,7 +121,12 @@
             {
                 try
                 {
-                    await JS.InvokeVoidAsync("gamePhaser.updatePreEstablishedConnections", connections);
+                    // Convert to a format that can be serialized to JavaScript
+                    var jsConnections = connections.ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => new { isConnected = kvp.Value.isConnected, isNeighbor = kvp.Value.isNeighbor }
+                    );
+                    await JS.InvokeVoidAsync("gamePhaser.updatePreEstablishedConnections", jsConnections);
                 }
                 catch (Exception ex)
                 {

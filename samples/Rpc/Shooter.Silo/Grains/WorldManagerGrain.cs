@@ -35,16 +35,24 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
 
     public async Task<ActionServerInfo> RegisterActionServer(string serverId, string ipAddress, int udpPort, string httpEndpoint, int rpcPort = 0)
     {
-        // Create a 3x3 grid pattern
-        // Server 0: (0,0), Server 1: (1,0), Server 2: (2,0)
-        // Server 3: (0,1), Server 4: (1,1), Server 5: (2,1)
-        // Server 6: (0,2), Server 7: (1,2), Server 8: (2,2)
+        // Create a square grid pattern that grows as servers are added
+        // 1 server: 1x1
+        // 2-4 servers: 2x2
+        // 5-9 servers: 3x3
+        // 10-16 servers: 4x4, etc.
         
-        var gridX = _nextServerIndex % 3;
-        var gridY = (_nextServerIndex / 3) % 3;
+        var totalServers = _nextServerIndex + 1;
+        var gridSize = (int)Math.Ceiling(Math.Sqrt(totalServers));
+        
+        // Fill row by row
+        var gridX = _nextServerIndex % gridSize;
+        var gridY = _nextServerIndex / gridSize;
         var assignedSquare = new GridSquare(gridX, gridY);
         
         _nextServerIndex++;
+        
+        _logger.LogInformation("Assigning server {ServerId} (index {Index}) to zone ({X},{Y}) in {GridSize}x{GridSize} grid", 
+            serverId, _nextServerIndex - 1, gridX, gridY, gridSize, gridSize);
 
         var serverInfo = new ActionServerInfo(serverId, ipAddress, udpPort, httpEndpoint, assignedSquare, DateTime.UtcNow, rpcPort);
         
@@ -193,9 +201,22 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
             _state.State.Players[playerId] = playerInfo with { Position = position };
             await _state.WriteStateAsync();
             
+            // Also update the player grain - preserve existing velocity
+            var playerGrain = GrainFactory.GetGrain<IPlayerGrain>(playerId);
+            await playerGrain.UpdatePosition(position, playerInfo.Velocity);
+        }
+    }
+    
+    public async Task UpdatePlayerPositionAndVelocity(string playerId, Vector2 position, Vector2 velocity)
+    {
+        if (_state.State.Players.TryGetValue(playerId, out var playerInfo))
+        {
+            _state.State.Players[playerId] = playerInfo with { Position = position, Velocity = velocity };
+            await _state.WriteStateAsync();
+            
             // Also update the player grain
             var playerGrain = GrainFactory.GetGrain<IPlayerGrain>(playerId);
-            await playerGrain.UpdatePosition(position, Vector2.Zero);
+            await playerGrain.UpdatePosition(position, velocity);
         }
     }
 }

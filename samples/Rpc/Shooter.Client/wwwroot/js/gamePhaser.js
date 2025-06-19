@@ -57,27 +57,35 @@ class GamePhaser {
     createPlayerSprite() {
         console.log('Creating player sprite texture');
         const graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
-        // Player - bright green circle with direction indicator
         const size = 15;
-        graphics.fillStyle(0x00ff00, 1);
-        graphics.fillCircle(size, size, size);
+        const centerX = size;
+        const centerY = size;
         
-        // Add darker green border
-        graphics.lineStyle(2, 0x008800, 1);
-        graphics.strokeCircle(size, size, size);
-        
-        // Add direction indicator (small triangle pointing up)
-        graphics.fillStyle(0xffffff, 1);
+        // Draw ship shape (similar to Canvas version)
+        graphics.fillStyle(0x00ff00, 1); // Bright green
         graphics.beginPath();
-        graphics.moveTo(size, 5);
-        graphics.lineTo(size - 3, 10);
-        graphics.lineTo(size + 3, 10);
+        graphics.moveTo(centerX + size, centerY); // Nose of ship
+        graphics.lineTo(centerX - size * 0.7, centerY - size * 0.7); // Left wing
+        graphics.lineTo(centerX - size * 0.3, centerY); // Back indent
+        graphics.lineTo(centerX - size * 0.7, centerY + size * 0.7); // Right wing
         graphics.closePath();
         graphics.fillPath();
         
+        // Add darker green border
+        graphics.lineStyle(2, 0x008800, 1);
+        graphics.strokePath();
+        
+        // Draw cockpit (blue circle in center)
+        graphics.fillStyle(0x003366, 1);
+        graphics.fillCircle(centerX, centerY, size * 0.3);
+        
+        // Add bright accent
+        graphics.fillStyle(0x00ffff, 0.8);
+        graphics.fillCircle(centerX + size * 0.1, centerY, size * 0.15);
+        
         graphics.generateTexture('player', size * 2, size * 2);
         graphics.destroy();
-        console.log('Player texture created');
+        console.log('Player spaceship texture created');
     }
     
     createEnemySprites() {
@@ -567,12 +575,19 @@ class GamePhaser {
                         // Player is not in the correct zone - use red
                         boxColor = 0x990000; // #900
                     } else {
-                        // Normal server zone - light gray
-                        boxColor = 0x999999; // #999
+                        // Normal server zone - brighter (closer to white)
+                        boxColor = 0xdddddd; // Much brighter gray, closer to white
                     }
                 } else if (this.preEstablishedConnections[zoneKey]) {
-                    // Pre-established connection - blue
-                    boxColor = 0x3399ff; // Nice blue color
+                    // Pre-established connection
+                    const connectionInfo = this.preEstablishedConnections[zoneKey];
+                    if (connectionInfo.isNeighbor) {
+                        // Neighboring zone within 150 units - blue
+                        boxColor = 0x3399ff; // Nice blue color
+                    } else {
+                        // Recently left zone (still connected for 30s) - dark green
+                        boxColor = 0x228822; // Dark green color
+                    }
                 } else {
                     // Other zones - darker gray
                     boxColor = 0x555555; // #555

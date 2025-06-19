@@ -15,4 +15,5 @@ public interface IWorldManagerGrain : Orleans.IGrainWithIntegerKey
     // Zone transition support
     Task<PlayerTransferInfo?> InitiatePlayerTransfer(string playerId, Vector2 currentPosition);
     Task UpdatePlayerPosition(string playerId, Vector2 position);
+    Task UpdatePlayerPositionAndVelocity(string playerId, Vector2 position, Vector2 velocity);
 }

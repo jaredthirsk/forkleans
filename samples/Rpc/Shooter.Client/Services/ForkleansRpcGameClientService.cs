@@ -34,11 +34,14 @@ public class ForkleansRpcGameClientService : IDisposable
     private readonly Dictionary<string, PreEstablishedConnection> _preEstablishedConnections = new();
     private GridSquare? _currentZone = null;
     private WorldState? _lastWorldState = null;
+    private Vector2 _lastInputDirection = Vector2.Zero;
+    private bool _lastInputShooting = false;
+    private readonly HashSet<string> _visitedZones = new();
     
     public event Action<WorldState>? WorldStateUpdated;
     public event Action<string>? ServerChanged;
     public event Action<List<GridSquare>>? AvailableZonesUpdated;
-    public event Action<Dictionary<string, bool>>? PreEstablishedConnectionsUpdated;
+    public event Action<Dictionary<string, (bool isConnected, bool isNeighbor)>>? PreEstablishedConnectionsUpdated;
     
     public bool IsConnected { get; private set; }
     public string? PlayerId { get; private set; }
@@ -67,6 +70,12 @@ public class ForkleansRpcGameClientService : IDisposable
             PlayerId = registrationResponse.PlayerInfo?.PlayerId ?? string.Empty;
             CurrentServerId = registrationResponse.ActionServer?.ServerId ?? "Unknown";
             _currentZone = registrationResponse.ActionServer?.AssignedSquare;
+            
+            // Mark initial zone as visited
+            if (_currentZone != null)
+            {
+                _visitedZones.Add($"{_currentZone.X},{_currentZone.Y}");
+            }
             
             _logger.LogInformation("Player registered with ID {PlayerId} on server {ServerId} in zone ({X}, {Y})", 
                 PlayerId, CurrentServerId, 
@@ -229,6 +238,10 @@ public class ForkleansRpcGameClientService : IDisposable
             return;
         }
         
+        // Track last input for zone transitions
+        _lastInputDirection = moveDirection;
+        _lastInputShooting = isShooting;
+        
         try
         {
             await _gameGrain.UpdatePlayerInput(PlayerId, moveDirection, isShooting);
@@ -245,6 +258,13 @@ public class ForkleansRpcGameClientService : IDisposable
         {
             return;
         }
+        
+        // Track last input for zone transitions
+        if (moveDirection.HasValue)
+        {
+            _lastInputDirection = moveDirection.Value;
+        }
+        _lastInputShooting = shootDirection.HasValue;
         
         try
         {
@@ -535,6 +555,9 @@ public class ForkleansRpcGameClientService : IDisposable
         CurrentServerId = serverInfo.ServerId;
         _currentZone = serverInfo.AssignedSquare;
         
+        // Mark zone as visited
+        _visitedZones.Add($"{serverInfo.AssignedSquare.X},{serverInfo.AssignedSquare.Y}");
+        
         // Create new cancellation token source for the new connection
         _cancellationTokenSource = new CancellationTokenSource();
         
@@ -720,10 +743,25 @@ public class ForkleansRpcGameClientService : IDisposable
             return;
         }
         
+        // Restore player velocity after zone transition
+        if (_lastInputDirection.Length() > 0)
+        {
+            try
+            {
+                _logger.LogInformation("[ZONE_TRANSITION] Restoring player velocity: direction={Direction}, shooting={Shooting}", 
+                    _lastInputDirection, _lastInputShooting);
+                await _gameGrain.UpdatePlayerInput(PlayerId!, _lastInputDirection, _lastInputShooting);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "[ZONE_TRANSITION] Failed to restore player velocity");
+            }
+        }
+        
         // Restart timers with minimal initial delay for smooth transition
         _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(16));
         _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
-        _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(2));
+        _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(2));
         
         // Reset sequence number for new server
         _lastSequenceNumber = -1;
@@ -800,14 +838,16 @@ public class ForkleansRpcGameClientService : IDisposable
             }
             
             // Clean up old connections not in neighboring zones
-            // Only clean up connections older than 10 seconds to avoid race conditions
-            // Also keep the current zone's connection
+            // Keep connections for:
+            // - Current zone
+            // - Neighboring zones within 150 units
+            // - Recently left zones (within 30 seconds) to allow re-entry
             var validKeys = neighboringZones.Select(z => $"{z.X},{z.Y}").ToHashSet();
             validKeys.Add($"{_currentZone.X},{_currentZone.Y}"); // Keep current zone connection
             
             var keysToRemove = _preEstablishedConnections
                 .Where(kvp => !validKeys.Contains(kvp.Key) && 
-                              (DateTime.UtcNow - kvp.Value.EstablishedAt).TotalSeconds > 10)
+                              (DateTime.UtcNow - kvp.Value.EstablishedAt).TotalSeconds > 30) // Give 30 seconds before cleanup
                 .Select(kvp => kvp.Key)
                 .ToList();
             
@@ -817,6 +857,11 @@ public class ForkleansRpcGameClientService : IDisposable
                     keysToRemove.Count, string.Join(", ", keysToRemove));
             }
             
+            // Log current pre-connection status
+            _logger.LogInformation("Pre-connection status after update: Total={Count}, Zones={Zones}", 
+                _preEstablishedConnections.Count, 
+                string.Join(", ", _preEstablishedConnections.Select(kvp => $"{kvp.Key}:{(kvp.Value.IsConnected ? "OK" : "DEAD")}")));
+            
             foreach (var key in keysToRemove)
             {
                 await CleanupPreEstablishedConnection(key);
@@ -824,10 +869,24 @@ public class ForkleansRpcGameClientService : IDisposable
             
             // Notify about ALL pre-established connections (not just the ones we just checked)
             // Convert to a format that can be serialized to JSON (string keys instead of GridSquare keys)
-            var allConnectionStatus = new Dictionary<string, bool>();
+            // Also indicate which ones are neighbors vs recently left zones
+            var allConnectionStatus = new Dictionary<string, (bool isConnected, bool isNeighbor)>();
+            var neighborKeys = neighboringZones.Select(z => $"{z.X},{z.Y}").ToHashSet();
+            
             foreach (var kvp in _preEstablishedConnections)
             {
-                allConnectionStatus[kvp.Key] = kvp.Value.IsConnected;
+                var isNeighbor = neighborKeys.Contains(kvp.Key);
+                var isVisited = _visitedZones.Contains(kvp.Key);
+                
+                // Only include non-neighbor connections if we've actually visited the zone
+                if (kvp.Value.IsConnected && !isNeighbor && !isVisited)
+                {
+                    // This is a pre-established connection to a zone we've never visited
+                    // Don't include it to avoid showing it as dark green
+                    continue;
+                }
+                
+                allConnectionStatus[kvp.Key] = (kvp.Value.IsConnected, isNeighbor);
             }
             PreEstablishedConnectionsUpdated?.Invoke(allConnectionStatus);
         }
@@ -841,13 +900,59 @@ public class ForkleansRpcGameClientService : IDisposable
     {
         var neighbors = new List<GridSquare>();
         
-        // Add all 8 neighboring zones (including diagonals)
+        // Get player position from last world state
+        var playerEntity = _lastWorldState?.Entities?.FirstOrDefault(e => e.EntityId == PlayerId);
+        if (playerEntity == null)
+        {
+            // If we don't have player position, return all 8 neighbors as before
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                for (int dy = -1; dy <= 1; dy++)
+                {
+                    if (dx == 0 && dy == 0) continue; // Skip current zone
+                    neighbors.Add(new GridSquare(currentZone.X + dx, currentZone.Y + dy));
+                }
+            }
+            return neighbors;
+        }
+        
+        // Check each potential neighboring zone
         for (int dx = -1; dx <= 1; dx++)
         {
             for (int dy = -1; dy <= 1; dy++)
             {
                 if (dx == 0 && dy == 0) continue; // Skip current zone
-                neighbors.Add(new GridSquare(currentZone.X + dx, currentZone.Y + dy));
+                
+                var neighborZone = new GridSquare(currentZone.X + dx, currentZone.Y + dy);
+                var (min, max) = neighborZone.GetBounds();
+                
+                // Calculate distance from player to the nearest edge of the neighboring zone
+                float distToZone = 0;
+                
+                // X-axis distance
+                if (playerEntity.Position.X < min.X)
+                    distToZone = Math.Max(distToZone, min.X - playerEntity.Position.X);
+                else if (playerEntity.Position.X > max.X)
+                    distToZone = Math.Max(distToZone, playerEntity.Position.X - max.X);
+                
+                // Y-axis distance
+                if (playerEntity.Position.Y < min.Y)
+                    distToZone = Math.Max(distToZone, min.Y - playerEntity.Position.Y);
+                else if (playerEntity.Position.Y > max.Y)
+                    distToZone = Math.Max(distToZone, playerEntity.Position.Y - max.Y);
+                
+                // Only include zones within 150 units
+                if (distToZone <= 150)
+                {
+                    neighbors.Add(neighborZone);
+                    _logger.LogDebug("Including neighbor zone ({X},{Y}) - distance: {Distance} units", 
+                        neighborZone.X, neighborZone.Y, distToZone);
+                }
+                else
+                {
+                    _logger.LogDebug("Excluding neighbor zone ({X},{Y}) - distance: {Distance} units (> 150)", 
+                        neighborZone.X, neighborZone.Y, distToZone);
+                }
             }
         }
         

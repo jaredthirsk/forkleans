@@ -10,7 +10,7 @@ var silo = builder.AddProject<Projects.Shooter_Silo>("shooter-silo")
 // Add action servers with replicas - they depend on the silo being ready
 // Running 9 instances to cover a 3x3 grid of zones
 // Create individual instances with specific RPC ports to avoid conflicts
-for (int i = 0; i < 4; i++)
+for (int i = 0; i < 5; i++)
 {
     var rpcPort = 12000 + i;
     builder.AddProject<Projects.Shooter_ActionServer>($"shooter-actionserver-{i}")

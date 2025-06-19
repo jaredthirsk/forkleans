@@ -322,10 +322,10 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                             {
                                 var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
                                 
-                                // First update the position
-                                await worldManager.UpdatePlayerPosition(playerId, newPos);
-                                _logger.LogInformation("Updated WorldManager position for player {PlayerId} to {Position} in zone {Zone}", 
-                                    playerId, newPos, newZone);
+                                // First update the position and velocity
+                                await worldManager.UpdatePlayerPositionAndVelocity(playerId, newPos, player.Velocity);
+                                _logger.LogInformation("Updated WorldManager position for player {PlayerId} to {Position} with velocity {Velocity} in zone {Zone}", 
+                                    playerId, newPos, player.Velocity, newZone);
                                 
                                 // Then immediately initiate the transfer
                                 var transferInfo = await worldManager.InitiatePlayerTransfer(playerId, newPos);
@@ -598,7 +598,11 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                                 try
                                 {
                                     var playerGrain = _orleansClient.GetGrain<IPlayerGrain>(entity.EntityId);
-                                    await playerGrain.UpdatePosition(entity.Position, Vector2.Zero);
+                                    await playerGrain.UpdatePosition(entity.Position, entity.Velocity);
+                                    
+                                    // Also update in WorldManager
+                                    var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
+                                    await worldManager.UpdatePlayerPositionAndVelocity(entity.EntityId, entity.Position, entity.Velocity);
                                 }
                                 catch (Exception ex)
                                 {
