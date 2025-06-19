@@ -28,9 +28,12 @@ public class ForkleansRpcGameClientService : IDisposable
     private CancellationTokenSource? _cancellationTokenSource;
     private bool _isTransitioning = false;
     private DateTime _lastZoneBoundaryCheck = DateTime.MinValue;
+    private DateTime _lastZoneChangeTime = DateTime.MinValue;
+    private GridSquare? _lastDetectedZone = null;
     private long _lastSequenceNumber = -1;
     private readonly Dictionary<string, PreEstablishedConnection> _preEstablishedConnections = new();
     private GridSquare? _currentZone = null;
+    private WorldState? _lastWorldState = null;
     
     public event Action<WorldState>? WorldStateUpdated;
     public event Action<string>? ServerChanged;
@@ -273,6 +276,7 @@ public class ForkleansRpcGameClientService : IDisposable
                     return;
                 }
                 _lastSequenceNumber = worldState.SequenceNumber;
+                _lastWorldState = worldState;
                 
                 var entityCount = worldState.Entities?.Count ?? 0;
                 _logger.LogTrace("Received world state with {Count} entities (seq: {Sequence})", 
@@ -306,35 +310,73 @@ public class ForkleansRpcGameClientService : IDisposable
                 }
                 else
                 {
-                    // Check if player is near zone boundary
+                    // Check if player has changed zones
                     var playerEntity = worldState.Entities?.FirstOrDefault(e => e.EntityId == PlayerId);
                     if (playerEntity != null)
                     {
-                        var currentZone = GridSquare.FromPosition(playerEntity.Position);
-                        var (min, max) = currentZone.GetBounds();
-                        var distToEdge = Math.Min(
-                            Math.Min(playerEntity.Position.X - min.X, max.X - playerEntity.Position.X),
-                            Math.Min(playerEntity.Position.Y - min.Y, max.Y - playerEntity.Position.Y)
-                        );
+                        var playerZone = GridSquare.FromPosition(playerEntity.Position);
                         
-                        if (distToEdge < 50)
+                        // Check if player's actual zone differs from the server's zone
+                        if (_currentZone != null && (playerZone.X != _currentZone.X || playerZone.Y != _currentZone.Y))
                         {
-                            // Throttle zone boundary checks to once per second
+                            // Debounce zone changes - only process if this is a new zone change or enough time has passed
                             var now = DateTime.UtcNow;
-                            if ((now - _lastZoneBoundaryCheck).TotalSeconds >= 1.0)
+                            var timeSinceLastChange = (now - _lastZoneChangeTime).TotalSeconds;
+                            
+                            if (_lastDetectedZone == null || 
+                                _lastDetectedZone.X != playerZone.X || 
+                                _lastDetectedZone.Y != playerZone.Y ||
+                                timeSinceLastChange > 2.0) // Allow re-processing after 2 seconds
                             {
-                                _lastZoneBoundaryCheck = now;
-                                _logger.LogDebug("Player {PlayerId} near zone boundary (distance: {Distance}) at position {Position}", 
-                                    PlayerId, distToEdge, playerEntity.Position);
+                                _lastZoneChangeTime = now;
+                                _lastDetectedZone = playerZone;
                                 
-                                // Proactively check for server transition
+                                _logger.LogInformation("[CLIENT_ZONE_CHANGE] Player moved from zone ({OldX},{OldY}) to ({NewX},{NewY}) at position {Position}", 
+                                    _currentZone.X, _currentZone.Y, playerZone.X, playerZone.Y, playerEntity.Position);
+                                
+                                // Immediately check for server transition
                                 _ = Task.Run(async () => {
                                     try {
                                         await CheckForServerTransition();
                                     } catch (Exception ex) {
-                                        _logger.LogError(ex, "Failed to check for server transition");
+                                        _logger.LogError(ex, "Failed to check for server transition after zone change");
                                     }
                                 });
+                            }
+                            else
+                            {
+                                _logger.LogDebug("[CLIENT_ZONE_CHANGE] Ignoring duplicate zone change detection to ({X},{Y}) - last change was {Seconds}s ago", 
+                                    playerZone.X, playerZone.Y, timeSinceLastChange);
+                            }
+                        }
+                        else
+                        {
+                            // Also check if near zone boundary for proactive connection establishment
+                            var (min, max) = playerZone.GetBounds();
+                            var distToEdge = Math.Min(
+                                Math.Min(playerEntity.Position.X - min.X, max.X - playerEntity.Position.X),
+                                Math.Min(playerEntity.Position.Y - min.Y, max.Y - playerEntity.Position.Y)
+                            );
+                            
+                            if (distToEdge < 50)
+                            {
+                                // Throttle zone boundary checks to once per second
+                                var now = DateTime.UtcNow;
+                                if ((now - _lastZoneBoundaryCheck).TotalSeconds >= 1.0)
+                                {
+                                    _lastZoneBoundaryCheck = now;
+                                    _logger.LogDebug("Player {PlayerId} near zone boundary (distance: {Distance}) at position {Position}", 
+                                        PlayerId, distToEdge, playerEntity.Position);
+                                    
+                                    // Proactively check for server transition
+                                    _ = Task.Run(async () => {
+                                        try {
+                                            await CheckForServerTransition();
+                                        } catch (Exception ex) {
+                                            _logger.LogError(ex, "Failed to check for server transition");
+                                        }
+                                    });
+                                }
                             }
                         }
                     }
@@ -402,11 +444,27 @@ public class ForkleansRpcGameClientService : IDisposable
             return;
         }
         
+        // Get current player position from last world state
+        var playerEntity = _lastWorldState?.Entities?.FirstOrDefault(e => e.EntityId == PlayerId);
+        if (playerEntity == null)
+        {
+            return;
+        }
+        
+        var playerZone = GridSquare.FromPosition(playerEntity.Position);
+        
+        // If player is in current zone, no transition needed
+        if (_currentZone != null && playerZone.X == _currentZone.X && playerZone.Y == _currentZone.Y)
+        {
+            return;
+        }
+        
         _isTransitioning = true;
         
         try
         {
-            _logger.LogTrace("Checking for server transition for player {PlayerId}", PlayerId);
+            _logger.LogTrace("Checking for server transition for player {PlayerId} at position {Position} in zone ({ZoneX},{ZoneY})", 
+                PlayerId, playerEntity.Position, playerZone.X, playerZone.Y);
             
             // Query the Orleans silo for the correct server
             var response = await _httpClient.GetFromJsonAsync<Shooter.Shared.Models.ActionServerInfo>(
@@ -427,6 +485,20 @@ public class ForkleansRpcGameClientService : IDisposable
                 _heartbeatTimer = null;
                 _availableZonesTimer = null;
                 
+                // Explicitly disconnect player from old server before cleanup
+                if (_gameGrain != null && !string.IsNullOrEmpty(PlayerId))
+                {
+                    try
+                    {
+                        _logger.LogInformation("[ZONE_TRANSITION] Disconnecting player {PlayerId} from old server", PlayerId);
+                        await _gameGrain.DisconnectPlayer(PlayerId);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "[ZONE_TRANSITION] Failed to disconnect player from old server");
+                    }
+                }
+                
                 // Disconnect from current server
                 Cleanup();
                 
@@ -438,6 +510,10 @@ public class ForkleansRpcGameClientService : IDisposable
                 await ConnectToActionServer(response);
                 var connectDuration = (DateTime.UtcNow - connectStart).TotalMilliseconds;
                 _logger.LogInformation("[ZONE_TRANSITION] ConnectToActionServer took {Duration}ms", connectDuration);
+                
+                // Reset zone change detection state after successful transition
+                _lastDetectedZone = null;
+                _lastZoneChangeTime = DateTime.MinValue;
             }
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -469,29 +545,56 @@ public class ForkleansRpcGameClientService : IDisposable
         
         if (_preEstablishedConnections.TryGetValue(connectionKey, out var preEstablished) && preEstablished.IsConnected)
         {
-            _logger.LogInformation("[ZONE_TRANSITION] Using pre-established connection for zone {Key}", connectionKey);
-            
-            _rpcHost = preEstablished.RpcHost;
-            _rpcClient = preEstablished.RpcClient;
-            _gameGrain = preEstablished.GameGrain;
-            
-            // Don't remove from pre-established connections yet - let the cleanup handle it
-            // This prevents race conditions where the connection might be needed again soon
-            
-            // Reconnect player
-            _logger.LogInformation("Calling ConnectPlayer for {PlayerId} on pre-established connection", PlayerId);
-            var result = await _gameGrain!.ConnectPlayer(PlayerId!);
-            _logger.LogInformation("ConnectPlayer returned: {Result}", result);
-            
-            if (result != "SUCCESS")
+            // Verify the connection is still alive by attempting a simple operation
+            bool connectionStillValid = false;
+            try
             {
-                _logger.LogError("Failed to reconnect player {PlayerId} to pre-established server", PlayerId);
-                return;
+                _logger.LogInformation("[ZONE_TRANSITION] Testing pre-established connection for zone {Key}", connectionKey);
+                var testState = await preEstablished.GameGrain!.GetWorldState();
+                connectionStillValid = true;
+                _logger.LogInformation("[ZONE_TRANSITION] Pre-established connection test successful");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("[ZONE_TRANSITION] Pre-established connection for zone {Key} is no longer valid: {Error}", 
+                    connectionKey, ex.Message);
+                preEstablished.IsConnected = false;
+            }
+            
+            if (connectionStillValid)
+            {
+                _logger.LogInformation("[ZONE_TRANSITION] Using pre-established connection for zone {Key}", connectionKey);
+                
+                _rpcHost = preEstablished.RpcHost;
+                _rpcClient = preEstablished.RpcClient;
+                _gameGrain = preEstablished.GameGrain;
+                
+                // Don't remove from pre-established connections yet - let the cleanup handle it
+                // This prevents race conditions where the connection might be needed again soon
+                
+                // Reconnect player
+                _logger.LogInformation("Calling ConnectPlayer for {PlayerId} on pre-established connection", PlayerId);
+                var result = await _gameGrain!.ConnectPlayer(PlayerId!);
+                _logger.LogInformation("ConnectPlayer returned: {Result}", result);
+                
+                if (result != "SUCCESS")
+                {
+                    _logger.LogError("Failed to reconnect player {PlayerId} to pre-established server", PlayerId);
+                    return;
+                }
+            }
+            else
+            {
+                // Connection is dead, remove it and fall through to create a new one
+                _logger.LogInformation("[ZONE_TRANSITION] Removing dead pre-established connection for zone {Key}", connectionKey);
+                await CleanupPreEstablishedConnection(connectionKey);
+                _preEstablishedConnections.Remove(connectionKey);
             }
         }
-        else
+        
+        if (_rpcHost == null)
         {
-            _logger.LogInformation("[ZONE_TRANSITION] No pre-established connection for zone {Key}, creating new connection", connectionKey);
+            _logger.LogInformation("[ZONE_TRANSITION] No valid pre-established connection for zone {Key}, creating new connection", connectionKey);
             
             // Extract host and RPC port
             var serverHost = serverInfo.IpAddress;
@@ -648,6 +751,9 @@ public class ForkleansRpcGameClientService : IDisposable
         _logger.LogDebug("Pre-establishing connections for current zone ({X},{Y}). Current connections: {Count} [{Keys}]", 
             _currentZone.X, _currentZone.Y, _preEstablishedConnections.Count, string.Join(", ", _preEstablishedConnections.Keys));
         
+        // First, check health of existing connections
+        await CheckPreEstablishedConnectionHealth();
+        
         // Find neighboring zones (adjacent to current zone)
         var neighboringZones = GetNeighboringZones(_currentZone);
         
@@ -746,6 +852,37 @@ public class ForkleansRpcGameClientService : IDisposable
         }
         
         return neighbors;
+    }
+    
+    private async Task CheckPreEstablishedConnectionHealth()
+    {
+        var keysToCheck = _preEstablishedConnections.Keys.ToList();
+        
+        foreach (var key in keysToCheck)
+        {
+            if (_preEstablishedConnections.TryGetValue(key, out var connection))
+            {
+                try
+                {
+                    // Send a lightweight request to check if connection is alive
+                    var zones = await connection.GameGrain!.GetAvailableZones();
+                    connection.IsConnected = true;
+                    connection.EstablishedAt = DateTime.UtcNow; // Update last successful check time
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning("Pre-established connection {Key} health check failed: {Error}", key, ex.Message);
+                    connection.IsConnected = false;
+                    
+                    // If it's been disconnected for too long, remove it
+                    if ((DateTime.UtcNow - connection.EstablishedAt).TotalMinutes > 1)
+                    {
+                        _logger.LogInformation("Removing stale pre-established connection {Key}", key);
+                        await CleanupPreEstablishedConnection(key);
+                    }
+                }
+            }
+        }
     }
     
     private async Task<bool> EstablishConnection(string connectionKey, Shooter.Shared.Models.ActionServerInfo serverInfo)
