@@ -29,12 +29,13 @@ public class ForkleansRpcGameClientService : IDisposable
     private bool _isTransitioning = false;
     private DateTime _lastZoneBoundaryCheck = DateTime.MinValue;
     private long _lastSequenceNumber = -1;
-    private DateTime _transitionStartTime;
-    private bool _isTrackingTransition = false;
+    private readonly Dictionary<string, PreEstablishedConnection> _preEstablishedConnections = new();
+    private GridSquare? _currentZone = null;
     
     public event Action<WorldState>? WorldStateUpdated;
     public event Action<string>? ServerChanged;
     public event Action<List<GridSquare>>? AvailableZonesUpdated;
+    public event Action<Dictionary<string, bool>>? PreEstablishedConnectionsUpdated;
     
     public bool IsConnected { get; private set; }
     public string? PlayerId { get; private set; }
@@ -62,6 +63,7 @@ public class ForkleansRpcGameClientService : IDisposable
             
             PlayerId = registrationResponse.PlayerInfo?.PlayerId ?? string.Empty;
             CurrentServerId = registrationResponse.ActionServer?.ServerId ?? "Unknown";
+            _currentZone = registrationResponse.ActionServer?.AssignedSquare;
             
             _logger.LogInformation("Player registered with ID {PlayerId} on server {ServerId} in zone ({X}, {Y})", 
                 PlayerId, CurrentServerId, 
@@ -382,6 +384,9 @@ public class ForkleansRpcGameClientService : IDisposable
             if (zones != null)
             {
                 AvailableZonesUpdated?.Invoke(zones);
+                
+                // Pre-establish connections to neighboring zones
+                await PreEstablishNeighborConnections(zones);
             }
         }
         catch (Exception ex)
@@ -452,91 +457,148 @@ public class ForkleansRpcGameClientService : IDisposable
     private async Task ConnectToActionServer(Shooter.Shared.Models.ActionServerInfo serverInfo)
     {
         CurrentServerId = serverInfo.ServerId;
+        _currentZone = serverInfo.AssignedSquare;
         
         // Create new cancellation token source for the new connection
         _cancellationTokenSource = new CancellationTokenSource();
         
-        // Extract host and RPC port
-        var serverHost = serverInfo.IpAddress;
-        var rpcPort = serverInfo.RpcPort;
+        // Check if we have a pre-established connection for this zone
+        var connectionKey = $"{serverInfo.AssignedSquare.X},{serverInfo.AssignedSquare.Y}";
+        _logger.LogInformation("[ZONE_TRANSITION] Checking for pre-established connection with key {Key}. Available keys: {Keys}", 
+            connectionKey, string.Join(", ", _preEstablishedConnections.Keys));
         
-        if (rpcPort == 0)
+        if (_preEstablishedConnections.TryGetValue(connectionKey, out var preEstablished) && preEstablished.IsConnected)
         {
-            _logger.LogError("ActionServer did not report RPC port");
-            return;
-        }
-        
-        // Resolve hostname to IP address if needed
-        string resolvedHost = serverHost;
-        try
-        {
-            if (!System.Net.IPAddress.TryParse(serverHost, out _))
+            _logger.LogInformation("[ZONE_TRANSITION] Using pre-established connection for zone {Key}", connectionKey);
+            
+            _rpcHost = preEstablished.RpcHost;
+            _rpcClient = preEstablished.RpcClient;
+            _gameGrain = preEstablished.GameGrain;
+            
+            // Don't remove from pre-established connections yet - let the cleanup handle it
+            // This prevents race conditions where the connection might be needed again soon
+            
+            // Reconnect player
+            _logger.LogInformation("Calling ConnectPlayer for {PlayerId} on pre-established connection", PlayerId);
+            var result = await _gameGrain!.ConnectPlayer(PlayerId!);
+            _logger.LogInformation("ConnectPlayer returned: {Result}", result);
+            
+            if (result != "SUCCESS")
             {
-                var hostEntry = await System.Net.Dns.GetHostEntryAsync(serverHost);
-                var ipAddress = hostEntry.AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-                if (ipAddress != null)
-                {
-                    resolvedHost = ipAddress.ToString();
-                }
-                else
-                {
-                    resolvedHost = "127.0.0.1";
-                }
+                _logger.LogError("Failed to reconnect player {PlayerId} to pre-established server", PlayerId);
+                return;
             }
         }
-        catch
+        else
         {
-            resolvedHost = "127.0.0.1";
-        }
-        
-        _logger.LogInformation("Connecting to new Forkleans RPC server at {Host}:{Port}", resolvedHost, rpcPort);
-        
-        // Create new RPC client
-        var hostBuilder = Host.CreateDefaultBuilder()
-            .UseOrleansRpcClient(rpcBuilder =>
-            {
-                rpcBuilder.ConnectTo(resolvedHost, rpcPort);
-                rpcBuilder.UseLiteNetLib();
-            })
-            .ConfigureServices(services =>
-            {
-                services.AddSerializer(serializer =>
-                {
-                    serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
-                });
-            })
-            .Build();
+            _logger.LogInformation("[ZONE_TRANSITION] No pre-established connection for zone {Key}, creating new connection", connectionKey);
             
-        await hostBuilder.StartAsync();
-        
-        _rpcHost = hostBuilder;
-        _rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>();
-        
-        // Wait longer for handshake and manifest exchange to complete
-        await Task.Delay(2000);
-        
-        try
-        {
-            // Get the game grain
-            _gameGrain = _rpcClient.GetGrain<IGameRpcGrain>("game");
-        }
-        catch (ArgumentException ex)
-        {
-            _logger.LogError(ex, "Failed to get game grain, waiting longer for manifest exchange");
-            // Wait even longer and retry
-            await Task.Delay(2000);
-            _gameGrain = _rpcClient.GetGrain<IGameRpcGrain>("game");
-        }
-        
-        // Reconnect player
-        _logger.LogInformation("Calling ConnectPlayer for {PlayerId} on new server", PlayerId);
-        var result = await _gameGrain.ConnectPlayer(PlayerId!);
-        _logger.LogInformation("ConnectPlayer returned: {Result}", result);
-        
-        if (result != "SUCCESS")
-        {
-            _logger.LogError("Failed to reconnect player {PlayerId} to new server", PlayerId);
-            return;
+            // Extract host and RPC port
+            var serverHost = serverInfo.IpAddress;
+            var rpcPort = serverInfo.RpcPort;
+            
+            if (rpcPort == 0)
+            {
+                _logger.LogError("ActionServer did not report RPC port");
+                return;
+            }
+            
+            // Resolve hostname to IP address if needed
+            string resolvedHost = serverHost;
+            try
+            {
+                if (!System.Net.IPAddress.TryParse(serverHost, out _))
+                {
+                    var hostEntry = await System.Net.Dns.GetHostEntryAsync(serverHost);
+                    var ipAddress = hostEntry.AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                    if (ipAddress != null)
+                    {
+                        resolvedHost = ipAddress.ToString();
+                    }
+                    else
+                    {
+                        resolvedHost = "127.0.0.1";
+                    }
+                }
+            }
+            catch
+            {
+                resolvedHost = "127.0.0.1";
+            }
+            
+            _logger.LogInformation("Connecting to new Forkleans RPC server at {Host}:{Port}", resolvedHost, rpcPort);
+            
+            // Create new RPC client
+            var hostBuilder = Host.CreateDefaultBuilder()
+                .UseOrleansRpcClient(rpcBuilder =>
+                {
+                    rpcBuilder.ConnectTo(resolvedHost, rpcPort);
+                    rpcBuilder.UseLiteNetLib();
+                })
+                .ConfigureServices(services =>
+                {
+                    services.AddSerializer(serializer =>
+                    {
+                        serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                    });
+                })
+                .Build();
+                
+            await hostBuilder.StartAsync();
+            
+            _rpcHost = hostBuilder;
+            _rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>();
+            
+            // Wait for handshake and manifest exchange to complete with retry logic
+            _logger.LogInformation("[ZONE_TRANSITION] Waiting for RPC handshake...");
+            
+            int retryCount = 0;
+            const int maxRetries = 3;
+            Exception? lastException = null;
+            
+            while (retryCount < maxRetries)
+            {
+                await Task.Delay(500 + (300 * retryCount)); // Progressive delay: 500ms, 800ms, 1100ms
+                
+                try
+                {
+                    // Get the game grain
+                    _gameGrain = _rpcClient.GetGrain<IGameRpcGrain>("game");
+                    _logger.LogInformation("[ZONE_TRANSITION] Successfully obtained game grain on attempt {Attempt}", retryCount + 1);
+                    break;
+                }
+                catch (ArgumentException ex) when (ex.Message.Contains("Could not find an implementation"))
+                {
+                    lastException = ex;
+                    retryCount++;
+                    if (retryCount < maxRetries)
+                    {
+                        _logger.LogWarning("[ZONE_TRANSITION] Manifest not ready, retry {Retry}/{Max}", retryCount, maxRetries);
+                    }
+                    else
+                    {
+                        _logger.LogError(ex, "[ZONE_TRANSITION] Failed to get game grain after {Max} retries", maxRetries);
+                        throw;
+                    }
+                }
+            }
+            
+            // Reconnect player
+            if (_gameGrain == null)
+            {
+                _logger.LogError("[ZONE_TRANSITION] Game grain is null after all retries");
+                return;
+            }
+            
+            _logger.LogInformation("Calling ConnectPlayer for {PlayerId} on new server", PlayerId);
+            var result = await _gameGrain.ConnectPlayer(PlayerId!);
+            _logger.LogInformation("ConnectPlayer returned: {Result}", result);
+            
+            if (result != "SUCCESS")
+            {
+                _logger.LogError("Failed to reconnect player {PlayerId} to new server", PlayerId);
+                return;
+            }
         }
         
         IsConnected = true;
@@ -555,10 +617,10 @@ public class ForkleansRpcGameClientService : IDisposable
             return;
         }
         
-        // Restart timers
-        _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(16));
-        _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5));
-        _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2));
+        // Restart timers with minimal initial delay for smooth transition
+        _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(16));
+        _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
+        _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(2));
         
         // Reset sequence number for new server
         _lastSequenceNumber = -1;
@@ -567,6 +629,267 @@ public class ForkleansRpcGameClientService : IDisposable
         ServerChanged?.Invoke(CurrentServerId);
         
         _logger.LogInformation("Successfully reconnected to new server {ServerId}", CurrentServerId);
+        
+        // Mark this pre-established connection as recently used to prevent cleanup
+        var currentZoneKey = $"{_currentZone.X},{_currentZone.Y}";
+        if (_preEstablishedConnections.TryGetValue(currentZoneKey, out var conn))
+        {
+            conn.EstablishedAt = DateTime.UtcNow; // Reset the timestamp to prevent immediate cleanup
+        }
+    }
+    
+    private async Task PreEstablishNeighborConnections(List<GridSquare> zones)
+    {
+        if (_currentZone == null || zones == null || zones.Count == 0)
+        {
+            return;
+        }
+        
+        _logger.LogDebug("Pre-establishing connections for current zone ({X},{Y}). Current connections: {Count} [{Keys}]", 
+            _currentZone.X, _currentZone.Y, _preEstablishedConnections.Count, string.Join(", ", _preEstablishedConnections.Keys));
+        
+        // Find neighboring zones (adjacent to current zone)
+        var neighboringZones = GetNeighboringZones(_currentZone);
+        
+        // Get server information for each zone
+        var siloUrl = _configuration["SiloUrl"] ?? "https://localhost:7071/";
+        if (!siloUrl.EndsWith("/")) siloUrl += "/";
+        
+        try
+        {
+            var response = await _httpClient.GetFromJsonAsync<List<Shooter.Shared.Models.ActionServerInfo>>(
+                $"{siloUrl}api/world/action-servers");
+            
+            if (response == null) return;
+            
+            // Create a map of zones to servers
+            var zoneToServer = response.ToDictionary(s => s.AssignedSquare, s => s);
+            
+            // Check each neighboring zone
+            var connectionStatus = new Dictionary<GridSquare, bool>();
+            
+            foreach (var zone in neighboringZones)
+            {
+                if (zones.Contains(zone) && zoneToServer.TryGetValue(zone, out var serverInfo))
+                {
+                    // Check if we already have a pre-established connection
+                    var connectionKey = $"{zone.X},{zone.Y}";
+                    
+                    if (!_preEstablishedConnections.ContainsKey(connectionKey))
+                    {
+                        // Pre-establish connection to this server
+                        _logger.LogInformation("Pre-establishing connection to zone ({X},{Y}) server {ServerId}", 
+                            zone.X, zone.Y, serverInfo.ServerId);
+                        
+                        var success = await EstablishConnection(connectionKey, serverInfo);
+                        connectionStatus[zone] = success;
+                    }
+                    else
+                    {
+                        _logger.LogDebug("Already have pre-established connection to zone {Key}, connected: {IsConnected}", 
+                            connectionKey, _preEstablishedConnections[connectionKey].IsConnected);
+                        connectionStatus[zone] = _preEstablishedConnections[connectionKey].IsConnected;
+                    }
+                }
+            }
+            
+            // Clean up old connections not in neighboring zones
+            // Only clean up connections older than 10 seconds to avoid race conditions
+            // Also keep the current zone's connection
+            var validKeys = neighboringZones.Select(z => $"{z.X},{z.Y}").ToHashSet();
+            validKeys.Add($"{_currentZone.X},{_currentZone.Y}"); // Keep current zone connection
+            
+            var keysToRemove = _preEstablishedConnections
+                .Where(kvp => !validKeys.Contains(kvp.Key) && 
+                              (DateTime.UtcNow - kvp.Value.EstablishedAt).TotalSeconds > 10)
+                .Select(kvp => kvp.Key)
+                .ToList();
+            
+            if (keysToRemove.Count > 0)
+            {
+                _logger.LogInformation("Cleaning up {Count} old pre-established connections: {Keys}", 
+                    keysToRemove.Count, string.Join(", ", keysToRemove));
+            }
+            
+            foreach (var key in keysToRemove)
+            {
+                await CleanupPreEstablishedConnection(key);
+            }
+            
+            // Notify about ALL pre-established connections (not just the ones we just checked)
+            // Convert to a format that can be serialized to JSON (string keys instead of GridSquare keys)
+            var allConnectionStatus = new Dictionary<string, bool>();
+            foreach (var kvp in _preEstablishedConnections)
+            {
+                allConnectionStatus[kvp.Key] = kvp.Value.IsConnected;
+            }
+            PreEstablishedConnectionsUpdated?.Invoke(allConnectionStatus);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to pre-establish neighbor connections");
+        }
+    }
+    
+    private List<GridSquare> GetNeighboringZones(GridSquare currentZone)
+    {
+        var neighbors = new List<GridSquare>();
+        
+        // Add all 8 neighboring zones (including diagonals)
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                if (dx == 0 && dy == 0) continue; // Skip current zone
+                neighbors.Add(new GridSquare(currentZone.X + dx, currentZone.Y + dy));
+            }
+        }
+        
+        return neighbors;
+    }
+    
+    private async Task<bool> EstablishConnection(string connectionKey, Shooter.Shared.Models.ActionServerInfo serverInfo)
+    {
+        try
+        {
+            var serverHost = serverInfo.IpAddress;
+            var rpcPort = serverInfo.RpcPort;
+            
+            if (rpcPort == 0)
+            {
+                _logger.LogError("Pre-establish: ActionServer did not report RPC port");
+                return false;
+            }
+            
+            // Resolve hostname to IP address if needed
+            string resolvedHost = serverHost;
+            try
+            {
+                if (!System.Net.IPAddress.TryParse(serverHost, out _))
+                {
+                    var hostEntry = await System.Net.Dns.GetHostEntryAsync(serverHost);
+                    var ipAddress = hostEntry.AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                    if (ipAddress != null)
+                    {
+                        resolvedHost = ipAddress.ToString();
+                    }
+                    else
+                    {
+                        resolvedHost = "127.0.0.1";
+                    }
+                }
+            }
+            catch
+            {
+                resolvedHost = "127.0.0.1";
+            }
+            
+            _logger.LogInformation("Pre-establishing RPC connection to {Host}:{Port} for zone {Key}", 
+                resolvedHost, rpcPort, connectionKey);
+            
+            // Create RPC client
+            var hostBuilder = Host.CreateDefaultBuilder()
+                .UseOrleansRpcClient(rpcBuilder =>
+                {
+                    rpcBuilder.ConnectTo(resolvedHost, rpcPort);
+                    rpcBuilder.UseLiteNetLib();
+                })
+                .ConfigureServices(services =>
+                {
+                    services.AddSerializer(serializer =>
+                    {
+                        serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                    });
+                })
+                .Build();
+                
+            await hostBuilder.StartAsync();
+            
+            var connection = new PreEstablishedConnection
+            {
+                RpcHost = hostBuilder,
+                RpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>(),
+                ServerInfo = serverInfo,
+                EstablishedAt = DateTime.UtcNow,
+                IsConnected = false
+            };
+            
+            // Brief delay for handshake
+            await Task.Delay(200);
+            
+            // Retry logic for getting the game grain
+            int retryCount = 0;
+            const int maxRetries = 3;
+            
+            while (retryCount < maxRetries)
+            {
+                try
+                {
+                    // Get the game grain
+                    connection.GameGrain = connection.RpcClient.GetGrain<IGameRpcGrain>("game");
+                    
+                    // Test the connection
+                    var testState = await connection.GameGrain.GetWorldState();
+                    connection.IsConnected = true;
+                    
+                    _logger.LogInformation("Pre-established connection to zone {Key} successful", connectionKey);
+                    break;
+                }
+                catch (ArgumentException ex) when (ex.Message.Contains("Could not find an implementation"))
+                {
+                    retryCount++;
+                    if (retryCount < maxRetries)
+                    {
+                        _logger.LogWarning("Pre-establish: Manifest not ready for zone {Key}, retry {Retry}/{Max}", 
+                            connectionKey, retryCount, maxRetries);
+                        await Task.Delay(300 * retryCount); // Progressive delay
+                    }
+                    else
+                    {
+                        _logger.LogError(ex, "Failed to get game grain for pre-established connection to zone {Key} after {Max} retries", 
+                            connectionKey, maxRetries);
+                        connection.IsConnected = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to test pre-established connection to zone {Key}", connectionKey);
+                    connection.IsConnected = false;
+                    break;
+                }
+            }
+            
+            _preEstablishedConnections[connectionKey] = connection;
+            return connection.IsConnected;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to establish connection to zone {Key}", connectionKey);
+            return false;
+        }
+    }
+    
+    private async Task CleanupPreEstablishedConnection(string connectionKey)
+    {
+        if (_preEstablishedConnections.TryGetValue(connectionKey, out var connection))
+        {
+            _logger.LogInformation("Cleaning up pre-established connection to zone {Key}", connectionKey);
+            
+            try
+            {
+                if (connection.RpcHost != null)
+                {
+                    await connection.RpcHost.StopAsync(TimeSpan.FromSeconds(1));
+                    connection.RpcHost.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error disposing pre-established connection for zone {Key}", connectionKey);
+            }
+            
+            _preEstablishedConnections.Remove(connectionKey);
+        }
     }
     
     private void Cleanup()
@@ -603,18 +926,43 @@ public class ForkleansRpcGameClientService : IDisposable
             _rpcHost = null;
         }
         
+        // Don't clean up pre-established connections during transitions
+        // They will be cleaned up during periodic maintenance
+        // Only clean them up if this is a final dispose (see Dispose method)
+        
         // Don't clear PlayerId as we need it for reconnection
         // PlayerId = null;
         CurrentServerId = null;
+        _currentZone = null;
     }
     
     public void Dispose()
     {
         Cleanup();
+        
+        // Clean up all pre-established connections on final dispose
+        var allKeys = _preEstablishedConnections.Keys.ToList();
+        foreach (var key in allKeys)
+        {
+            _ = Task.Run(async () => await CleanupPreEstablishedConnection(key));
+        }
+        _preEstablishedConnections.Clear();
+        
         PlayerId = null;  // Clear PlayerId only on final dispose
     }
 }
 
 // Response types from Silo HTTP endpoints - using models from Shooter.Shared
 public record PlayerRegistrationResponse(Shooter.Shared.Models.PlayerInfo PlayerInfo, Shooter.Shared.Models.ActionServerInfo ActionServer);
+
+// Pre-established connection tracking
+internal class PreEstablishedConnection
+{
+    public IHost? RpcHost { get; set; }
+    public Forkleans.IClusterClient? RpcClient { get; set; }
+    public IGameRpcGrain? GameGrain { get; set; }
+    public Shooter.Shared.Models.ActionServerInfo ServerInfo { get; set; } = null!;
+    public DateTime EstablishedAt { get; set; }
+    public bool IsConnected { get; set; }
+}
 

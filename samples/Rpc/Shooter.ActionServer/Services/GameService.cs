@@ -77,20 +77,23 @@ public class GameService : IGameService, IHostedService
     {
         var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
         
-        _logger.LogInformation("Zone monitoring started for zone {Zone}", _simulation.GetAssignedSquare());
+        _logger.LogInformation("[ZONE_TRANSITION_SERVER] Zone monitoring started for zone ({X},{Y})", 
+            _simulation.GetAssignedSquare().X, _simulation.GetAssignedSquare().Y);
         
         while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
-                _logger.LogDebug("Zone monitor checking for transfers...");
+                var checkStart = DateTime.UtcNow;
+                _logger.LogDebug("[ZONE_TRANSITION_SERVER] Zone monitor checking for transfers at {Time}", checkStart);
                 
                 // Handle player transfers
                 var playersOutside = await _simulation.GetPlayersOutsideZone();
                 
                 if (playersOutside.Count > 0)
                 {
-                    _logger.LogInformation("Zone monitor found {Count} players outside zone", playersOutside.Count);
+                    _logger.LogInformation("[ZONE_TRANSITION_SERVER] Zone monitor found {Count} players outside zone at {Time}", 
+                        playersOutside.Count, DateTime.UtcNow);
                 }
                 
                 foreach (var playerId in playersOutside)
@@ -117,6 +120,9 @@ public class GameService : IGameService, IHostedService
                         var grainStart = DateTime.UtcNow;
                         var transferInfo = await worldManager.InitiatePlayerTransfer(playerId, playerInfo.Position);
                         var grainDuration = (DateTime.UtcNow - grainStart).TotalMilliseconds;
+                        
+                        _logger.LogInformation("[ZONE_TRANSITION_SERVER] InitiatePlayerTransfer took {Duration}ms for player {PlayerId}", 
+                            grainDuration, playerId);
                         _logger.LogInformation("[ZONE_TRANSITION_SERVER] InitiatePlayerTransfer grain call took {Duration}ms", grainDuration);
                         if (transferInfo?.NewServer != null)
                         {
@@ -195,7 +201,7 @@ public class GameService : IGameService, IHostedService
                 _logger.LogError(ex, "Error monitoring zone transitions");
             }
             
-            await Task.Delay(250, cancellationToken); // Check 4 times per second
+            await Task.Delay(100, cancellationToken); // Check 10 times per second for faster transfers
         }
     }
     

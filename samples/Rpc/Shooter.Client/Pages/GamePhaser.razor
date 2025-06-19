@@ -8,7 +8,6 @@
 @inject HttpClient Http
 @inject IConfiguration Configuration
 @implements IDisposable
-@implements IAsyncDisposable
 
 <div class="game-container">
     <div id="phaser-container" style="width: 800px; height: 600px; margin: 0 auto;"></div>
@@ -58,6 +57,7 @@
                 // Subscribe to game events
                 RpcGameClient.WorldStateUpdated += OnWorldStateUpdated;
                 RpcGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
+                RpcGameClient.PreEstablishedConnectionsUpdated += OnPreEstablishedConnectionsUpdated;
                 
                 _isInitialized = true;
                 
@@ -113,6 +113,24 @@
         }
     }
 
+    private void OnPreEstablishedConnectionsUpdated(Dictionary<string, bool> connections)
+    {
+        if (_isInitialized)
+        {
+            _ = InvokeAsync(async () =>
+            {
+                try
+                {
+                    await JS.InvokeVoidAsync("gamePhaser.updatePreEstablishedConnections", connections);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to update pre-established connections");
+                }
+            });
+        }
+    }
+
     private async Task UpdateServerInfo()
     {
         if (_isInitialized)
@@ -155,6 +173,13 @@
         {
             Logger.LogError(ex, "Failed to send shoot input");
         }
+    }
+    
+    [JSInvokable]
+    public void OnZoneMismatch(float playerX, float playerY, int playerZoneX, int playerZoneY, int serverZoneX, int serverZoneY)
+    {
+        Logger.LogWarning("[ZONE_MISMATCH] Player at position ({PlayerX:F1}, {PlayerY:F1}) is in zone ({PlayerZoneX}, {PlayerZoneY}) but server thinks they should be in zone ({ServerZoneX}, {ServerZoneY})",
+            playerX, playerY, playerZoneX, playerZoneY, serverZoneX, serverZoneY);
     }
 
     public async ValueTask DisposeAsync()
@@ -213,5 +238,20 @@
     {
         _updateTimer?.Dispose();
         _dotNetRef?.Dispose();
+        
+        // Unsubscribe from events
+        RpcGameClient.WorldStateUpdated -= OnWorldStateUpdated;
+        RpcGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
+        RpcGameClient.PreEstablishedConnectionsUpdated -= OnPreEstablishedConnectionsUpdated;
+        
+        // Destroy Phaser game
+        if (_isInitialized)
+        {
+            try
+            {
+                _ = JS.InvokeVoidAsync("gamePhaser.destroy");
+            }
+            catch { }
+        }
     }
 }

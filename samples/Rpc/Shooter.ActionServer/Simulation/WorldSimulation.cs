@@ -299,19 +299,30 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     if (isNewZoneAvailable)
                     {
                         // Another server handles that zone - allow the movement
-                        // The zone transition monitor will handle the transfer
                         player.Position = newPos;
                         _logger.LogInformation("Player {PlayerId} moving from zone {OldZone} to {NewZone} - position updated to {Position}", 
                             playerId, _assignedSquare, newZone, newPos);
                         
-                        // Update position in WorldManager when crossing zone boundaries
+                        // Immediately initiate transfer when crossing zone boundaries
                         _ = Task.Run(async () => {
                             try
                             {
                                 var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
+                                
+                                // First update the position
                                 await worldManager.UpdatePlayerPosition(playerId, newPos);
                                 _logger.LogInformation("Updated WorldManager position for player {PlayerId} to {Position} in zone {Zone}", 
                                     playerId, newPos, newZone);
+                                
+                                // Then immediately initiate the transfer
+                                var transferInfo = await worldManager.InitiatePlayerTransfer(playerId, newPos);
+                                if (transferInfo?.NewServer != null)
+                                {
+                                    _logger.LogInformation("[ZONE_TRANSITION_IMMEDIATE] Player {PlayerId} needs immediate transfer to server {ServerId} for zone {Zone}", 
+                                        playerId, transferInfo.NewServer.ServerId, transferInfo.NewServer.AssignedSquare);
+                                    
+                                    // The zone monitor will pick this up and complete the transfer
+                                }
                                 
                                 // Also update the player grain position
                                 var playerGrain = _orleansClient.GetGrain<IPlayerGrain>(playerId);
@@ -319,7 +330,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                             }
                             catch (Exception ex)
                             {
-                                _logger.LogError(ex, "Failed to update player position in WorldManager");
+                                _logger.LogError(ex, "Failed to initiate player transfer in WorldManager");
                             }
                         });
                     }
@@ -346,8 +357,18 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     
                     if (distToEdge < 50)
                     {
-                        _logger.LogInformation("Player {PlayerId} is near zone boundary (distance: {Distance}) at position {Position} in zone {Zone}", 
-                            playerId, distToEdge, player.Position, _assignedSquare);
+                        _logger.LogInformation("[ZONE_TRANSITION_SERVER] Player {PlayerId} is near zone boundary (distance: {Distance}) at position {Position} in zone ({ZoneX},{ZoneY}), velocity: {Velocity}", 
+                            playerId, distToEdge, player.Position, _assignedSquare.X, _assignedSquare.Y, player.Velocity);
+                        
+                        // Log which edge they're approaching
+                        string approachingEdge = "";
+                        if (player.Position.X - min.X < 50) approachingEdge = "left";
+                        else if (max.X - player.Position.X < 50) approachingEdge = "right";
+                        else if (player.Position.Y - min.Y < 50) approachingEdge = "bottom";
+                        else if (max.Y - player.Position.Y < 50) approachingEdge = "top";
+                        
+                        _logger.LogInformation("[ZONE_TRANSITION_SERVER] Player {PlayerId} approaching {Edge} edge of zone", 
+                            playerId, approachingEdge);
                     }
                 }
                 
@@ -715,11 +736,12 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             var pos = entity.Position;
             if (pos.X < min.X || pos.X >= max.X || pos.Y < min.Y || pos.Y >= max.Y)
             {
-                _logger.LogInformation("Player {PlayerId} at position {Position} is outside zone bounds ({MinX},{MinY}) to ({MaxX},{MaxY})", 
+                var actualZone = GridSquare.FromPosition(pos);
+                _logger.LogInformation("[ZONE_TRANSITION_SERVER] Player {PlayerId} at position {Position} is outside zone bounds ({MinX},{MinY}) to ({MaxX},{MaxY})", 
                     playerId, pos, min.X, min.Y, max.X, max.Y);
                 playersOutside.Add(playerId);
-                _logger.LogInformation("Player {PlayerId} at position {Position} is outside assigned zone {Zone}", 
-                    playerId, pos, _assignedSquare);
+                _logger.LogInformation("[ZONE_TRANSITION_SERVER] Player {PlayerId} is in zone ({ActualX},{ActualY}) but should be in zone ({AssignedX},{AssignedY})", 
+                    playerId, actualZone.X, actualZone.Y, _assignedSquare.X, _assignedSquare.Y);
             }
         }
         

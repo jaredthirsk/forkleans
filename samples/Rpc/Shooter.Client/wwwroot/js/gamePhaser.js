@@ -12,6 +12,8 @@ class GamePhaser {
         this.currentServer = null;
         this.serverZone = null;
         this.playerZone = null;
+        this.preEstablishedConnections = {}; // Track pre-established connections
+        this.lastZoneMismatchLog = null; // Track last time we logged zone mismatch
     }
 
     init(dotNetReference, containerId, playerId) {
@@ -339,13 +341,13 @@ class GamePhaser {
 
         // Log entity count periodically
         if (Math.random() < 0.05) { // 5% chance each frame
-            console.log(`Updating ${this.worldState.entities.length} entities`);
+            //console.log(`Updating ${this.worldState.entities.length} entities`);
             const entityTypes = {};
             for (const entity of this.worldState.entities) {
                 const typeName = this.getEntityTypeName(entity.type);
                 entityTypes[typeName] = (entityTypes[typeName] || 0) + 1;
             }
-            console.log('Entity breakdown:', entityTypes);
+            //console.log('Entity breakdown:', entityTypes);
         }
 
         // Track existing entity IDs
@@ -406,13 +408,28 @@ class GamePhaser {
                 this.playerZone = zone;
                 this.currentZone = `${zone.x}, ${zone.y}`;
                 
+                // Check for zone mismatch and notify .NET for logging
+                if (this.serverZone && this.playerZone && 
+                    (this.serverZone.x !== this.playerZone.x || this.serverZone.y !== this.playerZone.y)) {
+                    // Only log once per second to avoid spam
+                    const now = Date.now();
+                    if (!this.lastZoneMismatchLog || now - this.lastZoneMismatchLog > 1000) {
+                        this.lastZoneMismatchLog = now;
+                        if (this.dotNetReference) {
+                            this.dotNetReference.invokeMethodAsync('OnZoneMismatch', 
+                                entity.position.x, entity.position.y,
+                                this.playerZone.x, this.playerZone.y,
+                                this.serverZone.x, this.serverZone.y);
+                        }
+                    }
+                }
+                
                 const playerInfo = `Player: ${entity.entityId.substring(0, 8)}... Health: ${Math.round(entity.health)}`;
                 this.playerText.setText(playerInfo);
                 
                 // Ensure camera is following player sprite
                 if (!this.scene.cameras.main.target && sprite) {
                     this.scene.cameras.main.startFollow(sprite, true, 0.1, 0.1);
-                    console.log('Re-establishing camera follow on player');
                 }
             }
         }
@@ -542,6 +559,8 @@ class GamePhaser {
                 const isServerZone = this.serverZone && this.serverZone.x === zx && this.serverZone.y === zy;
                 
                 let boxColor;
+                const zoneKey = `${zx},${zy}`;
+                
                 if (isServerZone) {
                     // Current server's zone
                     if (!isPlayerInCorrectZone && this.playerZone) {
@@ -551,6 +570,9 @@ class GamePhaser {
                         // Normal server zone - light gray
                         boxColor = 0x999999; // #999
                     }
+                } else if (this.preEstablishedConnections[zoneKey]) {
+                    // Pre-established connection - blue
+                    boxColor = 0x3399ff; // Nice blue color
                 } else {
                     // Other zones - darker gray
                     boxColor = 0x555555; // #555
@@ -704,6 +726,28 @@ class GamePhaser {
             const headingX = dx / length;
             const headingY = dy / length;
             this.dotNetReference.invokeMethodAsync('OnMovementInput', headingX, headingY);
+        }
+    }
+
+    updateZoneInfo(zones) {
+        this.availableZones = zones;
+        if (this.gridGraphics) {
+            this.drawGrid();
+        }
+    }
+
+    updateServerInfo(serverId, serverZone) {
+        this.currentServer = serverId;
+        this.serverZone = serverZone;
+    }
+
+    updatePreEstablishedConnections(connections) {
+        // The connections dictionary now has string keys like "0,1" directly
+        this.preEstablishedConnections = connections || {};
+        
+        // Redraw the grid to show pre-established connections
+        if (this.gridGraphics) {
+            this.drawGrid();
         }
     }
 

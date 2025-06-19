@@ -371,7 +371,12 @@
     {
         _currentServerId = serverId;
         UpdateServerZone();
-        InvokeAsync(StateHasChanged);
+        InvokeAsync(async () =>
+        {
+            // Immediately fetch latest server mappings after zone transition
+            await FetchServerZoneMappings();
+            StateHasChanged();
+        });
     }
     
     private void UpdateServerZone()
@@ -396,7 +401,8 @@
                 var playerZone = GridSquare.FromPosition(player.Position);
                 if (_serverZoneMap.TryGetValue(_currentServerId, out var serverZone) && playerZone != serverZone)
                 {
-                    _debugInfo = $"WARNING: Player in zone ({playerZone.X},{playerZone.Y}) but server handles ({serverZone.X},{serverZone.Y})";
+                    var transitionDelay = DateTime.UtcNow.ToString("HH:mm:ss.fff");
+                    _debugInfo = $"WARNING: Player in zone ({playerZone.X},{playerZone.Y}) but server handles ({serverZone.X},{serverZone.Y}) at {transitionDelay}";
                 }
                 else
                 {
