@@ -81,7 +81,8 @@ public enum EnemySubType
 [Orleans.GenerateSerializer]
 public record WorldState(
     [property: JsonPropertyName("entities")] List<EntityState> Entities,
-    [property: JsonPropertyName("timestamp")] DateTime Timestamp);
+    [property: JsonPropertyName("timestamp")] DateTime Timestamp,
+    [property: JsonPropertyName("sequenceNumber")] long SequenceNumber = 0);
 
 [Orleans.GenerateSerializer]
 public record PlayerTransferInfo(

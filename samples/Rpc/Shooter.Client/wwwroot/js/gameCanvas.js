@@ -1,28 +1,20 @@
-// Triple canvas rendering context wrapper that rotates between three canvases for reduced flicker
-class TripleCanvasContext {
-    constructor(canvasA, canvasB, canvasC, dotNetRef) {
-        this.canvases = [canvasA, canvasB, canvasC];
-        this.contexts = [
-            canvasA.getContext('2d'),
-            canvasB.getContext('2d'),
-            canvasC.getContext('2d')
-        ];
+// Double buffered canvas rendering context for smooth animation
+class DoubleBufferedCanvasContext {
+    constructor(visibleCanvas, bufferCanvas, dotNetRef) {
+        this.visibleCanvas = visibleCanvas;
+        this.bufferCanvas = bufferCanvas;
+        this.visibleCtx = visibleCanvas.getContext('2d');
+        this.bufferCtx = bufferCanvas.getContext('2d');
         this.dotNetRef = dotNetRef;
         
-        // Initialize buffer indices
-        this.displayIndex = 0;  // Currently displayed canvas
-        this.drawIndex = 1;     // Canvas being drawn to
-        this.readyIndex = 2;    // Canvas ready to be displayed
-        
-        // Start with first canvas visible, others hidden
-        this.canvases[0].style.display = 'block';
-        this.canvases[1].style.display = 'none';
-        this.canvases[2].style.display = 'none';
+        // Current drawing context (always the buffer)
+        this.currentCtx = this.bufferCtx;
+        this.currentCanvas = this.bufferCanvas;
         
         this.explosionParticles = [];
         
-        // Add mouse listeners to all canvases
-        this.canvases.forEach(canvas => this.addMouseListeners(canvas));
+        // Add mouse listeners to visible canvas only
+        this.addMouseListeners(this.visibleCanvas);
     }
     
     addMouseListeners(canvas) {
@@ -58,33 +50,13 @@ class TripleCanvasContext {
         });
     }
     
-    // Start a new frame - prepare the draw buffer
-    beginFrame() {
-        // Get the current drawing context
-        this.currentCtx = this.contexts[this.drawIndex];
-        this.currentCanvas = this.canvases[this.drawIndex];
+    // Flip buffers - copy buffer to visible canvas
+    flipBuffers() {
+        // Copy entire buffer to visible canvas in one operation
+        this.visibleCtx.drawImage(this.bufferCanvas, 0, 0);
         
-        // Clear the draw buffer
-        this.currentCtx.clearRect(0, 0, this.currentCanvas.width, this.currentCanvas.height);
-    }
-    
-    // End frame - rotate buffers
-    endFrame() {
-        // The draw buffer becomes ready
-        const oldReadyIndex = this.readyIndex;
-        this.readyIndex = this.drawIndex;
-        
-        // The ready buffer becomes displayed
-        const oldDisplayIndex = this.displayIndex;
-        this.displayIndex = oldReadyIndex;
-        
-        // The old display buffer becomes the new draw buffer
-        this.drawIndex = oldDisplayIndex;
-        
-        // Update visibility - only the display buffer is visible
-        this.canvases.forEach((canvas, index) => {
-            canvas.style.display = index === this.displayIndex ? 'block' : 'none';
-        });
+        // Clear buffer for next frame
+        this.bufferCtx.clearRect(0, 0, this.bufferCanvas.width, this.bufferCanvas.height);
     }
     
     clearCanvas(width, height, cameraOffset = { x: 0, y: 0 }) {
@@ -399,21 +371,58 @@ function initCanvas(canvas) {
 }
 
 function initDualCanvas(canvasA, canvasB, dotNetRef) {
-    // For backward compatibility - create a triple canvas with only two canvases
-    // Third canvas will be created dynamically
-    const canvasC = canvasA.cloneNode(false);
-    canvasC.style.display = 'none';
-    canvasA.parentNode.appendChild(canvasC);
-    return new TripleCanvasContext(canvasA, canvasB, canvasC, dotNetRef);
+    // For backward compatibility - use double buffering
+    return new DoubleBufferedCanvasContext(canvasA, canvasB, dotNetRef);
 }
 
 // Make functions available globally
 window.initCanvas = initCanvas;
 window.initDualCanvas = initDualCanvas;
 
-function initTripleCanvas(canvasA, canvasB, canvasC, dotNetRef) {
-    return new TripleCanvasContext(canvasA, canvasB, canvasC, dotNetRef);
+function initDoubleBufferedCanvas(visibleCanvas, bufferCanvas, dotNetRef) {
+    return new DoubleBufferedCanvasContext(visibleCanvas, bufferCanvas, dotNetRef);
 }
 
 // Make it available globally
-window.initTripleCanvas = initTripleCanvas;
+window.initDoubleBufferedCanvas = initDoubleBufferedCanvas;
+
+// Helper for requestAnimationFrame callback
+window.requestAnimationFrame = window.requestAnimationFrame || 
+    window.webkitRequestAnimationFrame || 
+    window.mozRequestAnimationFrame || 
+    function(callback) { return setTimeout(callback, 16); };
+
+// Animation loop helper for Blazor
+window.startCanvasAnimationLoop = function(canvasContext, dotNetRef) {
+    let animationId = null;
+    let isRunning = true;
+    
+    async function animate() {
+        if (!isRunning) return;
+        
+        try {
+            // Tell Blazor to render a frame
+            await dotNetRef.invokeMethodAsync('OnAnimationFrame');
+            // Flip the buffers
+            canvasContext.flipBuffers();
+        } catch (error) {
+            console.error('Animation frame error:', error);
+        }
+        
+        // Schedule next frame
+        animationId = requestAnimationFrame(animate);
+    }
+    
+    // Start the loop
+    animate();
+    
+    // Return a handle to stop the animation
+    return {
+        stop: function() {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        }
+    };
+};

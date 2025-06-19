@@ -5,6 +5,8 @@
 @inject ForkleansRpcGameClientService RpcGameClient
 @inject NavigationManager Navigation
 @inject ILogger<GamePhaser> Logger
+@inject HttpClient Http
+@inject IConfiguration Configuration
 @implements IDisposable
 @implements IAsyncDisposable
 
@@ -27,10 +29,10 @@
 
 @code {
     private DotNetObjectReference<GamePhaser>? _dotNetRef;
-    private IJSObjectReference? _gameModule;
     private string? _error;
     private bool _isInitialized = false;
     private System.Timers.Timer? _updateTimer;
+    private Dictionary<string, GridSquare> _serverZoneMap = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -58,6 +60,9 @@
                 RpcGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
                 
                 _isInitialized = true;
+                
+                // Fetch server zone mappings
+                await FetchServerZoneMappings();
                 
                 // Start update timer for server info
                 _updateTimer = new System.Timers.Timer(1000);
@@ -116,7 +121,9 @@
             {
                 try
                 {
-                    await JS.InvokeVoidAsync("gamePhaser.updateServerInfo", RpcGameClient.CurrentServerId);
+                    // Get server zone from parent component if available
+                    var serverZone = GetServerZone();
+                    await JS.InvokeVoidAsync("gamePhaser.updateServerInfo", RpcGameClient.CurrentServerId, serverZone);
                 }
                 catch { }
             });
@@ -169,6 +176,39 @@
         _dotNetRef?.Dispose();
     }
 
+    private GridSquare? GetServerZone()
+    {
+        var serverId = RpcGameClient.CurrentServerId;
+        if (serverId != null && _serverZoneMap.TryGetValue(serverId, out var zone))
+        {
+            return zone;
+        }
+        return null;
+    }
+    
+    private async Task FetchServerZoneMappings()
+    {
+        try
+        {
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            var response = await Http.GetFromJsonAsync<List<Shooter.Shared.Models.ActionServerInfo>>($"{siloUrl}api/world/action-servers");
+            if (response != null)
+            {
+                _serverZoneMap.Clear();
+                foreach (var server in response)
+                {
+                    _serverZoneMap[server.ServerId] = server.AssignedSquare;
+                }
+                Logger.LogInformation("Fetched {Count} server zone mappings", _serverZoneMap.Count);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to fetch server zone mappings");
+        }
+    }
+    
     public void Dispose()
     {
         _updateTimer?.Dispose();

@@ -98,7 +98,8 @@ public class GameService : IGameService, IHostedService
                     var playerInfo = _simulation.GetPlayerInfo(playerId);
                     if (playerInfo != null)
                     {
-                        _logger.LogInformation("Player {PlayerId} at position {Position} is outside zone, initiating transfer", 
+                        var transferStart = DateTime.UtcNow;
+                        _logger.LogInformation("[ZONE_TRANSITION_SERVER] Player {PlayerId} at position {Position} is outside zone, initiating transfer", 
                             playerId, playerInfo.Position);
                         
                         // Check the player's zone again to ensure they're still outside
@@ -113,10 +114,13 @@ public class GameService : IGameService, IHostedService
                         }
                         
                         // Initiate transfer with WorldManager - it will update the position internally
+                        var grainStart = DateTime.UtcNow;
                         var transferInfo = await worldManager.InitiatePlayerTransfer(playerId, playerInfo.Position);
+                        var grainDuration = (DateTime.UtcNow - grainStart).TotalMilliseconds;
+                        _logger.LogInformation("[ZONE_TRANSITION_SERVER] InitiatePlayerTransfer grain call took {Duration}ms", grainDuration);
                         if (transferInfo?.NewServer != null)
                         {
-                            _logger.LogInformation("Transferring player {PlayerId} from position {Position} to server {ServerId} for zone {Zone}", 
+                            _logger.LogInformation("[ZONE_TRANSITION_SERVER] Transferring player {PlayerId} from position {Position} to server {ServerId} for zone {Zone}", 
                                 playerId, playerInfo.Position, transferInfo.NewServer.ServerId, transferInfo.NewServer.AssignedSquare);
                             
                             // Try to transfer player to the new server
@@ -128,7 +132,9 @@ public class GameService : IGameService, IHostedService
                                 var transferred = await TransferEntityToServer(transferInfo.NewServer, playerEntity);
                                 if (transferred)
                                 {
-                                    _logger.LogInformation("Successfully transferred player {PlayerId} to new server", playerId);
+                                    var totalDuration = (DateTime.UtcNow - transferStart).TotalMilliseconds;
+                                    _logger.LogInformation("[ZONE_TRANSITION_SERVER] Successfully transferred player {PlayerId} to new server, total duration: {Duration}ms", 
+                                        playerId, totalDuration);
                                     // Remove player from current simulation
                                     _simulation.RemovePlayer(playerId);
                                 }

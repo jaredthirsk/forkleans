@@ -8,9 +8,8 @@
 
 <div class="game-canvas-container">
     <div class="canvas-wrapper">
-        <canvas @ref="canvasElementA" width="@Width" height="@Height" class="game-canvas"></canvas>
-        <canvas @ref="canvasElementB" width="@Width" height="@Height" class="game-canvas" style="display: none;"></canvas>
-        <canvas @ref="canvasElementC" width="@Width" height="@Height" class="game-canvas" style="display: none;"></canvas>
+        <canvas @ref="canvasElementVisible" width="@Width" height="@Height" class="game-canvas"></canvas>
+        <canvas @ref="canvasElementBuffer" width="@Width" height="@Height" class="game-canvas" style="display: none;"></canvas>
         <div class="game-info">
             <div class="zone-info">Current Zone: @currentZone</div>
             <div class="server-info">Server: @currentServer</div>
@@ -77,11 +76,11 @@
     [Parameter] public EventCallback<(float x, float y)> OnMouseRightClick { get; set; }
     [Parameter] public EventCallback OnMouseRelease { get; set; }
     
-    private ElementReference canvasElementA;
-    private ElementReference canvasElementB;
-    private ElementReference canvasElementC;
+    private ElementReference canvasElementVisible;
+    private ElementReference canvasElementBuffer;
     private IJSObjectReference? canvasContext;
-    private System.Timers.Timer? renderTimer;
+    private IJSObjectReference? animationLoop;
+    private DotNetObjectReference<GameCanvas>? _dotNetRef;
     private string currentZone = "Unknown";
     private string currentServer = "Unknown";
     private string playerDebugInfo = "Not found";
@@ -94,17 +93,13 @@
         {
             try
             {
-                canvasContext = await JS.InvokeAsync<IJSObjectReference>("initTripleCanvas", canvasElementA, canvasElementB, canvasElementC, DotNetObjectReference.Create(this));
+                _dotNetRef = DotNetObjectReference.Create(this);
+                canvasContext = await JS.InvokeAsync<IJSObjectReference>("initDoubleBufferedCanvas", 
+                    canvasElementVisible, canvasElementBuffer, _dotNetRef);
                 
-                // renderTimer = new System.Timers.Timer(33); // ~30 FPS
-                renderTimer = new System.Timers.Timer(50); // 20 FPS
-                renderTimer.Elapsed += async (s, e) => {
-                    if (!_disposed)
-                    {
-                        await RenderFrame();
-                    }
-                };
-                renderTimer.Start();
+                // Start the animation loop using requestAnimationFrame
+                animationLoop = await JS.InvokeAsync<IJSObjectReference>("startCanvasAnimationLoop", 
+                    canvasContext, _dotNetRef);
             }
             catch (Exception ex)
             {
@@ -122,9 +117,6 @@
         
         try
         {
-            // Start a new frame
-            await canvasContext.InvokeVoidAsync("beginFrame");
-            
             // Find player position for camera centering
             var player = WorldState.Entities.FirstOrDefault(e => e.EntityId == PlayerId);
             var cameraPos = player?.Position ?? Vector2.Zero;
@@ -179,8 +171,7 @@
                 }
             }
             
-            // End frame and flip buffers
-            await canvasContext.InvokeVoidAsync("endFrame");
+            // Note: Buffer flipping is now handled by the JavaScript animation loop
             
             // Update zone info
             if (player != null)
@@ -281,12 +272,30 @@
         await OnMouseRelease.InvokeAsync();
     }
     
+    [JSInvokable]
+    public async Task OnAnimationFrame()
+    {
+        if (!_disposed && canvasContext != null)
+        {
+            try
+            {
+                await RenderFrame();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Component was disposed
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error rendering frame");
+            }
+        }
+    }
+    
     public void Dispose()
     {
         _disposed = true;
         _cancellationTokenSource?.Cancel();
-        renderTimer?.Stop();
-        renderTimer?.Dispose();
         _cancellationTokenSource?.Dispose();
     }
     
@@ -295,10 +304,17 @@
         _disposed = true;
         _cancellationTokenSource?.Cancel();
         
-        if (renderTimer != null)
+        if (animationLoop != null)
         {
-            renderTimer.Stop();
-            renderTimer.Dispose();
+            try
+            {
+                await animationLoop.InvokeVoidAsync("stop");
+                await animationLoop.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // Circuit was disconnected, ignore
+            }
         }
         
         if (canvasContext != null)
@@ -313,6 +329,7 @@
             }
         }
         
+        _dotNetRef?.Dispose();
         _cancellationTokenSource?.Dispose();
     }
 }

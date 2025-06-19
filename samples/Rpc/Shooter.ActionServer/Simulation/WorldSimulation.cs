@@ -19,6 +19,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private int _nextEntityId = 1;
     private HashSet<GridSquare> _availableZones = new();
     private DateTime _lastZoneCheck = DateTime.MinValue;
+    private long _sequenceNumber = 0;
 
     public WorldSimulation(ILogger<WorldSimulation> logger, Orleans.IClusterClient orleansClient)
     {
@@ -220,7 +221,9 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 entityCounts.GetValueOrDefault(EntityType.Explosion, 0));
         }
             
-        return new WorldState(entities, DateTime.UtcNow);
+        // Increment sequence number for each state update
+        var sequenceNumber = Interlocked.Increment(ref _sequenceNumber);
+        return new WorldState(entities, DateTime.UtcNow, sequenceNumber);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

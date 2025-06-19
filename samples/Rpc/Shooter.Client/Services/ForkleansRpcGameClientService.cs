@@ -28,6 +28,9 @@ public class ForkleansRpcGameClientService : IDisposable
     private CancellationTokenSource? _cancellationTokenSource;
     private bool _isTransitioning = false;
     private DateTime _lastZoneBoundaryCheck = DateTime.MinValue;
+    private long _lastSequenceNumber = -1;
+    private DateTime _transitionStartTime;
+    private bool _isTrackingTransition = false;
     
     public event Action<WorldState>? WorldStateUpdated;
     public event Action<string>? ServerChanged;
@@ -59,6 +62,11 @@ public class ForkleansRpcGameClientService : IDisposable
             
             PlayerId = registrationResponse.PlayerInfo?.PlayerId ?? string.Empty;
             CurrentServerId = registrationResponse.ActionServer?.ServerId ?? "Unknown";
+            
+            _logger.LogInformation("Player registered with ID {PlayerId} on server {ServerId} in zone ({X}, {Y})", 
+                PlayerId, CurrentServerId, 
+                registrationResponse.ActionServer?.AssignedSquare.X ?? -1, 
+                registrationResponse.ActionServer?.AssignedSquare.Y ?? -1);
             
             if (registrationResponse.ActionServer == null)
             {
@@ -255,8 +263,18 @@ public class ForkleansRpcGameClientService : IDisposable
             var worldState = await _gameGrain.GetWorldState();
             if (worldState != null)
             {
+                // Check sequence number to discard out-of-order updates
+                if (worldState.SequenceNumber <= _lastSequenceNumber)
+                {
+                    _logger.LogDebug("Discarding out-of-order world state (seq: {Current} <= {Last})", 
+                        worldState.SequenceNumber, _lastSequenceNumber);
+                    return;
+                }
+                _lastSequenceNumber = worldState.SequenceNumber;
+                
                 var entityCount = worldState.Entities?.Count ?? 0;
-                _logger.LogDebug("Received world state with {Count} entities", entityCount);
+                _logger.LogTrace("Received world state with {Count} entities (seq: {Sequence})", 
+                    entityCount, worldState.SequenceNumber);
                 
                 // Log entity breakdown
                 if (entityCount > 0 && worldState.Entities != null)
@@ -386,13 +404,15 @@ public class ForkleansRpcGameClientService : IDisposable
             _logger.LogTrace("Checking for server transition for player {PlayerId}", PlayerId);
             
             // Query the Orleans silo for the correct server
-            var response = await _httpClient.GetFromJsonAsync<ActionServerInfo>(
+            var response = await _httpClient.GetFromJsonAsync<Shooter.Shared.Models.ActionServerInfo>(
                 $"api/world/players/{PlayerId}/server");
                 
             if (response != null && response.ServerId != CurrentServerId)
             {
-                _logger.LogInformation("Player {PlayerId} needs to transition from server {OldServer} to {NewServer}", 
-                    PlayerId, CurrentServerId, response.ServerId);
+                _logger.LogInformation("[ZONE_TRANSITION] Player {PlayerId} needs to transition from server {OldServer} to {NewServer} for zone ({ZoneX},{ZoneY})", 
+                    PlayerId, CurrentServerId, response.ServerId, response.AssignedSquare.X, response.AssignedSquare.Y);
+                
+                var cleanupStart = DateTime.UtcNow;
                 
                 // Stop timers before disconnecting
                 _worldStateTimer?.Dispose();
@@ -405,8 +425,14 @@ public class ForkleansRpcGameClientService : IDisposable
                 // Disconnect from current server
                 Cleanup();
                 
+                var cleanupDuration = (DateTime.UtcNow - cleanupStart).TotalMilliseconds;
+                _logger.LogInformation("[ZONE_TRANSITION] Cleanup took {Duration}ms", cleanupDuration);
+                
                 // Reconnect to new server
+                var connectStart = DateTime.UtcNow;
                 await ConnectToActionServer(response);
+                var connectDuration = (DateTime.UtcNow - connectStart).TotalMilliseconds;
+                _logger.LogInformation("[ZONE_TRANSITION] ConnectToActionServer took {Duration}ms", connectDuration);
             }
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -423,7 +449,7 @@ public class ForkleansRpcGameClientService : IDisposable
         }
     }
     
-    private async Task ConnectToActionServer(ActionServerInfo serverInfo)
+    private async Task ConnectToActionServer(Shooter.Shared.Models.ActionServerInfo serverInfo)
     {
         CurrentServerId = serverInfo.ServerId;
         
@@ -534,6 +560,9 @@ public class ForkleansRpcGameClientService : IDisposable
         _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5));
         _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2));
         
+        // Reset sequence number for new server
+        _lastSequenceNumber = -1;
+        
         // Notify about server change
         ServerChanged?.Invoke(CurrentServerId);
         
@@ -543,6 +572,7 @@ public class ForkleansRpcGameClientService : IDisposable
     private void Cleanup()
     {
         IsConnected = false;
+        _lastSequenceNumber = -1;
         
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
@@ -585,8 +615,6 @@ public class ForkleansRpcGameClientService : IDisposable
     }
 }
 
-// Response types from Silo HTTP endpoints
-public record PlayerRegistrationResponse(PlayerInfo PlayerInfo, ActionServerInfo ActionServer);
-public record PlayerInfo(string PlayerId, string Name, Vector2 Position);
-public record ActionServerInfo(string ServerId, string IpAddress, int UdpPort, string HttpEndpoint, int RpcPort, GridSquare AssignedSquare);
+// Response types from Silo HTTP endpoints - using models from Shooter.Shared
+public record PlayerRegistrationResponse(Shooter.Shared.Models.PlayerInfo PlayerInfo, Shooter.Shared.Models.ActionServerInfo ActionServer);
 

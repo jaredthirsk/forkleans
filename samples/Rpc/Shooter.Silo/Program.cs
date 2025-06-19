@@ -14,6 +14,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 
+// Add CORS to allow client to call API
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 // Configure Orleans
 builder.Host.UseOrleans(siloBuilder =>
 {
@@ -46,6 +57,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors(); // Enable CORS
 app.UseAuthorization();
 app.MapControllers();
 

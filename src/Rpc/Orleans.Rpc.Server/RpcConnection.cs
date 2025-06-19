@@ -350,7 +350,6 @@ namespace Forkleans.Rpc
 
             // For now, use JSON serialization for results
             var json = System.Text.Json.JsonSerializer.Serialize(result);
-            _logger.LogInformation("Serializing result of type {Type} to JSON: {Json}", result.GetType().Name, json);
             return System.Text.Encoding.UTF8.GetBytes(json);
         }
 

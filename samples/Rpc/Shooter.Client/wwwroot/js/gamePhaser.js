@@ -10,6 +10,8 @@ class GamePhaser {
         this.availableZones = [];
         this.currentZone = null;
         this.currentServer = null;
+        this.serverZone = null;
+        this.playerZone = null;
     }
 
     init(dotNetReference, containerId, playerId) {
@@ -51,6 +53,7 @@ class GamePhaser {
     }
     
     createPlayerSprite() {
+        console.log('Creating player sprite texture');
         const graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
         // Player - bright green circle with direction indicator
         const size = 15;
@@ -72,9 +75,12 @@ class GamePhaser {
         
         graphics.generateTexture('player', size * 2, size * 2);
         graphics.destroy();
+        console.log('Player texture created');
     }
     
     createEnemySprites() {
+        console.log('Creating enemy sprite textures');
+        
         // Kamikaze - small red triangle (aggressive shape)
         let graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
         const kamSize = 10;
@@ -92,6 +98,7 @@ class GamePhaser {
         
         graphics.generateTexture('enemy-kamikaze', kamSize * 2, kamSize * 2);
         graphics.destroy();
+        console.log('Kamikaze texture created');
         
         // Sniper - green square with crosshair
         graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
@@ -353,17 +360,26 @@ class GamePhaser {
             if (!sprite) {
                 // Create new sprite
                 const spriteKey = this.getSpriteKey(entity);
+                console.log(`Creating sprite with key '${spriteKey}' for entity type ${entity.type}, subType ${entity.subType}`);
+                
+                // Check if texture exists
+                if (!this.scene.textures.exists(spriteKey)) {
+                    console.error(`Texture '${spriteKey}' does not exist! Available textures:`, this.scene.textures.list);
+                    // Fallback to creating a simple colored sprite
+                    this.createColoredSprite(spriteKey, this.getEntityColor(entity), 20, 20);
+                }
+                
                 sprite = this.scene.add.sprite(entity.position.x, entity.position.y, spriteKey);
                 sprite.setOrigin(0.5, 0.5);
                 this.sprites.set(entity.entityId, sprite);
                 
                 console.log(`Created sprite for ${this.getEntityTypeName(entity.type)} at (${entity.position.x}, ${entity.position.y})`);
                 
-                // Add glow effect for player
-                if (entity.type === 0 && entity.entityId === this.playerId) {
-                    sprite.setTint(0x00ff00);
-                    // Make camera follow the player
+                // Make camera follow the player
+                const entityType = typeof entity.type === 'string' ? this.parseEntityType(entity.type) : entity.type;
+                if (entityType === 0 && entity.entityId === this.playerId) {
                     this.scene.cameras.main.startFollow(sprite, true, 0.1, 0.1);
+                    console.log('Camera now following player sprite');
                 }
             }
 
@@ -387,10 +403,17 @@ class GamePhaser {
             // Update player info
             if (entity.entityId === this.playerId) {
                 const zone = this.getGridSquare(entity.position.x, entity.position.y);
+                this.playerZone = zone;
                 this.currentZone = `${zone.x}, ${zone.y}`;
                 
                 const playerInfo = `Player: ${entity.entityId.substring(0, 8)}... Health: ${Math.round(entity.health)}`;
                 this.playerText.setText(playerInfo);
+                
+                // Ensure camera is following player sprite
+                if (!this.scene.cameras.main.target && sprite) {
+                    this.scene.cameras.main.startFollow(sprite, true, 0.1, 0.1);
+                    console.log('Re-establishing camera follow on player');
+                }
             }
         }
 
@@ -404,7 +427,13 @@ class GamePhaser {
     }
 
     getSpriteKey(entity) {
-        switch (entity.type) {
+        // Log the actual values to debug
+        console.log(`getSpriteKey: type=${entity.type}, subType=${entity.subType}, typeString=${typeof entity.type}`);
+        
+        // Check if type is a string and needs conversion
+        const entityType = typeof entity.type === 'string' ? this.parseEntityType(entity.type) : entity.type;
+        
+        switch (entityType) {
             case 0: // Player
                 return 'player';
             case 1: // Enemy
@@ -419,11 +448,26 @@ class GamePhaser {
             case 3: // Explosion
                 return entity.subType === 1 ? 'explosion-small' : 'explosion';
             default:
+                console.warn(`Unknown entity type: ${entityType}`);
                 return 'player';
         }
     }
+    
+    parseEntityType(typeString) {
+        // Handle string enum values
+        const typeMap = {
+            'Player': 0,
+            'Enemy': 1,
+            'Bullet': 2,
+            'Explosion': 3
+        };
+        return typeMap[typeString] ?? 0;
+    }
 
     getEntityTypeName(type) {
+        // Handle both string and numeric types
+        if (typeof type === 'string') return type;
+        
         switch (type) {
             case 0: return 'Player';
             case 1: return 'Enemy';
@@ -431,6 +475,21 @@ class GamePhaser {
             case 3: return 'Explosion';
             default: return 'Unknown';
         }
+    }
+    
+    getEntityColor(entity) {
+        if (entity.type === 0) return 0x00ff00; // Player - green
+        if (entity.type === 1) { // Enemy
+            switch (entity.subType) {
+                case 1: return 0xff4444; // Kamikaze - red
+                case 2: return 0x44ff44; // Sniper - light green
+                case 3: return 0xffaa44; // Strafing - orange
+                default: return 0xff0000;
+            }
+        }
+        if (entity.type === 2) return entity.subType === 1 ? 0xff00ff : 0xffff00; // Bullets
+        if (entity.type === 3) return 0xff8800; // Explosions
+        return 0xffffff; // Default white
     }
 
     drawGrid() {
@@ -445,27 +504,92 @@ class GamePhaser {
             bottom: cam.worldView.y + cam.worldView.height
         };
         
-        // Draw zone boundaries (1000x1000 unit zones)
-        this.gridGraphics.lineStyle(3, 0x00ff00, 0.8);
+        //console.log('Camera worldView:', worldView);
         
         // Calculate which zones are visible
-        const startZoneX = Math.floor(worldView.left / 1000);
-        const endZoneX = Math.ceil(worldView.right / 1000);
-        const startZoneY = Math.floor(worldView.top / 1000);
-        const endZoneY = Math.ceil(worldView.bottom / 1000);
+        const startZoneX = Math.floor(worldView.left / 500);
+        const endZoneX = Math.ceil(worldView.right / 500);
+        const startZoneY = Math.floor(worldView.top / 500);
+        const endZoneY = Math.ceil(worldView.bottom / 500);
+        
+        // Determine if player is in the correct zone
+        const isPlayerInCorrectZone = this.serverZone && this.playerZone && 
+            this.serverZone.x === this.playerZone.x && this.serverZone.y === this.playerZone.y;
+        
+        // First, draw all zone boundaries with a consistent color
+        this.gridGraphics.lineStyle(2, 0x666666, 1.0);
         
         // Draw vertical zone boundaries
         for (let zx = startZoneX; zx <= endZoneX; zx++) {
-            const x = zx * 1000;
-            this.gridGraphics.moveTo(x, worldView.top);
-            this.gridGraphics.lineTo(x, worldView.bottom);
+            const x = zx * 500;
+            this.gridGraphics.lineBetween(x, worldView.top, x, worldView.bottom);
         }
         
         // Draw horizontal zone boundaries
         for (let zy = startZoneY; zy <= endZoneY; zy++) {
-            const y = zy * 1000;
-            this.gridGraphics.moveTo(worldView.left, y);
-            this.gridGraphics.lineTo(worldView.right, y);
+            const y = zy * 500;
+            this.gridGraphics.lineBetween(worldView.left, y, worldView.right, y);
+        }
+        
+        // Now draw colored hollow boxes around each zone
+        for (let zx = startZoneX; zx <= endZoneX; zx++) {
+            for (let zy = startZoneY; zy <= endZoneY; zy++) {
+                const x = zx * 500;
+                const y = zy * 500;
+                const zoneSize = 500;
+                const borderWidth = 20; // Width of the hollow box border
+                
+                const isServerZone = this.serverZone && this.serverZone.x === zx && this.serverZone.y === zy;
+                
+                let boxColor;
+                if (isServerZone) {
+                    // Current server's zone
+                    if (!isPlayerInCorrectZone && this.playerZone) {
+                        // Player is not in the correct zone - use red
+                        boxColor = 0x990000; // #900
+                    } else {
+                        // Normal server zone - light gray
+                        boxColor = 0x999999; // #999
+                    }
+                } else {
+                    // Other zones - darker gray
+                    boxColor = 0x555555; // #555
+                }
+                
+                this.gridGraphics.fillStyle(boxColor, 0.3);
+                
+                // Draw top rectangle
+                const topX = Math.max(x, worldView.left);
+                const topY = Math.max(y, worldView.top);
+                const topWidth = Math.min(x + zoneSize, worldView.right) - topX;
+                const topHeight = Math.min(borderWidth, Math.min(y + zoneSize, worldView.bottom) - topY);
+                if (topWidth > 0 && topHeight > 0) {
+                    this.gridGraphics.fillRect(topX, topY, topWidth, topHeight);
+                }
+                
+                // Draw bottom rectangle
+                const bottomY = Math.max(y + zoneSize - borderWidth, worldView.top);
+                const bottomHeight = Math.min(y + zoneSize, worldView.bottom) - bottomY;
+                if (topWidth > 0 && bottomHeight > 0 && bottomY < worldView.bottom) {
+                    this.gridGraphics.fillRect(topX, bottomY, topWidth, bottomHeight);
+                }
+                
+                // Draw left rectangle (full height minus corners to avoid overlap)
+                const leftX = Math.max(x, worldView.left);
+                const leftY = Math.max(y + borderWidth, worldView.top);
+                const leftWidth = Math.min(borderWidth, Math.min(x + zoneSize, worldView.right) - leftX);
+                const leftHeight = Math.min(y + zoneSize - borderWidth, worldView.bottom) - leftY;
+                if (leftWidth > 0 && leftHeight > 0) {
+                    this.gridGraphics.fillRect(leftX, leftY, leftWidth, leftHeight);
+                }
+                
+                // Draw right rectangle (full height minus corners to avoid overlap)
+                const rightX = Math.max(x + zoneSize - borderWidth, worldView.left);
+                const rightWidth = Math.min(x + zoneSize, worldView.right) - rightX;
+                if (rightWidth > 0 && leftHeight > 0 && rightX < worldView.right) {
+                    this.gridGraphics.fillRect(rightX, leftY, rightWidth, leftHeight);
+                }
+            }
         }
         
         // Draw finer grid lines (100 unit spacing)
@@ -475,9 +599,8 @@ class GamePhaser {
         const startX = Math.floor(worldView.left / 100) * 100;
         const endX = Math.ceil(worldView.right / 100) * 100;
         for (let x = startX; x <= endX; x += 100) {
-            if (x % 1000 !== 0) { // Skip zone boundaries
-                this.gridGraphics.moveTo(x, worldView.top);
-                this.gridGraphics.lineTo(x, worldView.bottom);
+            if (x % 500 !== 0) { // Skip zone boundaries
+                this.gridGraphics.lineBetween(x, worldView.top, x, worldView.bottom);
             }
         }
         
@@ -485,9 +608,8 @@ class GamePhaser {
         const startY = Math.floor(worldView.top / 100) * 100;
         const endY = Math.ceil(worldView.bottom / 100) * 100;
         for (let y = startY; y <= endY; y += 100) {
-            if (y % 1000 !== 0) { // Skip zone boundaries
-                this.gridGraphics.moveTo(worldView.left, y);
-                this.gridGraphics.lineTo(worldView.right, y);
+            if (y % 500 !== 0) { // Skip zone boundaries
+                this.gridGraphics.lineBetween(worldView.left, y, worldView.right, y);
             }
         }
         
@@ -503,27 +625,21 @@ class GamePhaser {
                 for (let zy = startZoneY; zy <= endZoneY; zy++) {
                     if (!availableSet.has(`${zx},${zy}`)) {
                         // This zone is not available, gray it out
-                        const x = zx * 1000;
-                        const y = zy * 1000;
-                        this.gridGraphics.fillRect(x, y, 1000, 1000);
+                        const x = zx * 500;
+                        const y = zy * 500;
+                        this.gridGraphics.fillRect(x, y, 500, 500);
                     }
                 }
             }
             
-            // Draw a border around available zones
-            this.gridGraphics.lineStyle(2, 0x00ff00, 0.6);
-            for (const zone of this.availableZones) {
-                const x = zone.x * 1000;
-                const y = zone.y * 1000;
-                this.gridGraphics.strokeRect(x, y, 1000, 1000);
-            }
+            // Note: Zone borders are now drawn with custom colors in the main zone drawing loop above
         }
     }
 
     getGridSquare(x, y) {
         return {
-            x: Math.floor(x / 1000),
-            y: Math.floor(y / 1000)
+            x: Math.floor(x / 500),
+            y: Math.floor(y / 500)
         };
     }
 
@@ -536,9 +652,13 @@ class GamePhaser {
         }
     }
 
-    updateServerInfo(serverId) {
+    updateServerInfo(serverId, serverZone) {
         this.currentServer = serverId;
+        this.serverZone = serverZone;
         this.serverText.setText(`Server: ${serverId || 'Unknown'}`);
+        
+        // Redraw grid with new server zone info
+        this.drawGrid();
     }
 
     handleLeftClick(x, y) {
