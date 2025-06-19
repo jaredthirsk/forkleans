@@ -94,8 +94,7 @@
         {
             try
             {
-                var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/gameCanvas.js");
-                canvasContext = await module.InvokeAsync<IJSObjectReference>("initTripleCanvas", canvasElementA, canvasElementB, canvasElementC, DotNetObjectReference.Create(this));
+                canvasContext = await JS.InvokeAsync<IJSObjectReference>("initTripleCanvas", canvasElementA, canvasElementB, canvasElementC, DotNetObjectReference.Create(this));
                 
                 // renderTimer = new System.Timers.Timer(33); // ~30 FPS
                 renderTimer = new System.Timers.Timer(50); // 20 FPS

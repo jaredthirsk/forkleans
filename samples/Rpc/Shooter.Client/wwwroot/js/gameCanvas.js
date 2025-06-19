@@ -392,13 +392,13 @@ class TripleCanvasContext {
     }
 }
 
-// ES6 Module exports for the canvas component
-export function initCanvas(canvas) {
+// Canvas initialization functions
+function initCanvas(canvas) {
     // Legacy single canvas support
     return new CanvasContext(canvas);
 }
 
-export function initDualCanvas(canvasA, canvasB, dotNetRef) {
+function initDualCanvas(canvasA, canvasB, dotNetRef) {
     // For backward compatibility - create a triple canvas with only two canvases
     // Third canvas will be created dynamically
     const canvasC = canvasA.cloneNode(false);
@@ -407,6 +407,13 @@ export function initDualCanvas(canvasA, canvasB, dotNetRef) {
     return new TripleCanvasContext(canvasA, canvasB, canvasC, dotNetRef);
 }
 
-export function initTripleCanvas(canvasA, canvasB, canvasC, dotNetRef) {
+// Make functions available globally
+window.initCanvas = initCanvas;
+window.initDualCanvas = initDualCanvas;
+
+function initTripleCanvas(canvasA, canvasB, canvasC, dotNetRef) {
     return new TripleCanvasContext(canvasA, canvasB, canvasC, dotNetRef);
 }
+
+// Make it available globally
+window.initTripleCanvas = initTripleCanvas;

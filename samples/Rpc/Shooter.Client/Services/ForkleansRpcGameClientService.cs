@@ -427,6 +427,9 @@ public class ForkleansRpcGameClientService : IDisposable
     {
         CurrentServerId = serverInfo.ServerId;
         
+        // Create new cancellation token source for the new connection
+        _cancellationTokenSource = new CancellationTokenSource();
+        
         // Extract host and RPC port
         var serverHost = serverInfo.IpAddress;
         var rpcPort = serverInfo.RpcPort;
@@ -500,7 +503,9 @@ public class ForkleansRpcGameClientService : IDisposable
         }
         
         // Reconnect player
+        _logger.LogInformation("Calling ConnectPlayer for {PlayerId} on new server", PlayerId);
         var result = await _gameGrain.ConnectPlayer(PlayerId!);
+        _logger.LogInformation("ConnectPlayer returned: {Result}", result);
         
         if (result != "SUCCESS")
         {
@@ -510,10 +515,24 @@ public class ForkleansRpcGameClientService : IDisposable
         
         IsConnected = true;
         
+        // Test the connection with a simple call before starting timers
+        try
+        {
+            _logger.LogInformation("Testing connection with GetWorldState call");
+            var testState = await _gameGrain.GetWorldState();
+            _logger.LogInformation("Test GetWorldState succeeded, got {Count} entities", testState?.Entities?.Count ?? 0);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Test GetWorldState failed after reconnection");
+            IsConnected = false;
+            return;
+        }
+        
         // Restart timers
-        _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(16));
-        _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
-        _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
+        _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(16));
+        _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5));
+        _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2));
         
         // Notify about server change
         ServerChanged?.Invoke(CurrentServerId);
@@ -526,6 +545,9 @@ public class ForkleansRpcGameClientService : IDisposable
         IsConnected = false;
         
         _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource?.Dispose();
+        _cancellationTokenSource = null;
+        
         _worldStateTimer?.Dispose();
         _heartbeatTimer?.Dispose();
         _availableZonesTimer?.Dispose();

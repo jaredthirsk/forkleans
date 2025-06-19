@@ -1,4 +1,4 @@
-export class GamePhaser {
+class GamePhaser {
     constructor() {
         this.game = null;
         this.scene = null;
@@ -52,39 +52,85 @@ export class GamePhaser {
     
     createPlayerSprite() {
         const graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
-        // Draw a triangle for player
+        // Player - bright green circle with direction indicator
+        const size = 15;
         graphics.fillStyle(0x00ff00, 1);
-        graphics.fillTriangle(10, 0, 0, 20, 20, 20);
-        graphics.lineStyle(1, 0xffffff, 0.8);
-        graphics.strokeTriangle(10, 0, 0, 20, 20, 20);
-        graphics.generateTexture('player', 20, 20);
+        graphics.fillCircle(size, size, size);
+        
+        // Add darker green border
+        graphics.lineStyle(2, 0x008800, 1);
+        graphics.strokeCircle(size, size, size);
+        
+        // Add direction indicator (small triangle pointing up)
+        graphics.fillStyle(0xffffff, 1);
+        graphics.beginPath();
+        graphics.moveTo(size, 5);
+        graphics.lineTo(size - 3, 10);
+        graphics.lineTo(size + 3, 10);
+        graphics.closePath();
+        graphics.fillPath();
+        
+        graphics.generateTexture('player', size * 2, size * 2);
         graphics.destroy();
     }
     
     createEnemySprites() {
-        // Kamikaze - small red diamond
+        // Kamikaze - small red triangle (aggressive shape)
         let graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
-        graphics.fillStyle(0xff0000, 1);
-        graphics.fillPolygon([7.5, 0, 15, 7.5, 7.5, 15, 0, 7.5]);
-        graphics.generateTexture('enemy-kamikaze', 15, 15);
+        const kamSize = 10;
+        graphics.fillStyle(0xff4444, 1);
+        graphics.beginPath();
+        graphics.moveTo(kamSize, 2);
+        graphics.lineTo(2, kamSize * 2 - 2);
+        graphics.lineTo(kamSize * 2 - 2, kamSize * 2 - 2);
+        graphics.closePath();
+        graphics.fillPath();
+        
+        // Add dark red border
+        graphics.lineStyle(1, 0x880000, 1);
+        graphics.strokePath();
+        
+        graphics.generateTexture('enemy-kamikaze', kamSize * 2, kamSize * 2);
         graphics.destroy();
         
-        // Sniper - green square
+        // Sniper - green square with crosshair
         graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
-        graphics.fillStyle(0x00ff00, 1);
-        graphics.fillRect(0, 0, 18, 18);
-        graphics.lineStyle(2, 0x004400, 1);
-        graphics.strokeRect(0, 0, 18, 18);
-        graphics.generateTexture('enemy-sniper', 18, 18);
+        const snipSize = 12;
+        graphics.fillStyle(0x44ff44, 1);
+        graphics.fillRect(0, 0, snipSize * 2, snipSize * 2);
+        
+        // Dark green border
+        graphics.lineStyle(2, 0x008800, 1);
+        graphics.strokeRect(0, 0, snipSize * 2, snipSize * 2);
+        
+        // Crosshair in center
+        graphics.lineStyle(1, 0x000000, 0.8);
+        graphics.moveTo(snipSize, 4);
+        graphics.lineTo(snipSize, snipSize * 2 - 4);
+        graphics.moveTo(4, snipSize);
+        graphics.lineTo(snipSize * 2 - 4, snipSize);
+        graphics.strokePath();
+        
+        graphics.generateTexture('enemy-sniper', snipSize * 2, snipSize * 2);
         graphics.destroy();
         
-        // Strafing - orange hexagon
+        // Strafing - orange diamond (nimble shape)
         graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
-        graphics.fillStyle(0xff8800, 1);
-        graphics.fillCircle(8, 8, 8);
-        graphics.lineStyle(1, 0xffff00, 0.8);
-        graphics.strokeCircle(8, 8, 8);
-        graphics.generateTexture('enemy-strafing', 16, 16);
+        const strafSize = 12;
+        graphics.fillStyle(0xffaa44, 1);
+        graphics.beginPath();
+        graphics.moveTo(strafSize, 2);
+        graphics.lineTo(strafSize * 2 - 2, strafSize);
+        graphics.lineTo(strafSize, strafSize * 2 - 2);
+        graphics.lineTo(2, strafSize);
+        graphics.closePath();
+        graphics.fillPath();
+        
+        // Orange border
+        graphics.lineStyle(1, 0xff6600, 1);
+        graphics.strokePath();
+        
+        graphics.generateTexture('enemy-strafing', strafSize * 2, strafSize * 2);
         graphics.destroy();
     }
     
@@ -105,22 +151,44 @@ export class GamePhaser {
     }
     
     createExplosionSprites() {
-        // Large explosion
+        // Large explosion - multi-layered burst
         let graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
-        graphics.fillStyle(0xffaa00, 0.8);
-        graphics.fillCircle(15, 15, 15);
-        graphics.fillStyle(0xffff00, 0.6);
-        graphics.fillCircle(15, 15, 10);
-        graphics.generateTexture('explosion', 30, 30);
+        const largeSize = 25;
+        
+        // Outer orange layer
+        graphics.fillStyle(0xff8800, 0.6);
+        graphics.fillCircle(largeSize, largeSize, largeSize);
+        
+        // Middle yellow layer
+        graphics.fillStyle(0xffff00, 0.8);
+        graphics.fillCircle(largeSize, largeSize, largeSize * 0.7);
+        
+        // Inner white core
+        graphics.fillStyle(0xffffff, 0.9);
+        graphics.fillCircle(largeSize, largeSize, largeSize * 0.4);
+        
+        // Add some spikes for explosion effect
+        graphics.fillStyle(0xff8800, 0.7);
+        for (let i = 0; i < 8; i++) {
+            const angle = (i / 8) * Math.PI * 2;
+            const x = largeSize + Math.cos(angle) * largeSize * 0.8;
+            const y = largeSize + Math.sin(angle) * largeSize * 0.8;
+            graphics.fillCircle(x, y, 5);
+        }
+        
+        graphics.generateTexture('explosion', largeSize * 2, largeSize * 2);
         graphics.destroy();
         
         // Small explosion
         graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
-        graphics.fillStyle(0xffaa00, 0.8);
-        graphics.fillCircle(10, 10, 10);
-        graphics.fillStyle(0xffff00, 0.6);
-        graphics.fillCircle(10, 10, 6);
-        graphics.generateTexture('explosion-small', 20, 20);
+        const smallSize = 15;
+        
+        graphics.fillStyle(0xff8800, 0.7);
+        graphics.fillCircle(smallSize, smallSize, smallSize);
+        graphics.fillStyle(0xffff00, 0.9);
+        graphics.fillCircle(smallSize, smallSize, smallSize * 0.6);
+        
+        graphics.generateTexture('explosion-small', smallSize * 2, smallSize * 2);
         graphics.destroy();
     }
 
