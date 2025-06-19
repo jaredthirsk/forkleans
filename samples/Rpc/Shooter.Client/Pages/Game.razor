@@ -2,7 +2,7 @@
 @using Shooter.Client.Services
 @using Shooter.Client.Components
 @using Shooter.Shared.Models
-@inject ForleansRpcGameClientService RpcGameClient
+@inject ForkleansRpcGameClientService RpcGameClient
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 @inject ILogger<Game> _logger
@@ -16,16 +16,28 @@
         <div class="connection-form">
             <h2>Enter Game</h2>
             <input @bind="_playerName" placeholder="Enter your name" />
-            <button @onclick="ConnectToGame" disabled="@_isConnecting">
-                @if (_isConnecting)
-                {
-                    <span>Connecting...</span>
-                }
-                else
-                {
-                    <span>Connect</span>
-                }
-            </button>
+            <div class="engine-buttons">
+                <button @onclick="() => ConnectToGame(false)" disabled="@_isConnecting" class="engine-btn canvas-btn">
+                    @if (_isConnecting && !_usePhaser)
+                    {
+                        <span>Connecting...</span>
+                    }
+                    else
+                    {
+                        <span>Join with Canvas</span>
+                    }
+                </button>
+                <button @onclick="() => ConnectToGame(true)" disabled="@_isConnecting" class="engine-btn phaser-btn">
+                    @if (_isConnecting && _usePhaser)
+                    {
+                        <span>Connecting...</span>
+                    }
+                    else
+                    {
+                        <span>Join with Phaser</span>
+                    }
+                </button>
+            </div>
             
             @if (!string.IsNullOrEmpty(_errorMessage))
             {
@@ -110,18 +122,40 @@
         border-radius: 4px;
     }
     
-    .connection-form button {
-        width: 100%;
-        padding: 10px;
-        background-color: #4CAF50;
+    .engine-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .engine-btn {
+        flex: 1;
+        padding: 12px;
         color: white;
         border: none;
         border-radius: 4px;
         cursor: pointer;
         font-size: 16px;
+        transition: all 0.3s ease;
     }
     
-    .connection-form button:disabled {
+    .canvas-btn {
+        background-color: #2196F3;
+    }
+    
+    .canvas-btn:hover:not(:disabled) {
+        background-color: #1976D2;
+    }
+    
+    .phaser-btn {
+        background-color: #9C27B0;
+    }
+    
+    .phaser-btn:hover:not(:disabled) {
+        background-color: #7B1FA2;
+    }
+    
+    .engine-btn:disabled {
         background-color: #666;
         cursor: not-allowed;
     }
@@ -217,9 +251,7 @@
                 if (!string.IsNullOrEmpty(rememberedName))
                 {
                     _playerName = rememberedName;
-                    // Auto-connect with remembered name
-                    await ConnectToGame();
-                    // Trigger UI update
+                    // Don't auto-connect, let user choose engine
                     StateHasChanged();
                 }
             }
@@ -230,7 +262,7 @@
         }
     }
     
-    private async Task ConnectToGame()
+    private async Task ConnectToGame(bool usePhaser)
     {
         if (string.IsNullOrWhiteSpace(_playerName))
         {
@@ -240,6 +272,7 @@
         
         _isConnecting = true;
         _errorMessage = "";
+        _usePhaser = usePhaser;
         
         try
         {
@@ -286,7 +319,8 @@
     
     private async Task HandleMove(Vector2 direction)
     {
-        _currentMoveDirection = direction * _currentSpeed;
+        _currentMoveDirection = direction * _currentSpeed * 100; // Scale movement speed appropriately
+        _isMoving = direction.Length() > 0;
         await UpdatePlayerInput();
     }
     
@@ -358,7 +392,7 @@
         var centerY = 400; // Half of canvas height
         var direction = new Vector2(position.x - centerX, position.y - centerY).Normalized();
         
-        _currentMoveDirection = direction * _currentSpeed;
+        _currentMoveDirection = direction * _currentSpeed * 100; // Scale movement speed appropriately
         await UpdatePlayerInput();
     }
     

@@ -43,42 +43,130 @@ export class GamePhaser {
         // Get the current scene
         this.scene = this.game.scene.scenes[0];
         
-        // Create simple colored rectangles for sprites
-        this.createColoredSprite('player', 0x00ff00, 20, 20);
-        this.createColoredSprite('enemy-kamikaze', 0xff0000, 15, 15);
-        this.createColoredSprite('enemy-sniper', 0xff00ff, 18, 18);
-        this.createColoredSprite('enemy-strafing', 0xff8800, 16, 16);
-        this.createColoredSprite('bullet', 0xffff00, 4, 8);
-        this.createColoredSprite('enemy-bullet', 0xff00ff, 4, 8);
-        this.createColoredSprite('explosion', 0xffaa00, 30, 30);
-        this.createColoredSprite('explosion-small', 0xffaa00, 20, 20);
+        // Create sprites with different shapes
+        this.createPlayerSprite();
+        this.createEnemySprites();
+        this.createBulletSprites();
+        this.createExplosionSprites();
+    }
+    
+    createPlayerSprite() {
+        const graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
+        // Draw a triangle for player
+        graphics.fillStyle(0x00ff00, 1);
+        graphics.fillTriangle(10, 0, 0, 20, 20, 20);
+        graphics.lineStyle(1, 0xffffff, 0.8);
+        graphics.strokeTriangle(10, 0, 0, 20, 20, 20);
+        graphics.generateTexture('player', 20, 20);
+        graphics.destroy();
+    }
+    
+    createEnemySprites() {
+        // Kamikaze - small red diamond
+        let graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
+        graphics.fillStyle(0xff0000, 1);
+        graphics.fillPolygon([7.5, 0, 15, 7.5, 7.5, 15, 0, 7.5]);
+        graphics.generateTexture('enemy-kamikaze', 15, 15);
+        graphics.destroy();
+        
+        // Sniper - green square
+        graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
+        graphics.fillStyle(0x00ff00, 1);
+        graphics.fillRect(0, 0, 18, 18);
+        graphics.lineStyle(2, 0x004400, 1);
+        graphics.strokeRect(0, 0, 18, 18);
+        graphics.generateTexture('enemy-sniper', 18, 18);
+        graphics.destroy();
+        
+        // Strafing - orange hexagon
+        graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
+        graphics.fillStyle(0xff8800, 1);
+        graphics.fillCircle(8, 8, 8);
+        graphics.lineStyle(1, 0xffff00, 0.8);
+        graphics.strokeCircle(8, 8, 8);
+        graphics.generateTexture('enemy-strafing', 16, 16);
+        graphics.destroy();
+    }
+    
+    createBulletSprites() {
+        // Player bullet - yellow
+        let graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
+        graphics.fillStyle(0xffff00, 1);
+        graphics.fillCircle(2, 4, 2);
+        graphics.generateTexture('bullet', 4, 8);
+        graphics.destroy();
+        
+        // Enemy bullet - purple
+        graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
+        graphics.fillStyle(0xff00ff, 1);
+        graphics.fillCircle(2, 4, 2);
+        graphics.generateTexture('enemy-bullet', 4, 8);
+        graphics.destroy();
+    }
+    
+    createExplosionSprites() {
+        // Large explosion
+        let graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
+        graphics.fillStyle(0xffaa00, 0.8);
+        graphics.fillCircle(15, 15, 15);
+        graphics.fillStyle(0xffff00, 0.6);
+        graphics.fillCircle(15, 15, 10);
+        graphics.generateTexture('explosion', 30, 30);
+        graphics.destroy();
+        
+        // Small explosion
+        graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
+        graphics.fillStyle(0xffaa00, 0.8);
+        graphics.fillCircle(10, 10, 10);
+        graphics.fillStyle(0xffff00, 0.6);
+        graphics.fillCircle(10, 10, 6);
+        graphics.generateTexture('explosion-small', 20, 20);
+        graphics.destroy();
     }
 
     createColoredSprite(key, color, width, height) {
-        const graphics = this.scene.add.graphics();
+        // Create a graphics object
+        const graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
+        
+        // Draw the shape
         graphics.fillStyle(color, 1);
         graphics.fillRect(0, 0, width, height);
+        
+        // Add a border for better visibility
+        graphics.lineStyle(1, 0xffffff, 0.5);
+        graphics.strokeRect(0, 0, width, height);
+        
+        // Generate texture
         graphics.generateTexture(key, width, height);
         graphics.destroy();
     }
 
     create() {
-        // Create grid lines
+        // Create grid lines (scrollFactor 1 means they move with the world)
         this.gridGraphics = this.scene.add.graphics();
+        this.gridGraphics.setScrollFactor(1);
         this.drawGrid();
 
-        // Create UI text
+        // Create UI text (scrollFactor 0 makes them stay fixed on screen)
         this.zoneText = this.scene.add.text(10, 10, '', { 
             fontSize: '16px', 
             fill: '#ffffff' 
-        });
+        }).setScrollFactor(0);
         this.serverText = this.scene.add.text(10, 30, '', { 
             fontSize: '16px', 
             fill: '#ffffff' 
-        });
+        }).setScrollFactor(0);
         this.playerText = this.scene.add.text(10, 50, '', { 
             fontSize: '16px', 
             fill: '#ffffff' 
+        }).setScrollFactor(0);
+        
+        // Log camera bounds
+        console.log('Phaser camera bounds:', {
+            x: this.scene.cameras.main.x,
+            y: this.scene.cameras.main.y,
+            width: this.scene.cameras.main.width,
+            height: this.scene.cameras.main.height
         });
 
         // Mouse input
@@ -149,12 +237,12 @@ export class GamePhaser {
             moveY *= 0.707;
         }
 
-        // Apply speed modifier
-        moveX *= speed;
-        moveY *= speed;
+        // Apply speed modifier and scale for proper movement
+        moveX *= speed * 100; // Scale up for world units
+        moveY *= speed * 100; // Scale up for world units
 
         // Send movement to server
-        if (this.dotNetReference) {
+        if (this.dotNetReference && (moveX !== 0 || moveY !== 0)) {
             this.dotNetReference.invokeMethodAsync('OnMovementInput', moveX, moveY);
         }
 
@@ -162,6 +250,9 @@ export class GamePhaser {
         if (this.worldState) {
             this.updateEntities();
         }
+        
+        // Redraw grid as camera moves
+        this.drawGrid();
     }
 
     updateWorldState(worldState) {
@@ -170,6 +261,17 @@ export class GamePhaser {
 
     updateEntities() {
         if (!this.worldState || !this.worldState.entities) return;
+
+        // Log entity count periodically
+        if (Math.random() < 0.05) { // 5% chance each frame
+            console.log(`Updating ${this.worldState.entities.length} entities`);
+            const entityTypes = {};
+            for (const entity of this.worldState.entities) {
+                const typeName = this.getEntityTypeName(entity.type);
+                entityTypes[typeName] = (entityTypes[typeName] || 0) + 1;
+            }
+            console.log('Entity breakdown:', entityTypes);
+        }
 
         // Track existing entity IDs
         const currentEntityIds = new Set();
@@ -187,9 +289,13 @@ export class GamePhaser {
                 sprite.setOrigin(0.5, 0.5);
                 this.sprites.set(entity.entityId, sprite);
                 
+                console.log(`Created sprite for ${this.getEntityTypeName(entity.type)} at (${entity.position.x}, ${entity.position.y})`);
+                
                 // Add glow effect for player
                 if (entity.type === 0 && entity.entityId === this.playerId) {
                     sprite.setTint(0x00ff00);
+                    // Make camera follow the player
+                    this.scene.cameras.main.startFollow(sprite, true, 0.1, 0.1);
                 }
             }
 
@@ -249,34 +355,107 @@ export class GamePhaser {
         }
     }
 
+    getEntityTypeName(type) {
+        switch (type) {
+            case 0: return 'Player';
+            case 1: return 'Enemy';
+            case 2: return 'Bullet';
+            case 3: return 'Explosion';
+            default: return 'Unknown';
+        }
+    }
+
     drawGrid() {
         this.gridGraphics.clear();
-        this.gridGraphics.lineStyle(1, 0x444444, 0.5);
-
-        // Draw grid lines every 100 units
-        for (let x = 0; x <= 800; x += 100) {
-            this.gridGraphics.moveTo(x, 0);
-            this.gridGraphics.lineTo(x, 600);
+        
+        // Get camera position to draw grid relative to world coordinates
+        const cam = this.scene.cameras.main;
+        const worldView = {
+            left: cam.worldView.x,
+            right: cam.worldView.x + cam.worldView.width,
+            top: cam.worldView.y,
+            bottom: cam.worldView.y + cam.worldView.height
+        };
+        
+        // Draw zone boundaries (1000x1000 unit zones)
+        this.gridGraphics.lineStyle(3, 0x00ff00, 0.8);
+        
+        // Calculate which zones are visible
+        const startZoneX = Math.floor(worldView.left / 1000);
+        const endZoneX = Math.ceil(worldView.right / 1000);
+        const startZoneY = Math.floor(worldView.top / 1000);
+        const endZoneY = Math.ceil(worldView.bottom / 1000);
+        
+        // Draw vertical zone boundaries
+        for (let zx = startZoneX; zx <= endZoneX; zx++) {
+            const x = zx * 1000;
+            this.gridGraphics.moveTo(x, worldView.top);
+            this.gridGraphics.lineTo(x, worldView.bottom);
         }
         
-        for (let y = 0; y <= 600; y += 100) {
-            this.gridGraphics.moveTo(0, y);
-            this.gridGraphics.lineTo(800, y);
+        // Draw horizontal zone boundaries
+        for (let zy = startZoneY; zy <= endZoneY; zy++) {
+            const y = zy * 1000;
+            this.gridGraphics.moveTo(worldView.left, y);
+            this.gridGraphics.lineTo(worldView.right, y);
         }
-
-        // Draw available zones
+        
+        // Draw finer grid lines (100 unit spacing)
+        this.gridGraphics.lineStyle(1, 0x444444, 0.3);
+        
+        // Vertical lines
+        const startX = Math.floor(worldView.left / 100) * 100;
+        const endX = Math.ceil(worldView.right / 100) * 100;
+        for (let x = startX; x <= endX; x += 100) {
+            if (x % 1000 !== 0) { // Skip zone boundaries
+                this.gridGraphics.moveTo(x, worldView.top);
+                this.gridGraphics.lineTo(x, worldView.bottom);
+            }
+        }
+        
+        // Horizontal lines
+        const startY = Math.floor(worldView.top / 100) * 100;
+        const endY = Math.ceil(worldView.bottom / 100) * 100;
+        for (let y = startY; y <= endY; y += 100) {
+            if (y % 1000 !== 0) { // Skip zone boundaries
+                this.gridGraphics.moveTo(worldView.left, y);
+                this.gridGraphics.lineTo(worldView.right, y);
+            }
+        }
+        
+        // Draw unavailable zones (grayed out)
         if (this.availableZones && this.availableZones.length > 0) {
-            this.gridGraphics.fillStyle(0x00ff00, 0.1);
+            // Create a set of available zones for quick lookup
+            const availableSet = new Set(this.availableZones.map(z => `${z.x},${z.y}`));
+            
+            // Draw gray overlay for unavailable zones
+            this.gridGraphics.fillStyle(0x000000, 0.5);
+            
+            for (let zx = startZoneX; zx <= endZoneX; zx++) {
+                for (let zy = startZoneY; zy <= endZoneY; zy++) {
+                    if (!availableSet.has(`${zx},${zy}`)) {
+                        // This zone is not available, gray it out
+                        const x = zx * 1000;
+                        const y = zy * 1000;
+                        this.gridGraphics.fillRect(x, y, 1000, 1000);
+                    }
+                }
+            }
+            
+            // Draw a border around available zones
+            this.gridGraphics.lineStyle(2, 0x00ff00, 0.6);
             for (const zone of this.availableZones) {
-                this.gridGraphics.fillRect(zone.x * 500, zone.y * 500, 500, 500);
+                const x = zone.x * 1000;
+                const y = zone.y * 1000;
+                this.gridGraphics.strokeRect(x, y, 1000, 1000);
             }
         }
     }
 
     getGridSquare(x, y) {
         return {
-            x: Math.floor(x / 500),
-            y: Math.floor(y / 500)
+            x: Math.floor(x / 1000),
+            y: Math.floor(y / 1000)
         };
     }
 
@@ -301,9 +480,13 @@ export class GamePhaser {
         const playerSprite = this.sprites.get(this.playerId);
         if (!playerSprite) return;
 
+        // Convert screen coordinates to world coordinates
+        const worldX = x + this.scene.cameras.main.scrollX;
+        const worldY = y + this.scene.cameras.main.scrollY;
+
         // Calculate shoot direction
-        const dx = x - playerSprite.x;
-        const dy = y - playerSprite.y;
+        const dx = worldX - playerSprite.x;
+        const dy = worldY - playerSprite.y;
         const length = Math.sqrt(dx * dx + dy * dy);
         
         if (length > 0) {
@@ -320,9 +503,13 @@ export class GamePhaser {
         const playerSprite = this.sprites.get(this.playerId);
         if (!playerSprite) return;
 
+        // Convert screen coordinates to world coordinates
+        const worldX = x + this.scene.cameras.main.scrollX;
+        const worldY = y + this.scene.cameras.main.scrollY;
+
         // Calculate heading direction
-        const dx = x - playerSprite.x;
-        const dy = y - playerSprite.y;
+        const dx = worldX - playerSprite.x;
+        const dy = worldY - playerSprite.y;
         const length = Math.sqrt(dx * dx + dy * dy);
         
         if (length > 0) {

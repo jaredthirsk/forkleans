@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Hosting.Server;
+using Shooter.ActionServer;
 using Shooter.ActionServer.Services;
 using Shooter.ActionServer.Simulation;
 using System.Net;
+using System.Net.Sockets;
 using Shooter.ActionServer.Grains;
 using Shooter.Shared.Models;
 using System.Numerics;
@@ -11,14 +13,28 @@ using Forkleans.Configuration;
 using Forkleans.Rpc;
 using Forkleans.Rpc.Hosting;
 using Forkleans.Rpc.Transport.LiteNetLib;
+using Orleans.Configuration;
+using Orleans.Hosting;
+using Forkleans.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
+// Configure logging
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
+builder.Logging.AddFilter("Forkleans.Rpc", LogLevel.Debug);
+builder.Logging.AddFilter("Shooter.ActionServer", LogLevel.Debug);
+
+// Add file logging
+builder.Logging.AddProvider(new FileLoggerProvider("logs/actionserver.log"));
+
 // Add services
-builder.Services.AddSingleton<IWorldSimulation, WorldSimulation>();
+builder.Services.AddSingleton<WorldSimulation>(); // Register as concrete type
+builder.Services.AddSingleton<IWorldSimulation>(provider => provider.GetRequiredService<WorldSimulation>()); // Also register as interface
+builder.Services.AddHostedService(provider => provider.GetRequiredService<WorldSimulation>()); // Use same instance as hosted service
 builder.Services.AddSingleton<GameService>();
+builder.Services.AddHostedService(provider => provider.GetRequiredService<GameService>()); // GameService is also a hosted service
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<RpcServerPortProvider>();
 
@@ -26,25 +42,58 @@ builder.Services.AddSingleton<RpcServerPortProvider>();
 builder.Services.AddHostedService<OrleansStartupDelayService>();
 
 // Configure Orleans client with retry
-builder.UseOrleansClient((Forkleans.Hosting.IClientBuilder clientBuilder) =>
+builder.UseOrleansClient((Orleans.Hosting.IClientBuilder clientBuilder) =>
 {
     // In Aspire, use the configured gateway endpoint
     var gatewayEndpoint = builder.Configuration["Orleans:GatewayEndpoint"];
     if (!string.IsNullOrEmpty(gatewayEndpoint))
     {
-        var parts = gatewayEndpoint.Split(':');
+        // Handle various formats: "host:port", "//host:port", "http://host:port"
+        var cleanEndpoint = gatewayEndpoint;
+        if (cleanEndpoint.Contains("://"))
+        {
+            var uri = new Uri(cleanEndpoint);
+            cleanEndpoint = $"{uri.Host}:{uri.Port}";
+        }
+        else if (cleanEndpoint.StartsWith("//"))
+        {
+            cleanEndpoint = cleanEndpoint.Substring(2);
+        }
+        
+        var parts = cleanEndpoint.Split(':');
         var host = parts[0];
         var port = int.Parse(parts[1]);
-        clientBuilder.UseStaticClustering(new IPEndPoint(IPAddress.Parse(host), port));
+        
+        // Resolve hostname to IP if needed
+        IPAddress? ipAddress;
+        if (!IPAddress.TryParse(host, out ipAddress))
+        {
+            if (host.Equals("localhost", StringComparison.OrdinalIgnoreCase))
+            {
+                ipAddress = IPAddress.Loopback;
+            }
+            else
+            {
+                var hostEntry = System.Net.Dns.GetHostEntry(host);
+                ipAddress = hostEntry.AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) 
+                    ?? IPAddress.Loopback;
+            }
+        }
+        
+        clientBuilder.UseStaticClustering(new IPEndPoint(ipAddress, port));
     }
     else
     {
         clientBuilder.UseLocalhostClustering();
     }
+    
+    // Configure cluster options to match the Silo
+    clientBuilder.Configure<Orleans.Configuration.ClusterOptions>(options =>
+    {
+        options.ClusterId = "dev";
+        options.ServiceId = "ShooterDemo";
+    });
 });
-
-// Ensure simulation runs after Orleans client is ready
-builder.Services.AddHostedService<WorldSimulation>();
 
 // Configure dynamic HTTP port assignment
 if (builder.Environment.IsDevelopment())
@@ -180,30 +229,3 @@ public class OrleansStartupDelayService : IHostedService
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }
 
-// Service to provide RPC port to other services
-public class RpcServerPortProvider
-{
-    private readonly TaskCompletionSource<int> _portTcs = new();
-    
-    public void SetPort(int port)
-    {
-        _portTcs.TrySetResult(port);
-    }
-    
-    public async Task<int> WaitForPortAsync(TimeSpan timeout, CancellationToken cancellationToken)
-    {
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        cts.CancelAfter(timeout);
-        
-        try
-        {
-            return await _portTcs.Task.WaitAsync(cts.Token);
-        }
-        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
-        {
-            throw new TimeoutException("RPC port was not set within the timeout period");
-        }
-    }
-    
-    public int Port => _portTcs.Task.IsCompletedSuccessfully ? _portTcs.Task.Result : 0;
-}

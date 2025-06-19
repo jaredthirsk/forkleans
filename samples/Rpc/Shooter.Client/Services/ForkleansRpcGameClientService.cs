@@ -14,9 +14,9 @@ namespace Shooter.Client.Services;
 /// Game client service that uses Forkleans RPC for all communication with ActionServers.
 /// This provides a single LiteNetLib UDP connection for all game operations.
 /// </summary>
-public class ForleansRpcGameClientService : IDisposable
+public class ForkleansRpcGameClientService : IDisposable
 {
-    private readonly ILogger<ForleansRpcGameClientService> _logger;
+    private readonly ILogger<ForkleansRpcGameClientService> _logger;
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
     private Forkleans.IClusterClient? _rpcClient;
@@ -27,6 +27,7 @@ public class ForleansRpcGameClientService : IDisposable
     private Timer? _availableZonesTimer;
     private CancellationTokenSource? _cancellationTokenSource;
     private bool _isTransitioning = false;
+    private DateTime _lastZoneBoundaryCheck = DateTime.MinValue;
     
     public event Action<WorldState>? WorldStateUpdated;
     public event Action<string>? ServerChanged;
@@ -36,8 +37,8 @@ public class ForleansRpcGameClientService : IDisposable
     public string? PlayerId { get; private set; }
     public string? CurrentServerId { get; private set; }
     
-    public ForleansRpcGameClientService(
-        ILogger<ForleansRpcGameClientService> logger,
+    public ForkleansRpcGameClientService(
+        ILogger<ForkleansRpcGameClientService> logger,
         HttpClient httpClient,
         IConfiguration configuration)
     {
@@ -128,9 +129,9 @@ public class ForleansRpcGameClientService : IDisposable
             _rpcHost = hostBuilder;
             _rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>();
             
-            // Wait a bit for the handshake and manifest exchange to complete
+            // Wait longer for the handshake and manifest exchange to complete
             // This is a workaround - ideally the RPC client would expose a way to wait for readiness
-            await Task.Delay(1000);
+            await Task.Delay(2000);
             
             // Get the game grain - use a fixed key since this represents the server itself
             // In RPC, grains are essentially singleton services per server
@@ -138,12 +139,12 @@ public class ForleansRpcGameClientService : IDisposable
             
             // Connect via RPC
             _logger.LogInformation("Connecting player {PlayerId} via RPC", PlayerId);
-            var connected = await _gameGrain.ConnectPlayer(PlayerId);
-            _logger.LogInformation("RPC ConnectPlayer returned: {Connected}", connected);
+            var result = await _gameGrain.ConnectPlayer(PlayerId);
+            _logger.LogInformation("RPC ConnectPlayer returned: {Result}", result);
             
-            if (!connected)
+            if (result != "SUCCESS")
             {
-                _logger.LogError("Failed to connect player via RPC");
+                _logger.LogError("Failed to connect player {PlayerId} to server", PlayerId);
                 return false;
             }
             
@@ -244,7 +245,7 @@ public class ForleansRpcGameClientService : IDisposable
     
     private async Task PollWorldState()
     {
-        if (_gameGrain == null || !IsConnected || _cancellationTokenSource?.Token.IsCancellationRequested == true)
+        if (_gameGrain == null || !IsConnected || _cancellationTokenSource?.Token.IsCancellationRequested == true || _isTransitioning)
         {
             return;
         }
@@ -254,7 +255,20 @@ public class ForleansRpcGameClientService : IDisposable
             var worldState = await _gameGrain.GetWorldState();
             if (worldState != null)
             {
-                _logger.LogDebug("Received world state with {Count} entities", worldState.Entities?.Count ?? 0);
+                var entityCount = worldState.Entities?.Count ?? 0;
+                _logger.LogDebug("Received world state with {Count} entities", entityCount);
+                
+                // Log entity breakdown
+                if (entityCount > 0 && worldState.Entities != null)
+                {
+                    var entityTypes = worldState.Entities.GroupBy(e => e.Type)
+                        .ToDictionary(g => g.Key, g => g.Count());
+                    _logger.LogTrace("Entity breakdown: Players={Players}, Enemies={Enemies}, Bullets={Bullets}, Explosions={Explosions}",
+                        entityTypes.GetValueOrDefault(EntityType.Player, 0),
+                        entityTypes.GetValueOrDefault(EntityType.Enemy, 0),
+                        entityTypes.GetValueOrDefault(EntityType.Bullet, 0),
+                        entityTypes.GetValueOrDefault(EntityType.Explosion, 0));
+                }
                 
                 // Check if our player still exists in the world state
                 var playerExists = worldState.Entities?.Any(e => e.EntityId == PlayerId) ?? false;
@@ -283,19 +297,25 @@ public class ForleansRpcGameClientService : IDisposable
                             Math.Min(playerEntity.Position.Y - min.Y, max.Y - playerEntity.Position.Y)
                         );
                         
-                        if (distToEdge < 100) // Within 100 units of edge
+                        if (distToEdge < 50)
                         {
-                            _logger.LogDebug("Player {PlayerId} near zone boundary (distance: {Distance}) at position {Position}", 
-                                PlayerId, distToEdge, playerEntity.Position);
-                            
-                            // Proactively check for server transition
-                            _ = Task.Run(async () => {
-                                try {
-                                    await CheckForServerTransition();
-                                } catch (Exception ex) {
-                                    _logger.LogError(ex, "Failed to check for server transition");
-                                }
-                            });
+                            // Throttle zone boundary checks to once per second
+                            var now = DateTime.UtcNow;
+                            if ((now - _lastZoneBoundaryCheck).TotalSeconds >= 1.0)
+                            {
+                                _lastZoneBoundaryCheck = now;
+                                _logger.LogDebug("Player {PlayerId} near zone boundary (distance: {Distance}) at position {Position}", 
+                                    PlayerId, distToEdge, playerEntity.Position);
+                                
+                                // Proactively check for server transition
+                                _ = Task.Run(async () => {
+                                    try {
+                                        await CheckForServerTransition();
+                                    } catch (Exception ex) {
+                                        _logger.LogError(ex, "Failed to check for server transition");
+                                    }
+                                });
+                            }
                         }
                     }
                     
@@ -363,7 +383,7 @@ public class ForleansRpcGameClientService : IDisposable
         
         try
         {
-            _logger.LogInformation("Checking for server transition for player {PlayerId}", PlayerId);
+            _logger.LogTrace("Checking for server transition for player {PlayerId}", PlayerId);
             
             // Query the Orleans silo for the correct server
             var response = await _httpClient.GetFromJsonAsync<ActionServerInfo>(
@@ -373,6 +393,14 @@ public class ForleansRpcGameClientService : IDisposable
             {
                 _logger.LogInformation("Player {PlayerId} needs to transition from server {OldServer} to {NewServer}", 
                     PlayerId, CurrentServerId, response.ServerId);
+                
+                // Stop timers before disconnecting
+                _worldStateTimer?.Dispose();
+                _heartbeatTimer?.Dispose();
+                _availableZonesTimer?.Dispose();
+                _worldStateTimer = null;
+                _heartbeatTimer = null;
+                _availableZonesTimer = null;
                 
                 // Disconnect from current server
                 Cleanup();
@@ -455,32 +483,42 @@ public class ForleansRpcGameClientService : IDisposable
         _rpcHost = hostBuilder;
         _rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>();
         
-        // Wait for handshake
-        await Task.Delay(1000);
+        // Wait longer for handshake and manifest exchange to complete
+        await Task.Delay(2000);
         
-        // Get the game grain
-        _gameGrain = _rpcClient.GetGrain<IGameRpcGrain>("game");
+        try
+        {
+            // Get the game grain
+            _gameGrain = _rpcClient.GetGrain<IGameRpcGrain>("game");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError(ex, "Failed to get game grain, waiting longer for manifest exchange");
+            // Wait even longer and retry
+            await Task.Delay(2000);
+            _gameGrain = _rpcClient.GetGrain<IGameRpcGrain>("game");
+        }
         
         // Reconnect player
-        var connected = await _gameGrain.ConnectPlayer(PlayerId!);
-        if (connected)
+        var result = await _gameGrain.ConnectPlayer(PlayerId!);
+        
+        if (result != "SUCCESS")
         {
-            IsConnected = true;
-            
-            // Restart timers
-            _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(16));
-            _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
-            _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
-            
-            // Notify about server change
-            ServerChanged?.Invoke(CurrentServerId);
-            
-            _logger.LogInformation("Successfully reconnected to new server {ServerId}", CurrentServerId);
+            _logger.LogError("Failed to reconnect player {PlayerId} to new server", PlayerId);
+            return;
         }
-        else
-        {
-            _logger.LogError("Failed to reconnect player to new server");
-        }
+        
+        IsConnected = true;
+        
+        // Restart timers
+        _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(16));
+        _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
+        _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
+        
+        // Notify about server change
+        ServerChanged?.Invoke(CurrentServerId);
+        
+        _logger.LogInformation("Successfully reconnected to new server {ServerId}", CurrentServerId);
     }
     
     private void Cleanup()
@@ -491,6 +529,9 @@ public class ForleansRpcGameClientService : IDisposable
         _worldStateTimer?.Dispose();
         _heartbeatTimer?.Dispose();
         _availableZonesTimer?.Dispose();
+        _worldStateTimer = null;
+        _heartbeatTimer = null;
+        _availableZonesTimer = null;
         
         _gameGrain = null;
         _rpcClient = null;

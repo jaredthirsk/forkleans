@@ -205,6 +205,20 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 e.State,
                 e.StateTimer))
             .ToList();
+        
+        // Log entity counts by type for debugging
+        var entityCounts = entities.GroupBy(e => e.Type)
+            .ToDictionary(g => g.Key, g => g.Count());
+        
+        if (entities.Count > 0)
+        {
+            _logger.LogDebug("GetCurrentState returning {Total} entities: Players={Players}, Enemies={Enemies}, Bullets={Bullets}, Explosions={Explosions}",
+                entities.Count,
+                entityCounts.GetValueOrDefault(EntityType.Player, 0),
+                entityCounts.GetValueOrDefault(EntityType.Enemy, 0),
+                entityCounts.GetValueOrDefault(EntityType.Bullet, 0),
+                entityCounts.GetValueOrDefault(EntityType.Explosion, 0));
+        }
             
         return new WorldState(entities, DateTime.UtcNow);
     }
@@ -212,9 +226,11 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // Spawn some initial enemies of different types
+        _logger.LogInformation("Spawning initial enemies in zone {Zone}", _assignedSquare);
         SpawnEnemies(2, EnemySubType.Kamikaze);
         SpawnEnemies(2, EnemySubType.Sniper);
         SpawnEnemies(1, EnemySubType.Strafing);
+        _logger.LogInformation("Initial enemy spawn complete. Total entities: {Count}", _entities.Count);
         
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -242,6 +258,14 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
 
     private async Task UpdatePhysicsAsync(float deltaTime)
     {
+        // Log current state for debugging
+        var playerCount = _entities.Count(e => e.Value.Type == EntityType.Player);
+        var inputCount = _playerInputs.Count;
+        if (playerCount > 0 || inputCount > 0)
+        {
+            _logger.LogDebug("UpdatePhysicsAsync: {PlayerCount} players, {InputCount} inputs tracked", playerCount, inputCount);
+        }
+        
         // Update player positions based on input
         foreach (var (playerId, input) in _playerInputs)
         {
@@ -589,6 +613,8 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private void SpawnEnemies(int count, EnemySubType enemyType)
     {
         var (min, max) = _assignedSquare.GetBounds();
+        _logger.LogDebug("Spawning {Count} {Type} enemies in zone {Zone} bounds: ({MinX},{MinY}) to ({MaxX},{MaxY})", 
+            count, enemyType, _assignedSquare, min.X, min.Y, max.X, max.Y);
         
         for (int i = 0; i < count; i++)
         {
@@ -610,6 +636,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             };
             
             _entities[enemy.EntityId] = enemy;
+            _logger.LogDebug("Spawned {Type} enemy {Id} at position {Position}", enemyType, enemy.EntityId, position);
         }
     }
 

@@ -1,9 +1,18 @@
+using Shooter.Client;
 using Shooter.Client.Data;
 using Shooter.Client.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+
+// Configure logging
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
+builder.Logging.AddFilter("Forkleans.Rpc", LogLevel.Debug);
+builder.Logging.AddFilter("Shooter.Client.Services", LogLevel.Debug);
+
+// Add file logging
+builder.Logging.AddProvider(new FileLoggerProvider("logs/client.log"));
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -19,14 +28,14 @@ if (!siloUrl.EndsWith("/"))
 builder.Services.AddHttpClient();
 
 // Register the RPC game client service
-builder.Services.AddSingleton<ForleansRpcGameClientService>(serviceProvider =>
+builder.Services.AddSingleton<ForkleansRpcGameClientService>(serviceProvider =>
 {
-    var logger = serviceProvider.GetRequiredService<ILogger<ForleansRpcGameClientService>>();
+    var logger = serviceProvider.GetRequiredService<ILogger<ForkleansRpcGameClientService>>();
     var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
     var httpClient = httpClientFactory.CreateClient();
     httpClient.BaseAddress = new Uri(siloUrl);
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-    return new ForleansRpcGameClientService(logger, httpClient, configuration);
+    return new ForkleansRpcGameClientService(logger, httpClient, configuration);
 });
 
 var app = builder.Build();

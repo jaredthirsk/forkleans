@@ -1,3 +1,5 @@
+using Aspire.Hosting;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Add the Orleans silo with Orleans ports exposed

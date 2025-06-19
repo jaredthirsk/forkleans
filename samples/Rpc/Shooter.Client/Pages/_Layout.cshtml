@@ -19,10 +19,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
     <script src="_framework/blazor.server.js"></script>
-    <script src="js/gameInterop.js"></script>
-    <script type="module">
-        import { GamePhaser } from '/js/gamePhaser.js';
-        window.gamePhaser = new GamePhaser();
-    </script>
+    <script src="js/gameInterop.js?v=@DateTime.Now.Ticks"></script>
+    <script src="js/gameCanvas.js?v=@DateTime.Now.Ticks"></script>
+    <script src="js/gamePhaser.js?v=@DateTime.Now.Ticks"></script>
 </body>
 </html>

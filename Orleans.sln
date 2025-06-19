@@ -305,6 +305,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shooter.Silo", "samples\Rpc\Shooter.Silo\Shooter.Silo.csproj", "{5E385F78-A7ED-49BD-017C-9827AE388FA3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rpc", "Rpc", "{7168A336-7D14-4F94-8D0B-8B0DFA93B0BD}"
+	ProjectSection(SolutionItems) = preProject
+		samples\Rpc\NuGet.config = samples\Rpc\NuGet.config
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shooter.ActionServer", "samples\Rpc\Shooter.ActionServer\Shooter.ActionServer.csproj", "{F1666446-CBEB-6470-CF7D-B9A8A554C1B7}"
 EndProject

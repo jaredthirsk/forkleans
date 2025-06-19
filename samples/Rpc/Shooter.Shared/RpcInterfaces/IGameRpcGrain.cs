@@ -4,6 +4,19 @@ using Shooter.Shared.Models;
 
 namespace Shooter.Shared.RpcInterfaces;
 
+[Forkleans.GenerateSerializer]
+[Forkleans.Alias("ConnectPlayerResult")]
+public record ConnectPlayerResult
+{
+    [Forkleans.Id(0)]
+    public bool Success { get; init; }
+    
+    public ConnectPlayerResult(bool success)
+    {
+        Success = success;
+    }
+}
+
 /// <summary>
 /// Grain interface that can be accessed via Forkleans RPC.
 /// Forkleans RPC exposes grain interfaces over UDP/TCP.
@@ -12,7 +25,7 @@ namespace Shooter.Shared.RpcInterfaces;
 public interface IGameRpcGrain : Forkleans.IGrainWithStringKey
 {
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
-    Task<bool> ConnectPlayer(string playerId);
+    Task<string> ConnectPlayer(string playerId);
     
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
     Task DisconnectPlayer(string playerId);

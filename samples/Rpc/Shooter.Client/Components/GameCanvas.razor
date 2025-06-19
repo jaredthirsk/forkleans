@@ -1,6 +1,8 @@
-@namespace Shooter.Client.Components
+﻿@namespace Shooter.Client.Components
 @using Shooter.Shared.Models
+@using Microsoft.JSInterop
 @implements IDisposable
+@implements IAsyncDisposable
 @inject IJSRuntime JS
 @inject ILogger<GameCanvas> Logger
 
@@ -83,6 +85,8 @@
     private string currentZone = "Unknown";
     private string currentServer = "Unknown";
     private string playerDebugInfo = "Not found";
+    private bool _disposed = false;
+    private CancellationTokenSource _cancellationTokenSource = new();
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -93,8 +97,14 @@
                 var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/gameCanvas.js");
                 canvasContext = await module.InvokeAsync<IJSObjectReference>("initTripleCanvas", canvasElementA, canvasElementB, canvasElementC, DotNetObjectReference.Create(this));
                 
-                renderTimer = new System.Timers.Timer(33); // ~30 FPS
-                renderTimer.Elapsed += async (s, e) => await RenderFrame();
+                // renderTimer = new System.Timers.Timer(33); // ~30 FPS
+                renderTimer = new System.Timers.Timer(50); // 20 FPS
+                renderTimer.Elapsed += async (s, e) => {
+                    if (!_disposed)
+                    {
+                        await RenderFrame();
+                    }
+                };
                 renderTimer.Start();
             }
             catch (Exception ex)
@@ -106,7 +116,12 @@
     
     private async Task RenderFrame()
     {
-        if (canvasContext != null && WorldState != null)
+        if (_disposed || canvasContext == null || WorldState == null)
+        {
+            return;
+        }
+        
+        try
         {
             // Start a new frame
             await canvasContext.InvokeVoidAsync("beginFrame");
@@ -191,6 +206,20 @@
             }
             await InvokeAsync(StateHasChanged);
         }
+        catch (ObjectDisposedException)
+        {
+            // Component was disposed while rendering, ignore
+            Logger.LogDebug("GameCanvas disposed during render");
+        }
+        catch (JSException jsEx)
+        {
+            // JavaScript interop failed, component might be navigating away
+            Logger.LogDebug("JavaScript error during render: {Message}", jsEx.Message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error during game canvas render");
+        }
     }
     
     private Vector2 WorldToScreen(Vector2 worldPos, Vector2 cameraPos)
@@ -255,8 +284,36 @@
     
     public void Dispose()
     {
+        _disposed = true;
+        _cancellationTokenSource?.Cancel();
         renderTimer?.Stop();
         renderTimer?.Dispose();
-        _ = canvasContext?.DisposeAsync();
+        _cancellationTokenSource?.Dispose();
+    }
+    
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        _cancellationTokenSource?.Cancel();
+        
+        if (renderTimer != null)
+        {
+            renderTimer.Stop();
+            renderTimer.Dispose();
+        }
+        
+        if (canvasContext != null)
+        {
+            try
+            {
+                await canvasContext.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // Circuit was disconnected, ignore
+            }
+        }
+        
+        _cancellationTokenSource?.Dispose();
     }
 }

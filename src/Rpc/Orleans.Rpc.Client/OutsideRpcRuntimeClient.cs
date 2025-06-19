@@ -85,6 +85,8 @@ namespace Forkleans.Rpc
                     if (method != null)
                     {
                         var returnType = method.ReturnType;
+                        _logger.LogDebug("Method {MethodName} return type: {ReturnType}", request.GetMethodName(), returnType);
+                        
                         if (returnType.IsGenericType)
                         {
                             // Handle Task<T> or ValueTask<T>
@@ -93,8 +95,13 @@ namespace Forkleans.Rpc
                             {
                                 var actualReturnType = returnType.GetGenericArguments()[0];
                                 returnTypeName = actualReturnType.AssemblyQualifiedName;
+                                _logger.LogDebug("Extracted actual return type: {ActualReturnType}", actualReturnType);
                             }
                         }
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Could not get method info for {MethodName}", request.GetMethodName());
                     }
                     
                     var rpcRequest = new Protocol.RpcRequest
@@ -123,6 +130,7 @@ namespace Forkleans.Rpc
                         if (response.Payload != null && response.Payload.Length > 0)
                         {
                             var json = System.Text.Encoding.UTF8.GetString(response.Payload);
+                            _logger.LogInformation("Deserializing response payload: '{Json}' (length: {Length} bytes)", json, response.Payload.Length);
                             
                             // Try to deserialize using the return type information if available
                             if (!string.IsNullOrEmpty(rpcRequest.ReturnTypeName))
@@ -138,6 +146,23 @@ namespace Forkleans.Rpc
                                     {
                                         _logger.LogWarning("Could not load return type {ReturnTypeName}", rpcRequest.ReturnTypeName);
                                         result = System.Text.Json.JsonSerializer.Deserialize<object>(json);
+                                        
+                                        // Handle JsonElement conversion for primitive types
+                                        if (result is System.Text.Json.JsonElement element)
+                                        {
+                                            result = element.ValueKind switch
+                                            {
+                                                System.Text.Json.JsonValueKind.True => true,
+                                                System.Text.Json.JsonValueKind.False => false,
+                                                System.Text.Json.JsonValueKind.Number => element.TryGetInt32(out var intValue) ? intValue : element.GetDouble(),
+                                                System.Text.Json.JsonValueKind.String => element.GetString(),
+                                                System.Text.Json.JsonValueKind.Null => null,
+                                                _ => result // Keep as JsonElement for complex types
+                                            };
+                                            
+                                            _logger.LogDebug("Converted JsonElement of kind {Kind} to {Type}: {Value} (returnType null)", 
+                                                element.ValueKind, result?.GetType().Name ?? "null", result);
+                                        }
                                     }
                                 }
                                 catch (Exception ex)
@@ -145,14 +170,51 @@ namespace Forkleans.Rpc
                                     _logger.LogError(ex, "Error deserializing result of type {ReturnTypeName}", rpcRequest.ReturnTypeName);
                                     // Fall back to object deserialization
                                     result = System.Text.Json.JsonSerializer.Deserialize<object>(json);
+                                    
+                                    // Handle JsonElement conversion for primitive types
+                                    if (result is System.Text.Json.JsonElement element)
+                                    {
+                                        result = element.ValueKind switch
+                                        {
+                                            System.Text.Json.JsonValueKind.True => true,
+                                            System.Text.Json.JsonValueKind.False => false,
+                                            System.Text.Json.JsonValueKind.Number => element.TryGetInt32(out var intValue) ? intValue : element.GetDouble(),
+                                            System.Text.Json.JsonValueKind.String => element.GetString(),
+                                            System.Text.Json.JsonValueKind.Null => null,
+                                            _ => result // Keep as JsonElement for complex types
+                                        };
+                                        
+                                        _logger.LogDebug("Converted JsonElement of kind {Kind} to {Type}: {Value} (in fallback)", 
+                                            element.ValueKind, result?.GetType().Name ?? "null", result);
+                                    }
                                 }
                             }
                             else
                             {
                                 // No type information available, deserialize as object
                                 result = System.Text.Json.JsonSerializer.Deserialize<object>(json);
+                                
+                                // Handle JsonElement conversion for primitive types
+                                if (result is System.Text.Json.JsonElement element)
+                                {
+                                    result = element.ValueKind switch
+                                    {
+                                        System.Text.Json.JsonValueKind.True => true,
+                                        System.Text.Json.JsonValueKind.False => false,
+                                        System.Text.Json.JsonValueKind.Number => element.TryGetInt32(out var intValue) ? intValue : element.GetDouble(),
+                                        System.Text.Json.JsonValueKind.String => element.GetString(),
+                                        System.Text.Json.JsonValueKind.Null => null,
+                                        _ => result // Keep as JsonElement for complex types
+                                    };
+                                    
+                                    _logger.LogDebug("Converted JsonElement of kind {Kind} to {Type}: {Value}", 
+                                        element.ValueKind, result?.GetType().Name ?? "null", result);
+                                }
                             }
                         }
+                        
+                        _logger.LogInformation("Final deserialized result - Type: {Type}, Value: {Value}", 
+                            result?.GetType().Name ?? "null", result);
                         
                         context.Complete(Response.FromResult(result));
                     }

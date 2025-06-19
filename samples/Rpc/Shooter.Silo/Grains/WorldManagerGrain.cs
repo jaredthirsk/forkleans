@@ -104,18 +104,34 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
 
     public Task<Vector2> GetPlayerStartPosition(string playerId)
     {
-        // Start players randomly in one of the 3x3 zones
+        // For now, start all players in a zone that has an ActionServer
+        // Look for any available zone with a server
         var random = new Random(playerId.GetHashCode());
-        var gridX = random.Next(0, 3);
-        var gridY = random.Next(0, 3);
-        var startSquare = new GridSquare(gridX, gridY);
         
-        // Random position within the grid square
-        var (min, max) = startSquare.GetBounds();
-        var x = min.X + (float)random.NextDouble() * (max.X - min.X);
-        var y = min.Y + (float)random.NextDouble() * (max.Y - min.Y);
-        
-        return Task.FromResult(new Vector2(x, y));
+        if (_gridToServer.Any())
+        {
+            // Pick a random zone that has a server
+            var availableZones = _gridToServer.Keys.ToList();
+            var selectedZone = availableZones[random.Next(availableZones.Count)];
+            
+            // Random position within the selected zone
+            var (min, max) = selectedZone.GetBounds();
+            var x = min.X + (float)random.NextDouble() * (max.X - min.X);
+            var y = min.Y + (float)random.NextDouble() * (max.Y - min.Y);
+            
+            return Task.FromResult(new Vector2(x, y));
+        }
+        else
+        {
+            // No servers available, default to zone (0,0)
+            // This should rarely happen as players shouldn't be able to join without servers
+            var startSquare = new GridSquare(0, 0);
+            var (min, max) = startSquare.GetBounds();
+            var x = min.X + (float)random.NextDouble() * (max.X - min.X);
+            var y = min.Y + (float)random.NextDouble() * (max.Y - min.Y);
+            
+            return Task.FromResult(new Vector2(x, y));
+        }
     }
     
     public async Task<PlayerTransferInfo?> InitiatePlayerTransfer(string playerId, Vector2 currentPosition)

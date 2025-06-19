@@ -31,10 +31,12 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
         _orleansClient = orleansClient;
     }
 
-    public async Task<bool> ConnectPlayer(string playerId)
+    public async Task<string> ConnectPlayer(string playerId)
     {
         _logger.LogInformation("RPC: Player {PlayerId} connecting via Forkleans RPC", playerId);
-        return await _gameService.ConnectPlayer(playerId);
+        var result = await _gameService.ConnectPlayer(playerId);
+        _logger.LogInformation("RPC: ConnectPlayer returning {Result} for player {PlayerId}", result, playerId);
+        return result ? "SUCCESS" : "FAILED";
     }
 
     public async Task DisconnectPlayer(string playerId)
