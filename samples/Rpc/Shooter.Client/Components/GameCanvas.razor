@@ -155,7 +155,8 @@
                     entity.State == EntityStateType.Active && entity.Health > 0)
                 {
                     var maxHealth = entity.Type == EntityType.Player ? 1000f : 
-                                   entity.SubType == (int)EnemySubType.Kamikaze ? 30f : 50f;
+                                   entity.SubType == (int)EnemySubType.Kamikaze ? 30f : 
+                                   entity.SubType == (int)EnemySubType.Scout ? 300f : 50f;
                     await canvasContext.InvokeVoidAsync("drawHealthBar",
                         screenPos.X, screenPos.Y - size - 10, size * 2, entity.Health / maxHealth);
                 }

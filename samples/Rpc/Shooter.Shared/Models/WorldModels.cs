@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 namespace Shooter.Shared.Models;
 
 [Orleans.GenerateSerializer]
+[Forkleans.GenerateSerializer]
 public record GridSquare(int X, int Y)
 {
     public const int Size = 500; // Size of each grid square in world units
@@ -38,6 +39,7 @@ public record PlayerInfo(
     float Health);
 
 [Orleans.GenerateSerializer]
+[Forkleans.GenerateSerializer]
 public record EntityState(
     [property: JsonPropertyName("entityId")] string EntityId,
     [property: JsonPropertyName("type")] EntityType Type,
@@ -50,6 +52,7 @@ public record EntityState(
     [property: JsonPropertyName("stateTimer")] float StateTimer = 0f);
 
 [Orleans.GenerateSerializer]
+[Forkleans.GenerateSerializer]
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum EntityType
 {
@@ -60,13 +63,15 @@ public enum EntityType
 }
 
 [Orleans.GenerateSerializer]
+[Forkleans.GenerateSerializer]
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum EntityStateType
 {
     Active,
     Dying,
     Dead,
-    Respawning
+    Respawning,
+    Alerting
 }
 
 [Orleans.GenerateSerializer]
@@ -75,10 +80,12 @@ public enum EnemySubType
 {
     Kamikaze = 1,
     Sniper = 2,
-    Strafing = 3
+    Strafing = 3,
+    Scout = 4
 }
 
 [Orleans.GenerateSerializer]
+[Forkleans.GenerateSerializer]
 public record WorldState(
     [property: JsonPropertyName("entities")] List<EntityState> Entities,
     [property: JsonPropertyName("timestamp")] DateTime Timestamp,

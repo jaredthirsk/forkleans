@@ -1,12 +1,18 @@
 using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
+using Shooter.Silo;
 using Shooter.Silo.Controllers;
 using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+
+// Configure file logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddProvider(new FileLoggerProvider("logs/silo.log"));
 
 // Add services
 builder.Services.AddControllers();

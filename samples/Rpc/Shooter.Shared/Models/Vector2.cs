@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 namespace Shooter.Shared.Models;
 
 [Orleans.GenerateSerializer]
+[Forkleans.GenerateSerializer]
 public record struct Vector2(
     [property: JsonPropertyName("x")] float X, 
     [property: JsonPropertyName("y")] float Y)

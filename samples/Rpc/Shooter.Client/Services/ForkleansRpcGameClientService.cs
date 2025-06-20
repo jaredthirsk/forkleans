@@ -41,7 +41,7 @@ public class ForkleansRpcGameClientService : IDisposable
     public event Action<WorldState>? WorldStateUpdated;
     public event Action<string>? ServerChanged;
     public event Action<List<GridSquare>>? AvailableZonesUpdated;
-    public event Action<Dictionary<string, (bool isConnected, bool isNeighbor)>>? PreEstablishedConnectionsUpdated;
+    public event Action<Dictionary<string, (bool isConnected, bool isNeighbor, bool isConnecting)>>? PreEstablishedConnectionsUpdated;
     
     public bool IsConnected { get; private set; }
     public string? PlayerId { get; private set; }
@@ -138,7 +138,7 @@ public class ForkleansRpcGameClientService : IDisposable
                 })
                 .ConfigureServices(services =>
                 {
-                    // Add serialization for the grain interfaces
+                    // Add serialization for the grain interfaces and shared models
                     services.AddSerializer(serializer =>
                     {
                         serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
@@ -312,6 +312,19 @@ public class ForkleansRpcGameClientService : IDisposable
                         entityTypes.GetValueOrDefault(EntityType.Enemy, 0),
                         entityTypes.GetValueOrDefault(EntityType.Bullet, 0),
                         entityTypes.GetValueOrDefault(EntityType.Explosion, 0));
+                }
+                
+                // Fetch entities from adjacent zones if player is near borders
+                var adjacentEntities = await FetchAdjacentZoneEntities();
+                if (adjacentEntities.Any())
+                {
+                    // Merge adjacent entities with current state
+                    var allEntities = worldState.Entities.ToList();
+                    allEntities.AddRange(adjacentEntities);
+                    worldState = new WorldState(allEntities, worldState.Timestamp, worldState.SequenceNumber);
+                    
+                    _logger.LogInformation("Added {Count} entities from adjacent zones, total: {Total}", 
+                        adjacentEntities.Count, worldState.Entities.Count);
                 }
                 
                 // Check if our player still exists in the world state
@@ -792,8 +805,13 @@ public class ForkleansRpcGameClientService : IDisposable
         // First, check health of existing connections
         await CheckPreEstablishedConnectionHealth();
         
-        // Find neighboring zones (adjacent to current zone)
-        var neighboringZones = GetNeighboringZones(_currentZone);
+        // Get player position from last world state
+        var playerEntity = _lastWorldState?.Entities?.FirstOrDefault(e => e.EntityId == PlayerId);
+        if (playerEntity == null)
+        {
+            _logger.LogDebug("No player position available for distance-based connections");
+            return;
+        }
         
         // Get server information for each zone
         var siloUrl = _configuration["SiloUrl"] ?? "https://localhost:7071/";
@@ -809,12 +827,42 @@ public class ForkleansRpcGameClientService : IDisposable
             // Create a map of zones to servers
             var zoneToServer = response.ToDictionary(s => s.AssignedSquare, s => s);
             
-            // Check each neighboring zone
+            // Check each available zone to see if we're within 150 units
+            var zonesWithinRange = new List<GridSquare>();
+            
+            foreach (var zone in zones)
+            {
+                // Calculate distance from player to zone
+                var (min, max) = zone.GetBounds();
+                float distToZone = 0;
+                
+                // X-axis distance
+                if (playerEntity.Position.X < min.X)
+                    distToZone = Math.Max(distToZone, min.X - playerEntity.Position.X);
+                else if (playerEntity.Position.X > max.X)
+                    distToZone = Math.Max(distToZone, playerEntity.Position.X - max.X);
+                
+                // Y-axis distance
+                if (playerEntity.Position.Y < min.Y)
+                    distToZone = Math.Max(distToZone, min.Y - playerEntity.Position.Y);
+                else if (playerEntity.Position.Y > max.Y)
+                    distToZone = Math.Max(distToZone, playerEntity.Position.Y - max.Y);
+                
+                // Include zones within 150 units
+                if (distToZone <= 150)
+                {
+                    zonesWithinRange.Add(zone);
+                    _logger.LogDebug("Zone ({X},{Y}) is within range - distance: {Distance} units", 
+                        zone.X, zone.Y, distToZone);
+                }
+            }
+            
+            // Establish connections to zones within range
             var connectionStatus = new Dictionary<GridSquare, bool>();
             
-            foreach (var zone in neighboringZones)
+            foreach (var zone in zonesWithinRange)
             {
-                if (zones.Contains(zone) && zoneToServer.TryGetValue(zone, out var serverInfo))
+                if (zoneToServer.TryGetValue(zone, out var serverInfo))
                 {
                     // Check if we already have a pre-established connection
                     var connectionKey = $"{zone.X},{zone.Y}";
@@ -837,17 +885,12 @@ public class ForkleansRpcGameClientService : IDisposable
                 }
             }
             
-            // Clean up old connections not in neighboring zones
-            // Keep connections for:
-            // - Current zone
-            // - Neighboring zones within 150 units
-            // - Recently left zones (within 30 seconds) to allow re-entry
-            var validKeys = neighboringZones.Select(z => $"{z.X},{z.Y}").ToHashSet();
-            validKeys.Add($"{_currentZone.X},{_currentZone.Y}"); // Keep current zone connection
+            // Clean up connections to zones that are out of range
+            var validKeys = zonesWithinRange.Select(z => $"{z.X},{z.Y}").ToHashSet();
+            validKeys.Add($"{_currentZone.X},{_currentZone.Y}"); // Always keep current zone connection
             
             var keysToRemove = _preEstablishedConnections
-                .Where(kvp => !validKeys.Contains(kvp.Key) && 
-                              (DateTime.UtcNow - kvp.Value.EstablishedAt).TotalSeconds > 30) // Give 30 seconds before cleanup
+                .Where(kvp => !validKeys.Contains(kvp.Key))
                 .Select(kvp => kvp.Key)
                 .ToList();
             
@@ -867,27 +910,15 @@ public class ForkleansRpcGameClientService : IDisposable
                 await CleanupPreEstablishedConnection(key);
             }
             
-            // Notify about ALL pre-established connections (not just the ones we just checked)
-            // Convert to a format that can be serialized to JSON (string keys instead of GridSquare keys)
-            // Also indicate which ones are neighbors vs recently left zones
-            var allConnectionStatus = new Dictionary<string, (bool isConnected, bool isNeighbor)>();
-            var neighborKeys = neighboringZones.Select(z => $"{z.X},{z.Y}").ToHashSet();
+            // Notify about ALL pre-established connections
+            var allConnectionStatus = new Dictionary<string, (bool isConnected, bool isNeighbor, bool isConnecting)>();
             
             foreach (var kvp in _preEstablishedConnections)
             {
-                var isNeighbor = neighborKeys.Contains(kvp.Key);
-                var isVisited = _visitedZones.Contains(kvp.Key);
-                
-                // Only include non-neighbor connections if we've actually visited the zone
-                if (kvp.Value.IsConnected && !isNeighbor && !isVisited)
-                {
-                    // This is a pre-established connection to a zone we've never visited
-                    // Don't include it to avoid showing it as dark green
-                    continue;
-                }
-                
-                allConnectionStatus[kvp.Key] = (kvp.Value.IsConnected, isNeighbor);
+                // All connections are now based on distance, so they're all "neighbors"
+                allConnectionStatus[kvp.Key] = (kvp.Value.IsConnected, true, kvp.Value.IsConnecting);
             }
+            
             PreEstablishedConnectionsUpdated?.Invoke(allConnectionStatus);
         }
         catch (Exception ex)
@@ -1003,6 +1034,20 @@ public class ForkleansRpcGameClientService : IDisposable
                 return false;
             }
             
+            // Create and add connection in connecting state
+            var connection = new PreEstablishedConnection
+            {
+                ServerInfo = serverInfo,
+                EstablishedAt = DateTime.UtcNow,
+                IsConnected = false,
+                IsConnecting = true
+            };
+            
+            _preEstablishedConnections[connectionKey] = connection;
+            
+            // Notify UI about connecting state
+            NotifyConnectionsUpdated();
+            
             // Resolve hostname to IP address if needed
             string resolvedHost = serverHost;
             try
@@ -1047,14 +1092,8 @@ public class ForkleansRpcGameClientService : IDisposable
                 
             await hostBuilder.StartAsync();
             
-            var connection = new PreEstablishedConnection
-            {
-                RpcHost = hostBuilder,
-                RpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>(),
-                ServerInfo = serverInfo,
-                EstablishedAt = DateTime.UtcNow,
-                IsConnected = false
-            };
+            connection.RpcHost = hostBuilder;
+            connection.RpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>();
             
             // Brief delay for handshake
             await Task.Delay(200);
@@ -1101,14 +1140,40 @@ public class ForkleansRpcGameClientService : IDisposable
                 }
             }
             
+            connection.IsConnecting = false;
             _preEstablishedConnections[connectionKey] = connection;
+            
+            // Notify UI about connection state change
+            NotifyConnectionsUpdated();
+            
             return connection.IsConnected;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to establish connection to zone {Key}", connectionKey);
+            
+            // Clear connecting state on failure
+            if (_preEstablishedConnections.TryGetValue(connectionKey, out var conn))
+            {
+                conn.IsConnecting = false;
+                NotifyConnectionsUpdated();
+            }
+            
             return false;
         }
+    }
+    
+    private void NotifyConnectionsUpdated()
+    {
+        var allConnectionStatus = new Dictionary<string, (bool isConnected, bool isNeighbor, bool isConnecting)>();
+        
+        foreach (var kvp in _preEstablishedConnections)
+        {
+            // All connections are now based on distance, so they're all "neighbors"
+            allConnectionStatus[kvp.Key] = (kvp.Value.IsConnected, true, kvp.Value.IsConnecting);
+        }
+        
+        PreEstablishedConnectionsUpdated?.Invoke(allConnectionStatus);
     }
     
     private async Task CleanupPreEstablishedConnection(string connectionKey)
@@ -1132,6 +1197,154 @@ public class ForkleansRpcGameClientService : IDisposable
             
             _preEstablishedConnections.Remove(connectionKey);
         }
+    }
+    
+    private async Task<List<EntityState>> FetchAdjacentZoneEntities()
+    {
+        var adjacentEntities = new List<EntityState>();
+        
+        // Get player position from last world state
+        var playerEntity = _lastWorldState?.Entities?.FirstOrDefault(e => e.EntityId == PlayerId);
+        if (playerEntity == null || _currentZone == null)
+        {
+            return adjacentEntities;
+        }
+        
+        // Check if player is within 100 units of any zone border
+        var (min, max) = _currentZone.GetBounds();
+        var pos = playerEntity.Position;
+        
+        _logger.LogDebug("Current zone ({X},{Y}) bounds: ({MinX},{MinY}) to ({MaxX},{MaxY}), player at {Position}", 
+            _currentZone.X, _currentZone.Y, min.X, min.Y, max.X, max.Y, pos);
+        
+        bool nearLeftEdge = pos.X <= min.X + 100;
+        bool nearRightEdge = pos.X >= max.X - 100;
+        bool nearTopEdge = pos.Y <= min.Y + 100;
+        bool nearBottomEdge = pos.Y >= max.Y - 100;
+        
+        if (!nearLeftEdge && !nearRightEdge && !nearTopEdge && !nearBottomEdge)
+        {
+            // Player is not near any borders
+            return adjacentEntities;
+        }
+        
+        _logger.LogDebug("Player at {Position} near borders - L:{Left} R:{Right} T:{Top} B:{Bottom}", 
+            pos, nearLeftEdge, nearRightEdge, nearTopEdge, nearBottomEdge);
+        
+        // Determine which zones to fetch from based on player position
+        var zonesToFetch = new HashSet<GridSquare>();
+        
+        if (nearLeftEdge)
+        {
+            zonesToFetch.Add(new GridSquare(_currentZone.X - 1, _currentZone.Y));
+            
+            // Check corners
+            if (nearTopEdge)
+                zonesToFetch.Add(new GridSquare(_currentZone.X - 1, _currentZone.Y - 1));
+            if (nearBottomEdge)
+                zonesToFetch.Add(new GridSquare(_currentZone.X - 1, _currentZone.Y + 1));
+        }
+        
+        if (nearRightEdge)
+        {
+            zonesToFetch.Add(new GridSquare(_currentZone.X + 1, _currentZone.Y));
+            
+            // Check corners
+            if (nearTopEdge)
+                zonesToFetch.Add(new GridSquare(_currentZone.X + 1, _currentZone.Y - 1));
+            if (nearBottomEdge)
+                zonesToFetch.Add(new GridSquare(_currentZone.X + 1, _currentZone.Y + 1));
+        }
+        
+        if (nearTopEdge)
+        {
+            zonesToFetch.Add(new GridSquare(_currentZone.X, _currentZone.Y - 1));
+        }
+        
+        if (nearBottomEdge)
+        {
+            zonesToFetch.Add(new GridSquare(_currentZone.X, _currentZone.Y + 1));
+        }
+        
+        // Log zones we want to fetch from
+        _logger.LogDebug("Want to fetch entities from zones: {Zones}", 
+            string.Join(", ", zonesToFetch.Select(z => $"({z.X},{z.Y})")));
+        
+        // Log available pre-established connections
+        _logger.LogDebug("Available pre-established connections: {Connections}", 
+            string.Join(", ", _preEstablishedConnections.Select(kvp => $"{kvp.Key}:{(kvp.Value.IsConnected ? "Connected" : "Disconnected")}")));
+        
+        // Fetch entities from each adjacent zone using pre-established connections
+        foreach (var zone in zonesToFetch)
+        {
+            var connectionKey = $"{zone.X},{zone.Y}";
+            
+            if (_preEstablishedConnections.TryGetValue(connectionKey, out var connection) && 
+                connection.IsConnected && 
+                connection.GameGrain != null)
+            {
+                try
+                {
+                    _logger.LogDebug("Fetching entities from zone ({X},{Y}) via pre-established connection", zone.X, zone.Y);
+                    
+                    // Use GetLocalWorldState to avoid recursive fetching on the server
+                    var worldState = await connection.GameGrain.GetLocalWorldState();
+                    if (worldState?.Entities != null)
+                    {
+                        // Filter to only include entities within 100 units of our zone
+                        var filteredEntities = worldState.Entities.Where(e => 
+                        {
+                            // Check if entity is within 100 units of the shared border
+                            var entityZone = GridSquare.FromPosition(e.Position);
+                            
+                            // Entity must be in the adjacent zone
+                            if (entityZone.X != zone.X || entityZone.Y != zone.Y)
+                                return false;
+                            
+                            // Check distance to our zone
+                            if (zone.X < _currentZone.X && e.Position.X >= max.X - 100) return true; // Left zone, right edge
+                            if (zone.X > _currentZone.X && e.Position.X <= min.X + 100) return true; // Right zone, left edge
+                            if (zone.Y < _currentZone.Y && e.Position.Y >= max.Y - 100) return true; // Top zone, bottom edge
+                            if (zone.Y > _currentZone.Y && e.Position.Y <= min.Y + 100) return true; // Bottom zone, top edge
+                            
+                            // For corner zones, check both axes
+                            if (zone.X != _currentZone.X && zone.Y != _currentZone.Y)
+                            {
+                                bool xInRange = (zone.X < _currentZone.X && e.Position.X >= max.X - 100) ||
+                                               (zone.X > _currentZone.X && e.Position.X <= min.X + 100);
+                                bool yInRange = (zone.Y < _currentZone.Y && e.Position.Y >= max.Y - 100) ||
+                                               (zone.Y > _currentZone.Y && e.Position.Y <= min.Y + 100);
+                                return xInRange && yInRange;
+                            }
+                            
+                            return false;
+                        }).ToList();
+                        
+                        adjacentEntities.AddRange(filteredEntities);
+                        
+                        if (filteredEntities.Any())
+                        {
+                            _logger.LogDebug("Fetched {Count} entities from zone ({X},{Y}) via pre-established connection", 
+                                filteredEntities.Count, zone.X, zone.Y);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogDebug("Failed to fetch entities from zone ({X},{Y}): {Error}", 
+                        zone.X, zone.Y, ex.Message);
+                }
+            }
+            else
+            {
+                _logger.LogDebug("No pre-established connection for zone ({X},{Y}) - connection exists: {Exists}, connected: {Connected}", 
+                    zone.X, zone.Y, 
+                    _preEstablishedConnections.ContainsKey(connectionKey),
+                    _preEstablishedConnections.TryGetValue(connectionKey, out var c) && c.IsConnected);
+            }
+        }
+        
+        return adjacentEntities;
     }
     
     private void Cleanup()
@@ -1206,5 +1419,6 @@ internal class PreEstablishedConnection
     public Shooter.Shared.Models.ActionServerInfo ServerInfo { get; set; } = null!;
     public DateTime EstablishedAt { get; set; }
     public bool IsConnected { get; set; }
+    public bool IsConnecting { get; set; }
 }
 

@@ -44,4 +44,10 @@ public interface IGameRpcGrain : Forkleans.IGrainWithStringKey
     
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
     Task<List<GridSquare>> GetAvailableZones();
+    
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    Task ReceiveScoutAlert(GridSquare playerZone, Vector2 playerPosition);
+    
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Unreliable)]
+    Task<WorldState> GetLocalWorldState();
 }

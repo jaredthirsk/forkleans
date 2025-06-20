@@ -45,10 +45,9 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
         await _gameService.DisconnectPlayer(playerId);
     }
 
-    public Task<WorldState> GetWorldState()
+    public async Task<WorldState> GetWorldState()
     {
-        var state = _worldSimulation.GetCurrentState();
-        return Task.FromResult(state);
+        return await Task.FromResult(_worldSimulation.GetCurrentState());
     }
 
     public async Task UpdatePlayerInput(string playerId, Vector2 moveDirection, bool isShooting)
@@ -82,5 +81,23 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
             _logger.LogError(ex, "Failed to get available zones");
             return new List<GridSquare>();
         }
+    }
+
+    public Task ReceiveScoutAlert(GridSquare playerZone, Vector2 playerPosition)
+    {
+        _logger.LogInformation("RPC: Received scout alert - Player spotted in zone ({X},{Y}) at position {Position}", 
+            playerZone.X, playerZone.Y, playerPosition);
+        
+        // Alert local enemies to move toward the player zone
+        _worldSimulation.ProcessScoutAlert(playerZone, playerPosition);
+        
+        return Task.CompletedTask;
+    }
+    
+    public Task<WorldState> GetLocalWorldState()
+    {
+        // Return only local entities without fetching from adjacent zones
+        var state = _worldSimulation.GetCurrentState();
+        return Task.FromResult(state);
     }
 }

@@ -149,6 +149,37 @@ class GamePhaser {
         
         graphics.generateTexture('enemy-strafing', strafSize * 2, strafSize * 2);
         graphics.destroy();
+        
+        // Scout - purple hexagon (watchful shape)
+        graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
+        const scoutSize = 14;
+        graphics.fillStyle(0x9966cc, 1);
+        graphics.beginPath();
+        
+        // Draw hexagon
+        for (let i = 0; i < 6; i++) {
+            const angle = (i / 6) * Math.PI * 2;
+            const x = scoutSize + Math.cos(angle) * scoutSize * 0.8;
+            const y = scoutSize + Math.sin(angle) * scoutSize * 0.8;
+            if (i === 0) {
+                graphics.moveTo(x, y);
+            } else {
+                graphics.lineTo(x, y);
+            }
+        }
+        graphics.closePath();
+        graphics.fillPath();
+        
+        // Purple border
+        graphics.lineStyle(2, 0x663399, 1);
+        graphics.strokePath();
+        
+        // Eye in center (scanner)
+        graphics.fillStyle(0xffff00, 1);
+        graphics.fillCircle(scoutSize, scoutSize, scoutSize * 0.3);
+        
+        graphics.generateTexture('enemy-scout', scoutSize * 2, scoutSize * 2);
+        graphics.destroy();
     }
     
     createBulletSprites() {
@@ -398,17 +429,31 @@ class GamePhaser {
             sprite.y = entity.position.y;
             sprite.rotation = entity.rotation;
 
+            // Parse entity state consistently (handle string/number)
+            const entityState = typeof entity.state === 'string' ? this.parseEntityState(entity.state) : entity.state;
+            
             // Update visibility based on state
-            if (entity.state === 2) { // Dying
+            if (entityState === 2) { // Dying
                 sprite.alpha = 0.5;
-            } else if (entity.state === 3) { // Dead
+            } else if (entityState === 3) { // Dead
                 sprite.visible = false;
-            } else if (entity.state === 4) { // Respawning
+            } else if (entityState === 4) { // Respawning
                 sprite.alpha = 0.3;
+            } else if (entityState === 5) { // Alerting (Scout)
+                sprite.visible = true;
+                sprite.alpha = 1;
+                this.updateScoutAlertIndicator(sprite, entity);
             } else {
                 sprite.visible = true;
                 sprite.alpha = 1;
+                this.clearScoutAlertIndicator(sprite);
             }
+
+            // Update health bar for living entities
+            this.updateHealthBar(sprite, entity);
+
+            // Update player name for other players
+            this.updatePlayerName(sprite, entity);
 
             // Update player info
             if (entity.entityId === this.playerId) {
@@ -445,6 +490,9 @@ class GamePhaser {
         // Remove sprites for entities that no longer exist
         for (const [entityId, sprite] of this.sprites) {
             if (!currentEntityIds.has(entityId)) {
+                this.clearScoutAlertIndicator(sprite);
+                this.clearHealthBar(sprite);
+                this.clearPlayerName(sprite);
                 sprite.destroy();
                 this.sprites.delete(entityId);
             }
@@ -466,6 +514,7 @@ class GamePhaser {
                     case 1: return 'enemy-kamikaze';
                     case 2: return 'enemy-sniper';
                     case 3: return 'enemy-strafing';
+                    case 4: return 'enemy-scout';
                     default: return 'enemy-kamikaze';
                 }
             case 2: // Bullet
@@ -489,6 +538,18 @@ class GamePhaser {
         return typeMap[typeString] ?? 0;
     }
 
+    parseEntityState(stateString) {
+        // Handle string enum values
+        const stateMap = {
+            'Active': 0,
+            'Dying': 2,
+            'Dead': 3,
+            'Respawning': 4,
+            'Alerting': 5
+        };
+        return stateMap[stateString] ?? 0;
+    }
+
     getEntityTypeName(type) {
         // Handle both string and numeric types
         if (typeof type === 'string') return type;
@@ -509,6 +570,7 @@ class GamePhaser {
                 case 1: return 0xff4444; // Kamikaze - red
                 case 2: return 0x44ff44; // Sniper - light green
                 case 3: return 0xffaa44; // Strafing - orange
+                case 4: return 0x9966cc; // Scout - purple
                 default: return 0xff0000;
             }
         }
@@ -573,7 +635,7 @@ class GamePhaser {
                     // Current server's zone
                     if (!isPlayerInCorrectZone && this.playerZone) {
                         // Player is not in the correct zone - use red
-                        boxColor = 0x990000; // #900
+                        boxColor = 0xFF0000;
                     } else {
                         // Normal server zone - brighter (closer to white)
                         boxColor = 0xdddddd; // Much brighter gray, closer to white
@@ -581,19 +643,24 @@ class GamePhaser {
                 } else if (this.preEstablishedConnections[zoneKey]) {
                     // Pre-established connection
                     const connectionInfo = this.preEstablishedConnections[zoneKey];
-                    if (connectionInfo.isNeighbor) {
-                        // Neighboring zone within 150 units - blue
-                        boxColor = 0x3399ff; // Nice blue color
+                    if (connectionInfo.isConnecting) {
+                        // Currently connecting - green
+                        boxColor = 0x22ff22; 
+                    } else if (connectionInfo.isConnected) {
+                        // Connected zone - blue
+                        boxColor = 0x3399ff;
                     } else {
-                        // Recently left zone (still connected for 30s) - dark green
-                        boxColor = 0x228822; // Dark green color
+                        // Failed connection - yellow
+                        boxColor = 0xFFFF00; 
                     }
                 } else {
-                    // Other zones - darker gray
-                    boxColor = 0x555555; // #555
+                    // Other zones - transparent black (no color, just rely on fillStyle alpha)
+                    boxColor = 0x000000; // Black (will be transparent)
                 }
                 
-                this.gridGraphics.fillStyle(boxColor, 0.3);
+                // Use lower alpha for unconnected zones
+                const alpha = (this.preEstablishedConnections[zoneKey] || isServerZone) ? 0.3 : 0.1;
+                this.gridGraphics.fillStyle(boxColor, alpha);
                 
                 // Draw top rectangle
                 const topX = Math.max(x, worldView.left);
@@ -763,6 +830,193 @@ class GamePhaser {
         // Redraw the grid to show pre-established connections
         if (this.gridGraphics) {
             this.drawGrid();
+        }
+    }
+
+    updateScoutAlertIndicator(sprite, entity) {
+        // Create or update the alert indicator for scouts
+        if (!sprite.alertIndicator) {
+            sprite.alertIndicator = this.scene.add.graphics();
+        }
+        
+        const graphics = sprite.alertIndicator;
+        graphics.clear();
+        graphics.x = sprite.x;
+        graphics.y = sprite.y;
+        
+        // Create a flashing wi-fi style indicator
+        const time = Date.now() * 0.01; // Current time for animation
+        const flash = (Math.sin(time) + 1) * 0.5; // Oscillates between 0 and 1
+        const alpha = 0.4 + flash * 0.6; // Alpha between 0.4 and 1.0
+        
+        graphics.lineStyle(3, 0xffff00, alpha); // Yellow with pulsing alpha
+        
+        // Draw wi-fi style arcs in the alert direction(s)
+        if (entity.rotation === 0 && entity.position) {
+            // Center position - show 8-directional pattern
+            this.drawEightDirectionalAlerts(graphics, alpha);
+        } else {
+            // Directional alert - show arcs in the alert direction
+            this.drawDirectionalAlert(graphics, entity.rotation, alpha);
+        }
+    }
+    
+    drawEightDirectionalAlerts(graphics, alpha) {
+        // Draw 8 small arcs pointing in all directions
+        const directions = [0, Math.PI/4, Math.PI/2, 3*Math.PI/4, Math.PI, 5*Math.PI/4, 3*Math.PI/2, 7*Math.PI/4];
+        
+        directions.forEach(angle => {
+            this.drawWifiArc(graphics, angle, 25, alpha);
+        });
+    }
+    
+    drawDirectionalAlert(graphics, direction, alpha) {
+        // Draw 3 concentric arcs in the alert direction
+        for (let i = 1; i <= 3; i++) {
+            this.drawWifiArc(graphics, direction, 15 + i * 10, alpha * (1.2 - i * 0.2));
+        }
+    }
+    
+    drawWifiArc(graphics, direction, radius, alpha) {
+        // Draw a wi-fi style arc
+        graphics.lineStyle(2, 0xffff00, alpha);
+        
+        const startAngle = direction - Math.PI/6; // 30 degree arc
+        const endAngle = direction + Math.PI/6;
+        
+        // Draw the arc
+        graphics.beginPath();
+        graphics.arc(0, 0, radius, startAngle, endAngle, false);
+        graphics.strokePath();
+        
+        // Add small lines at the ends for wi-fi effect
+        const startX = Math.cos(startAngle) * radius;
+        const startY = Math.sin(startAngle) * radius;
+        const endX = Math.cos(endAngle) * radius;
+        const endY = Math.sin(endAngle) * radius;
+        
+        graphics.lineStyle(3, 0xffff00, alpha);
+        graphics.lineBetween(startX - 3, startY - 3, startX + 3, startY + 3);
+        graphics.lineBetween(endX - 3, endY - 3, endX + 3, endY + 3);
+    }
+
+    clearScoutAlertIndicator(sprite) {
+        // Remove the alert indicator if it exists
+        if (sprite.alertIndicator) {
+            sprite.alertIndicator.destroy();
+            sprite.alertIndicator = null;
+        }
+    }
+
+    updateHealthBar(sprite, entity) {
+        // Parse entity type consistently
+        const entityType = typeof entity.type === 'string' ? this.parseEntityType(entity.type) : entity.type;
+        
+        // Parse entity state consistently
+        const entityState = typeof entity.state === 'string' ? this.parseEntityState(entity.state) : entity.state;
+        
+        // Only show health bars for living entities (not bullets/explosions)
+        const shouldShowHealthBar = entityType !== 2 && entityType !== 3 && // Not bullet or explosion
+                                   (entityState === 0 || entityState === 5) && entity.health > 0; // Active or Alerting and alive
+
+        if (shouldShowHealthBar) {
+            // Create or update the health bar
+            if (!sprite.healthBar) {
+                sprite.healthBar = this.scene.add.graphics();
+            }
+
+            const graphics = sprite.healthBar;
+            graphics.clear();
+            graphics.x = sprite.x;
+            graphics.y = sprite.y;
+
+            // Calculate max health based on entity type and subtype
+            let maxHealth;
+            if (entityType === 0) { // Player
+                maxHealth = 1000;
+            } else if (entityType === 1) { // Enemy
+                maxHealth = entity.subType === 1 ? 30 : entity.subType === 4 ? 300 : 50; // Kamikaze: 30, Scout: 300, Others: 50
+            } else {
+                maxHealth = 100; // Default
+            }
+
+            const healthPercent = Math.max(0, Math.min(1, entity.health / maxHealth));
+            const width = 30; // Health bar width
+            const height = 4; // Health bar height
+            const yOffset = -25; // Position above sprite
+
+            // Background (dark gray)
+            graphics.fillStyle(0x333333, 1);
+            graphics.fillRect(-width/2, yOffset, width, height);
+
+            // Health fill (color based on health percentage)
+            let healthColor;
+            if (healthPercent > 0.5) {
+                healthColor = 0x00ff00; // Green
+            } else if (healthPercent > 0.25) {
+                healthColor = 0xffff00; // Yellow
+            } else {
+                healthColor = 0xff0000; // Red
+            }
+
+            graphics.fillStyle(healthColor, 1);
+            graphics.fillRect(-width/2, yOffset, width * healthPercent, height);
+
+            // Border (gray)
+            graphics.lineStyle(1, 0x666666, 1);
+            graphics.strokeRect(-width/2, yOffset, width, height);
+        } else {
+            // Remove health bar if it shouldn't be shown
+            this.clearHealthBar(sprite);
+        }
+    }
+
+    clearHealthBar(sprite) {
+        // Remove the health bar if it exists
+        if (sprite.healthBar) {
+            sprite.healthBar.destroy();
+            sprite.healthBar = null;
+        }
+    }
+
+    updatePlayerName(sprite, entity) {
+        // Parse entity type
+        const entityType = typeof entity.type === 'string' ? this.parseEntityType(entity.type) : entity.type;
+        
+        // Only show names for other players (not current player, not enemies/bullets/etc)
+        const shouldShowName = entityType === 0 && entity.entityId !== this.playerId;
+
+        if (shouldShowName) {
+            // Create or update the name text
+            if (!sprite.nameText) {
+                // Extract a readable name from the entity ID
+                // Entity IDs are GUIDs, so we'll take the first 8 characters
+                const displayName = entity.entityId.substring(0, 8) + '...';
+                
+                sprite.nameText = this.scene.add.text(0, 0, displayName, {
+                    fontSize: '12px',
+                    fill: '#ffffff',
+                    stroke: '#000000',
+                    strokeThickness: 2,
+                    align: 'center'
+                });
+                sprite.nameText.setOrigin(0.5, 0);
+            }
+
+            // Update position to be below the sprite
+            sprite.nameText.x = sprite.x;
+            sprite.nameText.y = sprite.y + 20; // Position below sprite
+        } else {
+            // Remove name text if it shouldn't be shown
+            this.clearPlayerName(sprite);
+        }
+    }
+
+    clearPlayerName(sprite) {
+        // Remove the name text if it exists
+        if (sprite.nameText) {
+            sprite.nameText.destroy();
+            sprite.nameText = null;
         }
     }
 

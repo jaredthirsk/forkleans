@@ -1,9 +1,15 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Shooter.Shared.GrainInterfaces;
 using Shooter.Shared.Models;
+using Shooter.Shared.RpcInterfaces;
 using System.Linq;
+using Forkleans.Rpc;
+using Forkleans.Rpc.Hosting;
+using Forkleans.Rpc.Transport.LiteNetLib;
+using Forkleans.Serialization;
 
 namespace Shooter.ActionServer.Simulation;
 
@@ -243,6 +249,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         SpawnEnemies(2, EnemySubType.Kamikaze);
         SpawnEnemies(2, EnemySubType.Sniper);
         SpawnEnemies(1, EnemySubType.Strafing);
+        SpawnEnemies(1, EnemySubType.Scout);
         _logger.LogInformation("Initial enemy spawn complete. Total entities: {Count}", _entities.Count);
         
         while (!stoppingToken.IsCancellationRequested)
@@ -261,7 +268,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             // Spawn new enemies occasionally
             if (_random.NextDouble() < 0.001) // 0.1% chance per frame (10% of previous rate)
             {
-                var enemyType = (EnemySubType)_random.Next(1, 4);
+                var enemyType = (EnemySubType)_random.Next(1, 5); // Include Scout (1-4)
                 SpawnEnemies(1, enemyType);
             }
             
@@ -288,7 +295,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 if (player.State == EntityStateType.Dead || player.State == EntityStateType.Respawning)
                     continue;
                 
-                var speed = 200f; // units per second
+                var speed = 100f; // units per second (reduced by 50%)
                 var oldPos = player.Position;
                 player.Velocity = input.MoveDirection.Normalized() * speed;
                 var newPos = player.Position + player.Velocity * deltaTime;
@@ -355,10 +362,10 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                         player.Velocity = Vector2.Zero;
                         
                         // Keep player at zone boundary
-                        var (min, max) = _assignedSquare.GetBounds();
+                        var (zoneMin, zoneMax) = _assignedSquare.GetBounds();
                         player.Position = new Vector2(
-                            Math.Clamp(player.Position.X, min.X, max.X - 0.1f),
-                            Math.Clamp(player.Position.Y, min.Y, max.Y - 0.1f)
+                            Math.Clamp(player.Position.X, zoneMin.X, zoneMax.X - 0.1f),
+                            Math.Clamp(player.Position.Y, zoneMin.Y, zoneMax.Y - 0.1f)
                         );
                     }
                 }
@@ -369,10 +376,10 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                         playerId, oldPos, player.Position);
                     
                     // Check if player is approaching zone boundary
-                    var (min, max) = _assignedSquare.GetBounds();
+                    var (boundMin, boundMax) = _assignedSquare.GetBounds();
                     var distToEdge = Math.Min(
-                        Math.Min(player.Position.X - min.X, max.X - player.Position.X),
-                        Math.Min(player.Position.Y - min.Y, max.Y - player.Position.Y)
+                        Math.Min(player.Position.X - boundMin.X, boundMax.X - player.Position.X),
+                        Math.Min(player.Position.Y - boundMin.Y, boundMax.Y - player.Position.Y)
                     );
                     
                     if (distToEdge < 50)
@@ -408,13 +415,16 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                         shootDirection = new Vector2(MathF.Cos(player.Rotation), MathF.Sin(player.Rotation));
                     }
                     
-                    SpawnBullet(player.Position, shootDirection);
+                    SpawnBullet(player.Position, shootDirection, false, playerId);
                     input.LastShot = DateTime.UtcNow;
                 }
             }
         }
         
         // Update all entities
+        var (min, max) = _assignedSquare.GetBounds();
+        const float boundaryMargin = 5f; // Small margin to prevent entities from sitting exactly on boundaries
+        
         foreach (var entity in _entities.Values)
         {
             if (entity.Type != EntityType.Player && entity.State == EntityStateType.Active)
@@ -426,6 +436,26 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 {
                     entity.Rotation = MathF.Atan2(entity.Velocity.Y, entity.Velocity.X);
                 }
+                
+                // Enforce zone boundaries for enemies (bullets will be removed in zone monitoring)
+                if (entity.Type == EntityType.Enemy)
+                {
+                    // Clamp enemies to zone bounds with margin
+                    entity.Position = new Vector2(
+                        Math.Clamp(entity.Position.X, min.X + boundaryMargin, max.X - boundaryMargin),
+                        Math.Clamp(entity.Position.Y, min.Y + boundaryMargin, max.Y - boundaryMargin)
+                    );
+                    
+                    // If enemy hit boundary, reverse velocity on that axis
+                    if (entity.Position.X <= min.X + boundaryMargin || entity.Position.X >= max.X - boundaryMargin)
+                    {
+                        entity.Velocity = new Vector2(-entity.Velocity.X, entity.Velocity.Y);
+                    }
+                    if (entity.Position.Y <= min.Y + boundaryMargin || entity.Position.Y >= max.Y - boundaryMargin)
+                    {
+                        entity.Velocity = new Vector2(entity.Velocity.X, -entity.Velocity.Y);
+                    }
+                }
             }
         }
     }
@@ -434,9 +464,23 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     {
         var players = _entities.Values.Where(e => e.Type == EntityType.Player && e.State == EntityStateType.Active).ToList();
         
-        foreach (var enemy in _entities.Values.Where(e => e.Type == EntityType.Enemy && e.State == EntityStateType.Active))
+        foreach (var enemy in _entities.Values.Where(e => e.Type == EntityType.Enemy && (e.State == EntityStateType.Active || e.State == EntityStateType.Alerting)))
         {
-            if (!players.Any()) continue;
+            // Special handling for Scouts when no players are present
+            if (!players.Any())
+            {
+                if ((EnemySubType)enemy.SubType == EnemySubType.Scout)
+                {
+                    // Reset Scout state when all players leave
+                    enemy.HasSpottedPlayer = false;
+                    enemy.HasAlerted = false;
+                    enemy.State = EntityStateType.Active;
+                    enemy.StateTimer = 0f;
+                    enemy.Velocity = Vector2.Zero;
+                    _logger.LogDebug("Scout {EntityId} reset - no players in zone", enemy.EntityId);
+                }
+                continue;
+            }
             
             // Find closest player
             var closestPlayer = players.OrderBy(p => p.Position.DistanceTo(enemy.Position)).First();
@@ -493,6 +537,117 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                         }
                     }
                     break;
+                    
+                case EnemySubType.Scout:
+                    // Scout behavior: roam randomly, spot player, wait 5s, then alert other zones
+                    const float scoutDetectionRange = 300f;
+                    const float scoutSpeed = 20f;
+                    
+                    if (distance <= scoutDetectionRange)
+                    {
+                        // Player spotted!
+                        if (!enemy.HasSpottedPlayer)
+                        {
+                            enemy.HasSpottedPlayer = true;
+                            enemy.StateTimer = 0f; // Start 5-second timer
+                            enemy.Velocity = Vector2.Zero; // Stop moving
+                            _logger.LogInformation("Scout {EntityId} spotted player {PlayerId} at distance {Distance}", 
+                                enemy.EntityId, closestPlayer.EntityId, distance);
+                        }
+                        
+                        if (enemy.HasSpottedPlayer && enemy.StateTimer >= 5f && !enemy.HasAlerted)
+                        {
+                            // 5 seconds have passed, time to alert other zones
+                            enemy.HasAlerted = true;
+                            enemy.State = EntityStateType.Alerting;
+                            enemy.StateTimer = 0f; // Reset timer for alerting duration
+                            
+                            // Fire and forget the alert (don't await to avoid blocking update loop)
+                            _ = Task.Run(async () => {
+                                try 
+                                {
+                                    var alertDirection = await AlertNeighboringZones(enemy, closestPlayer.Position);
+                                    enemy.Rotation = alertDirection; // Store alert direction for client
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(ex, "Failed to process scout alert for {EntityId}", enemy.EntityId);
+                                }
+                            });
+                        }
+                        
+                        // Flash while alerting for 3 seconds
+                        if (enemy.State == EntityStateType.Alerting && enemy.StateTimer >= 3f)
+                        {
+                            enemy.State = EntityStateType.Active;
+                            enemy.StateTimer = 0f;
+                        }
+                    }
+                    else
+                    {
+                        // Player not in range, roam randomly
+                        enemy.HasSpottedPlayer = false;
+                        enemy.HasAlerted = false;
+                        enemy.StateTimer = 0f;
+                        enemy.State = EntityStateType.Active; // Reset to active state
+                        
+                        // Check current grid position within zone
+                        var (min, max) = _assignedSquare.GetBounds();
+                        var relativeX = (enemy.Position.X - min.X) / (max.X - min.X);
+                        var relativeY = (enemy.Position.Y - min.Y) / (max.Y - min.Y);
+                        var gridX = (int)(relativeX * 3);
+                        var gridY = (int)(relativeY * 3);
+                        gridX = Math.Clamp(gridX, 0, 2);
+                        gridY = Math.Clamp(gridY, 0, 2);
+                        
+                        bool needNewDirection = enemy.RoamDirection == Vector2.Zero || _random.NextDouble() < 0.01;
+                        
+                        // If in center position (1,1), always move toward an edge
+                        if (gridX == 1 && gridY == 1)
+                        {
+                            needNewDirection = true;
+                        }
+                        
+                        // Change roaming direction if needed
+                        if (needNewDirection)
+                        {
+                            // For simplicity in sync context, we'll use basic logic without zone checking
+                            // If in center, move toward edge
+                            if (gridX == 1 && gridY == 1)
+                            {
+                                var directions = new[]
+                                {
+                                    new Vector2(-1, -1), new Vector2(0, -1), new Vector2(1, -1),
+                                    new Vector2(-1, 0),                      new Vector2(1, 0),
+                                    new Vector2(-1, 1),  new Vector2(0, 1),  new Vector2(1, 1)
+                                };
+                                enemy.RoamDirection = directions[_random.Next(directions.Length)].Normalized();
+                            }
+                            else
+                            {
+                                // Random direction
+                                var angle = _random.NextSingle() * MathF.PI * 2;
+                                enemy.RoamDirection = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
+                            }
+                        }
+                        
+                        // Move in roaming direction, but stay within zone bounds
+                        var proposedPosition = enemy.Position + enemy.RoamDirection * scoutSpeed * deltaTime;
+                        
+                        // Check if proposed position is within zone bounds
+                        if (proposedPosition.X >= min.X + 50 && proposedPosition.X <= max.X - 50 &&
+                            proposedPosition.Y >= min.Y + 50 && proposedPosition.Y <= max.Y - 50)
+                        {
+                            enemy.Velocity = enemy.RoamDirection * scoutSpeed;
+                        }
+                        else
+                        {
+                            // Hit boundary, choose new direction away from boundary
+                            enemy.RoamDirection = (enemy.Position - proposedPosition).Normalized();
+                            enemy.Velocity = enemy.RoamDirection * scoutSpeed;
+                        }
+                    }
+                    break;
             }
         }
     }
@@ -508,8 +663,10 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 var e1 = entities[i];
                 var e2 = entities[j];
                 
-                // Skip dead/dying entities
-                if (e1.State != EntityStateType.Active || e2.State != EntityStateType.Active)
+                // Skip dead/dying entities (but include Alerting state for Scouts)
+                bool e1Valid = e1.State == EntityStateType.Active || e1.State == EntityStateType.Alerting;
+                bool e2Valid = e2.State == EntityStateType.Active || e2.State == EntityStateType.Alerting;
+                if (!e1Valid || !e2Valid)
                     continue;
                 
                 var distance = e1.Position.DistanceTo(e2.Position);
@@ -520,13 +677,39 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     // Handle collision based on entity types
                     if (e1.Type == EntityType.Bullet && e2.Type != EntityType.Bullet)
                     {
+                        var wasAlive = e2.Health > 0;
                         e2.Health -= 25f;
                         e1.Health = 0; // Destroy bullet
+                        
+                        // If this killed an enemy, give health to the player who shot the bullet
+                        if (wasAlive && e2.Health <= 0 && e2.Type == EntityType.Enemy && e1.SubType == 0) // Player bullet
+                        {
+                            // Find the player who owns this bullet (bullets have player ID in entity ID)
+                            var playerId = e1.OwnerId ?? "";
+                            if (!string.IsNullOrEmpty(playerId) && _entities.TryGetValue(playerId, out var player))
+                            {
+                                player.Health = Math.Min(player.Health + 2f, 1000f); // Cap at max health
+                                _logger.LogDebug("Player {PlayerId} gained 2 HP for killing enemy, new health: {Health}", playerId, player.Health);
+                            }
+                        }
                     }
                     else if (e2.Type == EntityType.Bullet && e1.Type != EntityType.Bullet)
                     {
+                        var wasAlive = e1.Health > 0;
                         e1.Health -= 25f;
                         e2.Health = 0; // Destroy bullet
+                        
+                        // If this killed an enemy, give health to the player who shot the bullet
+                        if (wasAlive && e1.Health <= 0 && e1.Type == EntityType.Enemy && e2.SubType == 0) // Player bullet
+                        {
+                            // Find the player who owns this bullet
+                            var playerId = e2.OwnerId ?? "";
+                            if (!string.IsNullOrEmpty(playerId) && _entities.TryGetValue(playerId, out var player))
+                            {
+                                player.Health = Math.Min(player.Health + 2f, 1000f); // Cap at max health
+                                _logger.LogDebug("Player {PlayerId} gained 2 HP for killing enemy, new health: {Health}", playerId, player.Health);
+                            }
+                        }
                     }
                     else if (e1.Type == EntityType.Player && e2.Type == EntityType.Enemy)
                     {
@@ -651,14 +834,16 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private void SpawnEnemies(int count, EnemySubType enemyType)
     {
         var (min, max) = _assignedSquare.GetBounds();
+        const float spawnMargin = 10f; // Keep enemies away from exact boundaries
+        
         _logger.LogDebug("Spawning {Count} {Type} enemies in zone {Zone} bounds: ({MinX},{MinY}) to ({MaxX},{MaxY})", 
             count, enemyType, _assignedSquare, min.X, min.Y, max.X, max.Y);
         
         for (int i = 0; i < count; i++)
         {
             var position = new Vector2(
-                _random.NextSingle() * (max.X - min.X) + min.X,
-                _random.NextSingle() * (max.Y - min.Y) + min.Y);
+                _random.NextSingle() * (max.X - min.X - 2 * spawnMargin) + min.X + spawnMargin,
+                _random.NextSingle() * (max.Y - min.Y - 2 * spawnMargin) + min.Y + spawnMargin);
                 
             var enemy = new SimulatedEntity
             {
@@ -667,7 +852,12 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 SubType = (int)enemyType,
                 Position = position,
                 Velocity = Vector2.Zero,
-                Health = enemyType == EnemySubType.Kamikaze ? 30f : 50f, // Kamikaze has less health
+                Health = enemyType switch
+                {
+                    EnemySubType.Kamikaze => 30f,
+                    EnemySubType.Scout => 300f, // Very high HP
+                    _ => 50f
+                }, // Different health for different enemy types
                 Rotation = 0,
                 State = EntityStateType.Active,
                 StateTimer = 0f
@@ -678,22 +868,36 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         }
     }
 
-    private void SpawnBullet(Vector2 position, Vector2 direction, bool isEnemyBullet = false)
+    private void SpawnBullet(Vector2 position, Vector2 direction, bool isEnemyBullet = false, string? ownerId = null)
     {
         // Enemy bullets are 40% of normal speed (60% slower)
         var bulletSpeed = isEnemyBullet ? 200f : 500f;
+        
+        // Calculate spawn position slightly ahead
+        var spawnPosition = position + direction * 30f;
+        
+        // Check if spawn position is outside zone bounds
+        var (min, max) = _assignedSquare.GetBounds();
+        if (spawnPosition.X < min.X || spawnPosition.X > max.X || 
+            spawnPosition.Y < min.Y || spawnPosition.Y > max.Y)
+        {
+            // If bullet would spawn outside zone, don't create it
+            _logger.LogDebug("Bullet spawn position {Position} is outside zone bounds, skipping", spawnPosition);
+            return;
+        }
         
         var bullet = new SimulatedEntity
         {
             EntityId = $"bullet_{_nextEntityId++}",
             Type = EntityType.Bullet,
-            Position = position + direction * 30f, // Spawn slightly ahead
+            Position = spawnPosition,
             Velocity = direction * bulletSpeed,
             Health = 1f,
             Rotation = MathF.Atan2(direction.Y, direction.X),
             State = EntityStateType.Active,
             StateTimer = 0f,
-            SubType = isEnemyBullet ? 1 : 0 // Track bullet type
+            SubType = isEnemyBullet ? 1 : 0, // Track bullet type
+            OwnerId = ownerId // Track who shot this bullet
         };
         
         _entities[bullet.EntityId] = bullet;
@@ -716,6 +920,138 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         
         _entities[explosion.EntityId] = explosion;
     }
+    
+    private async Task<float> AlertNeighboringZones(SimulatedEntity scout, Vector2 playerPosition)
+    {
+        try
+        {
+            // Determine scout's position within the zone using 3x3 grid
+            var (min, max) = _assignedSquare.GetBounds();
+            var relativeX = (scout.Position.X - min.X) / (max.X - min.X); // 0.0 to 1.0
+            var relativeY = (scout.Position.Y - min.Y) / (max.Y - min.Y); // 0.0 to 1.0
+            
+            // Map to 3x3 grid (0, 1, 2)
+            var gridX = (int)(relativeX * 3);
+            var gridY = (int)(relativeY * 3);
+            gridX = Math.Clamp(gridX, 0, 2);
+            gridY = Math.Clamp(gridY, 0, 2);
+            
+            _logger.LogInformation("Scout {EntityId} alerting from grid position ({GridX},{GridY}) in zone ({ZoneX},{ZoneY})", 
+                scout.EntityId, gridX, gridY, _assignedSquare.X, _assignedSquare.Y);
+            
+            // Determine which zones to alert based on grid position
+            var zonesToAlert = new List<GridSquare>();
+            float alertDirection = 0f; // Default direction (right)
+            
+            // Center position (1,1) - alert all 8 neighboring zones
+            if (gridX == 1 && gridY == 1)
+            {
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    for (int dy = -1; dy <= 1; dy++)
+                    {
+                        if (dx == 0 && dy == 0) continue; // Skip current zone
+                        zonesToAlert.Add(new GridSquare(_assignedSquare.X + dx, _assignedSquare.Y + dy));
+                    }
+                }
+                // Center position - encode all directions (will show 8-directional pattern)
+                alertDirection = 0f; // Special value for center - client will show 8-way pattern
+            }
+            else
+            {
+                // Border positions - alert in the direction of the border
+                var alertX = gridX == 0 ? -1 : (gridX == 2 ? 1 : 0);
+                var alertY = gridY == 0 ? -1 : (gridY == 2 ? 1 : 0);
+                
+                // Calculate primary alert direction angle for client
+                alertDirection = MathF.Atan2(alertY, alertX);
+                
+                // Add primary direction zone
+                if (alertX != 0 || alertY != 0)
+                {
+                    zonesToAlert.Add(new GridSquare(_assignedSquare.X + alertX, _assignedSquare.Y + alertY));
+                }
+                
+                // Add adjacent zones for corner positions
+                if (alertX != 0 && alertY != 0) // Corner position
+                {
+                    zonesToAlert.Add(new GridSquare(_assignedSquare.X + alertX, _assignedSquare.Y));
+                    zonesToAlert.Add(new GridSquare(_assignedSquare.X, _assignedSquare.Y + alertY));
+                }
+            }
+            
+            // Send alerts to enemies in target zones
+            var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
+            
+            foreach (var targetZone in zonesToAlert)
+            {
+                try
+                {
+                    var targetPosition = targetZone.GetCenter(); // Get center of target zone
+                    var targetServer = await worldManager.GetActionServerForPosition(targetPosition);
+                    if (targetServer != null)
+                    {
+                        await SendScoutAlert(targetServer, _assignedSquare, playerPosition);
+                        _logger.LogInformation("Scout alert sent to zone ({X},{Y})", targetZone.X, targetZone.Y);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send scout alert to zone ({X},{Y})", targetZone.X, targetZone.Y);
+                }
+            }
+            
+            return alertDirection;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to alert neighboring zones from scout {EntityId}", scout.EntityId);
+            return 0f; // Default direction on error
+        }
+    }
+    
+    private async Task SendScoutAlert(ActionServerInfo targetServer, GridSquare playerZone, Vector2 playerPosition)
+    {
+        try
+        {
+            // Create RPC client to target server
+            var hostBuilder = Host.CreateDefaultBuilder()
+                .UseOrleansRpcClient(rpcBuilder =>
+                {
+                    var host = targetServer.IpAddress == "localhost" ? "127.0.0.1" : targetServer.IpAddress;
+                    rpcBuilder.ConnectTo(host, targetServer.RpcPort);
+                    rpcBuilder.UseLiteNetLib();
+                })
+                .ConfigureServices(services =>
+                {
+                    services.AddSerializer(serializer =>
+                    {
+                        serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                    });
+                })
+                .Build();
+                
+            await hostBuilder.StartAsync();
+            
+            try
+            {
+                var rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>();
+                await Task.Delay(200); // Brief delay for connection
+                
+                var gameGrain = rpcClient.GetGrain<IGameRpcGrain>("game");
+                await gameGrain.ReceiveScoutAlert(playerZone, playerPosition);
+            }
+            finally
+            {
+                await hostBuilder.StopAsync();
+                hostBuilder.Dispose();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send RPC scout alert to server {ServerId}", targetServer.ServerId);
+        }
+    }
 
     private class SimulatedEntity
     {
@@ -729,6 +1065,17 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         public EntityStateType State { get; set; }
         public float StateTimer { get; set; }
         public float? StrafeDirection { get; set; } // For strafing enemies
+        public string? OwnerId { get; set; } // For bullets to track who shot them
+        
+        // Scout-specific fields
+        public bool HasSpottedPlayer { get; set; }
+        public bool HasAlerted { get; set; }
+        public Vector2 RoamDirection { get; set; }
+        
+        // Alert system fields
+        public bool IsAlerted { get; set; }
+        public DateTime AlertedUntil { get; set; }
+        public Vector2 LastKnownPlayerPosition { get; set; }
     }
 
     private class PlayerInput
@@ -890,5 +1237,88 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             return new PlayerInfo(playerId, playerId, entity.Position, entity.Velocity, entity.Health);
         }
         return null;
+    }
+    
+    public void ProcessScoutAlert(GridSquare playerZone, Vector2 playerPosition)
+    {
+        _logger.LogInformation("Processing scout alert: Player in zone ({X},{Y}) at {Position}", 
+            playerZone.X, playerZone.Y, playerPosition);
+        
+        // Make enemies in this zone more aggressive and move toward the player zone
+        var enemies = _entities.Values.Where(e => e.Type == EntityType.Enemy && e.State == EntityStateType.Active);
+        
+        foreach (var enemy in enemies)
+        {
+            // Mark enemy as alerted (use StateTimer for alert duration)
+            enemy.IsAlerted = true;
+            enemy.AlertedUntil = DateTime.UtcNow.AddSeconds(30); // Stay alerted for 30 seconds
+            enemy.LastKnownPlayerPosition = playerPosition;
+            
+            _logger.LogDebug("Enemy {EntityId} of type {SubType} alerted to player presence", 
+                enemy.EntityId, (EnemySubType)enemy.SubType);
+        }
+    }
+    
+    private async Task<bool> IsAtEdgeNearUnavailableZone(int gridX, int gridY)
+    {
+        // Check if this edge position is adjacent to an unavailable zone
+        if (gridX == 0 || gridX == 2 || gridY == 0 || gridY == 2)
+        {
+            // Determine which zone(s) to check based on edge position
+            var zonesToCheck = new List<GridSquare>();
+            
+            if (gridX == 0) zonesToCheck.Add(new GridSquare(_assignedSquare.X - 1, _assignedSquare.Y));
+            if (gridX == 2) zonesToCheck.Add(new GridSquare(_assignedSquare.X + 1, _assignedSquare.Y));
+            if (gridY == 0) zonesToCheck.Add(new GridSquare(_assignedSquare.X, _assignedSquare.Y - 1));
+            if (gridY == 2) zonesToCheck.Add(new GridSquare(_assignedSquare.X, _assignedSquare.Y + 1));
+            
+            // Corner positions check two zones
+            if (gridX == 0 && gridY == 0) zonesToCheck.Add(new GridSquare(_assignedSquare.X - 1, _assignedSquare.Y - 1));
+            if (gridX == 2 && gridY == 0) zonesToCheck.Add(new GridSquare(_assignedSquare.X + 1, _assignedSquare.Y - 1));
+            if (gridX == 0 && gridY == 2) zonesToCheck.Add(new GridSquare(_assignedSquare.X - 1, _assignedSquare.Y + 1));
+            if (gridX == 2 && gridY == 2) zonesToCheck.Add(new GridSquare(_assignedSquare.X + 1, _assignedSquare.Y + 1));
+            
+            foreach (var zone in zonesToCheck)
+            {
+                if (!await IsZoneAvailable(zone))
+                {
+                    return true; // At edge near unavailable zone
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    private Task<Vector2> GetValidRoamDirection(int gridX, int gridY, bool isAtBadEdge)
+    {
+        // If in center, move toward a random edge
+        if (gridX == 1 && gridY == 1)
+        {
+            // Pick a random direction away from center
+            var directions = new[]
+            {
+                new Vector2(-1, -1), new Vector2(0, -1), new Vector2(1, -1),
+                new Vector2(-1, 0),                      new Vector2(1, 0),
+                new Vector2(-1, 1),  new Vector2(0, 1),  new Vector2(1, 1)
+            };
+            return Task.FromResult(directions[_random.Next(directions.Length)].Normalized());
+        }
+        
+        // If at a bad edge, move toward center or valid edges
+        if (isAtBadEdge)
+        {
+            // Move toward center
+            var toCenterX = 1 - gridX;
+            var toCenterY = 1 - gridY;
+            
+            // Add some randomness to avoid predictable paths
+            var angle = MathF.Atan2(toCenterY, toCenterX) + (_random.NextSingle() - 0.5f) * MathF.PI * 0.5f;
+            return Task.FromResult(new Vector2(MathF.Cos(angle), MathF.Sin(angle)));
+        }
+        
+        // Otherwise, random direction
+        var randomAngle = _random.NextSingle() * MathF.PI * 2;
+        return Task.FromResult(new Vector2(MathF.Cos(randomAngle), MathF.Sin(randomAngle)));
     }
 }

@@ -19,4 +19,7 @@ public interface IWorldSimulation
     Task<List<(string entityId, Vector2 position, EntityType type, int subType)>> GetEntitiesOutsideZone();
     Task<bool> TransferEntityIn(string entityId, EntityType type, int subType, Vector2 position, Vector2 velocity, float health);
     PlayerInfo? GetPlayerInfo(string playerId);
+    
+    // Scout alerts
+    void ProcessScoutAlert(GridSquare playerZone, Vector2 playerPosition);
 }
