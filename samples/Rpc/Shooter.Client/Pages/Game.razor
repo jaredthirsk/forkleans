@@ -76,6 +76,10 @@
                              OnMove="HandleMove"
                              OnShoot="HandleShoot"
                              OnSpeedChange="HandleSpeedChange" />
+                
+                <Minimap
+                    WorldState="@_currentWorldState"
+                    AvailableZones="@_availableZones" />
                              
                 <GameStats 
                     Fps="@_fps"

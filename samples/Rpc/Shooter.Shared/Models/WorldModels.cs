@@ -59,7 +59,8 @@ public enum EntityType
     Player,
     Enemy,
     Bullet,
-    Explosion
+    Explosion,
+    Factory
 }
 
 [Orleans.GenerateSerializer]
@@ -97,3 +98,20 @@ public record PlayerTransferInfo(
     ActionServerInfo? NewServer,
     ActionServerInfo? OldServer,
     PlayerInfo PlayerState);
+
+[Forkleans.GenerateSerializer]
+[Forkleans.Alias("ZoneStats")]
+public record ZoneStats
+{
+    [Forkleans.Id(0)]
+    public int FactoryCount { get; init; }
+    
+    [Forkleans.Id(1)]
+    public int EnemyCount { get; init; }
+    
+    public ZoneStats(int factoryCount, int enemyCount)
+    {
+        FactoryCount = factoryCount;
+        EnemyCount = enemyCount;
+    }
+}

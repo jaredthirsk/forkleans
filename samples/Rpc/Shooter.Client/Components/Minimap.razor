@@ -1,0 +1,201 @@
+@using Shooter.Shared.Models
+@using Shooter.Client.Services
+@implements IDisposable
+
+<div class="minimap">
+    <h4>World Map</h4>
+    <div class="minimap-grid">
+        @if (_zoneStats.Any())
+        {
+            @for (int y = 0; y <= _maxY; y++)
+            {
+                <div class="minimap-row">
+                    @for (int x = 0; x <= _maxX; x++)
+                    {
+                        var zoneKey = $"{x},{y}";
+                        var isCurrentZone = _currentZone?.X == x && _currentZone?.Y == y;
+                        var hasZone = _zoneStats.ContainsKey(zoneKey);
+                        var stats = hasZone ? _zoneStats[zoneKey] : null;
+                        
+                        <div class="minimap-cell @(isCurrentZone ? "current" : "") @(hasZone ? "active" : "inactive")">
+                            @if (hasZone && stats != null)
+                            {
+                                <div class="factory-count">@stats.FactoryCount</div>
+                                <div class="enemy-count">@stats.EnemyCount</div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <div class="loading">Loading map...</div>
+        }
+    </div>
+</div>
+
+<style>
+    .minimap {
+        background-color: #2a2a2a;
+        padding: 20px;
+        border-radius: 8px;
+        color: white;
+        margin-bottom: 20px;
+    }
+    
+    .minimap h4 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #888;
+        font-size: 18px;
+    }
+    
+    .minimap-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        background-color: #1a1a1a;
+        padding: 10px;
+        border-radius: 4px;
+    }
+    
+    .minimap-row {
+        display: flex;
+        gap: 2px;
+    }
+    
+    .minimap-cell {
+        width: 40px;
+        height: 40px;
+        background-color: #333;
+        border: 1px solid #444;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-family: monospace;
+    }
+    
+    .minimap-cell.active {
+        background-color: #3a3a3a;
+        border-color: #555;
+    }
+    
+    .minimap-cell.inactive {
+        background-color: #222;
+        border-color: #333;
+    }
+    
+    .minimap-cell.current {
+        background-color: #4a4a4a;
+        border: 2px solid #00ff00;
+    }
+    
+    .factory-count {
+        color: #8B4513;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 1;
+    }
+    
+    .enemy-count {
+        color: #ff6666;
+        font-size: 10px;
+        line-height: 1;
+    }
+    
+    .loading {
+        padding: 20px;
+        text-align: center;
+        color: #666;
+    }
+</style>
+
+@code {
+    [Parameter] public WorldState? WorldState { get; set; }
+    [Parameter] public List<GridSquare>? AvailableZones { get; set; }
+    [Inject] private ForkleansRpcGameClientService RpcGameClient { get; set; } = default!;
+    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IConfiguration Configuration { get; set; } = default!;
+    [Inject] private ILogger<Minimap> Logger { get; set; } = default!;
+    
+    private Dictionary<string, ZoneStats> _zoneStats = new();
+    private GridSquare? _currentZone;
+    private int _maxX = 2;
+    private int _maxY = 2;
+    private Timer? _updateTimer;
+    
+    private class ZoneStats
+    {
+        public int FactoryCount { get; set; }
+        public int EnemyCount { get; set; }
+    }
+    
+    protected override void OnInitialized()
+    {
+        // Update zone stats every second
+        _updateTimer = new Timer(async _ => await UpdateZoneStats(), null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+    }
+    
+    protected override void OnParametersSet()
+    {
+        // Update current zone from world state
+        if (WorldState?.Entities != null)
+        {
+            var player = WorldState.Entities.FirstOrDefault(e => e.EntityId == RpcGameClient.PlayerId);
+            if (player != null)
+            {
+                _currentZone = GridSquare.FromPosition(player.Position);
+            }
+        }
+        
+        // Update grid size from available zones
+        if (AvailableZones?.Any() == true)
+        {
+            _maxX = AvailableZones.Max(z => z.X);
+            _maxY = AvailableZones.Max(z => z.Y);
+        }
+    }
+    
+    private async Task UpdateZoneStats()
+    {
+        try
+        {
+            // Get all zone stats from the silo
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await Http.GetFromJsonAsync<List<WorldZoneStats>>($"{siloUrl}api/world/zone-stats");
+            if (response != null)
+            {
+                _zoneStats.Clear();
+                foreach (var stat in response)
+                {
+                    var key = $"{stat.Zone.X},{stat.Zone.Y}";
+                    _zoneStats[key] = new ZoneStats 
+                    { 
+                        FactoryCount = stat.FactoryCount,
+                        EnemyCount = stat.EnemyCount
+                    };
+                }
+                
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to update zone stats");
+        }
+    }
+    
+    public void Dispose()
+    {
+        _updateTimer?.Dispose();
+    }
+    
+    // DTO for zone stats
+    private record WorldZoneStats(GridSquare Zone, int FactoryCount, int EnemyCount);
+}

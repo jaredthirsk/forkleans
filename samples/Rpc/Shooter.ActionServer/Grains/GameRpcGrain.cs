@@ -100,4 +100,14 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
         var state = _worldSimulation.GetCurrentState();
         return Task.FromResult(state);
     }
+    
+    public Task<ZoneStats> GetZoneStats()
+    {
+        var state = _worldSimulation.GetCurrentState();
+        
+        var factoryCount = state.Entities.Count(e => e.Type == EntityType.Factory && e.State != EntityStateType.Dead);
+        var enemyCount = state.Entities.Count(e => e.Type == EntityType.Enemy && e.State != EntityStateType.Dead);
+        
+        return Task.FromResult(new ZoneStats(factoryCount, enemyCount));
+    }
 }

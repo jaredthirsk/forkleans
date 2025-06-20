@@ -163,13 +163,16 @@ class DoubleBufferedCanvasContext {
                 this.drawPlayer(size, color, rotation, state, stateTimer);
                 break;
             case 'Enemy':
-                this.drawEnemy(size, color, rotation, subType);
+                this.drawEnemy(size, color, rotation, subType, state, stateTimer);
                 break;
             case 'Bullet':
                 this.drawBullet(size, color, rotation);
                 break;
             case 'Explosion':
                 this.drawExplosion(size, stateTimer, subType);
+                break;
+            case 'Factory':
+                this.drawFactory(size, color, rotation);
                 break;
             default:
                 this.drawDefault(size, color, rotation);
@@ -207,8 +210,13 @@ class DoubleBufferedCanvasContext {
         this.currentCtx.fill();
     }
     
-    drawEnemy(size, color, rotation, subType) {
+    drawEnemy(size, color, rotation, subType, state = 'Active', stateTimer = 0) {
         this.currentCtx.rotate(rotation);
+        
+        // Draw Scout alert indicator if in Alerting state
+        if (subType === 4 && state === 'Alerting') {
+            this.drawScoutAlertIndicator(size, stateTimer, rotation);
+        }
         
         switch (subType) {
             case 1: // Kamikaze
@@ -258,6 +266,27 @@ class DoubleBufferedCanvasContext {
                 this.currentCtx.fill();
                 break;
                 
+            case 4: // Scout
+                // Purple hexagon shape
+                this.currentCtx.fillStyle = '#aa44ff';
+                this.currentCtx.beginPath();
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
+                    const x = Math.cos(angle) * size;
+                    const y = Math.sin(angle) * size;
+                    if (i === 0) this.currentCtx.moveTo(x, y);
+                    else this.currentCtx.lineTo(x, y);
+                }
+                this.currentCtx.closePath();
+                this.currentCtx.fill();
+                
+                // Eye
+                this.currentCtx.fillStyle = '#ffff00';
+                this.currentCtx.beginPath();
+                this.currentCtx.arc(0, 0, size * 0.3, 0, Math.PI * 2);
+                this.currentCtx.fill();
+                break;
+                
             default:
                 // Default enemy
                 this.currentCtx.fillStyle = color;
@@ -284,6 +313,76 @@ class DoubleBufferedCanvasContext {
         this.currentCtx.fillStyle = '#ffff00';
         this.currentCtx.beginPath();
         this.currentCtx.arc(0, 0, size, 0, Math.PI * 2);
+        this.currentCtx.fill();
+    }
+    
+    drawScoutAlertIndicator(size, stateTimer, rotation) {
+        // Get progress (0-3 seconds)
+        const progress = Math.min(stateTimer / 3, 1);
+        
+        // Determine how many bars to show
+        let barsToShow = 1;
+        if (progress > 0.33) barsToShow = 2;
+        if (progress > 0.66) barsToShow = 3;
+        
+        // Color based on progress
+        const isReady = progress >= 1;
+        const color = isReady ? '#00ff00' : '#888888';
+        
+        // Flash when ready
+        const flash = isReady ? (Math.sin(Date.now() * 0.01) + 1) * 0.5 : 1;
+        const alpha = isReady ? (0.4 + flash * 0.6) : 0.8;
+        
+        this.currentCtx.save();
+        this.currentCtx.rotate(-rotation); // Unrotate to draw in world space
+        
+        // Draw wifi arcs
+        this.currentCtx.strokeStyle = color;
+        this.currentCtx.globalAlpha = alpha;
+        this.currentCtx.lineWidth = 2;
+        
+        // Draw concentric arcs based on progress
+        for (let i = 1; i <= barsToShow; i++) {
+            const radius = size * 1.5 + i * 10;
+            this.currentCtx.beginPath();
+            this.currentCtx.arc(0, 0, radius, rotation - Math.PI/6, rotation + Math.PI/6);
+            this.currentCtx.stroke();
+        }
+        
+        this.currentCtx.restore();
+    }
+    
+    drawFactory(size, color, rotation) {
+        // Draw factory building (large square structure)
+        const buildingSize = size * 2;
+        
+        // Base building
+        this.currentCtx.fillStyle = '#444444';
+        this.currentCtx.fillRect(-buildingSize, -buildingSize, buildingSize * 2, buildingSize * 2);
+        
+        // Building details
+        this.currentCtx.fillStyle = '#666666';
+        this.currentCtx.fillRect(-buildingSize * 0.8, -buildingSize * 0.8, buildingSize * 1.6, buildingSize * 1.6);
+        
+        // Factory symbol (gear)
+        this.currentCtx.fillStyle = '#888888';
+        this.currentCtx.beginPath();
+        const teeth = 8;
+        for (let i = 0; i < teeth * 2; i++) {
+            const angle = (i / (teeth * 2)) * Math.PI * 2;
+            const radius = i % 2 === 0 ? size * 0.8 : size * 0.5;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            if (i === 0) this.currentCtx.moveTo(x, y);
+            else this.currentCtx.lineTo(x, y);
+        }
+        this.currentCtx.closePath();
+        this.currentCtx.fill();
+        
+        // Center hole
+        this.currentCtx.fillStyle = '#666666';
+        this.currentCtx.beginPath();
+        this.currentCtx.arc(0, 0, size * 0.3, 0, Math.PI * 2);
         this.currentCtx.fill();
     }
     

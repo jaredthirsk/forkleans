@@ -217,6 +217,16 @@ app.MapGet("/status", (IWorldSimulation simulation) =>
     };
 });
 
+app.MapGet("/api/game/zone-stats", (IWorldSimulation simulation) =>
+{
+    var state = simulation.GetCurrentState();
+    
+    var factoryCount = state.Entities.Count(e => e.Type == EntityType.Factory && e.State != EntityStateType.Dead);
+    var enemyCount = state.Entities.Count(e => e.Type == EntityType.Enemy && e.State != EntityStateType.Dead);
+    
+    return new ZoneStats(factoryCount, enemyCount);
+});
+
 // All game communication now happens via RPC only
 // HTTP endpoints are only used for health/status monitoring
 

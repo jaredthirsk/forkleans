@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Orleans;
 using Shooter.Shared.GrainInterfaces;
 using Shooter.Shared.Models;
+using System.Net.Http;
 
 namespace Shooter.Silo.Controllers;
 
@@ -10,10 +11,14 @@ namespace Shooter.Silo.Controllers;
 public class WorldController : ControllerBase
 {
     private readonly Orleans.IGrainFactory _grainFactory;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger<WorldController> _logger;
 
-    public WorldController(Orleans.IGrainFactory grainFactory)
+    public WorldController(Orleans.IGrainFactory grainFactory, IHttpClientFactory httpClientFactory, ILogger<WorldController> logger)
     {
         _grainFactory = grainFactory;
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
     }
 
     [HttpPost("action-servers/register")]
@@ -95,10 +100,60 @@ public class WorldController : ControllerBase
             
         return Ok(server);
     }
+    
+    [HttpGet("zone-stats")]
+    public async Task<ActionResult<List<WorldZoneStats>>> GetZoneStats()
+    {
+        var worldManager = _grainFactory.GetGrain<IWorldManagerGrain>(0);
+        var servers = await worldManager.GetAllActionServers();
+        
+        var httpClient = _httpClientFactory.CreateClient();
+        httpClient.Timeout = TimeSpan.FromSeconds(5);
+        
+        var tasks = servers.Select(async server =>
+        {
+            try
+            {
+                // Query each action server for its zone stats
+                var url = $"{server.HttpEndpoint}/api/game/zone-stats";
+                var response = await httpClient.GetFromJsonAsync<ZoneStats>(url);
+                
+                return new WorldZoneStats
+                {
+                    Zone = server.AssignedSquare,
+                    FactoryCount = response?.FactoryCount ?? 0,
+                    EnemyCount = response?.EnemyCount ?? 0
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to get zone stats from server {ServerId} at {Endpoint}", 
+                    server.ServerId, server.HttpEndpoint);
+                
+                // Return empty stats on failure
+                return new WorldZoneStats
+                {
+                    Zone = server.AssignedSquare,
+                    FactoryCount = 0,
+                    EnemyCount = 0
+                };
+            }
+        });
+        
+        var stats = await Task.WhenAll(tasks);
+        
+        return Ok(stats.ToList());
+    }
 }
 
 public record RegisterActionServerRequest(string ServerId, string IpAddress, int UdpPort, string HttpEndpoint, int RpcPort = 0);
 public record RegisterPlayerRequest(string PlayerId, string Name);
+public record WorldZoneStats
+{
+    public GridSquare Zone { get; init; } = null!;
+    public int FactoryCount { get; init; }
+    public int EnemyCount { get; init; }
+}
 public record PlayerRegistrationResponse
 {
     public required PlayerInfo PlayerInfo { get; init; }

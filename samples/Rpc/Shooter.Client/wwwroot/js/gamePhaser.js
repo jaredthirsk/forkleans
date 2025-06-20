@@ -52,6 +52,7 @@ class GamePhaser {
         this.createEnemySprites();
         this.createBulletSprites();
         this.createExplosionSprites();
+        this.createFactorySprite();
     }
     
     createPlayerSprite() {
@@ -238,6 +239,50 @@ class GamePhaser {
         
         graphics.generateTexture('explosion-small', smallSize * 2, smallSize * 2);
         graphics.destroy();
+    }
+    
+    createFactorySprite() {
+        console.log('Creating factory sprite texture');
+        const graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
+        const size = 30; // Factories are larger
+        
+        // Base building (dark gray)
+        graphics.fillStyle(0x444444, 1);
+        graphics.fillRect(0, 0, size * 2, size * 2);
+        
+        // Inner building (lighter gray)
+        graphics.fillStyle(0x666666, 1);
+        graphics.fillRect(4, 4, size * 2 - 8, size * 2 - 8);
+        
+        // Factory gear symbol
+        graphics.fillStyle(0x888888, 1);
+        const centerX = size;
+        const centerY = size;
+        const teeth = 8;
+        
+        graphics.beginPath();
+        for (let i = 0; i < teeth * 2; i++) {
+            const angle = (i / (teeth * 2)) * Math.PI * 2;
+            const radius = i % 2 === 0 ? size * 0.6 : size * 0.4;
+            const x = centerX + Math.cos(angle) * radius;
+            const y = centerY + Math.sin(angle) * radius;
+            if (i === 0) graphics.moveTo(x, y);
+            else graphics.lineTo(x, y);
+        }
+        graphics.closePath();
+        graphics.fillPath();
+        
+        // Center hole
+        graphics.fillStyle(0x666666, 1);
+        graphics.fillCircle(centerX, centerY, size * 0.2);
+        
+        // Dark border
+        graphics.lineStyle(2, 0x222222, 1);
+        graphics.strokeRect(0, 0, size * 2, size * 2);
+        
+        graphics.generateTexture('factory', size * 2, size * 2);
+        graphics.destroy();
+        console.log('Factory texture created');
     }
 
     createColoredSprite(key, color, width, height) {
@@ -521,6 +566,8 @@ class GamePhaser {
                 return entity.subType === 1 ? 'enemy-bullet' : 'bullet';
             case 3: // Explosion
                 return entity.subType === 1 ? 'explosion-small' : 'explosion';
+            case 4: // Factory
+                return 'factory';
             default:
                 console.warn(`Unknown entity type: ${entityType}`);
                 return 'player';
@@ -533,7 +580,8 @@ class GamePhaser {
             'Player': 0,
             'Enemy': 1,
             'Bullet': 2,
-            'Explosion': 3
+            'Explosion': 3,
+            'Factory': 4
         };
         return typeMap[typeString] ?? 0;
     }
@@ -559,6 +607,7 @@ class GamePhaser {
             case 1: return 'Enemy';
             case 2: return 'Bullet';
             case 3: return 'Explosion';
+            case 4: return 'Factory';
             default: return 'Unknown';
         }
     }
@@ -576,6 +625,7 @@ class GamePhaser {
         }
         if (entity.type === 2) return entity.subType === 1 ? 0xff00ff : 0xffff00; // Bullets
         if (entity.type === 3) return 0xff8800; // Explosions
+        if (entity.type === 4) return 0x666666; // Factory - gray
         return 0xffffff; // Default white
     }
 
@@ -844,42 +894,58 @@ class GamePhaser {
         graphics.x = sprite.x;
         graphics.y = sprite.y;
         
-        // Create a flashing wi-fi style indicator
-        const time = Date.now() * 0.01; // Current time for animation
-        const flash = (Math.sin(time) + 1) * 0.5; // Oscillates between 0 and 1
-        const alpha = 0.4 + flash * 0.6; // Alpha between 0.4 and 1.0
+        // Get the state timer to determine progress (0-3 seconds)
+        const stateTimer = entity.stateTimer || 0;
+        const progress = Math.min(stateTimer / 3, 1); // 0 to 1 over 3 seconds
         
-        graphics.lineStyle(3, 0xffff00, alpha); // Yellow with pulsing alpha
+        // Determine how many bars to show (1, 2, or 3)
+        let barsToShow = 1;
+        if (progress > 0.33) barsToShow = 2;
+        if (progress > 0.66) barsToShow = 3;
         
-        // Draw wi-fi style arcs in the alert direction(s)
+        // Color based on progress: gray while building up, green when ready
+        const isReady = progress >= 1;
+        const color = isReady ? 0x00ff00 : 0x888888; // Green when ready, gray otherwise
+        
+        // Flash when actively alerting
+        const time = Date.now() * 0.01;
+        const flash = isReady ? (Math.sin(time) + 1) * 0.5 : 1; // Only flash when ready
+        const alpha = isReady ? (0.4 + flash * 0.6) : 0.8;
+        
+        graphics.lineStyle(3, color, alpha);
+        
+        // Draw wi-fi style arcs based on progress
         if (entity.rotation === 0 && entity.position) {
             // Center position - show 8-directional pattern
-            this.drawEightDirectionalAlerts(graphics, alpha);
+            this.drawEightDirectionalAlerts(graphics, alpha, barsToShow, color);
         } else {
             // Directional alert - show arcs in the alert direction
-            this.drawDirectionalAlert(graphics, entity.rotation, alpha);
+            this.drawDirectionalAlert(graphics, entity.rotation, alpha, barsToShow, color);
         }
     }
     
-    drawEightDirectionalAlerts(graphics, alpha) {
+    drawEightDirectionalAlerts(graphics, alpha, barsToShow, color) {
         // Draw 8 small arcs pointing in all directions
         const directions = [0, Math.PI/4, Math.PI/2, 3*Math.PI/4, Math.PI, 5*Math.PI/4, 3*Math.PI/2, 7*Math.PI/4];
         
         directions.forEach(angle => {
-            this.drawWifiArc(graphics, angle, 25, alpha);
+            // Only draw the number of bars specified
+            for (let i = 1; i <= barsToShow; i++) {
+                this.drawWifiArc(graphics, angle, 15 + i * 5, alpha * (1.2 - i * 0.2), color);
+            }
         });
     }
     
-    drawDirectionalAlert(graphics, direction, alpha) {
-        // Draw 3 concentric arcs in the alert direction
-        for (let i = 1; i <= 3; i++) {
-            this.drawWifiArc(graphics, direction, 15 + i * 10, alpha * (1.2 - i * 0.2));
+    drawDirectionalAlert(graphics, direction, alpha, barsToShow, color) {
+        // Draw concentric arcs in the alert direction based on barsToShow
+        for (let i = 1; i <= barsToShow; i++) {
+            this.drawWifiArc(graphics, direction, 15 + i * 10, alpha * (1.2 - i * 0.2), color);
         }
     }
     
-    drawWifiArc(graphics, direction, radius, alpha) {
+    drawWifiArc(graphics, direction, radius, alpha, color = 0xffff00) {
         // Draw a wi-fi style arc
-        graphics.lineStyle(2, 0xffff00, alpha);
+        graphics.lineStyle(2, color, alpha);
         
         const startAngle = direction - Math.PI/6; // 30 degree arc
         const endAngle = direction + Math.PI/6;
@@ -895,7 +961,7 @@ class GamePhaser {
         const endX = Math.cos(endAngle) * radius;
         const endY = Math.sin(endAngle) * radius;
         
-        graphics.lineStyle(3, 0xffff00, alpha);
+        graphics.lineStyle(3, color, alpha);
         graphics.lineBetween(startX - 3, startY - 3, startX + 3, startY + 3);
         graphics.lineBetween(endX - 3, endY - 3, endX + 3, endY + 3);
     }

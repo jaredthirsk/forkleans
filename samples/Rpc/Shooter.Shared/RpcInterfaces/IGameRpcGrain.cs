@@ -50,4 +50,7 @@ public interface IGameRpcGrain : Forkleans.IGrainWithStringKey
     
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Unreliable)]
     Task<WorldState> GetLocalWorldState();
+    
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    Task<ZoneStats> GetZoneStats();
 }

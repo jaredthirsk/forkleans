@@ -26,6 +26,8 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private HashSet<GridSquare> _availableZones = new();
     private DateTime _lastZoneCheck = DateTime.MinValue;
     private long _sequenceNumber = 0;
+    private bool _isInitialized = false;
+    private TaskCompletionSource<bool> _zoneAssignedTcs = new();
 
     public WorldSimulation(ILogger<WorldSimulation> logger, Orleans.IClusterClient orleansClient)
     {
@@ -37,6 +39,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     {
         _assignedSquare = square;
         _logger.LogInformation("Assigned to grid square: {X}, {Y}", square.X, square.Y);
+        _zoneAssignedTcs.TrySetResult(true);
     }
     
     public GridSquare GetAssignedSquare()
@@ -227,14 +230,24 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         var entityCounts = entities.GroupBy(e => e.Type)
             .ToDictionary(g => g.Key, g => g.Count());
         
+        // Check for entities outside our zone
+        var outsideEntities = entities.Where(e => GridSquare.FromPosition(e.Position) != _assignedSquare).ToList();
+        if (outsideEntities.Any())
+        {
+            _logger.LogWarning("GetCurrentState: Found {Count} entities outside assigned zone {Zone}: {Entities}", 
+                outsideEntities.Count, _assignedSquare, 
+                string.Join(", ", outsideEntities.Select(e => $"{e.Type} {e.EntityId} at {e.Position} (zone {GridSquare.FromPosition(e.Position)})")));
+        }
+        
         if (entities.Count > 0)
         {
-            _logger.LogDebug("GetCurrentState returning {Total} entities: Players={Players}, Enemies={Enemies}, Bullets={Bullets}, Explosions={Explosions}",
+            _logger.LogDebug("GetCurrentState returning {Total} entities: Players={Players}, Enemies={Enemies}, Bullets={Bullets}, Explosions={Explosions}, Factories={Factories}",
                 entities.Count,
                 entityCounts.GetValueOrDefault(EntityType.Player, 0),
                 entityCounts.GetValueOrDefault(EntityType.Enemy, 0),
                 entityCounts.GetValueOrDefault(EntityType.Bullet, 0),
-                entityCounts.GetValueOrDefault(EntityType.Explosion, 0));
+                entityCounts.GetValueOrDefault(EntityType.Explosion, 0),
+                entityCounts.GetValueOrDefault(EntityType.Factory, 0));
         }
             
         // Increment sequence number for each state update
@@ -244,6 +257,16 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        // Wait for zone assignment before spawning entities
+        _logger.LogInformation("Waiting for zone assignment before spawning entities...");
+        await _zoneAssignedTcs.Task;
+        _logger.LogInformation("Zone assigned: {Zone}. Spawning initial entities.", _assignedSquare);
+        
+        // Spawn factories first
+        var factoryCount = _random.Next(0, 4); // 0-3 factories
+        _logger.LogInformation("Spawning {Count} factories in zone {Zone}", factoryCount, _assignedSquare);
+        SpawnFactories(factoryCount);
+        
         // Spawn some initial enemies of different types
         _logger.LogInformation("Spawning initial enemies in zone {Zone}", _assignedSquare);
         SpawnEnemies(2, EnemySubType.Kamikaze);
@@ -251,6 +274,8 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         SpawnEnemies(1, EnemySubType.Strafing);
         SpawnEnemies(1, EnemySubType.Scout);
         _logger.LogInformation("Initial enemy spawn complete. Total entities: {Count}", _entities.Count);
+        
+        _isInitialized = true;
         
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -486,6 +511,36 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             var closestPlayer = players.OrderBy(p => p.Position.DistanceTo(enemy.Position)).First();
             var direction = (closestPlayer.Position - enemy.Position).Normalized();
             var distance = enemy.Position.DistanceTo(closestPlayer.Position);
+            
+            // Check if enemy is alerted (from Scout alert)
+            if (enemy.IsAlerted && enemy.AlertedUntil > DateTime.UtcNow)
+            {
+                // If there's a player in the current zone, ignore the alert and attack them instead
+                if (players.Any())
+                {
+                    enemy.IsAlerted = false; // Cancel alert, focus on local player
+                    _logger.LogDebug("Enemy {EntityId} ignoring alert - player present in zone", enemy.EntityId);
+                }
+                else
+                {
+                    // No players in current zone, follow the alert
+                    // Move toward last known player position
+                    var targetDirection = (enemy.LastKnownPlayerPosition - enemy.Position).Normalized();
+                    enemy.Velocity = targetDirection * 30f; // Move at moderate speed
+                    
+                    // If close to last known position, stop being alerted
+                    if (enemy.Position.DistanceTo(enemy.LastKnownPlayerPosition) < 50f)
+                    {
+                        enemy.IsAlerted = false;
+                    }
+                    
+                    continue; // Skip normal AI behavior while following alert
+                }
+            }
+            else
+            {
+                enemy.IsAlerted = false; // Clear alert if expired
+            }
             
             switch ((EnemySubType)enemy.SubType)
             {
@@ -831,19 +886,83 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         }
     }
 
-    private void SpawnEnemies(int count, EnemySubType enemyType)
+    private void SpawnFactories(int count)
     {
         var (min, max) = _assignedSquare.GetBounds();
-        const float spawnMargin = 10f; // Keep enemies away from exact boundaries
+        const float spawnMargin = 50f; // Keep factories away from boundaries
         
-        _logger.LogDebug("Spawning {Count} {Type} enemies in zone {Zone} bounds: ({MinX},{MinY}) to ({MaxX},{MaxY})", 
-            count, enemyType, _assignedSquare, min.X, min.Y, max.X, max.Y);
+        _logger.LogDebug("Spawning {Count} factories in zone {Zone}", count, _assignedSquare);
         
         for (int i = 0; i < count; i++)
         {
             var position = new Vector2(
                 _random.NextSingle() * (max.X - min.X - 2 * spawnMargin) + min.X + spawnMargin,
                 _random.NextSingle() * (max.Y - min.Y - 2 * spawnMargin) + min.Y + spawnMargin);
+                
+            // Verify position is in correct zone
+            var factoryZone = GridSquare.FromPosition(position);
+            if (factoryZone != _assignedSquare)
+            {
+                _logger.LogError("CRITICAL: Factory spawn position {Position} is in zone {FactoryZone}, not assigned zone {AssignedZone}!", 
+                    position, factoryZone, _assignedSquare);
+            }
+            
+            var factory = new SimulatedEntity
+            {
+                EntityId = $"factory_{_nextEntityId++}",
+                Type = EntityType.Factory,
+                Position = position,
+                Velocity = Vector2.Zero,
+                Health = 500f,
+                Rotation = 0,
+                State = EntityStateType.Active,
+                StateTimer = 0f
+            };
+            
+            _entities[factory.EntityId] = factory;
+            _logger.LogDebug("Spawned factory {Id} at position {Position}", factory.EntityId, position);
+        }
+    }
+
+    private void SpawnEnemies(int count, EnemySubType enemyType)
+    {
+        // Get all factories in this zone
+        var factories = _entities.Values.Where(e => e.Type == EntityType.Factory && e.State == EntityStateType.Active).ToList();
+        
+        if (!factories.Any())
+        {
+            _logger.LogDebug("No factories in zone {Zone}, enemies cannot spawn", _assignedSquare);
+            return;
+        }
+        
+        var (min, max) = _assignedSquare.GetBounds();
+        const float spawnRadius = 40f; // Spawn enemies near factories
+        
+        _logger.LogDebug("Spawning {Count} {Type} enemies in zone {Zone} from {FactoryCount} factories", 
+            count, enemyType, _assignedSquare, factories.Count);
+        
+        for (int i = 0; i < count; i++)
+        {
+            // Pick a random factory to spawn from
+            var factory = factories[_random.Next(factories.Count)];
+            
+            // Spawn enemy near the factory
+            var angle = _random.NextSingle() * MathF.PI * 2;
+            var distance = _random.NextSingle() * spawnRadius + 20f; // At least 20 units away
+            var position = factory.Position + new Vector2(MathF.Cos(angle) * distance, MathF.Sin(angle) * distance);
+            
+            // Ensure position is within zone bounds
+            position = new Vector2(
+                Math.Clamp(position.X, min.X + 10f, max.X - 10f),
+                Math.Clamp(position.Y, min.Y + 10f, max.Y - 10f));
+                
+            // Verify position is in correct zone
+            var enemyZone = GridSquare.FromPosition(position);
+            if (enemyZone != _assignedSquare)
+            {
+                _logger.LogError("CRITICAL: Enemy spawn position {Position} is in zone {EnemyZone}, not assigned zone {AssignedZone}!", 
+                    position, enemyZone, _assignedSquare);
+            }
                 
             var enemy = new SimulatedEntity
             {
@@ -855,7 +974,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 Health = enemyType switch
                 {
                     EnemySubType.Kamikaze => 30f,
-                    EnemySubType.Scout => 300f, // Very high HP
+                    EnemySubType.Scout => 200f, // High HP
                     _ => 50f
                 }, // Different health for different enemy types
                 Rotation = 0,
@@ -1136,6 +1255,15 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     {
         try
         {
+            // Validate that the entity position is actually in our zone
+            var entityZone = GridSquare.FromPosition(position);
+            if (entityZone != _assignedSquare)
+            {
+                _logger.LogError("[TRANSFER_IN] REJECTED: {Type} {EntityId} at position {Position} belongs to zone {EntityZone}, not our zone {OurZone}", 
+                    type, entityId, position, entityZone, _assignedSquare);
+                return Task.FromResult(false);
+            }
+            
             // Log the incoming transfer details
             _logger.LogInformation("[TRANSFER_IN] Receiving {Type} {EntityId} at position {Position} with velocity {Velocity}, health {Health} into zone {Zone}", 
                 type, entityId, position, velocity, health, _assignedSquare);

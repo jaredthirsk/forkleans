@@ -317,6 +317,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shooter.Client", "samples\R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shooter.ServiceDefaults", "samples\Rpc\Shooter.ServiceDefaults\Shooter.ServiceDefaults.csproj", "{78347C6A-5548-1BCE-4B9B-FD8FEF6C4501}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shooter.Shared", "samples\Rpc\Shooter.Shared\Shooter.Shared.csproj", "{01872D28-36B0-D248-488F-E441C7BEFEDC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -823,6 +825,10 @@ Global
 		{78347C6A-5548-1BCE-4B9B-FD8FEF6C4501}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78347C6A-5548-1BCE-4B9B-FD8FEF6C4501}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78347C6A-5548-1BCE-4B9B-FD8FEF6C4501}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01872D28-36B0-D248-488F-E441C7BEFEDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01872D28-36B0-D248-488F-E441C7BEFEDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01872D28-36B0-D248-488F-E441C7BEFEDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01872D28-36B0-D248-488F-E441C7BEFEDC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -974,6 +980,7 @@ Global
 		{5A1524AC-4E40-4363-07C8-CC9937904428} = {7168A336-7D14-4F94-8D0B-8B0DFA93B0BD}
 		{C8FC349A-4C7F-DBA1-2688-4E94B7F34DBA} = {7168A336-7D14-4F94-8D0B-8B0DFA93B0BD}
 		{78347C6A-5548-1BCE-4B9B-FD8FEF6C4501} = {7168A336-7D14-4F94-8D0B-8B0DFA93B0BD}
+		{01872D28-36B0-D248-488F-E441C7BEFEDC} = {7168A336-7D14-4F94-8D0B-8B0DFA93B0BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7BFB3429-B5BB-4DB1-95B4-67D77A864952}
