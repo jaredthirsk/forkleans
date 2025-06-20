@@ -144,6 +144,17 @@ public class WorldController : ControllerBase
         
         return Ok(stats.ToList());
     }
+    
+    [HttpPost("reset-server-assignments")]
+    public async Task<IActionResult> ResetServerAssignments()
+    {
+        _logger.LogWarning("Resetting all server assignments - this will force all ActionServers to re-register");
+        
+        var worldManager = _grainFactory.GetGrain<IWorldManagerGrain>(0);
+        await worldManager.ResetAllServerAssignments();
+        
+        return Ok(new { message = "All server assignments have been reset. ActionServers will need to restart to re-register." });
+    }
 }
 
 public record RegisterActionServerRequest(string ServerId, string IpAddress, int UdpPort, string HttpEndpoint, int RpcPort = 0);

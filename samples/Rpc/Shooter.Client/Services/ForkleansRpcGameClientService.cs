@@ -319,12 +319,33 @@ public class ForkleansRpcGameClientService : IDisposable
                 if (adjacentEntities.Any())
                 {
                     // Merge adjacent entities with current state
-                    var allEntities = worldState.Entities.ToList();
+                    var allEntities = worldState.Entities?.ToList() ?? new List<EntityState>();
                     allEntities.AddRange(adjacentEntities);
                     worldState = new WorldState(allEntities, worldState.Timestamp, worldState.SequenceNumber);
                     
                     _logger.LogInformation("Added {Count} entities from adjacent zones, total: {Total}", 
                         adjacentEntities.Count, worldState.Entities.Count);
+                }
+                else if (_currentZone != null)
+                {
+                    // Check if player is near borders but no adjacent entities were fetched
+                    var player = worldState.Entities?.FirstOrDefault(e => e.EntityId == PlayerId);
+                    if (player != null)
+                    {
+                        var (min, max) = _currentZone.GetBounds();
+                        var pos = player.Position;
+                        
+                        bool nearLeftEdge = pos.X <= min.X + 100;
+                        bool nearRightEdge = pos.X >= max.X - 100;
+                        bool nearTopEdge = pos.Y <= min.Y + 100;
+                        bool nearBottomEdge = pos.Y >= max.Y - 100;
+                        
+                        if (nearLeftEdge || nearRightEdge || nearTopEdge || nearBottomEdge)
+                        {
+                            _logger.LogDebug("Player near borders but no adjacent entities fetched. Position: {Position}, Near edges: L={Left} R={Right} T={Top} B={Bottom}", 
+                                pos, nearLeftEdge, nearRightEdge, nearTopEdge, nearBottomEdge);
+                        }
+                    }
                 }
                 
                 // Check if our player still exists in the world state
@@ -746,7 +767,7 @@ public class ForkleansRpcGameClientService : IDisposable
         try
         {
             _logger.LogInformation("Testing connection with GetWorldState call");
-            var testState = await _gameGrain.GetWorldState();
+            var testState = _gameGrain != null ? await _gameGrain.GetWorldState() : null;
             _logger.LogInformation("Test GetWorldState succeeded, got {Count} entities", testState?.Entities?.Count ?? 0);
         }
         catch (Exception ex)
@@ -763,7 +784,7 @@ public class ForkleansRpcGameClientService : IDisposable
             {
                 _logger.LogInformation("[ZONE_TRANSITION] Restoring player velocity: direction={Direction}, shooting={Shooting}", 
                     _lastInputDirection, _lastInputShooting);
-                await _gameGrain.UpdatePlayerInput(PlayerId!, _lastInputDirection, _lastInputShooting);
+                await _gameGrain!.UpdatePlayerInput(PlayerId!, _lastInputDirection, _lastInputShooting);
             }
             catch (Exception ex)
             {
@@ -1289,8 +1310,18 @@ public class ForkleansRpcGameClientService : IDisposable
                     
                     // Use GetLocalWorldState to avoid recursive fetching on the server
                     var worldState = await connection.GameGrain.GetLocalWorldState();
-                    if (worldState?.Entities != null)
+                    if (worldState?.Entities != null && _currentZone != null)
                     {
+                        // Get bounds of current zone for filtering
+                        var (currentMin, currentMax) = _currentZone.GetBounds();
+                        
+                        _logger.LogDebug("Filtering entities from zone ({X},{Y}). Current zone bounds: ({MinX},{MinY}) to ({MaxX},{MaxY})", 
+                            zone.X, zone.Y, currentMin.X, currentMin.Y, currentMax.X, currentMax.Y);
+                        
+                        // Log total entities before filtering
+                        var totalEntities = worldState.Entities.Count;
+                        _logger.LogDebug("Zone ({X},{Y}) has {Count} total entities before filtering", zone.X, zone.Y, totalEntities);
+                        
                         // Filter to only include entities within 100 units of our zone
                         var filteredEntities = worldState.Entities.Where(e => 
                         {
@@ -1302,18 +1333,19 @@ public class ForkleansRpcGameClientService : IDisposable
                                 return false;
                             
                             // Check distance to our zone
-                            if (zone.X < _currentZone.X && e.Position.X >= max.X - 100) return true; // Left zone, right edge
-                            if (zone.X > _currentZone.X && e.Position.X <= min.X + 100) return true; // Right zone, left edge
-                            if (zone.Y < _currentZone.Y && e.Position.Y >= max.Y - 100) return true; // Top zone, bottom edge
-                            if (zone.Y > _currentZone.Y && e.Position.Y <= min.Y + 100) return true; // Bottom zone, top edge
+                            // Zone (0,0) is to the left of zone (1,0), so entities near X=500 (right edge of 0,0) should be included
+                            if (zone.X < _currentZone.X && e.Position.X >= currentMin.X - 100) return true; // Left zone, entities near our left edge
+                            if (zone.X > _currentZone.X && e.Position.X <= currentMax.X + 100) return true; // Right zone, entities near our right edge
+                            if (zone.Y < _currentZone.Y && e.Position.Y >= currentMin.Y - 100) return true; // Top zone, entities near our top edge
+                            if (zone.Y > _currentZone.Y && e.Position.Y <= currentMax.Y + 100) return true; // Bottom zone, entities near our bottom edge
                             
                             // For corner zones, check both axes
                             if (zone.X != _currentZone.X && zone.Y != _currentZone.Y)
                             {
-                                bool xInRange = (zone.X < _currentZone.X && e.Position.X >= max.X - 100) ||
-                                               (zone.X > _currentZone.X && e.Position.X <= min.X + 100);
-                                bool yInRange = (zone.Y < _currentZone.Y && e.Position.Y >= max.Y - 100) ||
-                                               (zone.Y > _currentZone.Y && e.Position.Y <= min.Y + 100);
+                                bool xInRange = (zone.X < _currentZone.X && e.Position.X >= currentMin.X - 100) ||
+                                               (zone.X > _currentZone.X && e.Position.X <= currentMax.X + 100);
+                                bool yInRange = (zone.Y < _currentZone.Y && e.Position.Y >= currentMin.Y - 100) ||
+                                               (zone.Y > _currentZone.Y && e.Position.Y <= currentMax.Y + 100);
                                 return xInRange && yInRange;
                             }
                             
@@ -1324,8 +1356,22 @@ public class ForkleansRpcGameClientService : IDisposable
                         
                         if (filteredEntities.Any())
                         {
-                            _logger.LogDebug("Fetched {Count} entities from zone ({X},{Y}) via pre-established connection", 
+                            _logger.LogInformation("Fetched {Count} entities from zone ({X},{Y}) via pre-established connection", 
                                 filteredEntities.Count, zone.X, zone.Y);
+                            
+                            // Log details of fetched entities
+                            var entityTypes = filteredEntities.GroupBy(e => e.Type)
+                                .ToDictionary(g => g.Key, g => g.Count());
+                            _logger.LogDebug("Fetched entities from zone ({X},{Y}): Players={Players}, Enemies={Enemies}, Bullets={Bullets}, Factories={Factories}",
+                                zone.X, zone.Y,
+                                entityTypes.GetValueOrDefault(EntityType.Player, 0),
+                                entityTypes.GetValueOrDefault(EntityType.Enemy, 0),
+                                entityTypes.GetValueOrDefault(EntityType.Bullet, 0),
+                                entityTypes.GetValueOrDefault(EntityType.Factory, 0));
+                        }
+                        else
+                        {
+                            _logger.LogDebug("No entities from zone ({X},{Y}) were within 100 units of shared border", zone.X, zone.Y);
                         }
                     }
                 }

@@ -11,6 +11,7 @@ public interface IWorldManagerGrain : Orleans.IGrainWithIntegerKey
     Task<List<ActionServerInfo>> GetAllActionServers();
     Task<PlayerInfo> RegisterPlayer(string playerId, string name);
     Task<Vector2> GetPlayerStartPosition(string playerId);
+    Task ResetAllServerAssignments();
     
     // Zone transition support
     Task<PlayerTransferInfo?> InitiatePlayerTransfer(string playerId, Vector2 currentPosition);

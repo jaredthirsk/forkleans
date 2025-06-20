@@ -109,6 +109,21 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
         return playerInfo;
     }
 
+    public async Task ResetAllServerAssignments()
+    {
+        _logger.LogWarning("Resetting all server assignments - clearing persisted state");
+        
+        // Clear all in-memory state
+        _gridToServer.Clear();
+        _serverIdToInfo.Clear();
+        
+        // Clear persisted state
+        _state.State.ActionServers.Clear();
+        await _state.WriteStateAsync();
+        
+        _logger.LogInformation("All server assignments have been reset");
+    }
+    
     public Task<Vector2> GetPlayerStartPosition(string playerId)
     {
         // For now, start all players in a zone that has an ActionServer

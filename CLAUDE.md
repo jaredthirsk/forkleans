@@ -125,3 +125,12 @@ dotnet test --filter "Category=BVT" --no-build -c Debug
 - `Orleans.sln`: Main solution file
 - `fork-maintenance-guide.md`: Detailed fork maintenance instructions
 - `forkleans-version-bump-guide.md`: Guide for bumping Forkleans NuGet package versions
+
+### Log Files
+
+The Shooter sample projects write detailed logs to help with debugging:
+- **ActionServer logs**: `samples/Rpc/Shooter.ActionServer/logs/*.log`
+- **Client logs**: `samples/Rpc/Shooter.Client/logs/*.log`
+- **Silo logs**: `samples/Rpc/Shooter.Silo/logs/*.log`
+
+These logs contain detailed information about zone transitions, entity updates, and RPC communications.
