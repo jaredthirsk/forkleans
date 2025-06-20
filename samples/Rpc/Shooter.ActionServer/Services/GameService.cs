@@ -162,10 +162,18 @@ public class GameService : IGameService, IHostedService
                     }
                 }
                 
-                // Handle entity transfers (enemies and bullets)
+                // Handle entity transfers (enemies only - bullets are handled via trajectory transfer)
                 var entitiesOutside = await _simulation.GetEntitiesOutsideZone();
                 foreach (var (entityId, position, type, subType) in entitiesOutside)
                 {
+                    // Skip bullets - they're handled via trajectory transfer
+                    if (type == EntityType.Bullet)
+                    {
+                        // Just remove the bullet from this zone - it will appear in the other zone via trajectory transfer
+                        _simulation.RemovePlayer(entityId);
+                        continue;
+                    }
+                    
                     var targetZone = GridSquare.FromPosition(position);
                     var targetServer = await worldManager.GetActionServerForPosition(position);
                     

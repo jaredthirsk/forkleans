@@ -27,6 +27,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private DateTime _lastZoneCheck = DateTime.MinValue;
     private long _sequenceNumber = 0;
     private TaskCompletionSource<bool> _zoneAssignedTcs = new();
+    private readonly DateTime _startTime = DateTime.UtcNow;
 
     public WorldSimulation(ILogger<WorldSimulation> logger, Orleans.IClusterClient orleansClient)
     {
@@ -458,6 +459,13 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 if (entity.Velocity.Length() > 0)
                 {
                     entity.Rotation = MathF.Atan2(entity.Velocity.Y, entity.Velocity.X);
+                }
+                
+                // Update bullet lifetime (health represents remaining lifetime)
+                if (entity.Type == EntityType.Bullet)
+                {
+                    entity.Health -= deltaTime;
+                    entity.StateTimer += deltaTime;
                 }
                 
                 // Enforce zone boundaries for enemies (bullets will be removed in zone monitoring)
@@ -1000,6 +1008,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     {
         // Enemy bullets are 40% of normal speed (60% slower)
         var bulletSpeed = isEnemyBullet ? 200f : 500f;
+        const float bulletLifespan = 3f; // Bullets live for 3 seconds
         
         // Calculate spawn position slightly ahead
         var spawnPosition = position + direction * 30f;
@@ -1014,13 +1023,17 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             return;
         }
         
+        var bulletId = $"bullet_{_assignedSquare.X}_{_assignedSquare.Y}_{_nextEntityId++}";
+        var velocity = direction * bulletSpeed;
+        var spawnTime = GetCurrentGameTime();
+        
         var bullet = new SimulatedEntity
         {
-            EntityId = $"bullet_{_nextEntityId++}",
+            EntityId = bulletId,
             Type = EntityType.Bullet,
             Position = spawnPosition,
-            Velocity = direction * bulletSpeed,
-            Health = 1f,
+            Velocity = velocity,
+            Health = bulletLifespan, // Use lifespan as health
             Rotation = MathF.Atan2(direction.Y, direction.X),
             State = EntityStateType.Active,
             StateTimer = 0f,
@@ -1029,6 +1042,10 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         };
         
         _entities[bullet.EntityId] = bullet;
+        
+        // Calculate which zones the bullet might enter based on its trajectory
+        _ = Task.Run(async () => await SendBulletTrajectoryToNeighboringZones(
+            bulletId, bullet.SubType, spawnPosition, velocity, spawnTime, bulletLifespan, ownerId));
     }
 
     private void SpawnExplosion(Vector2 position, bool isSmall = false)
@@ -1457,5 +1474,172 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         // Otherwise, random direction
         var randomAngle = _random.NextSingle() * MathF.PI * 2;
         return Task.FromResult(new Vector2(MathF.Cos(randomAngle), MathF.Sin(randomAngle)));
+    }
+    
+    public void ReceiveBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId)
+    {
+        try
+        {
+            // Calculate current position based on elapsed time
+            var currentTime = GetCurrentGameTime();
+            var elapsedTime = currentTime - spawnTime;
+            
+            // If the bullet has already expired, don't spawn it
+            if (elapsedTime >= lifespan)
+            {
+                _logger.LogDebug("Bullet {BulletId} has already expired (elapsed: {Elapsed}s, lifespan: {Lifespan}s)", 
+                    bulletId, elapsedTime, lifespan);
+                return;
+            }
+            
+            // Calculate current position along trajectory
+            var currentPosition = origin + velocity * elapsedTime;
+            
+            // Check if bullet is currently in our zone
+            var bulletZone = GridSquare.FromPosition(currentPosition);
+            if (bulletZone != _assignedSquare)
+            {
+                _logger.LogDebug("Bullet {BulletId} not currently in our zone (position: {Position}, zone: {Zone})", 
+                    bulletId, currentPosition, bulletZone);
+                return;
+            }
+            
+            // Create bullet entity at calculated position
+            var bullet = new SimulatedEntity
+            {
+                EntityId = bulletId,
+                Type = EntityType.Bullet,
+                SubType = subType,
+                Position = currentPosition,
+                Velocity = velocity,
+                Health = lifespan - elapsedTime, // Use remaining lifespan as health
+                Rotation = MathF.Atan2(velocity.Y, velocity.X),
+                State = EntityStateType.Active,
+                StateTimer = elapsedTime,
+                OwnerId = ownerId
+            };
+            
+            _entities[bulletId] = bullet;
+            
+            _logger.LogInformation("Spawned transferred bullet {BulletId} at position {Position} with remaining lifespan {Lifespan}s", 
+                bulletId, currentPosition, bullet.Health);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to receive bullet trajectory {BulletId}", bulletId);
+        }
+    }
+    
+    private float GetCurrentGameTime()
+    {
+        // Get a consistent game time in seconds since startup
+        return (float)(DateTime.UtcNow - _startTime).TotalSeconds;
+    }
+    
+    private async Task SendBulletTrajectoryToNeighboringZones(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId)
+    {
+        try
+        {
+            // Calculate which zones the bullet might pass through during its lifetime
+            var endPosition = origin + velocity * lifespan;
+            var zonesToNotify = new HashSet<GridSquare>();
+            
+            // Sample multiple points along the trajectory
+            const int samples = 10;
+            for (int i = 0; i <= samples; i++)
+            {
+                var t = i / (float)samples;
+                var samplePos = origin + velocity * (lifespan * t);
+                var zone = GridSquare.FromPosition(samplePos);
+                
+                // Only notify zones that are not our current zone
+                if (zone != _assignedSquare)
+                {
+                    zonesToNotify.Add(zone);
+                }
+            }
+            
+            if (zonesToNotify.Count == 0)
+            {
+                // Bullet stays within our zone
+                return;
+            }
+            
+            _logger.LogDebug("Bullet {BulletId} trajectory will pass through zones: {Zones}", 
+                bulletId, string.Join(", ", zonesToNotify.Select(z => $"({z.X},{z.Y})")));
+            
+            // Get server information for each zone
+            var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
+            
+            foreach (var targetZone in zonesToNotify)
+            {
+                try
+                {
+                    var targetPosition = targetZone.GetCenter();
+                    var targetServer = await worldManager.GetActionServerForPosition(targetPosition);
+                    
+                    if (targetServer != null && targetServer.RpcPort > 0)
+                    {
+                        // Send trajectory to this server
+                        await SendBulletTrajectoryToServer(targetServer, bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId);
+                        _logger.LogInformation("Sent bullet trajectory {BulletId} to zone ({X},{Y})", 
+                            bulletId, targetZone.X, targetZone.Y);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send bullet trajectory to zone ({X},{Y})", 
+                        targetZone.X, targetZone.Y);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send bullet trajectory {BulletId} to neighboring zones", bulletId);
+        }
+    }
+    
+    private async Task SendBulletTrajectoryToServer(ActionServerInfo targetServer, string bulletId, int subType, 
+        Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId)
+    {
+        try
+        {
+            // Create RPC client to target server
+            var hostBuilder = Host.CreateDefaultBuilder()
+                .UseOrleansRpcClient(rpcBuilder =>
+                {
+                    var host = targetServer.IpAddress == "localhost" ? "127.0.0.1" : targetServer.IpAddress;
+                    rpcBuilder.ConnectTo(host, targetServer.RpcPort);
+                    rpcBuilder.UseLiteNetLib();
+                })
+                .ConfigureServices(services =>
+                {
+                    services.AddSerializer(serializer =>
+                    {
+                        serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                    });
+                })
+                .Build();
+                
+            await hostBuilder.StartAsync();
+            
+            try
+            {
+                var rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>();
+                await Task.Delay(200); // Brief delay for connection
+                
+                var gameGrain = rpcClient.GetGrain<IGameRpcGrain>("game");
+                await gameGrain.TransferBulletTrajectory(bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId);
+            }
+            finally
+            {
+                await hostBuilder.StopAsync();
+                hostBuilder.Dispose();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send RPC bullet trajectory to server {ServerId}", targetServer.ServerId);
+        }
     }
 }

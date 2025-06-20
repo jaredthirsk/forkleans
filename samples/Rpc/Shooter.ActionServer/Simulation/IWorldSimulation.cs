@@ -22,4 +22,7 @@ public interface IWorldSimulation
     
     // Scout alerts
     void ProcessScoutAlert(GridSquare playerZone, Vector2 playerPosition);
+    
+    // Bullet trajectories
+    void ReceiveBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId);
 }

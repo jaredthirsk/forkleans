@@ -53,4 +53,11 @@ public interface IGameRpcGrain : Forkleans.IGrainWithStringKey
     
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
     Task<ZoneStats> GetZoneStats();
+    
+    /// <summary>
+    /// Efficiently transfer a bullet trajectory to this zone.
+    /// The bullet will be spawned at the calculated position based on current time.
+    /// </summary>
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    Task TransferBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId);
 }
