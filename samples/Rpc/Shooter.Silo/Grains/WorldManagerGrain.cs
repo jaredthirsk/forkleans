@@ -12,7 +12,6 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
     private readonly ILogger<WorldManagerGrain> _logger;
     private readonly Dictionary<GridSquare, ActionServerInfo> _gridToServer = new();
     private readonly Dictionary<string, ActionServerInfo> _serverIdToInfo = new();
-    private int _nextServerIndex = 0;
 
     public WorldManagerGrain(
         [PersistentState("worldManager", "worldStore")] IPersistentState<WorldManagerState> state,
@@ -41,18 +40,18 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
         // 5-9 servers: 3x3
         // 10-16 servers: 4x4, etc.
         
-        var totalServers = _nextServerIndex + 1;
+        // Calculate index based on existing servers in persisted state
+        var serverIndex = _state.State.ActionServers.Count;
+        var totalServers = serverIndex + 1;
         var gridSize = (int)Math.Ceiling(Math.Sqrt(totalServers));
         
         // Fill row by row
-        var gridX = _nextServerIndex % gridSize;
-        var gridY = _nextServerIndex / gridSize;
+        var gridX = serverIndex % gridSize;
+        var gridY = serverIndex / gridSize;
         var assignedSquare = new GridSquare(gridX, gridY);
         
-        _nextServerIndex++;
-        
         _logger.LogInformation("Assigning server {ServerId} (index {Index}) to zone ({X},{Y}) in {GridSize}x{GridSize} grid", 
-            serverId, _nextServerIndex - 1, gridX, gridY, gridSize, gridSize);
+            serverId, serverIndex, gridX, gridY, gridSize, gridSize);
 
         var serverInfo = new ActionServerInfo(serverId, ipAddress, udpPort, httpEndpoint, assignedSquare, DateTime.UtcNow, rpcPort);
         

@@ -263,7 +263,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         _logger.LogInformation("Zone assigned: {Zone}. Spawning initial entities.", _assignedSquare);
         
         // Spawn factories first
-        var factoryCount = _random.Next(0, 4); // 0-3 factories
+        var factoryCount = _random.Next(1, 3); // 1-2 factories
         _logger.LogInformation("Spawning {Count} factories in zone {Zone}", factoryCount, _assignedSquare);
         SpawnFactories(factoryCount);
         
@@ -598,6 +598,13 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     const float scoutDetectionRange = 300f;
                     const float scoutSpeed = 20f;
                     
+                    // If alerting, don't move
+                    if (enemy.State == EntityStateType.Alerting)
+                    {
+                        enemy.Velocity = Vector2.Zero;
+                        break;
+                    }
+                    
                     if (distance <= scoutDetectionRange)
                     {
                         // Player spotted!
@@ -631,11 +638,15 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                             });
                         }
                         
-                        // Flash while alerting for 3 seconds
-                        if (enemy.State == EntityStateType.Alerting && enemy.StateTimer >= 3f)
+                        // Continue alerting for up to 2 minutes (120 seconds)
+                        if (enemy.State == EntityStateType.Alerting && enemy.StateTimer >= 120f)
                         {
+                            // Done alerting, resume normal movement
                             enemy.State = EntityStateType.Active;
                             enemy.StateTimer = 0f;
+                            enemy.HasSpottedPlayer = false;
+                            enemy.HasAlerted = false;
+                            _logger.LogInformation("Scout {EntityId} finished alerting after 2 minutes, resuming movement", enemy.EntityId);
                         }
                     }
                     else
