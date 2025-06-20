@@ -124,3 +124,4 @@ dotnet test --filter "Category=BVT" --no-build -c Debug
 - `Directory.Packages.props`: Central package versions
 - `Orleans.sln`: Main solution file
 - `fork-maintenance-guide.md`: Detailed fork maintenance instructions
+- `forkleans-version-bump-guide.md`: Guide for bumping Forkleans NuGet package versions

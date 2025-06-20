@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="8.*" />
     <PackageReference Include="Microsoft.Orleans.Sdk" Version="8.*" />
-    <PackageReference Include="Forkleans.Rpc.Sdk" Version="9.2.0.2-preview3" />
+    <PackageReference Include="Forkleans.Rpc.Sdk" Version="9.2.0.3-preview3" />
   </ItemGroup>
 
 </Project>

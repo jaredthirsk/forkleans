@@ -3,7 +3,7 @@
 
 param(
     [Parameter(Mandatory=$false)]
-    [string]$LocalFeedPath = "G:\NuGetLocalFeed\Forkleans",
+    [string]$LocalFeedPath = "$PSScriptRoot/local-packages",
     
     [Parameter()]
     [string]$Configuration = "Release",

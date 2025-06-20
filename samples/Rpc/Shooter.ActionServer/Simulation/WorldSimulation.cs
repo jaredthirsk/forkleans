@@ -26,7 +26,6 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private HashSet<GridSquare> _availableZones = new();
     private DateTime _lastZoneCheck = DateTime.MinValue;
     private long _sequenceNumber = 0;
-    private bool _isInitialized = false;
     private TaskCompletionSource<bool> _zoneAssignedTcs = new();
 
     public WorldSimulation(ILogger<WorldSimulation> logger, Orleans.IClusterClient orleansClient)
@@ -275,7 +274,6 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         SpawnEnemies(1, EnemySubType.Scout);
         _logger.LogInformation("Initial enemy spawn complete. Total entities: {Count}", _entities.Count);
         
-        _isInitialized = true;
         
         while (!stoppingToken.IsCancellationRequested)
         {
