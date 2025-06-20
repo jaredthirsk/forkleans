@@ -75,7 +75,10 @@
                 <GameControls IsConnected="_isConnected"
                              OnMove="HandleMove"
                              OnShoot="HandleShoot"
-                             OnSpeedChange="HandleSpeedChange" />
+                             OnSpeedChange="HandleSpeedChange"
+                             OnAutoMoveChange="HandleAutoMoveChange"
+                             OnAutoShootChange="HandleAutoShootChange"
+                             OnTestModeChange="HandleTestModeChange" />
                 
                 <Minimap
                     WorldState="@_currentWorldState"
@@ -227,6 +230,11 @@
     private bool _usePhaser = false; // Default to Canvas renderer
     private string? _debugInfo = null;
     private System.Timers.Timer? _serverMappingTimer;
+    private bool _autoMove = false;
+    private bool _autoShoot = false;
+    private bool _testMode = true; // Enabled by default
+    private CancellationTokenSource? _autoPilotCts;
+    private CancellationTokenSource? _autoShootCts;
     
     protected override void OnInitialized()
     {
@@ -343,6 +351,185 @@
             _currentMoveDirection = _currentMoveDirection.Normalized() * _currentSpeed;
             await UpdatePlayerInput();
         }
+    }
+    
+    private async Task HandleAutoMoveChange(bool enabled)
+    {
+        _autoMove = enabled;
+        if (_autoMove)
+        {
+            // Start auto-pilot movement
+            _ = Task.Run(AutoPilotLoop);
+        }
+    }
+    
+    private async Task HandleAutoShootChange(bool enabled)
+    {
+        _autoShoot = enabled;
+        if (_autoShoot)
+        {
+            // Start auto-shoot loop
+            _ = Task.Run(AutoShootLoop);
+        }
+    }
+    
+    private async Task HandleTestModeChange(bool enabled)
+    {
+        _testMode = enabled;
+        if (_testMode)
+        {
+            // Initialize test bot behavior
+            _logger.LogInformation("Test mode enabled");
+            // TODO: Implement test bot logic
+        }
+        else
+        {
+            _logger.LogInformation("Test mode disabled");
+        }
+    }
+    
+    private async Task AutoPilotLoop()
+    {
+        _autoPilotCts?.Cancel();
+        _autoPilotCts = new CancellationTokenSource();
+        var token = _autoPilotCts.Token;
+        
+        try
+        {
+            while (_autoMove && !token.IsCancellationRequested)
+            {
+                if (_currentWorldState != null)
+                {
+                    // Find player entity
+                    var player = _currentWorldState.Entities.FirstOrDefault(e => e.EntityId == _playerId);
+                    if (player != null)
+                    {
+                        // Find nearest enemy or asteroid
+                        var targets = _currentWorldState.Entities
+                            .Where(e => (e.Type == EntityType.Enemy || e.Type == EntityType.Asteroid) && 
+                                       e.Health > 0)
+                            .OrderBy(e => Vector2.Distance(player.Position, e.Position))
+                            .ToList();
+                        
+                        if (targets.Any())
+                        {
+                            var nearestTarget = targets.First();
+                            var direction = (nearestTarget.Position - player.Position).Normalized();
+                            
+                            // Move towards the target with some distance management
+                            var distance = Vector2.Distance(player.Position, nearestTarget.Position);
+                            if (distance > 150f) // Keep some distance
+                            {
+                                await HandleMove(direction);
+                            }
+                            else if (distance < 80f) // Too close, back away
+                            {
+                                await HandleMove(-direction);
+                            }
+                            else
+                            {
+                                // Strafe around the target
+                                var strafeDir = new Vector2(-direction.Y, direction.X);
+                                await HandleMove(strafeDir);
+                            }
+                        }
+                        else
+                        {
+                            // No enemies in current zone, check for other zones with enemies
+                            var zonesWithEnemies = await GetZonesWithEnemies();
+                            if (zonesWithEnemies.Any())
+                            {
+                                // Move towards the nearest zone with enemies
+                                var targetZone = zonesWithEnemies.OrderBy(z => 
+                                    Vector2.Distance(player.Position, z.GetCenter())).First();
+                                var direction = (targetZone.GetCenter() - player.Position).Normalized();
+                                await HandleMove(direction);
+                            }
+                            else
+                            {
+                                // No enemies anywhere, move randomly
+                                var randomAngle = Random.Shared.NextSingle() * MathF.PI * 2;
+                                var randomDir = new Vector2(MathF.Cos(randomAngle), MathF.Sin(randomAngle));
+                                await HandleMove(randomDir);
+                            }
+                        }
+                    }
+                }
+                
+                await Task.Delay(100, token); // Update every 100ms
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Expected when cancelling
+        }
+        finally
+        {
+            // Stop moving when auto-pilot is disabled
+            await HandleMove(Vector2.Zero);
+        }
+    }
+    
+    private async Task AutoShootLoop()
+    {
+        _autoShootCts?.Cancel();
+        _autoShootCts = new CancellationTokenSource();
+        var token = _autoShootCts.Token;
+        
+        try
+        {
+            while (_autoShoot && !token.IsCancellationRequested)
+            {
+                if (_currentWorldState != null)
+                {
+                    var player = _currentWorldState.Entities.FirstOrDefault(e => e.EntityId == _playerId);
+                    if (player != null)
+                    {
+                        // Find nearest enemy or asteroid
+                        var target = _currentWorldState.Entities
+                            .Where(e => (e.Type == EntityType.Enemy || e.Type == EntityType.Asteroid) && 
+                                       e.Health > 0)
+                            .OrderBy(e => Vector2.Distance(player.Position, e.Position))
+                            .FirstOrDefault();
+                        
+                        if (target != null)
+                        {
+                            var distance = Vector2.Distance(player.Position, target.Position);
+                            if (distance < 300f) // Within shooting range
+                            {
+                                // Calculate shoot direction
+                                var shootDir = (target.Position - player.Position).Normalized();
+                                _shootDirection = shootDir;
+                                
+                                // Shoot burst
+                                await HandleShoot(true);
+                                await Task.Delay(200, token); // Shoot for 200ms
+                                await HandleShoot(false);
+                                await Task.Delay(300, token); // Wait 300ms before next burst
+                            }
+                        }
+                    }
+                }
+                
+                await Task.Delay(100, token); // Check every 100ms
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Expected when cancelling
+        }
+        finally
+        {
+            // Stop shooting when auto-shoot is disabled
+            await HandleShoot(false);
+        }
+    }
+    
+    private async Task<List<GridSquare>> GetZonesWithEnemies()
+    {
+        // TODO: This would need to query other zones for enemy counts
+        // For now, just return empty list
+        return new List<GridSquare>();
     }
     
     private void OnWorldStateUpdated(WorldState worldState)

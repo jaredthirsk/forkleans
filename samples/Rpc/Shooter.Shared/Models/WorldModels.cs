@@ -60,7 +60,8 @@ public enum EntityType
     Enemy,
     Bullet,
     Explosion,
-    Factory
+    Factory,
+    Asteroid
 }
 
 [Orleans.GenerateSerializer]
@@ -83,6 +84,14 @@ public enum EnemySubType
     Sniper = 2,
     Strafing = 3,
     Scout = 4
+}
+
+[Orleans.GenerateSerializer]
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum AsteroidSubType
+{
+    Stationary = 1,
+    Moving = 2
 }
 
 [Orleans.GenerateSerializer]

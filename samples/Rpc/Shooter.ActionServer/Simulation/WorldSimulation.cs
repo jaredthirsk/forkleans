@@ -241,13 +241,14 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         
         if (entities.Count > 0)
         {
-            _logger.LogDebug("GetCurrentState returning {Total} entities: Players={Players}, Enemies={Enemies}, Bullets={Bullets}, Explosions={Explosions}, Factories={Factories}",
+            _logger.LogDebug("GetCurrentState returning {Total} entities: Players={Players}, Enemies={Enemies}, Bullets={Bullets}, Explosions={Explosions}, Factories={Factories}, Asteroids={Asteroids}",
                 entities.Count,
                 entityCounts.GetValueOrDefault(EntityType.Player, 0),
                 entityCounts.GetValueOrDefault(EntityType.Enemy, 0),
                 entityCounts.GetValueOrDefault(EntityType.Bullet, 0),
                 entityCounts.GetValueOrDefault(EntityType.Explosion, 0),
-                entityCounts.GetValueOrDefault(EntityType.Factory, 0));
+                entityCounts.GetValueOrDefault(EntityType.Factory, 0),
+                entityCounts.GetValueOrDefault(EntityType.Asteroid, 0));
         }
             
         // Increment sequence number for each state update
@@ -266,6 +267,9 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         var factoryCount = _random.Next(1, 3); // 1-2 factories
         _logger.LogInformation("Spawning {Count} factories in zone {Zone}", factoryCount, _assignedSquare);
         SpawnFactories(factoryCount);
+        
+        // Spawn asteroids near borders
+        SpawnAsteroids();
         
         // Spawn some initial enemies of different types
         _logger.LogInformation("Spawning initial enemies in zone {Zone}", _assignedSquare);
@@ -485,6 +489,23 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     if (entity.Position.Y <= min.Y + boundaryMargin || entity.Position.Y >= max.Y - boundaryMargin)
                     {
                         entity.Velocity = new Vector2(entity.Velocity.X, -entity.Velocity.Y);
+                    }
+                }
+                
+                // Handle asteroids - remove them if they move to non-existent zones
+                if (entity.Type == EntityType.Asteroid && (AsteroidSubType)entity.SubType == AsteroidSubType.Moving)
+                {
+                    var currentZone = GridSquare.FromPosition(entity.Position);
+                    if (currentZone != _assignedSquare)
+                    {
+                        // Check if the new zone exists
+                        var zoneExists = await IsZoneAvailable(currentZone);
+                        if (!zoneExists)
+                        {
+                            // Mark asteroid for removal
+                            entity.Health = 0;
+                            _logger.LogDebug("Asteroid {Id} moved to non-existent zone {Zone}, removing", entity.EntityId, currentZone);
+                        }
                     }
                 }
             }
@@ -764,6 +785,16 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                                 _logger.LogDebug("Player {PlayerId} gained 2 HP for killing enemy, new health: {Health}", playerId, player.Health);
                             }
                         }
+                        // If this killed an asteroid, give 5 HP to the player
+                        else if (wasAlive && e2.Health <= 0 && e2.Type == EntityType.Asteroid && e1.SubType == 0) // Player bullet
+                        {
+                            var playerId = e1.OwnerId ?? "";
+                            if (!string.IsNullOrEmpty(playerId) && _entities.TryGetValue(playerId, out var player))
+                            {
+                                player.Health = Math.Min(player.Health + 5f, 1000f); // 5 HP for asteroids
+                                _logger.LogDebug("Player {PlayerId} gained 5 HP for destroying asteroid, new health: {Health}", playerId, player.Health);
+                            }
+                        }
                     }
                     else if (e2.Type == EntityType.Bullet && e1.Type != EntityType.Bullet)
                     {
@@ -782,6 +813,16 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                                 _logger.LogDebug("Player {PlayerId} gained 2 HP for killing enemy, new health: {Health}", playerId, player.Health);
                             }
                         }
+                        // If this killed an asteroid, give 5 HP to the player
+                        else if (wasAlive && e1.Health <= 0 && e1.Type == EntityType.Asteroid && e2.SubType == 0) // Player bullet
+                        {
+                            var playerId = e2.OwnerId ?? "";
+                            if (!string.IsNullOrEmpty(playerId) && _entities.TryGetValue(playerId, out var player))
+                            {
+                                player.Health = Math.Min(player.Health + 5f, 1000f); // 5 HP for asteroids
+                                _logger.LogDebug("Player {PlayerId} gained 5 HP for destroying asteroid, new health: {Health}", playerId, player.Health);
+                            }
+                        }
                     }
                     else if (e1.Type == EntityType.Player && e2.Type == EntityType.Enemy)
                     {
@@ -795,6 +836,18 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                         var damage = (EnemySubType)e1.SubType == EnemySubType.Kamikaze ? 30f : 10f;
                         e2.Health -= damage;
                         e1.Health -= 10f;
+                    }
+                    else if (e1.Type == EntityType.Player && e2.Type == EntityType.Asteroid)
+                    {
+                        // Colliding with asteroids damages the player
+                        e1.Health -= 20f;
+                        e2.Health -= 25f; // Damage the asteroid too
+                    }
+                    else if (e2.Type == EntityType.Player && e1.Type == EntityType.Asteroid)
+                    {
+                        // Colliding with asteroids damages the player
+                        e2.Health -= 20f;
+                        e1.Health -= 25f; // Damage the asteroid too
                     }
                 }
             }
@@ -882,6 +935,18 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 entity.State = EntityStateType.Dying;
                 SpawnExplosion(entity.Position, isSmall: true);
             }
+            // Handle asteroid destruction
+            else if (entity.Type == EntityType.Asteroid && entity.State == EntityStateType.Active && entity.Health <= 0)
+            {
+                entity.State = EntityStateType.Dying;
+                SpawnExplosion(entity.Position, isSmall: false); // Bigger explosion for asteroids
+            }
+            // Handle factory destruction
+            else if (entity.Type == EntityType.Factory && entity.State == EntityStateType.Active && entity.Health <= 0)
+            {
+                entity.State = EntityStateType.Dying;
+                SpawnExplosion(entity.Position, isSmall: false);
+            }
             // Handle explosion lifetime
             else if (entity.Type == EntityType.Explosion && entity.StateTimer >= 0.5f)
             {
@@ -938,6 +1003,67 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             
             _entities[factory.EntityId] = factory;
             _logger.LogDebug("Spawned factory {Id} at position {Position}", factory.EntityId, position);
+        }
+    }
+
+    private void SpawnAsteroids()
+    {
+        var (min, max) = _assignedSquare.GetBounds();
+        const float borderOffset = 100f; // Within 100 units of border
+        
+        _logger.LogDebug("Spawning asteroids near borders in zone {Zone}", _assignedSquare);
+        
+        // Spawn 4 asteroids, one near each border
+        var borderPositions = new[]
+        {
+            // Top border
+            new Vector2(
+                _random.NextSingle() * (max.X - min.X - 2 * borderOffset) + min.X + borderOffset,
+                min.Y + _random.NextSingle() * borderOffset),
+            // Bottom border
+            new Vector2(
+                _random.NextSingle() * (max.X - min.X - 2 * borderOffset) + min.X + borderOffset,
+                max.Y - _random.NextSingle() * borderOffset),
+            // Left border
+            new Vector2(
+                min.X + _random.NextSingle() * borderOffset,
+                _random.NextSingle() * (max.Y - min.Y - 2 * borderOffset) + min.Y + borderOffset),
+            // Right border
+            new Vector2(
+                max.X - _random.NextSingle() * borderOffset,
+                _random.NextSingle() * (max.Y - min.Y - 2 * borderOffset) + min.Y + borderOffset)
+        };
+        
+        for (int i = 0; i < borderPositions.Length; i++)
+        {
+            var position = borderPositions[i];
+            var isMoving = _random.Next(2) == 1;
+            var asteroidType = isMoving ? AsteroidSubType.Moving : AsteroidSubType.Stationary;
+            
+            // Generate random velocity for moving asteroids
+            var velocity = Vector2.Zero;
+            if (isMoving)
+            {
+                var angle = _random.NextSingle() * MathF.PI * 2;
+                var speed = _random.NextSingle() * 30f + 10f; // 10-40 units/second
+                velocity = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * speed;
+            }
+            
+            var asteroid = new SimulatedEntity
+            {
+                EntityId = $"asteroid_{_assignedSquare.X}_{_assignedSquare.Y}_{_nextEntityId++}",
+                Type = EntityType.Asteroid,
+                Position = position,
+                Velocity = velocity,
+                Health = 50f, // Asteroids have 50 health
+                Rotation = _random.NextSingle() * MathF.PI * 2,
+                State = EntityStateType.Active,
+                StateTimer = 0f,
+                SubType = (int)asteroidType
+            };
+            
+            _entities[asteroid.EntityId] = asteroid;
+            _logger.LogDebug("Spawned {Type} asteroid {Id} at position {Position}", asteroidType, asteroid.EntityId, position);
         }
     }
 

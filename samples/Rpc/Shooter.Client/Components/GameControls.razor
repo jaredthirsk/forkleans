@@ -11,6 +11,26 @@
         <p>Left Click - Shoot</p>
     </div>
     
+    <div class="auto-controls">
+        <h4>Auto Pilot</h4>
+        <label class="toggle-label">
+            <input type="checkbox" @bind="AutoMove" @bind:after="OnAutoMoveChanged" />
+            <span>Auto Move</span>
+        </label>
+        <label class="toggle-label">
+            <input type="checkbox" @bind="AutoShoot" @bind:after="OnAutoShootChanged" />
+            <span>Auto Shoot</span>
+        </label>
+    </div>
+    
+    <div class="test-mode">
+        <h4>Test Mode</h4>
+        <label class="toggle-label">
+            <input type="checkbox" @bind="TestMode" @bind:after="OnTestModeChanged" />
+            <span>Enable Test Bot</span>
+        </label>
+    </div>
+    
     @if (IsConnected)
     {
         <div class="status connected">
@@ -77,6 +97,35 @@
     .disconnected .status-dot {
         background-color: #ff0000;
     }
+    
+    .auto-controls, .test-mode {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #444;
+    }
+    
+    .auto-controls h4, .test-mode h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #888;
+    }
+    
+    .toggle-label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    
+    .toggle-label input[type="checkbox"] {
+        margin-right: 8px;
+        cursor: pointer;
+    }
+    
+    .toggle-label:hover {
+        color: #ddd;
+    }
 </style>
 
 @code {
@@ -84,6 +133,13 @@
     [Parameter] public EventCallback<Vector2> OnMove { get; set; }
     [Parameter] public EventCallback<bool> OnShoot { get; set; }
     [Parameter] public EventCallback<float> OnSpeedChange { get; set; }
+    [Parameter] public EventCallback<bool> OnAutoMoveChange { get; set; }
+    [Parameter] public EventCallback<bool> OnAutoShootChange { get; set; }
+    [Parameter] public EventCallback<bool> OnTestModeChange { get; set; }
+    
+    private bool AutoMove { get; set; }
+    private bool AutoShoot { get; set; }
+    private bool TestMode { get; set; } = true; // Enabled by default
     
     private readonly Dictionary<string, bool> _keysPressed = new();
     
@@ -143,4 +199,19 @@
     }
     
     private bool _lastShootState = false;
+    
+    private async Task OnAutoMoveChanged()
+    {
+        await OnAutoMoveChange.InvokeAsync(AutoMove);
+    }
+    
+    private async Task OnAutoShootChanged()
+    {
+        await OnAutoShootChange.InvokeAsync(AutoShoot);
+    }
+    
+    private async Task OnTestModeChanged()
+    {
+        await OnTestModeChange.InvokeAsync(TestMode);
+    }
 }

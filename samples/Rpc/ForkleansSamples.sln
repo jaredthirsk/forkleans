@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shooter.AppHost", "Shooter.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shooter.ServiceDefaults", "Shooter.ServiceDefaults\Shooter.ServiceDefaults.csproj", "{738BAE47-547C-4416-DBB8-15B716D5C4F1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shooter.Bot", "Shooter.Bot\Shooter.Bot.csproj", "{7C93E129-6C01-4032-BBD6-8D16D73E8FF4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{738BAE47-547C-4416-DBB8-15B716D5C4F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{738BAE47-547C-4416-DBB8-15B716D5C4F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{738BAE47-547C-4416-DBB8-15B716D5C4F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C93E129-6C01-4032-BBD6-8D16D73E8FF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C93E129-6C01-4032-BBD6-8D16D73E8FF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C93E129-6C01-4032-BBD6-8D16D73E8FF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C93E129-6C01-4032-BBD6-8D16D73E8FF4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

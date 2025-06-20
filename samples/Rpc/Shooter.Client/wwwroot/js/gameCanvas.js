@@ -174,6 +174,9 @@ class DoubleBufferedCanvasContext {
             case 'Factory':
                 this.drawFactory(size, color, rotation);
                 break;
+            case 'Asteroid':
+                this.drawAsteroid(size, color, rotation, subType);
+                break;
             default:
                 this.drawDefault(size, color, rotation);
                 break;
@@ -384,6 +387,65 @@ class DoubleBufferedCanvasContext {
         this.currentCtx.beginPath();
         this.currentCtx.arc(0, 0, size * 0.3, 0, Math.PI * 2);
         this.currentCtx.fill();
+    }
+    
+    drawAsteroid(size, color, rotation, subType) {
+        // Rotate for visual variety
+        this.currentCtx.rotate(rotation);
+        
+        // Draw asteroid as an irregular rocky shape
+        this.currentCtx.fillStyle = '#8B7355'; // Brownish rock color
+        this.currentCtx.strokeStyle = '#5C4A3B';
+        this.currentCtx.lineWidth = 2;
+        
+        // Create irregular shape with multiple points
+        const points = 8;
+        const angleStep = (Math.PI * 2) / points;
+        
+        this.currentCtx.beginPath();
+        for (let i = 0; i < points; i++) {
+            const angle = i * angleStep;
+            // Add some randomness to radius for irregular shape
+            const radiusVariation = 0.7 + (Math.sin(i * 1.7) * 0.3);
+            const radius = size * radiusVariation;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            
+            if (i === 0) {
+                this.currentCtx.moveTo(x, y);
+            } else {
+                this.currentCtx.lineTo(x, y);
+            }
+        }
+        this.currentCtx.closePath();
+        this.currentCtx.fill();
+        this.currentCtx.stroke();
+        
+        // Add some crater details
+        this.currentCtx.fillStyle = '#6B5A45';
+        for (let i = 0; i < 3; i++) {
+            const craterAngle = (i * 2.3);
+            const craterDist = size * 0.5;
+            const craterX = Math.cos(craterAngle) * craterDist;
+            const craterY = Math.sin(craterAngle) * craterDist;
+            const craterSize = size * 0.15;
+            
+            this.currentCtx.beginPath();
+            this.currentCtx.arc(craterX, craterY, craterSize, 0, Math.PI * 2);
+            this.currentCtx.fill();
+        }
+        
+        // Add movement indicator for moving asteroids
+        if (subType === 2) { // Moving asteroid
+            this.currentCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            this.currentCtx.lineWidth = 1;
+            this.currentCtx.setLineDash([5, 5]);
+            this.currentCtx.beginPath();
+            this.currentCtx.moveTo(-size * 1.5, 0);
+            this.currentCtx.lineTo(-size * 0.8, 0);
+            this.currentCtx.stroke();
+            this.currentCtx.setLineDash([]);
+        }
     }
     
     drawExplosion(size, timer, subType) {
