@@ -6,10 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+
   <ItemGroup>
     <PackageReference Include="Forkleans.Core.Abstractions" />
     <PackageReference Include="Forkleans.Sdk" />
     <PackageReference Include="Forkleans.Rpc.Sdk" />
+    <PackageReference Include="Forkleans.Rpc.Abstractions" />
   </ItemGroup>
 
 </Project>

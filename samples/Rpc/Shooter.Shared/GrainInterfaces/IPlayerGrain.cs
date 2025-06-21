@@ -1,9 +1,9 @@
-using Orleans;
+using Forkleans;
 using Shooter.Shared.Models;
 
 namespace Shooter.Shared.GrainInterfaces;
 
-public interface IPlayerGrain : Orleans.IGrainWithStringKey
+public interface IPlayerGrain : Forkleans.IGrainWithStringKey
 {
     Task Initialize(string name, Vector2 startPosition);
     Task<PlayerInfo> GetInfo();

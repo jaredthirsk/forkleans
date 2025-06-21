@@ -1,9 +1,9 @@
-using Orleans;
+using Forkleans;
 using Shooter.Shared.Models;
 
 namespace Shooter.Shared.GrainInterfaces;
 
-public interface IWorldManagerGrain : Orleans.IGrainWithIntegerKey
+public interface IWorldManagerGrain : Forkleans.IGrainWithIntegerKey
 {
     Task<ActionServerInfo> RegisterActionServer(string serverId, string ipAddress, int udpPort, string httpEndpoint, int rpcPort = 0);
     Task UnregisterActionServer(string serverId);

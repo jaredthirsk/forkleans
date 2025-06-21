@@ -1,6 +1,6 @@
-using Orleans;
-using Orleans.Configuration;
-using Orleans.Hosting;
+using Forkleans;
+using Forkleans.Configuration;
+using Forkleans.Hosting;
 using Shooter.Silo;
 using Shooter.Silo.Controllers;
 using System.Net;
@@ -74,7 +74,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Add a simple endpoint to check if Orleans is ready
-app.MapGet("/orleans-ready", (Orleans.IGrainFactory grainFactory) =>
+app.MapGet("/orleans-ready", (Forkleans.IGrainFactory grainFactory) =>
 {
     return Results.Ok(new { Ready = true });
 });

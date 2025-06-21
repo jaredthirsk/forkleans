@@ -1,12 +1,12 @@
-using Orleans;
-using Orleans.Runtime;
+using Forkleans;
+using Forkleans.Runtime;
 using Shooter.Shared.GrainInterfaces;
 using Shooter.Shared.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Shooter.Silo.Grains;
 
-public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
+public class WorldManagerGrain : Forkleans.Grain, IWorldManagerGrain
 {
     private readonly IPersistentState<WorldManagerState> _state;
     private readonly ILogger<WorldManagerGrain> _logger;
@@ -235,7 +235,7 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
     }
 }
 
-[Orleans.GenerateSerializer]
+[Forkleans.GenerateSerializer]
 public class WorldManagerState
 {
     public List<ActionServerInfo> ActionServers { get; set; } = new();

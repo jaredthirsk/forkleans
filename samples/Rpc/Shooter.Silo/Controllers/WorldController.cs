@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Orleans;
+using Forkleans;
 using Shooter.Shared.GrainInterfaces;
 using Shooter.Shared.Models;
 using System.Net.Http;
@@ -11,13 +11,13 @@ namespace Shooter.Silo.Controllers;
 [Route("api/[controller]")]
 public class WorldController : ControllerBase
 {
-    private readonly Orleans.IGrainFactory _grainFactory;
+    private readonly Forkleans.IGrainFactory _grainFactory;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<WorldController> _logger;
     private readonly ActionServerManager _actionServerManager;
 
     public WorldController(
-        Orleans.IGrainFactory grainFactory, 
+        Forkleans.IGrainFactory grainFactory, 
         IHttpClientFactory httpClientFactory, 
         ILogger<WorldController> logger,
         ActionServerManager actionServerManager)

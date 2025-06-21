@@ -10,7 +10,7 @@ namespace Shooter.ActionServer.Grains;
 /// <summary>
 /// Grain implementation that exposes game functionality via Forkleans RPC.
 /// This grain runs in the ActionServer process and has direct access to game services.
-/// Note: This uses Forkleans.Grain, not Orleans.Grain, for RPC compatibility.
+/// Note: This uses Forkleans.Grain, not Forkleans.Grain, for RPC compatibility.
 /// </summary>
 public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
 {

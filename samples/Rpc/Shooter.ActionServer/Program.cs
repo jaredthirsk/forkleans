@@ -13,8 +13,6 @@ using Forkleans.Configuration;
 using Forkleans.Rpc;
 using Forkleans.Rpc.Hosting;
 using Forkleans.Rpc.Transport.LiteNetLib;
-using Forkleans.Configuration;
-using Forkleans.Hosting;
 using Forkleans.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);

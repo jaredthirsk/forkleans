@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace Shooter.Shared.Models;
 
-[Orleans.GenerateSerializer]
 [Forkleans.GenerateSerializer]
 public record GridSquare(int X, int Y)
 {
@@ -20,7 +19,7 @@ public record GridSquare(int X, int Y)
         (new Vector2(X * Size, Y * Size), new Vector2((X + 1) * Size, (Y + 1) * Size));
 }
 
-[Orleans.GenerateSerializer]
+[Forkleans.GenerateSerializer]
 public record ActionServerInfo(
     string ServerId,
     string IpAddress,
@@ -30,7 +29,7 @@ public record ActionServerInfo(
     DateTime RegisteredAt,
     int RpcPort = 0);
 
-[Orleans.GenerateSerializer]
+[Forkleans.GenerateSerializer]
 public record PlayerInfo(
     string PlayerId,
     string Name,
@@ -38,7 +37,6 @@ public record PlayerInfo(
     Vector2 Velocity,
     float Health);
 
-[Orleans.GenerateSerializer]
 [Forkleans.GenerateSerializer]
 public record EntityState(
     [property: JsonPropertyName("entityId")] string EntityId,
@@ -51,7 +49,6 @@ public record EntityState(
     [property: JsonPropertyName("state")] EntityStateType State = EntityStateType.Active,
     [property: JsonPropertyName("stateTimer")] float StateTimer = 0f);
 
-[Orleans.GenerateSerializer]
 [Forkleans.GenerateSerializer]
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum EntityType
@@ -64,7 +61,6 @@ public enum EntityType
     Asteroid
 }
 
-[Orleans.GenerateSerializer]
 [Forkleans.GenerateSerializer]
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum EntityStateType
@@ -76,7 +72,7 @@ public enum EntityStateType
     Alerting
 }
 
-[Orleans.GenerateSerializer]
+[Forkleans.GenerateSerializer]
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum EnemySubType
 {
@@ -86,7 +82,7 @@ public enum EnemySubType
     Scout = 4
 }
 
-[Orleans.GenerateSerializer]
+[Forkleans.GenerateSerializer]
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum AsteroidSubType
 {
@@ -94,14 +90,13 @@ public enum AsteroidSubType
     Moving = 2
 }
 
-[Orleans.GenerateSerializer]
 [Forkleans.GenerateSerializer]
 public record WorldState(
     [property: JsonPropertyName("entities")] List<EntityState> Entities,
     [property: JsonPropertyName("timestamp")] DateTime Timestamp,
     [property: JsonPropertyName("sequenceNumber")] long SequenceNumber = 0);
 
-[Orleans.GenerateSerializer]
+[Forkleans.GenerateSerializer]
 public record PlayerTransferInfo(
     string PlayerId,
     ActionServerInfo? NewServer,

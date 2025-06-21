@@ -82,7 +82,7 @@ public static class ZoneUtils
             return true;
         }
         
-        neighborZone = null;
+        neighborZone = new GridSquare(0, 0);
         return false;
     }
 

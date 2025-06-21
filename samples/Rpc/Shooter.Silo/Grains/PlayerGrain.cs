@@ -1,11 +1,11 @@
-using Orleans;
-using Orleans.Runtime;
+using Forkleans;
+using Forkleans.Runtime;
 using Shooter.Shared.GrainInterfaces;
 using Shooter.Shared.Models;
 
 namespace Shooter.Silo.Grains;
 
-public class PlayerGrain : Orleans.Grain, IPlayerGrain
+public class PlayerGrain : Forkleans.Grain, IPlayerGrain
 {
     private readonly IPersistentState<PlayerState> _state;
 
@@ -60,7 +60,7 @@ public class PlayerGrain : Orleans.Grain, IPlayerGrain
     }
 }
 
-[Orleans.GenerateSerializer]
+[Forkleans.GenerateSerializer]
 public class PlayerState
 {
     public string Name { get; set; } = "";
