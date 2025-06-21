@@ -568,6 +568,8 @@ class GamePhaser {
                 return entity.subType === 1 ? 'explosion-small' : 'explosion';
             case 4: // Factory
                 return 'factory';
+            case 5: // Asteroid
+                return 'asteroid';
             default:
                 console.warn(`Unknown entity type: ${entityType}`);
                 return 'player';
@@ -581,7 +583,8 @@ class GamePhaser {
             'Enemy': 1,
             'Bullet': 2,
             'Explosion': 3,
-            'Factory': 4
+            'Factory': 4,
+            'Asteroid': 5
         };
         return typeMap[typeString] ?? 0;
     }
@@ -608,6 +611,7 @@ class GamePhaser {
             case 2: return 'Bullet';
             case 3: return 'Explosion';
             case 4: return 'Factory';
+            case 5: return 'Asteroid';
             default: return 'Unknown';
         }
     }
@@ -626,6 +630,7 @@ class GamePhaser {
         if (entity.type === 2) return entity.subType === 1 ? 0xff00ff : 0xffff00; // Bullets
         if (entity.type === 3) return 0xff8800; // Explosions
         if (entity.type === 4) return 0x666666; // Factory - gray
+        if (entity.type === 5) return 0x8B4513; // Asteroid - brown
         return 0xffffff; // Default white
     }
 

@@ -33,6 +33,10 @@ public class BotOrchestrator : BackgroundService
 
         _logger.LogInformation("Starting {BotCount} bots in {Mode} mode", botCount, testMode ? "test" : "normal");
 
+        // Wait for services to be ready
+        _logger.LogInformation("Waiting 10 seconds for services to be ready...");
+        await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+
         // Create and start bots
         for (int i = 0; i < botCount; i++)
         {

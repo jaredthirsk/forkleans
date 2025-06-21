@@ -41,21 +41,50 @@ public class TestBot
         {
             _logger.LogInformation("Bot {BotName} starting...", _botName);
 
-            // Join the game
-            var joinResponse = await _httpClient.PostAsJsonAsync(
-                $"{_siloUrl}/api/world/join",
-                new { playerName = _botName },
-                cancellationToken);
-
-            if (!joinResponse.IsSuccessStatusCode)
+            // Join the game with retries
+            bool joined = false;
+            int retryCount = 0;
+            const int maxRetries = 5;
+            
+            while (!joined && retryCount < maxRetries && !cancellationToken.IsCancellationRequested)
             {
-                _logger.LogError("Failed to join game: {Status}", joinResponse.StatusCode);
+                try
+                {
+                    var joinResponse = await _httpClient.PostAsJsonAsync(
+                        $"{_siloUrl}/api/world/players/register",
+                        new { PlayerId = Guid.NewGuid().ToString(), Name = _botName },
+                        cancellationToken);
+
+                    if (joinResponse.IsSuccessStatusCode)
+                    {
+                        var joinResult = await joinResponse.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: cancellationToken);
+                        var playerInfo = joinResult.GetProperty("playerInfo");
+                        _playerId = playerInfo.GetProperty("playerId").GetString() ?? "";
+                        _logger.LogInformation("Bot {BotName} joined as player {PlayerId}", _botName, _playerId);
+                        joined = true;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Failed to join game: {Status}. Retrying {Retry}/{MaxRetries}...", 
+                            joinResponse.StatusCode, retryCount + 1, maxRetries);
+                        retryCount++;
+                        await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, retryCount)), cancellationToken); // Exponential backoff
+                    }
+                }
+                catch (HttpRequestException ex)
+                {
+                    _logger.LogWarning(ex, "HTTP error joining game. Retrying {Retry}/{MaxRetries}...", 
+                        retryCount + 1, maxRetries);
+                    retryCount++;
+                    await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, retryCount)), cancellationToken);
+                }
+            }
+            
+            if (!joined)
+            {
+                _logger.LogError("Failed to join game after {MaxRetries} retries", maxRetries);
                 return;
             }
-
-            var joinResult = await joinResponse.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: cancellationToken);
-            _playerId = joinResult.GetProperty("playerId").GetString() ?? "";
-            _logger.LogInformation("Bot {BotName} joined as player {PlayerId}", _botName, _playerId);
 
             // Get initial zone assignment
             await UpdateZoneInfo(cancellationToken);
@@ -103,124 +132,37 @@ public class TestBot
             // Move through zones in order
             var targetZone = _availableZones[_zoneVisitIndex % _availableZones.Count];
             
-            // Get current player position
-            var stateResponse = await _httpClient.GetAsync(
-                $"{_siloUrl}/api/world/player/{_playerId}/state",
-                cancellationToken);
-
-            if (stateResponse.IsSuccessStatusCode)
-            {
-                var playerInfo = await stateResponse.Content.ReadFromJsonAsync<PlayerInfo>(cancellationToken: cancellationToken);
-                if (playerInfo != null)
-                {
-                    var currentPos = playerInfo.Position;
-                    var targetPos = targetZone.GetCenter();
-                    var distance = currentPos.DistanceTo(targetPos);
-
-                    if (distance < 100f) // Close enough to zone center
-                    {
-                        // Move to next zone
-                        _zoneVisitIndex++;
-                        _logger.LogInformation("Bot {BotName} reached zone {Zone}, moving to next", _botName, targetZone);
-                    }
-                    else
-                    {
-                        // Move towards target zone
-                        var direction = (targetPos - currentPos).Normalized();
-                        await SendMovement(direction, cancellationToken);
-                    }
-
-                    // Shoot occasionally in test mode (once per 2 seconds)
-                    if ((DateTime.UtcNow - _lastShootTime).TotalSeconds >= 2.0)
-                    {
-                        await SendShoot(true, cancellationToken);
-                        await Task.Delay(200, cancellationToken);
-                        await SendShoot(false, cancellationToken);
-                        _lastShootTime = DateTime.UtcNow;
-                    }
-                }
-            }
+            // TODO: Implement proper RPC connection to ActionServer
+            // For now, just cycle through zones
+            _zoneVisitIndex++;
+            _logger.LogInformation("Bot {BotName} moving to zone index {Index}", _botName, _zoneVisitIndex);
+            await Task.Delay(5000, cancellationToken); // Wait 5 seconds before next zone
         }
     }
 
     private async Task RunNormalMode(CancellationToken cancellationToken)
     {
-        // Normal mode: Act like a human player
-        var stateResponse = await _httpClient.GetAsync(
-            $"{_siloUrl}/api/world/state",
-            cancellationToken);
-
-        if (stateResponse.IsSuccessStatusCode)
-        {
-            _lastWorldState = await stateResponse.Content.ReadFromJsonAsync<WorldState>(cancellationToken: cancellationToken);
-            if (_lastWorldState != null)
-            {
-                var player = _lastWorldState.Entities.FirstOrDefault(e => e.EntityId == _playerId);
-                if (player != null)
-                {
-                    // Find nearest enemy or asteroid
-                    var targets = _lastWorldState.Entities
-                        .Where(e => (e.Type == EntityType.Enemy || e.Type == EntityType.Asteroid) && e.Health > 0)
-                        .OrderBy(e => player.Position.DistanceTo(e.Position))
-                        .ToList();
-
-                    if (targets.Any())
-                    {
-                        var target = targets.First();
-                        var distance = player.Position.DistanceTo(target.Position);
-                        var direction = (target.Position - player.Position).Normalized();
-
-                        // Combat behavior
-                        if (distance > 200f)
-                        {
-                            // Move closer
-                            await SendMovement(direction, cancellationToken);
-                        }
-                        else if (distance < 100f)
-                        {
-                            // Too close, back away
-                            await SendMovement(direction * -1f, cancellationToken);
-                        }
-                        else
-                        {
-                            // Good distance, strafe
-                            var strafeDir = new Vector2(-direction.Y, direction.X);
-                            await SendMovement(strafeDir, cancellationToken);
-                        }
-
-                        // Shoot at target
-                        if (distance < 300f)
-                        {
-                            await SendShoot(true, cancellationToken);
-                            await Task.Delay(100, cancellationToken);
-                            await SendShoot(false, cancellationToken);
-                        }
-                    }
-                    else
-                    {
-                        // No targets, explore
-                        var randomAngle = Random.Shared.NextSingle() * MathF.PI * 2;
-                        var randomDir = new Vector2(MathF.Cos(randomAngle), MathF.Sin(randomAngle));
-                        await SendMovement(randomDir, cancellationToken);
-                    }
-                }
-            }
-        }
+        // TODO: Implement proper RPC connection to ActionServer
+        // For now, just log status
+        _logger.LogDebug("Bot {BotName} in normal mode", _botName);
+        await Task.Delay(1000, cancellationToken);
     }
 
     private async Task UpdateZoneInfo(CancellationToken cancellationToken)
     {
         try
         {
-            var zonesResponse = await _httpClient.GetAsync(
-                $"{_siloUrl}/api/world/zones",
-                cancellationToken);
-
-            if (zonesResponse.IsSuccessStatusCode)
+            // TODO: Get zones from RPC connection
+            // For now, hardcode a 3x3 grid
+            _availableZones.Clear();
+            for (int x = 0; x < 3; x++)
             {
-                _availableZones = await zonesResponse.Content.ReadFromJsonAsync<List<GridSquare>>(cancellationToken: cancellationToken) ?? new();
-                _logger.LogDebug("Bot {BotName} found {ZoneCount} available zones", _botName, _availableZones.Count);
+                for (int y = 0; y < 3; y++)
+                {
+                    _availableZones.Add(new GridSquare(x, y));
+                }
             }
+            _logger.LogDebug("Bot {BotName} using hardcoded {ZoneCount} zones", _botName, _availableZones.Count);
         }
         catch (Exception ex)
         {
@@ -228,21 +170,18 @@ public class TestBot
         }
     }
 
-    private async Task SendMovement(Vector2 direction, CancellationToken cancellationToken)
+    private Task SendMovement(Vector2 direction, CancellationToken cancellationToken)
     {
-        var scaledDirection = direction * 100f; // Scale for movement speed
-        await _httpClient.PostAsJsonAsync(
-            $"{_siloUrl}/api/world/player/{_playerId}/move",
-            new { direction = scaledDirection },
-            cancellationToken);
+        // TODO: Send via RPC connection
+        _logger.LogDebug("Bot {BotName} would move in direction {Direction}", _botName, direction);
+        return Task.CompletedTask;
     }
 
-    private async Task SendShoot(bool shooting, CancellationToken cancellationToken)
+    private Task SendShoot(bool shooting, CancellationToken cancellationToken)
     {
-        await _httpClient.PostAsJsonAsync(
-            $"{_siloUrl}/api/world/player/{_playerId}/shoot",
-            new { shooting },
-            cancellationToken);
+        // TODO: Send via RPC connection
+        _logger.LogDebug("Bot {BotName} would shoot: {Shooting}", _botName, shooting);
+        return Task.CompletedTask;
     }
 
     public Task StopAsync()
