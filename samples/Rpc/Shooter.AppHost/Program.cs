@@ -36,7 +36,7 @@ for (int i = 0; i < 2; i++)
 {
     var bot = builder.AddProject<Projects.Shooter_Bot>($"shooter-bot-{i}")
         .WithEnvironment("SiloUrl", silo.GetEndpoint("https"))
-        .WithEnvironment("BotCount", "1") // Each instance runs 1 bot
+        .WithEnvironment("BotName", $"TestBot_{i.ToString()}")
         .WithEnvironment("TestMode", "true")
         .WithReference(silo)
         .WaitFor(silo);

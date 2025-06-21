@@ -7,8 +7,10 @@ using Shooter.Shared.RpcInterfaces;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
-namespace Shooter.Client.Services;
+namespace Shooter.Client.Common;
 
 /// <summary>
 /// Game client service that uses Forkleans RPC for all communication with ActionServers.
@@ -201,7 +203,7 @@ public class ForkleansRpcGameClientService : IDisposable
             
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<Shooter.Client.Services.PlayerRegistrationResponse>();
+                return await response.Content.ReadFromJsonAsync<PlayerRegistrationResponse>();
             }
             
             _logger.LogError("Failed to register player: {StatusCode}", response.StatusCode);

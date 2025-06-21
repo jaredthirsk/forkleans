@@ -1,6 +1,6 @@
 using Shooter.Client;
 using Shooter.Client.Data;
-using Shooter.Client.Services;
+using Shooter.Client.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +9,7 @@ builder.AddServiceDefaults();
 // Configure logging
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
 builder.Logging.AddFilter("Forkleans.Rpc", LogLevel.Debug);
-builder.Logging.AddFilter("Shooter.Client.Services", LogLevel.Debug);
+builder.Logging.AddFilter("Shooter.Client.Common", LogLevel.Debug);
 
 // Add file logging
 builder.Logging.AddProvider(new FileLoggerProvider("logs/client.log"));

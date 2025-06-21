@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Shooter.Shared\Shooter.Shared.csproj" />
     <ProjectReference Include="..\Shooter.ServiceDefaults\Shooter.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Shooter.Client.Common\Shooter.Client.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
