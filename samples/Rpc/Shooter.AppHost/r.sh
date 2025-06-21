@@ -1,4 +1,10 @@
 #!/bin/bash
 ./k.sh
-dotnet run
+rm ../Shooter.Silo/logs/*.log
+rm ../Shooter.Client/logs/client.log
+rm ../Shooter.ActionServer/logs/actionserver*.log
+rm ../Shooter.Bot/logs/*.log
+rm logs/apphost.log
+
+dotnet run -c Release
 

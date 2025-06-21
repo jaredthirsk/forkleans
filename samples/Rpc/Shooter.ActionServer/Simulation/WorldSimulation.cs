@@ -16,7 +16,7 @@ namespace Shooter.ActionServer.Simulation;
 public class WorldSimulation : BackgroundService, IWorldSimulation
 {
     private readonly ILogger<WorldSimulation> _logger;
-    private readonly Orleans.IClusterClient _orleansClient;
+    private readonly Forkleans.IClusterClient _orleansClient;
     private readonly ConcurrentDictionary<string, SimulatedEntity> _entities = new();
     private readonly ConcurrentDictionary<string, PlayerInput> _playerInputs = new();
     private readonly Random _random = new();
@@ -29,7 +29,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private TaskCompletionSource<bool> _zoneAssignedTcs = new();
     private readonly DateTime _startTime = DateTime.UtcNow;
 
-    public WorldSimulation(ILogger<WorldSimulation> logger, Orleans.IClusterClient orleansClient)
+    public WorldSimulation(ILogger<WorldSimulation> logger, Forkleans.IClusterClient orleansClient)
     {
         _logger = logger;
         _orleansClient = orleansClient;
@@ -294,9 +294,20 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             CleanupDeadEntities();
             
             // Spawn new enemies occasionally
-            if (_random.NextDouble() < 0.001) // 0.1% chance per frame (10% of previous rate)
+            if (_random.NextDouble() < 0.0005) // 0.05% chance per frame (50% reduction)
             {
-                var enemyType = (EnemySubType)_random.Next(1, 5); // Include Scout (1-4)
+                // Weighted enemy type selection - favor scouts slightly
+                var roll = _random.NextDouble();
+                EnemySubType enemyType;
+                if (roll < 0.35) // 35% scouts (increased from 25%)
+                    enemyType = EnemySubType.Scout;
+                else if (roll < 0.60) // 25% kamikaze
+                    enemyType = EnemySubType.Kamikaze;
+                else if (roll < 0.80) // 20% sniper
+                    enemyType = EnemySubType.Sniper;
+                else // 20% strafing
+                    enemyType = EnemySubType.Strafing;
+                    
                 SpawnEnemies(1, enemyType);
             }
             

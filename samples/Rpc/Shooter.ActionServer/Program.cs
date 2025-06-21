@@ -13,8 +13,8 @@ using Forkleans.Configuration;
 using Forkleans.Rpc;
 using Forkleans.Rpc.Hosting;
 using Forkleans.Rpc.Transport.LiteNetLib;
-using Orleans.Configuration;
-using Orleans.Hosting;
+using Forkleans.Configuration;
+using Forkleans.Hosting;
 using Forkleans.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,11 +57,14 @@ builder.Services.AddHostedService(provider => provider.GetRequiredService<GameSe
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<RpcServerPortProvider>();
 
+// Register zone-aware RPC server adapter
+builder.Services.AddSingleton<IZoneAwareRpcServer, ZoneAwareRpcServerAdapter>();
+
 // Add Orleans startup delay service
 builder.Services.AddHostedService<OrleansStartupDelayService>();
 
 // Configure Orleans client with retry
-builder.UseOrleansClient((Orleans.Hosting.IClientBuilder clientBuilder) =>
+builder.UseOrleansClient((Forkleans.Hosting.IClientBuilder clientBuilder) =>
 {
     // In Aspire, use the configured gateway endpoint
     var gatewayEndpoint = builder.Configuration["Orleans:GatewayEndpoint"];
@@ -107,7 +110,7 @@ builder.UseOrleansClient((Orleans.Hosting.IClientBuilder clientBuilder) =>
     }
     
     // Configure cluster options to match the Silo
-    clientBuilder.Configure<Orleans.Configuration.ClusterOptions>(options =>
+    clientBuilder.Configure<Forkleans.Configuration.ClusterOptions>(options =>
     {
         options.ClusterId = "dev";
         options.ServiceId = "ShooterDemo";

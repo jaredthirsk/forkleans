@@ -7,7 +7,7 @@ namespace Shooter.ActionServer.Services;
 
 public class ActionServerRegistrationService : BackgroundService
 {
-    private readonly Orleans.IClusterClient _orleansClient;
+    private readonly Forkleans.IClusterClient _orleansClient;
     private readonly IConfiguration _configuration;
     private readonly IWorldSimulation _worldSimulation;
     private readonly ILogger<ActionServerRegistrationService> _logger;
@@ -17,7 +17,7 @@ public class ActionServerRegistrationService : BackgroundService
     private string? _serverId;
 
     public ActionServerRegistrationService(
-        Orleans.IClusterClient orleansClient,
+        Forkleans.IClusterClient orleansClient,
         IConfiguration configuration,
         IWorldSimulation worldSimulation,
         ILogger<ActionServerRegistrationService> logger,

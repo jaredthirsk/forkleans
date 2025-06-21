@@ -79,10 +79,19 @@ namespace Forkleans.Rpc.Hosting
             services.TryAddSingleton<ILocalClientDetails, LocalRpcClientDetails>();
             
             // Grain factory and references
-            services.TryAddSingleton<RpcGrainFactory>();
+            services.TryAddSingleton<RpcGrainFactory>(sp => new RpcGrainFactory(
+                sp.GetRequiredService<IRuntimeClient>(),
+                sp.GetRequiredService<GrainReferenceActivator>(),
+                sp.GetRequiredService<GrainInterfaceTypeResolver>(),
+                sp.GetRequiredKeyedService<GrainInterfaceTypeToGrainTypeResolver>("rpc"),
+                sp.GetRequiredService<RpcClient>(),
+                sp.GetRequiredService<ILogger<RpcGrainReference>>(),
+                sp.GetRequiredService<Serializer>()));
             services.TryAddSingleton<GrainFactory>(sp => sp.GetRequiredService<RpcGrainFactory>());
             services.TryAddSingleton<InterfaceToImplementationMappingCache>();
-            services.TryAddSingleton<GrainInterfaceTypeToGrainTypeResolver>();
+            // Use keyed singleton for RPC to avoid conflicts with Orleans client
+            services.TryAddKeyedSingleton<GrainInterfaceTypeToGrainTypeResolver>("rpc", (sp, key) => new GrainInterfaceTypeToGrainTypeResolver(
+                sp.GetRequiredService<IClusterManifestProvider>()));
             services.TryAddSingleton<GrainReferenceActivator>();
             // Add RPC grain reference provider first so it takes precedence
             services.AddSingleton<IGrainReferenceActivatorProvider, RpcGrainReferenceActivatorProvider>();

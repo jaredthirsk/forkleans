@@ -8,9 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.*" />
-    <PackageReference Include="Forkleans.Rpc.Client" Version="9.2.0.3-preview3" />
-    <PackageReference Include="Forkleans.Rpc.Transport.LiteNetLib" Version="9.2.0.3-preview3" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Forkleans.Rpc.Client" />
+    <PackageReference Include="Forkleans.Rpc.Transport.LiteNetLib" />
   </ItemGroup>
   
   <ItemGroup>

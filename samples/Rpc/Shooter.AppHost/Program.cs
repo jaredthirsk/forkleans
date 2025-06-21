@@ -3,7 +3,7 @@ using Aspire.Hosting;
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Configuration
-const int InitialActionServerCount = 9;
+const int InitialActionServerCount = 4;
 
 // Add the Orleans silo with Orleans ports exposed
 var silo = builder.AddProject<Projects.Shooter_Silo>("shooter-silo")
@@ -36,7 +36,7 @@ builder.AddProject<Projects.Shooter_Client>("shooter-client")
     .WaitFor(silo);
 
 // Add bot instances for testing - wait for at least one action server to be ready
-for (int i = 0; i < 2; i++)
+for (int i = 0; i < 1; i++)
 {
     var bot = builder.AddProject<Projects.Shooter_Bot>($"shooter-bot-{i}")
         .WithEnvironment("SiloUrl", silo.GetEndpoint("https"))

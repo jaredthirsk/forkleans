@@ -24,14 +24,13 @@ namespace Forkleans.Rpc
         private readonly RpcTransportOptions _transportOptions;
         private readonly IRpcTransportFactory _transportFactory;
         private readonly IClusterClientLifecycle _lifecycle;
+        private readonly RpcConnectionManager _connectionManager;
+        private readonly MultiServerManifestProvider _manifestProvider;
         
-        private IRpcTransport _transport;
-        private bool _isConnected;
-        private IPEndPoint _serverEndpoint;
         private readonly ConcurrentDictionary<Guid, TaskCompletionSource<Protocol.RpcResponse>> _pendingRequests 
             = new ConcurrentDictionary<Guid, TaskCompletionSource<Protocol.RpcResponse>>();
 
-        public bool IsInitialized => _isConnected;
+        public bool IsInitialized => _connectionManager?.GetAllConnections().Count > 0;
         public IServiceProvider ServiceProvider => _serviceProvider;
 
         public RpcClient(
@@ -48,6 +47,10 @@ namespace Forkleans.Rpc
             _transportOptions = transportOptions?.Value ?? throw new ArgumentNullException(nameof(transportOptions));
             _transportFactory = transportFactory ?? throw new ArgumentNullException(nameof(transportFactory));
             _lifecycle = lifecycle ?? throw new ArgumentNullException(nameof(lifecycle));
+            
+            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+            _connectionManager = new RpcConnectionManager(loggerFactory.CreateLogger<RpcConnectionManager>());
+            _manifestProvider = new MultiServerManifestProvider(loggerFactory.CreateLogger<MultiServerManifestProvider>());
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -65,7 +68,7 @@ namespace Forkleans.Rpc
                 }
                 
                 await (_lifecycle as ILifecycleSubject)?.OnStart(cancellationToken);
-                await ConnectAsync(cancellationToken);
+                await ConnectToInitialServersAsync(cancellationToken);
                 _logger.LogInformation("RPC client started successfully");
             }
             catch (Exception ex)
@@ -81,7 +84,7 @@ namespace Forkleans.Rpc
             
             try
             {
-                await DisconnectAsync();
+                await DisconnectAllAsync();
                 await (_lifecycle as ILifecycleSubject)?.OnStop(cancellationToken);
                 _logger.LogInformation("RPC client stopped successfully");
             }
@@ -200,61 +203,81 @@ namespace Forkleans.Rpc
             // Not supported in RPC mode
         }
 
-        private async Task ConnectAsync(CancellationToken cancellationToken)
+        private async Task ConnectToInitialServersAsync(CancellationToken cancellationToken)
         {
             if (_clientOptions.ServerEndpoints.Count == 0)
             {
                 throw new InvalidOperationException("No server endpoints configured");
             }
 
-            _transport = _transportFactory.CreateTransport(_serviceProvider);
-            _transport.DataReceived += OnDataReceived;
-            _transport.ConnectionEstablished += OnConnectionEstablished;
-            _transport.ConnectionClosed += OnConnectionClosed;
+            // Connect to all configured endpoints
+            var connectTasks = new System.Collections.Generic.List<Task>();
+            foreach (var endpoint in _clientOptions.ServerEndpoints)
+            {
+                connectTasks.Add(ConnectToServerAsync(endpoint, null, cancellationToken));
+            }
 
-            // For now, just use the first endpoint
-            // TODO: Implement round-robin or failover logic
-            _serverEndpoint = _clientOptions.ServerEndpoints[0];
-            
-            _logger.LogInformation("Connecting to RPC server at {Endpoint}", _serverEndpoint);
-            
-            // Start transport (client mode will connect automatically)
-            await _transport.StartAsync(_serverEndpoint, cancellationToken);
-            
-            // The transport's StartAsync waits for connection, so we're connected now
-            _isConnected = true;
-            _logger.LogDebug("Transport connected, setting _isConnected = true");
-            
-            // Send handshake
-            await SendHandshake();
+            await Task.WhenAll(connectTasks);
         }
 
-        private async Task DisconnectAsync()
+        /// <summary>
+        /// Connects to a specific server endpoint.
+        /// </summary>
+        public async Task ConnectToServerAsync(IPEndPoint endpoint, string serverId = null, CancellationToken cancellationToken = default)
         {
-            if (_transport != null)
-            {
-                _transport.DataReceived -= OnDataReceived;
-                _transport.ConnectionEstablished -= OnConnectionEstablished;
-                _transport.ConnectionClosed -= OnConnectionClosed;
-                
-                await _transport.StopAsync(CancellationToken.None);
-                _transport.Dispose();
-                _transport = null;
-            }
+            serverId ??= $"server-{endpoint.Address}:{endpoint.Port}";
             
-            _isConnected = false;
+            _logger.LogInformation("Connecting to RPC server {ServerId} at {Endpoint}", serverId, endpoint);
+            
+            var transport = _transportFactory.CreateTransport(_serviceProvider);
+            
+            // Create connection wrapper
+            var connection = new RpcConnection(serverId, endpoint, transport, _logger);
+            connection.DataReceived += OnDataReceived;
+            connection.ConnectionEstablished += OnConnectionEstablished;
+            connection.ConnectionClosed += OnConnectionClosed;
+            
+            try
+            {
+                // Start transport (client mode will connect automatically)
+                await transport.StartAsync(endpoint, cancellationToken);
+                
+                // Add to connection manager
+                await _connectionManager.AddConnectionAsync(serverId, connection);
+                
+                // Send handshake
+                await SendHandshake(connection);
+                
+                _logger.LogInformation("Successfully connected to RPC server {ServerId}", serverId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to connect to RPC server {ServerId} at {Endpoint}", serverId, endpoint);
+                connection.Dispose();
+                throw;
+            }
+        }
+
+        private async Task DisconnectAllAsync()
+        {
+            var connections = _connectionManager.GetAllConnections();
+            foreach (var kvp in connections)
+            {
+                await _connectionManager.RemoveConnectionAsync(kvp.Key);
+            }
         }
 
         private void EnsureConnected()
         {
-            _logger.LogDebug("EnsureConnected called, _isConnected = {IsConnected}", _isConnected);
-            if (!_isConnected)
+            var connectionCount = _connectionManager?.GetAllConnections().Count ?? 0;
+            _logger.LogDebug("EnsureConnected called, connection count = {ConnectionCount}", connectionCount);
+            if (connectionCount == 0)
             {
-                throw new InvalidOperationException("RPC client is not connected");
+                throw new InvalidOperationException("RPC client is not connected to any servers");
             }
         }
 
-        private void OnDataReceived(object sender, RpcDataReceivedEventArgs e)
+        private async void OnDataReceived(object sender, RpcDataReceivedEventArgs e)
         {
             try
             {
@@ -273,7 +296,9 @@ namespace Forkleans.Rpc
                         break;
                         
                     case Protocol.RpcHandshakeAck handshakeAck:
-                        HandleHandshakeAck(handshakeAck);
+                        // Extract server ID from connection that sent this
+                        var serverId = e.ConnectionId ?? "unknown";
+                        await HandleHandshakeAck(handshakeAck, serverId);
                         break;
                         
                     case Protocol.RpcResponse response:
@@ -295,26 +320,32 @@ namespace Forkleans.Rpc
             }
         }
 
-        private void HandleHandshakeAck(Protocol.RpcHandshakeAck handshakeAck)
+        private async Task HandleHandshakeAck(Protocol.RpcHandshakeAck handshakeAck, string serverId)
         {
-            _logger.LogInformation("Received handshake acknowledgment from server {ServerId}, manifest included: {HasManifest}", 
-                handshakeAck.ServerId, handshakeAck.GrainManifest != null);
+            _logger.LogInformation("Received handshake acknowledgment from server {ServerId}, manifest included: {HasManifest}, zone: {ZoneId}", 
+                handshakeAck.ServerId, handshakeAck.GrainManifest != null, handshakeAck.ZoneId);
             
-            // Update the client manifest provider with server's grain manifest
+            // Update zone mappings if provided
+            if (handshakeAck.ZoneId.HasValue)
+            {
+                await _connectionManager.AddConnectionAsync(serverId, 
+                    _connectionManager.GetConnection(serverId), 
+                    handshakeAck.ZoneId.Value);
+            }
+            
+            if (handshakeAck.ZoneToServerMapping != null)
+            {
+                _connectionManager.UpdateZoneMappings(handshakeAck.ZoneToServerMapping);
+            }
+            
+            // Update the manifest provider with server's grain manifest
             if (handshakeAck.GrainManifest != null)
             {
-                var manifestProvider = _serviceProvider.GetService<Hosting.RpcClientManifestProvider>();
-                if (manifestProvider != null)
-                {
-                    manifestProvider.UpdateFromServer(handshakeAck.GrainManifest);
-                    _logger.LogInformation("Updated client manifest with {GrainCount} grains and {InterfaceCount} interfaces",
-                        handshakeAck.GrainManifest.GrainProperties.Count,
-                        handshakeAck.GrainManifest.InterfaceProperties.Count);
-                }
-                else
-                {
-                    _logger.LogWarning("Could not find RpcClientManifestProvider to update manifest");
-                }
+                await _manifestProvider.UpdateFromServerAsync(serverId, handshakeAck.GrainManifest);
+                _logger.LogInformation("Updated manifest for server {ServerId} with {GrainCount} grains and {InterfaceCount} interfaces",
+                    serverId,
+                    handshakeAck.GrainManifest.GrainProperties.Count,
+                    handshakeAck.GrainManifest.InterfaceProperties.Count);
             }
             else
             {
@@ -342,7 +373,7 @@ namespace Forkleans.Rpc
             }
         }
 
-        private Task SendHandshake()
+        private Task SendHandshake(RpcConnection connection)
         {
             var handshake = new Protocol.RpcHandshake
             {
@@ -354,20 +385,24 @@ namespace Forkleans.Rpc
             var messageSerializer = _serviceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
             var data = messageSerializer.SerializeMessage(handshake);
             
-            _logger.LogInformation("Sent handshake to server");
-            return _transport.SendAsync(_serverEndpoint, data, CancellationToken.None);
+            _logger.LogInformation("Sent handshake to server {ServerId}", connection.ServerId);
+            return connection.SendAsync(data, CancellationToken.None);
         }
 
         private void OnConnectionEstablished(object sender, RpcConnectionEventArgs e)
         {
-            _logger.LogInformation("Connected to RPC server at {Endpoint}", e.RemoteEndPoint);
-            _isConnected = true;
+            _logger.LogInformation("Connected to RPC server {ServerId} at {Endpoint}", e.ConnectionId, e.RemoteEndPoint);
         }
 
         private void OnConnectionClosed(object sender, RpcConnectionEventArgs e)
         {
-            _logger.LogWarning("Connection to RPC server at {Endpoint} closed", e.RemoteEndPoint);
-            _isConnected = false;
+            _logger.LogWarning("Connection to RPC server {ServerId} at {Endpoint} closed", e.ConnectionId, e.RemoteEndPoint);
+            
+            // Remove the closed connection
+            if (e.ConnectionId != null)
+            {
+                _ = _connectionManager.RemoveConnectionAsync(e.ConnectionId);
+            }
             
             // TODO: Implement reconnection logic if needed
         }
@@ -376,6 +411,12 @@ namespace Forkleans.Rpc
         {
             EnsureConnected();
             
+            // Get the appropriate connection for this request
+            var connection = _connectionManager.GetConnectionForRequest(request);
+            if (connection == null)
+            {
+                throw new InvalidOperationException("No suitable connection found for request");
+            }
 
             var tcs = new TaskCompletionSource<Protocol.RpcResponse>();
             if (!_pendingRequests.TryAdd(request.MessageId, tcs))
@@ -388,7 +429,7 @@ namespace Forkleans.Rpc
                 // Serialize and send the request
                 var messageSerializer = _serviceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
                 var data = messageSerializer.SerializeMessage(request);
-                await _transport.SendAsync(_serverEndpoint, data, CancellationToken.None);
+                await connection.SendAsync(data, CancellationToken.None);
 
                 // Wait for response with timeout
                 using (var cts = new CancellationTokenSource(request.TimeoutMs))
@@ -413,7 +454,8 @@ namespace Forkleans.Rpc
 
         public void Dispose()
         {
-            DisconnectAsync().GetAwaiter().GetResult();
+            DisconnectAllAsync().GetAwaiter().GetResult();
+            _connectionManager?.Dispose();
         }
     }
 

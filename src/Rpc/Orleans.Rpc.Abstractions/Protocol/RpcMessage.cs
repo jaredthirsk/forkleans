@@ -66,6 +66,12 @@ namespace Forkleans.Rpc.Protocol
         /// </summary>
         [Id(7)]
         public string ReturnTypeName { get; set; }
+
+        /// <summary>
+        /// Optional target zone ID for zone-aware routing.
+        /// </summary>
+        [Id(8)]
+        public int? TargetZoneId { get; set; }
     }
 
     /// <summary>
@@ -160,6 +166,18 @@ namespace Forkleans.Rpc.Protocol
         /// </summary>
         [Id(4)]
         public RpcGrainManifest GrainManifest { get; set; }
+
+        /// <summary>
+        /// Zone ID that this server handles (for zone-aware servers).
+        /// </summary>
+        [Id(5)]
+        public int? ZoneId { get; set; }
+
+        /// <summary>
+        /// Mapping of zone IDs to server IDs for zone routing.
+        /// </summary>
+        [Id(6)]
+        public Dictionary<int, string> ZoneToServerMapping { get; set; }
     }
 
     /// <summary>

@@ -12,12 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Forkleans.Rpc.Client" Version="9.2.0.3-preview3" />
-    <PackageReference Include="Forkleans.Rpc.Transport.LiteNetLib" Version="9.2.0.3-preview3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.*" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.*" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="9.*" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.*" />
+    <PackageReference Include="Forkleans.Rpc.Client" />
+    <PackageReference Include="Forkleans.Rpc.Transport.LiteNetLib" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
 
 </Project>

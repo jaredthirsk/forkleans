@@ -89,10 +89,17 @@ namespace Forkleans.Rpc.Hosting
             services.AddTransient<CancellationSourcesExtension>();
             
             // Grain factory and references
-            services.TryAddSingleton<RpcGrainFactory>();
+            services.TryAddSingleton<RpcGrainFactory>(sp => new RpcGrainFactory(
+                sp.GetRequiredService<IRuntimeClient>(),
+                sp.GetRequiredService<GrainReferenceActivator>(),
+                sp.GetRequiredService<GrainInterfaceTypeResolver>(),
+                sp.GetRequiredKeyedService<GrainInterfaceTypeToGrainTypeResolver>("rpc"),
+                sp.GetRequiredService<ILocalRpcServerDetails>()));
             services.TryAddSingleton<GrainFactory>(sp => sp.GetRequiredService<RpcGrainFactory>());
             services.TryAddSingleton<InterfaceToImplementationMappingCache>();
-            services.TryAddSingleton<GrainInterfaceTypeToGrainTypeResolver>();
+            // Use keyed singleton for RPC to avoid conflicts with Orleans client
+            services.TryAddKeyedSingleton<GrainInterfaceTypeToGrainTypeResolver>("rpc", (sp, key) => new GrainInterfaceTypeToGrainTypeResolver(
+                sp.GetRequiredService<IClusterManifestProvider>()));
             services.TryAddFromExisting<IGrainFactory, GrainFactory>();
             services.TryAddFromExisting<IInternalGrainFactory, GrainFactory>();
             services.TryAddSingleton<IGrainReferenceRuntime, GrainReferenceRuntime>();
@@ -156,7 +163,20 @@ namespace Forkleans.Rpc.Hosting
             services.AddSingleton<ForkleansJsonSerializer>();
 
             // RPC Server
-            services.TryAddSingleton<RpcServer>();
+            services.TryAddSingleton<RpcServer>(sp => new RpcServer(
+                sp.GetRequiredService<ILogger<RpcServer>>(),
+                sp.GetRequiredService<ILocalRpcServerDetails>(),
+                sp.GetRequiredService<IOptions<RpcServerOptions>>(),
+                sp.GetRequiredService<IRpcTransportFactory>(),
+                sp.GetRequiredService<IRpcServerLifecycle>(),
+                sp.GetRequiredService<RpcCatalog>(),
+                sp.GetRequiredService<MessageFactory>(),
+                sp.GetRequiredService<Forkleans.Serialization.Serializer>(),
+                sp.GetRequiredService<IOptions<ClientMessagingOptions>>(),
+                sp.GetRequiredService<ILoggerFactory>(),
+                sp.GetRequiredService<IClusterManifestProvider>(),
+                sp.GetRequiredKeyedService<GrainInterfaceTypeToGrainTypeResolver>("rpc"),
+                sp));
             services.AddFromExisting<ILifecycleParticipant<IRpcServerLifecycle>, RpcServer>();
             
             // RPC Transport abstraction

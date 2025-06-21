@@ -17,12 +17,12 @@ namespace Shooter.ActionServer.Services;
 public class GameService : IGameService, IHostedService
 {
     private readonly IWorldSimulation _simulation;
-    private readonly Orleans.IClusterClient _orleansClient;
+    private readonly Forkleans.IClusterClient _orleansClient;
     private readonly ILogger<GameService> _logger;
     private CancellationTokenSource? _zoneMonitoringCts;
     private Task? _zoneMonitoringTask;
 
-    public GameService(IWorldSimulation simulation, Orleans.IClusterClient orleansClient, ILogger<GameService> logger)
+    public GameService(IWorldSimulation simulation, Forkleans.IClusterClient orleansClient, ILogger<GameService> logger)
     {
         _simulation = simulation;
         _orleansClient = orleansClient;

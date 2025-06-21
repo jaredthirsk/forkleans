@@ -21,8 +21,9 @@ public record ConnectPlayerResult
 /// Grain interface that can be accessed via Forkleans RPC.
 /// Forkleans RPC exposes grain interfaces over UDP/TCP.
 /// Uses Forkleans types, not Orleans types, for RPC compatibility.
+/// Implements IZoneAwareGrain to enable zone-based routing.
 /// </summary>
-public interface IGameRpcGrain : Forkleans.IGrainWithStringKey
+public interface IGameRpcGrain : Forkleans.Rpc.IRpcGrainInterfaceWithStringKey, Forkleans.Rpc.IZoneAwareGrain
 {
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
     Task<string> ConnectPlayer(string playerId);

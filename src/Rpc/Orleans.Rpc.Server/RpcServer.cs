@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,6 +37,7 @@ namespace Forkleans.Rpc
         private readonly ILoggerFactory _loggerFactory;
         private readonly IClusterManifestProvider _manifestProvider;
         private readonly GrainInterfaceTypeToGrainTypeResolver _interfaceToGrainResolver;
+        private readonly IServiceProvider _serviceProvider;
         
         private IRpcTransport _transport;
         private readonly ConcurrentDictionary<string, RpcConnection> _connections = new();
@@ -52,7 +54,8 @@ namespace Forkleans.Rpc
             IOptions<ClientMessagingOptions> messagingOptions,
             ILoggerFactory loggerFactory,
             IClusterManifestProvider manifestProvider,
-            GrainInterfaceTypeToGrainTypeResolver interfaceToGrainResolver)
+            GrainInterfaceTypeToGrainTypeResolver interfaceToGrainResolver,
+            IServiceProvider serviceProvider)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _serverDetails = serverDetails ?? throw new ArgumentNullException(nameof(serverDetails));
@@ -66,6 +69,7 @@ namespace Forkleans.Rpc
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
             _manifestProvider = manifestProvider ?? throw new ArgumentNullException(nameof(manifestProvider));
             _interfaceToGrainResolver = interfaceToGrainResolver ?? throw new ArgumentNullException(nameof(interfaceToGrainResolver));
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             
             _logger.LogInformation("RpcServer created, registering with lifecycle");
         }
@@ -187,10 +191,68 @@ namespace Forkleans.Rpc
                 GrainManifest = manifest
             };
 
+            // Check if this server is zone-aware
+            // First, check for the generic IZoneAwareRpcServer interface
+            var zoneAwareServer = _serviceProvider.GetService<IZoneAwareRpcServer>();
+            if (zoneAwareServer != null)
+            {
+                var zoneId = zoneAwareServer.GetZoneId();
+                if (zoneId.HasValue)
+                {
+                    response.ZoneId = zoneId.Value;
+                    _logger.LogInformation("Server is zone-aware (via IZoneAwareRpcServer), assigned to ZoneId: {ZoneId}", zoneId.Value);
+                }
+            }
+            else
+            {
+                // Fallback: Check for IWorldSimulation service (e.g., Shooter sample)
+                var worldSimulationType = Type.GetType("Shooter.ActionServer.Simulation.IWorldSimulation, Shooter.ActionServer");
+                if (worldSimulationType != null)
+                {
+                    var worldSimulation = _serviceProvider.GetService(worldSimulationType);
+                    if (worldSimulation != null)
+                    {
+                        try
+                        {
+                            // Use reflection to call GetAssignedSquare
+                            var getAssignedSquareMethod = worldSimulationType.GetMethod("GetAssignedSquare");
+                            if (getAssignedSquareMethod != null)
+                            {
+                                var assignedSquare = getAssignedSquareMethod.Invoke(worldSimulation, null);
+                                if (assignedSquare != null)
+                                {
+                                    // Get X and Y properties
+                                    var xProp = assignedSquare.GetType().GetProperty("X");
+                                    var yProp = assignedSquare.GetType().GetProperty("Y");
+                                    if (xProp != null && yProp != null)
+                                    {
+                                        var x = (int)xProp.GetValue(assignedSquare);
+                                        var y = (int)yProp.GetValue(assignedSquare);
+                                        
+                                        // Convert GridSquare (X,Y) to a single zone ID
+                                        // Using a simple formula: zoneId = y * 1000 + x
+                                        // This assumes zones are in a reasonable range (e.g., -500 to 500)
+                                        var zoneId = y * 1000 + x;
+                                        response.ZoneId = zoneId;
+                                        
+                                        _logger.LogInformation("Server is zone-aware (via IWorldSimulation), assigned to zone ({X},{Y}) -> ZoneId: {ZoneId}", 
+                                            x, y, zoneId);
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to get zone information from IWorldSimulation");
+                        }
+                    }
+                }
+            }
+
             var messageSerializer = _catalog.ServiceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
             var responseData = messageSerializer.SerializeMessage(response);
-            _logger.LogInformation("Sending handshake acknowledgment to {Endpoint} with {GrainCount} grains in manifest", 
-                remoteEndpoint, manifest.GrainProperties.Count);
+            _logger.LogInformation("Sending handshake acknowledgment to {Endpoint} with {GrainCount} grains in manifest, ZoneId: {ZoneId}", 
+                remoteEndpoint, manifest.GrainProperties.Count, response.ZoneId);
             await _transport.SendAsync(remoteEndpoint, responseData, CancellationToken.None);
         }
 

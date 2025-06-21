@@ -17,13 +17,13 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
     private readonly GameService _gameService;
     private readonly IWorldSimulation _worldSimulation;
     private readonly ILogger<GameRpcGrain> _logger;
-    private readonly Orleans.IClusterClient _orleansClient;
+    private readonly Forkleans.IClusterClient _orleansClient;
 
     public GameRpcGrain(
         GameService gameService,
         IWorldSimulation worldSimulation,
         ILogger<GameRpcGrain> logger,
-        Orleans.IClusterClient orleansClient)
+        Forkleans.IClusterClient orleansClient)
     {
         _gameService = gameService;
         _worldSimulation = worldSimulation;

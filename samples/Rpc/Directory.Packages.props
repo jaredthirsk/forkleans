@@ -1,0 +1,53 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Forkleans packages -->
+    <PackageVersion Include="Forkleans.Core.Abstractions" Version="9.2.0.5-preview3" />
+    <PackageVersion Include="Forkleans.Core" Version="9.2.0.5-preview3" />
+    <PackageVersion Include="Forkleans.Sdk" Version="9.2.0.5-preview3" />
+    <PackageVersion Include="Forkleans.Client" Version="9.2.0.5-preview3" />
+    <PackageVersion Include="Forkleans.Serialization" Version="9.2.0.5-preview3" />
+    <PackageVersion Include="Forkleans.Serialization.Abstractions" Version="9.2.0.5-preview3" />
+    <PackageVersion Include="Forkleans.CodeGenerator" Version="9.2.0.5-preview3" />
+    <PackageVersion Include="Forkleans.Analyzers" Version="9.2.0.5-preview3" />
+    <PackageVersion Include="Forkleans.Rpc.Client" Version="9.2.0.5-preview3" />
+    <PackageVersion Include="Forkleans.Rpc.Sdk" Version="9.2.0.5-preview3" />
+    <PackageVersion Include="Forkleans.Rpc.Server" Version="9.2.0.5-preview3" />
+    <PackageVersion Include="Forkleans.Rpc.Transport.LiteNetLib" Version="9.2.0.5-preview3" />
+    <PackageVersion Include="Forkleans.Rpc.Abstractions" Version="9.2.0.5-preview3" />
+    
+    <!-- Microsoft Orleans packages -->
+    <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="8.2.0" />
+    <PackageVersion Include="Microsoft.Orleans.Sdk" Version="8.2.0" />
+    <PackageVersion Include="Microsoft.Orleans.Client" Version="8.2.0" />
+    <PackageVersion Include="Microsoft.Orleans.Server" Version="8.2.0" />
+    
+    <!-- Microsoft packages -->
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
+    
+    <!-- Aspire packages -->
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.0.0" />
+    <PackageVersion Include="Aspire.Microsoft.Extensions.ServiceDiscovery" Version="9.0.0" />
+    
+    <!-- Other packages -->
+    <PackageVersion Include="LiteNetLib" Version="1.3.1" />
+    <PackageVersion Include="Phaser" Version="0.6.0" />
+    
+    <!-- OpenTelemetry packages -->
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.0.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.10.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.10.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.10.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.10.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.10.0" />
+  </ItemGroup>
+</Project>

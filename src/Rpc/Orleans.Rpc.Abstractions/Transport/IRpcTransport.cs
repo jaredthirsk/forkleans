@@ -48,6 +48,7 @@ namespace Forkleans.Rpc.Transport
     {
         public IPEndPoint RemoteEndPoint { get; }
         public ReadOnlyMemory<byte> Data { get; }
+        public string ConnectionId { get; set; }
 
         public RpcDataReceivedEventArgs(IPEndPoint remoteEndPoint, ReadOnlyMemory<byte> data)
         {
@@ -62,11 +63,15 @@ namespace Forkleans.Rpc.Transport
     public class RpcConnectionEventArgs : EventArgs
     {
         public IPEndPoint RemoteEndPoint { get; }
-        public string ConnectionId { get; }
+        public string ConnectionId { get; set; }
 
-        public RpcConnectionEventArgs(IPEndPoint remoteEndPoint, string connectionId)
+        public RpcConnectionEventArgs(IPEndPoint remoteEndPoint)
         {
             RemoteEndPoint = remoteEndPoint;
+        }
+
+        public RpcConnectionEventArgs(IPEndPoint remoteEndPoint, string connectionId) : this(remoteEndPoint)
+        {
             ConnectionId = connectionId;
         }
     }

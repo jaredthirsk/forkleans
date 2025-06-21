@@ -2,7 +2,7 @@ using LiteNetLib;
 using LiteNetLib.Utils;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Orleans.Serialization;
+using Forkleans.Serialization;
 using Shooter.ActionServer.Simulation;
 using Shooter.Shared.Models;
 using System.Collections.Concurrent;

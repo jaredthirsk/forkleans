@@ -23,6 +23,11 @@ namespace Forkleans.Rpc
         private readonly RpcClient _rpcClient;
         private readonly Serializer _serializer;
 
+        /// <summary>
+        /// Optional zone ID for zone-aware routing.
+        /// </summary>
+        public int? ZoneId { get; set; }
+
         public RpcGrainReference(
             GrainReferenceShared shared,
             IdSpan key,
@@ -52,7 +57,8 @@ namespace Forkleans.Rpc
                     InterfaceType = this.InterfaceType,
                     MethodId = methodId,
                     Arguments = writer.WrittenMemory.ToArray(),
-                    TimeoutMs = 30000 // Default 30 seconds
+                    TimeoutMs = 30000, // Default 30 seconds
+                    TargetZoneId = ZoneId // Include zone ID if set
                 };
 
                 // Send request and wait for response
