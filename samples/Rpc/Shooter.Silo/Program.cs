@@ -21,6 +21,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 builder.Services.AddHttpClient();
 
+// Add ActionServer management service
+builder.Services.AddSingleton<Shooter.Silo.Services.ActionServerManager>();
+builder.Services.AddHostedService<Shooter.Silo.Services.ActionServerManager>(provider => 
+    provider.GetRequiredService<Shooter.Silo.Services.ActionServerManager>());
+
 // Add CORS to allow client to call API
 builder.Services.AddCors(options =>
 {

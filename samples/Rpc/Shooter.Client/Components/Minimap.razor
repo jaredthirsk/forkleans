@@ -43,6 +43,15 @@
             <div class="loading">Loading map...</div>
         }
     </div>
+    
+    <div class="zone-controls">
+        <button class="zone-btn add-zone" @onclick="AddZone" title="Add Zone" disabled="@_isProcessing">
+            <span class="btn-icon">+</span>
+        </button>
+        <button class="zone-btn remove-zone" @onclick="RemoveZone" title="Remove Zone" disabled="@_isProcessing">
+            <span class="btn-icon">-</span>
+        </button>
+    </div>
 </div>
 
 <style>
@@ -129,6 +138,56 @@
         text-align: center;
         color: #666;
     }
+    
+    .zone-controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        justify-content: center;
+    }
+    
+    .zone-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 24px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    
+    .zone-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .add-zone {
+        background-color: #4CAF50;
+        color: white;
+    }
+    
+    .add-zone:hover:not(:disabled) {
+        background-color: #45a049;
+        transform: scale(1.05);
+    }
+    
+    .remove-zone {
+        background-color: #f44336;
+        color: white;
+    }
+    
+    .remove-zone:hover:not(:disabled) {
+        background-color: #da190b;
+        transform: scale(1.05);
+    }
+    
+    .btn-icon {
+        line-height: 1;
+    }
 </style>
 
 @code {
@@ -144,6 +203,7 @@
     private int _maxX = 2;
     private int _maxY = 2;
     private Timer? _updateTimer;
+    private bool _isProcessing = false;
     
     private class ZoneStats
     {
@@ -210,11 +270,104 @@
         }
     }
     
+    private async Task AddZone()
+    {
+        if (_isProcessing) return;
+        
+        _isProcessing = true;
+        try
+        {
+            Logger.LogInformation("Adding new zone...");
+            
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await Http.PostAsync($"{siloUrl}api/world/action-servers/add", null);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<ActionServerInfo>();
+                Logger.LogInformation("Successfully added new zone at ({X}, {Y})", 
+                    result?.AssignedSquare.X, result?.AssignedSquare.Y);
+                
+                // Force refresh of zone stats
+                await UpdateZoneStats();
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogError("Failed to add zone: {Status} - {Error}", response.StatusCode, error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error adding zone");
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+    
+    private async Task RemoveZone()
+    {
+        if (_isProcessing) return;
+        
+        _isProcessing = true;
+        try
+        {
+            // Get the last server (highest zone)
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var serversResponse = await Http.GetFromJsonAsync<List<ActionServerInfo>>($"{siloUrl}api/world/action-servers");
+            if (serversResponse != null && serversResponse.Any())
+            {
+                // Sort by zone coordinates to get the "last" zone
+                var lastServer = serversResponse
+                    .OrderByDescending(s => s.AssignedSquare.Y)
+                    .ThenByDescending(s => s.AssignedSquare.X)
+                    .First();
+                
+                Logger.LogInformation("Removing zone at ({X}, {Y})...", 
+                    lastServer.AssignedSquare.X, lastServer.AssignedSquare.Y);
+                
+                var response = await Http.PostAsync(
+                    $"{siloUrl}api/world/action-servers/{lastServer.ServerId}/remove", null);
+                    
+                if (response.IsSuccessStatusCode)
+                {
+                    Logger.LogInformation("Successfully removed zone");
+                    
+                    // Force refresh of zone stats
+                    await UpdateZoneStats();
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    Logger.LogError("Failed to remove zone: {Status} - {Error}", response.StatusCode, error);
+                }
+            }
+            else
+            {
+                Logger.LogWarning("No zones available to remove");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error removing zone");
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+    
     public void Dispose()
     {
         _updateTimer?.Dispose();
     }
     
-    // DTO for zone stats
+    // DTOs for zone management
     private record WorldZoneStats(GridSquare Zone, int PlayerCount, int FactoryCount, int EnemyCount);
+    private record ActionServerInfo(string ServerId, GridSquare AssignedSquare, string HttpEndpoint);
 }

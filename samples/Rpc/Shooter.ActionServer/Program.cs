@@ -228,6 +228,20 @@ app.MapGet("/api/game/zone-stats", (IWorldSimulation simulation) =>
     return new ZoneStats(factoryCount, enemyCount, playerCount);
 });
 
+// Admin endpoint for graceful shutdown
+app.MapPost("/api/admin/shutdown", async (IHostApplicationLifetime lifetime, ILogger<Program> logger) =>
+{
+    logger.LogWarning("Shutdown requested via admin endpoint");
+    
+    // Stop accepting new requests
+    await Task.Delay(1000);
+    
+    // Trigger application shutdown
+    lifetime.StopApplication();
+    
+    return Results.Ok(new { message = "Shutdown initiated" });
+});
+
 // All game communication now happens via RPC only
 // HTTP endpoints are only used for health/status monitoring
 

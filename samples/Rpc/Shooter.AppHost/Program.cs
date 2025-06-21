@@ -2,16 +2,20 @@ using Aspire.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
+// Configuration
+const int InitialActionServerCount = 9;
+
 // Add the Orleans silo with Orleans ports exposed
 var silo = builder.AddProject<Projects.Shooter_Silo>("shooter-silo")
     .WithEndpoint(30000, 30000, name: "orleans-gateway", scheme: "tcp", isProxied: false) // Orleans gateway port
-    .WithEndpoint(11111, 11111, name: "orleans-silo", scheme: "tcp", isProxied: false);   // Orleans silo port
+    .WithEndpoint(11111, 11111, name: "orleans-silo", scheme: "tcp", isProxied: false)   // Orleans silo port
+    .WithEnvironment("InitialActionServerCount", InitialActionServerCount.ToString());
 
 // Add action servers with replicas - they depend on the silo being ready
-// Running 9 instances to cover a 3x3 grid of zones
+// Running initial instances to cover a grid of zones
 // Create individual instances with specific RPC ports to avoid conflicts
 var actionServers = new List<IResourceBuilder<ProjectResource>>();
-for (int i = 0; i < 9; i++)
+for (int i = 0; i < InitialActionServerCount; i++)
 {
     var rpcPort = 12000 + i;
     var server = builder.AddProject<Projects.Shooter_ActionServer>($"shooter-actionserver-{i}")

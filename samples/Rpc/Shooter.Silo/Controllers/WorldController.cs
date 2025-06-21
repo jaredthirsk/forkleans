@@ -3,6 +3,7 @@ using Orleans;
 using Shooter.Shared.GrainInterfaces;
 using Shooter.Shared.Models;
 using System.Net.Http;
+using Shooter.Silo.Services;
 
 namespace Shooter.Silo.Controllers;
 
@@ -13,12 +14,18 @@ public class WorldController : ControllerBase
     private readonly Orleans.IGrainFactory _grainFactory;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<WorldController> _logger;
+    private readonly ActionServerManager _actionServerManager;
 
-    public WorldController(Orleans.IGrainFactory grainFactory, IHttpClientFactory httpClientFactory, ILogger<WorldController> logger)
+    public WorldController(
+        Orleans.IGrainFactory grainFactory, 
+        IHttpClientFactory httpClientFactory, 
+        ILogger<WorldController> logger,
+        ActionServerManager actionServerManager)
     {
         _grainFactory = grainFactory;
         _httpClientFactory = httpClientFactory;
         _logger = logger;
+        _actionServerManager = actionServerManager;
     }
 
     [HttpPost("action-servers/register")]
@@ -156,6 +163,101 @@ public class WorldController : ControllerBase
         await worldManager.ResetAllServerAssignments();
         
         return Ok(new { message = "All server assignments have been reset. ActionServers will need to restart to re-register." });
+    }
+    
+    [HttpPost("action-servers/add")]
+    public async Task<ActionResult<ActionServerInfo>> AddActionServer()
+    {
+        try
+        {
+            _logger.LogInformation("Request to add new ActionServer");
+            
+            // Start a new ActionServer process
+            var serverId = await _actionServerManager.StartNewActionServerAsync();
+            
+            // Wait a bit for it to register itself
+            await Task.Delay(5000);
+            
+            // Get the registered server info
+            var worldManager = _grainFactory.GetGrain<IWorldManagerGrain>(0);
+            var servers = await worldManager.GetAllActionServers();
+            var newServer = servers.FirstOrDefault(s => s.ServerId == serverId);
+            
+            if (newServer == null)
+            {
+                _logger.LogWarning("New ActionServer {ServerId} did not register within timeout", serverId);
+                return StatusCode(500, new { error = "ActionServer started but did not register" });
+            }
+            
+            _logger.LogInformation("Successfully added ActionServer {ServerId} with zone ({X},{Y})", 
+                serverId, newServer.AssignedSquare.X, newServer.AssignedSquare.Y);
+            
+            return Ok(newServer);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to add new ActionServer");
+            return StatusCode(500, new { error = ex.Message });
+        }
+    }
+    
+    [HttpPost("action-servers/{serverId}/remove")]
+    public async Task<IActionResult> RemoveActionServer(string serverId)
+    {
+        try
+        {
+            _logger.LogInformation("Request to remove ActionServer {ServerId}", serverId);
+            
+            // First, check if this server exists
+            var worldManager = _grainFactory.GetGrain<IWorldManagerGrain>(0);
+            var servers = await worldManager.GetAllActionServers();
+            var serverToRemove = servers.FirstOrDefault(s => s.ServerId == serverId);
+            
+            if (serverToRemove == null)
+            {
+                return NotFound(new { error = $"ActionServer {serverId} not found" });
+            }
+            
+            // Try to gracefully shut down the server via HTTP
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                httpClient.Timeout = TimeSpan.FromSeconds(5);
+                
+                var shutdownUrl = $"{serverToRemove.HttpEndpoint}/api/admin/shutdown";
+                _logger.LogInformation("Sending shutdown request to {Url}", shutdownUrl);
+                
+                var response = await httpClient.PostAsync(shutdownUrl, null);
+                if (response.IsSuccessStatusCode)
+                {
+                    _logger.LogInformation("ActionServer {ServerId} acknowledged shutdown request", serverId);
+                    await Task.Delay(2000); // Give it time to shut down gracefully
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to send graceful shutdown to ActionServer {ServerId}, will force terminate", serverId);
+            }
+            
+            // Unregister from Orleans
+            await worldManager.UnregisterActionServer(serverId);
+            
+            // Stop the process if it's managed by us
+            var stopped = await _actionServerManager.StopActionServerAsync(serverId);
+            if (!stopped)
+            {
+                _logger.LogWarning("ActionServer {ServerId} was not managed by this Silo", serverId);
+            }
+            
+            _logger.LogInformation("Successfully removed ActionServer {ServerId}", serverId);
+            
+            return Ok(new { message = $"ActionServer {serverId} removed successfully" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to remove ActionServer {ServerId}", serverId);
+            return StatusCode(500, new { error = ex.Message });
+        }
     }
 }
 
