@@ -21,12 +21,6 @@
     <PackageVersion Include="Forkleans.Server" Version="9.2.0.6-preview3" />
     <PackageVersion Include="Forkleans.Persistence.Memory" Version="9.2.0.6-preview3" />
 
-    <!-- Microsoft Orleans packages -->
-    <!-- <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="8.2.0" />
-    <PackageVersion Include="Microsoft.Orleans.Sdk" Version="8.2.0" />
-    <PackageVersion Include="Microsoft.Orleans.Client" Version="8.2.0" />
-    <PackageVersion Include="Microsoft.Orleans.Server" Version="8.2.0" /> -->
-
     <!-- Microsoft packages -->
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.0" />
