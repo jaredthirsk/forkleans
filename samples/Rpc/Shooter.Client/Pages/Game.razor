@@ -353,7 +353,7 @@
         }
     }
     
-    private async Task HandleAutoMoveChange(bool enabled)
+    private void HandleAutoMoveChange(bool enabled)
     {
         _autoMove = enabled;
         if (_autoMove)
@@ -363,7 +363,7 @@
         }
     }
     
-    private async Task HandleAutoShootChange(bool enabled)
+    private void HandleAutoShootChange(bool enabled)
     {
         _autoShoot = enabled;
         if (_autoShoot)
@@ -373,7 +373,7 @@
         }
     }
     
-    private async Task HandleTestModeChange(bool enabled)
+    private void HandleTestModeChange(bool enabled)
     {
         _testMode = enabled;
         if (_testMode)
@@ -408,7 +408,7 @@
                         var targets = _currentWorldState.Entities
                             .Where(e => (e.Type == EntityType.Enemy || e.Type == EntityType.Asteroid) && 
                                        e.Health > 0)
-                            .OrderBy(e => Vector2.Distance(player.Position, e.Position))
+                            .OrderBy(e => player.Position.DistanceTo(e.Position))
                             .ToList();
                         
                         if (targets.Any())
@@ -417,14 +417,14 @@
                             var direction = (nearestTarget.Position - player.Position).Normalized();
                             
                             // Move towards the target with some distance management
-                            var distance = Vector2.Distance(player.Position, nearestTarget.Position);
+                            var distance = player.Position.DistanceTo(nearestTarget.Position);
                             if (distance > 150f) // Keep some distance
                             {
                                 await HandleMove(direction);
                             }
                             else if (distance < 80f) // Too close, back away
                             {
-                                await HandleMove(-direction);
+                                await HandleMove(direction * -1f);
                             }
                             else
                             {
@@ -441,7 +441,7 @@
                             {
                                 // Move towards the nearest zone with enemies
                                 var targetZone = zonesWithEnemies.OrderBy(z => 
-                                    Vector2.Distance(player.Position, z.GetCenter())).First();
+                                    player.Position.DistanceTo(z.GetCenter())).First();
                                 var direction = (targetZone.GetCenter() - player.Position).Normalized();
                                 await HandleMove(direction);
                             }
@@ -489,12 +489,12 @@
                         var target = _currentWorldState.Entities
                             .Where(e => (e.Type == EntityType.Enemy || e.Type == EntityType.Asteroid) && 
                                        e.Health > 0)
-                            .OrderBy(e => Vector2.Distance(player.Position, e.Position))
+                            .OrderBy(e => player.Position.DistanceTo(e.Position))
                             .FirstOrDefault();
                         
                         if (target != null)
                         {
-                            var distance = Vector2.Distance(player.Position, target.Position);
+                            var distance = player.Position.DistanceTo(target.Position);
                             if (distance < 300f) // Within shooting range
                             {
                                 // Calculate shoot direction
@@ -525,11 +525,11 @@
         }
     }
     
-    private async Task<List<GridSquare>> GetZonesWithEnemies()
+    private Task<List<GridSquare>> GetZonesWithEnemies()
     {
         // TODO: This would need to query other zones for enemy counts
         // For now, just return empty list
-        return new List<GridSquare>();
+        return Task.FromResult(new List<GridSquare>());
     }
     
     private void OnWorldStateUpdated(WorldState worldState)

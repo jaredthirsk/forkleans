@@ -107,8 +107,9 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
         
         var factoryCount = state.Entities.Count(e => e.Type == EntityType.Factory && e.State != EntityStateType.Dead);
         var enemyCount = state.Entities.Count(e => e.Type == EntityType.Enemy && e.State != EntityStateType.Dead);
+        var playerCount = state.Entities.Count(e => e.Type == EntityType.Player && e.SubType == 0 && e.State != EntityStateType.Dead);
         
-        return Task.FromResult(new ZoneStats(factoryCount, enemyCount));
+        return Task.FromResult(new ZoneStats(factoryCount, enemyCount, playerCount));
     }
     
     public Task TransferBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId)

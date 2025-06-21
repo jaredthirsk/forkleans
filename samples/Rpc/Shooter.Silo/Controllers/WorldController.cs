@@ -121,6 +121,7 @@ public class WorldController : ControllerBase
                 return new WorldZoneStats
                 {
                     Zone = server.AssignedSquare,
+                    PlayerCount = response?.PlayerCount ?? 0,
                     FactoryCount = response?.FactoryCount ?? 0,
                     EnemyCount = response?.EnemyCount ?? 0
                 };
@@ -134,6 +135,7 @@ public class WorldController : ControllerBase
                 return new WorldZoneStats
                 {
                     Zone = server.AssignedSquare,
+                    PlayerCount = 0,
                     FactoryCount = 0,
                     EnemyCount = 0
                 };
@@ -162,6 +164,7 @@ public record RegisterPlayerRequest(string PlayerId, string Name);
 public record WorldZoneStats
 {
     public GridSquare Zone { get; init; } = null!;
+    public int PlayerCount { get; init; }
     public int FactoryCount { get; init; }
     public int EnemyCount { get; init; }
 }

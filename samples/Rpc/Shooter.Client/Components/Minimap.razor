@@ -20,8 +20,18 @@
                         <div class="minimap-cell @(isCurrentZone ? "current" : "") @(hasZone ? "active" : "inactive")">
                             @if (hasZone && stats != null)
                             {
-                                <div class="factory-count">@stats.FactoryCount</div>
-                                <div class="enemy-count">@stats.EnemyCount</div>
+                                @if (stats.PlayerCount > 0)
+                                {
+                                    <div class="player-count">@stats.PlayerCount</div>
+                                }
+                                @if (stats.FactoryCount > 0)
+                                {
+                                    <div class="factory-count">@stats.FactoryCount</div>
+                                }
+                                @if (stats.EnemyCount > 0)
+                                {
+                                    <div class="enemy-count">@stats.EnemyCount</div>
+                                }
                             }
                         </div>
                     }
@@ -94,6 +104,13 @@
         border: 2px solid #00ff00;
     }
     
+    .player-count {
+        color: #00ff00;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 1;
+    }
+    
     .factory-count {
         color: #8B4513;
         font-weight: bold;
@@ -130,6 +147,7 @@
     
     private class ZoneStats
     {
+        public int PlayerCount { get; set; }
         public int FactoryCount { get; set; }
         public int EnemyCount { get; set; }
     }
@@ -177,6 +195,7 @@
                     var key = $"{stat.Zone.X},{stat.Zone.Y}";
                     _zoneStats[key] = new ZoneStats 
                     { 
+                        PlayerCount = stat.PlayerCount,
                         FactoryCount = stat.FactoryCount,
                         EnemyCount = stat.EnemyCount
                     };
@@ -197,5 +216,5 @@
     }
     
     // DTO for zone stats
-    private record WorldZoneStats(GridSquare Zone, int FactoryCount, int EnemyCount);
+    private record WorldZoneStats(GridSquare Zone, int PlayerCount, int FactoryCount, int EnemyCount);
 }

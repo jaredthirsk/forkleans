@@ -223,8 +223,9 @@ app.MapGet("/api/game/zone-stats", (IWorldSimulation simulation) =>
     
     var factoryCount = state.Entities.Count(e => e.Type == EntityType.Factory && e.State != EntityStateType.Dead);
     var enemyCount = state.Entities.Count(e => e.Type == EntityType.Enemy && e.State != EntityStateType.Dead);
+    var playerCount = state.Entities.Count(e => e.Type == EntityType.Player && e.SubType == 0 && e.State != EntityStateType.Dead);
     
-    return new ZoneStats(factoryCount, enemyCount);
+    return new ZoneStats(factoryCount, enemyCount, playerCount);
 });
 
 // All game communication now happens via RPC only

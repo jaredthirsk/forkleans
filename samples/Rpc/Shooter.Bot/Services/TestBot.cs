@@ -115,7 +115,7 @@ public class TestBot
                 {
                     var currentPos = playerInfo.Position;
                     var targetPos = targetZone.GetCenter();
-                    var distance = Vector2.Distance(currentPos, targetPos);
+                    var distance = currentPos.DistanceTo(targetPos);
 
                     if (distance < 100f) // Close enough to zone center
                     {
@@ -161,13 +161,13 @@ public class TestBot
                     // Find nearest enemy or asteroid
                     var targets = _lastWorldState.Entities
                         .Where(e => (e.Type == EntityType.Enemy || e.Type == EntityType.Asteroid) && e.Health > 0)
-                        .OrderBy(e => Vector2.Distance(player.Position, e.Position))
+                        .OrderBy(e => player.Position.DistanceTo(e.Position))
                         .ToList();
 
                     if (targets.Any())
                     {
                         var target = targets.First();
-                        var distance = Vector2.Distance(player.Position, target.Position);
+                        var distance = player.Position.DistanceTo(target.Position);
                         var direction = (target.Position - player.Position).Normalized();
 
                         // Combat behavior
@@ -179,7 +179,7 @@ public class TestBot
                         else if (distance < 100f)
                         {
                             // Too close, back away
-                            await SendMovement(-direction, cancellationToken);
+                            await SendMovement(direction * -1f, cancellationToken);
                         }
                         else
                         {

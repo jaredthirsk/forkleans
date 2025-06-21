@@ -29,13 +29,15 @@ builder.AddProject<Projects.Shooter_Client>("shooter-client")
     .WithReference(silo)
     .WaitFor(silo);
 
-// Add the bot orchestrator - optional, can be started separately
-// Uncomment to include in Aspire orchestration
-// builder.AddProject<Projects.Shooter_Bot>("shooter-bot")
-//     .WithEnvironment("SiloUrl", silo.GetEndpoint("https"))
-//     .WithEnvironment("BotCount", "3")
-//     .WithEnvironment("TestMode", "true")
-//     .WithReference(silo)
-//     .WaitFor(silo);
+// Add bot instances for testing
+for (int i = 0; i < 2; i++)
+{
+    builder.AddProject<Projects.Shooter_Bot>($"shooter-bot-{i}")
+        .WithEnvironment("SiloUrl", silo.GetEndpoint("https"))
+        .WithEnvironment("BotCount", "1") // Each instance runs 1 bot
+        .WithEnvironment("TestMode", "true")
+        .WithReference(silo)
+        .WaitFor(silo);
+}
 
 builder.Build().Run();

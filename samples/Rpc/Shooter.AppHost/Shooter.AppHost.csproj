@@ -20,6 +20,7 @@
     <ProjectReference Include="..\Shooter.Silo\Shooter.Silo.csproj" />
     <ProjectReference Include="..\Shooter.ActionServer\Shooter.ActionServer.csproj" />
     <ProjectReference Include="..\Shooter.Client\Shooter.Client.csproj" />
+    <ProjectReference Include="..\Shooter.Bot\Shooter.Bot.csproj" />
   </ItemGroup>
 
 </Project>

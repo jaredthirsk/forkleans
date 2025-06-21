@@ -200,18 +200,18 @@
     
     private bool _lastShootState = false;
     
-    private async Task OnAutoMoveChanged()
+    private void OnAutoMoveChanged()
     {
-        await OnAutoMoveChange.InvokeAsync(AutoMove);
+        OnAutoMoveChange.InvokeAsync(AutoMove);
     }
     
-    private async Task OnAutoShootChanged()
+    private void OnAutoShootChanged()
     {
-        await OnAutoShootChange.InvokeAsync(AutoShoot);
+        OnAutoShootChange.InvokeAsync(AutoShoot);
     }
     
-    private async Task OnTestModeChanged()
+    private void OnTestModeChanged()
     {
-        await OnTestModeChange.InvokeAsync(TestMode);
+        OnTestModeChange.InvokeAsync(TestMode);
     }
 }

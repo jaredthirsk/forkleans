@@ -118,9 +118,13 @@ public record ZoneStats
     [Forkleans.Id(1)]
     public int EnemyCount { get; init; }
     
-    public ZoneStats(int factoryCount, int enemyCount)
+    [Forkleans.Id(2)]
+    public int PlayerCount { get; init; }
+    
+    public ZoneStats(int factoryCount, int enemyCount, int playerCount = 0)
     {
         FactoryCount = factoryCount;
         EnemyCount = enemyCount;
+        PlayerCount = playerCount;
     }
 }
