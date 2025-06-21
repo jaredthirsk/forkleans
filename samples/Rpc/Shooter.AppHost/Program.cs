@@ -42,6 +42,7 @@ for (int i = 0; i < 2; i++)
         .WithEnvironment("SiloUrl", silo.GetEndpoint("https"))
         .WithEnvironment("BotName", $"TestBot_{i.ToString()}")
         .WithEnvironment("TestMode", "true")
+        .WithEnvironment("ASPIRE_INSTANCE_ID", i.ToString())
         .WithReference(silo)
         .WaitFor(silo);
     

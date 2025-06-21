@@ -34,7 +34,7 @@ public class BotService : BackgroundService
         _gameClient = gameClient;
         
         _testMode = _configuration.GetValue<bool>("TestMode", true);
-        _botName = _configuration.GetValue<string>("BotName", $"Bot_{Guid.NewGuid():N8}");
+        _botName = _configuration.GetValue<string>("BotName", $"Bot_{Guid.NewGuid():N}".Substring(0, 12));
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

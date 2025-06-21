@@ -16,8 +16,38 @@ builder.Logging.AddFilter("Shooter.Bot", LogLevel.Debug);
 builder.Logging.AddFilter("Shooter.Client.Common", LogLevel.Debug);
 builder.Logging.AddFilter("Forkleans.Rpc", LogLevel.Debug);
 
-// Add file logging
-builder.Logging.AddProvider(new FileLoggerProvider("logs/bot.log"));
+// Add file logging with unique filename based on bot name or instance
+string logFileName = "logs/bot.log";
+
+// Try to get bot name from configuration first
+var botName = builder.Configuration["BotName"];
+if (!string.IsNullOrEmpty(botName))
+{
+    // Sanitize bot name for filename
+    var safeBotName = botName.Replace(" ", "_").Replace(":", "").Replace("/", "").Replace("\\", "");
+    logFileName = $"logs/bot-{safeBotName}.log";
+}
+else
+{
+    // Try to get instance ID from environment
+    var aspireInstanceId = Environment.GetEnvironmentVariable("ASPIRE_INSTANCE_ID");
+    if (!string.IsNullOrEmpty(aspireInstanceId))
+    {
+        logFileName = $"logs/bot-{aspireInstanceId}.log";
+    }
+    else
+    {
+        // Fallback: try to get the replica index from Aspire
+        var replicaIndex = Environment.GetEnvironmentVariable("DOTNET_ASPIRE_REPLICA_INDEX");
+        if (!string.IsNullOrEmpty(replicaIndex))
+        {
+            logFileName = $"logs/bot-{replicaIndex}.log";
+        }
+    }
+}
+
+builder.Logging.AddProvider(new FileLoggerProvider(logFileName));
+Console.WriteLine($"Bot logging to: {logFileName}");
 
 // Add services
 builder.Services.AddHttpClient();
