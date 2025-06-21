@@ -18,7 +18,7 @@ public class TestBot
     private List<GridSquare> _availableZones = new();
     private int _zoneVisitIndex = 0;
     private DateTime _lastShootTime = DateTime.UtcNow;
-    private WorldState? _lastWorldState;
+    // private WorldState? _lastWorldState; // TODO: Use when RPC is implemented
 
     public TestBot(
         ILogger logger,
@@ -140,7 +140,7 @@ public class TestBot
         }
     }
 
-    private async Task RunNormalMode(CancellationToken cancellationToken)
+    private Task RunNormalMode(CancellationToken cancellationToken)
     {
         // TODO: Implement proper RPC connection to ActionServer
         // For now, just log status
