@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is **Forkleans**, an experimental fork of Microsoft Orleans focused on adding a one to one client server mode over extensible transports (with a focus on reliable UDP) for use in games. Orleans is a cross-platform framework for building robust, scalable distributed applications using the Virtual Actor Model.
+This is **Forkleans**, an experimental fork of Microsoft Orleans focused on adding a feature codenamed "RPC", which provides a one client to many servers mode over extensible transports (with a focus on reliable UDP) for use in games.  RPC servers may also be RPC clients to other RPC servers, and RPC servers may also be Orleans clients.  Orleans is a cross-platform framework for building robust, scalable distributed applications using the Virtual Actor Model.
 
 Key differences from upstream Orleans:
 - All namespaces renamed from `Orleans` to `Forkleans`
@@ -66,7 +66,13 @@ dotnet test --filter "Category=BVT" --no-build -c Debug
 
 ### Project Structure
 ```
+/fork/                                    # Fork-related documentation and scripts should go here, so we can avoid polluting and intermixing Orleans files with our own.
+
+/samples/Rpc/                         # This is the root of the primary sample project and integration test called "Shooter" that is the primary driver of the new "RPC" functionality we are creating in this repo.
+  docs/                                    # Contains further docs and status and roadmap items, and is very relevant for this repo's purpose of being able to support the "Shooter" integration test/sample.
+
 /src/
+  Rpc/                                    # This is where the new "RPC" functionality lives, which is original to this fork repo, and this is the only tree within /src/ that we are trying to make changes to (leaving the rest of Orleans as untouched as possible.) 
   Orleans.Core.Abstractions/    # Core interfaces and abstractions
   Orleans.Core/                 # Core functionality
   Orleans.Runtime/              # Silo runtime implementation
@@ -85,6 +91,7 @@ dotnet test --filter "Category=BVT" --no-build -c Debug
   Tester/                       # Integration tests
   TesterInternal/               # Internal integration tests
   Orleans.Serialization.UnitTests/
+
 ```
 
 ### Key Patterns
@@ -122,7 +129,8 @@ dotnet test --filter "Category=BVT" --no-build -c Debug
 - `global.json`: .NET SDK version (8.0.410)
 - `Directory.Build.props`: Global build properties
 - `Directory.Packages.props`: Central package versions
-- `Orleans.sln`: Main solution file
+- `Orleans.sln`: Main solution file from upstream (untouched Orleans)
+- `Orleans-with-Rpc.sln`: Main solution file for this fork repo (includes new RPC functionality)
 - `fork-maintenance-guide.md`: Detailed fork maintenance instructions
 - `forkleans-version-bump-guide.md`: Guide for bumping Forkleans NuGet package versions
 
@@ -132,8 +140,16 @@ The Shooter sample projects write detailed logs to help with debugging:
 - **ActionServer logs**: `samples/Rpc/Shooter.ActionServer/logs/*.log`
 - **Client logs**: `samples/Rpc/Shooter.Client/logs/*.log`
 - **Silo logs**: `samples/Rpc/Shooter.Silo/logs/*.log`
+- **Bot logs**: `samples/Rpc/Shooter.Bot/logs/*.log`
 
 These logs contain detailed information about zone transitions, entity updates, and RPC communications.
+
+### RPC sample: Shooter
+
+An elaborate sample of the RPC capability exists in `samples/Rpc`
+
+- Aspire project easily launches all aspects, including replicas: `samples/Rpc/Shooter.AppHost`
+- This sample references Forkleans including Orleans and RPC capabilities via Nuget packages, so keep this in mind when debugging the Shooter sample.
 
 ## Migration Notes
 
@@ -174,3 +190,10 @@ Alternative:
 services.TryAddKeyedSingleton<GrainInterfaceTypeToGrainTypeResolver>("rpc", (sp, key) => new GrainInterfaceTypeToGrainTypeResolver(
                 sp.GetRequiredKeyedService<IClusterManifestProvider>("rpc")));
 ```
+
+## Sub-area CLAUDE.md Files
+
+Some directories contain their own CLAUDE.md files with specific guidance:
+- `samples/Rpc/CLAUDE.md` - Guidance for working with the Shooter RPC sample, including debugging scripts and workflows
+
+When working in these areas, consult both this root CLAUDE.md and the relevant sub-area CLAUDE.md files.

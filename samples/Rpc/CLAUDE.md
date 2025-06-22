@@ -89,8 +89,49 @@ Currently no automated tests. Manual testing:
 4. Verify player movement and shooting
 5. Check ActionServer logs for simulation updates
 
+## Useful Scripts
+
+### Process Management
+Two helper scripts are provided for managing Shooter processes:
+
+- **`./kill-shooter-processes.sh`** - Kills all running Shooter processes
+  ```bash
+  ./kill-shooter-processes.sh
+  ```
+  
+- **`./show-shooter-processes.sh`** - Shows all running Shooter processes with details
+  ```bash
+  ./show-shooter-processes.sh
+  ```
+  Shows PID, component name, working directory, and memory usage
+
+### Debugging Workflow
+1. Check running processes:
+   ```bash
+   ./show-shooter-processes.sh
+   ```
+
+2. Kill stale processes before starting fresh:
+   ```bash
+   ./kill-shooter-processes.sh
+   ```
+
+3. Monitor logs during execution:
+   ```bash
+   # Silo logs
+   tail -f Shooter.Silo/logs/*.log
+   
+   # ActionServer logs  
+   tail -f Shooter.ActionServer/logs/*.log
+   
+   # Bot logs
+   tail -f Shooter.Bot/logs/*.log
+   ```
+
 ## Troubleshooting
 - **Port conflicts**: Check if ports 7071-7073, 5000 are available
 - **Orleans connection**: Ensure Silo starts before ActionServers
 - **NuGet packages**: Verify local NuGet feed is configured for Forkleans packages
 - **Browser compatibility**: Test with modern browsers supporting Canvas API
+- **Stale processes**: Use `./kill-shooter-processes.sh` to clean up
+- **Process inspection**: Use `./show-shooter-processes.sh` to see what's running
