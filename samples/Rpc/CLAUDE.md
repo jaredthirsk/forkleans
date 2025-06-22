@@ -135,3 +135,4 @@ Two helper scripts are provided for managing Shooter processes:
 - **Browser compatibility**: Test with modern browsers supporting Canvas API
 - **Stale processes**: Use `./kill-shooter-processes.sh` to clean up
 - **Process inspection**: Use `./show-shooter-processes.sh` to see what's running
+- logs should go in `./logs/`, though some are currently in other folders such as `Shooter.Silo/logs/*.log`

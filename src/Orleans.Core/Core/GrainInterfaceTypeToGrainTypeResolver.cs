@@ -201,17 +201,32 @@ namespace Forkleans
         private static Cache BuildCache(ClusterManifest clusterManifest)
         {
             var result = new Dictionary<GrainInterfaceType, CacheEntry>();
+            
+            // Debug logging
+            var totalGrains = clusterManifest.AllGrainManifests.Sum(m => m.Grains.Count);
+            var totalInterfaces = clusterManifest.AllGrainManifests.Sum(m => m.Interfaces.Count);
+            Console.WriteLine($"[BuildCache] Building cache from manifest with {totalGrains} grains and {totalInterfaces} interfaces");
 
             foreach (var manifest in clusterManifest.AllGrainManifests)
             {
+                Console.WriteLine($"[BuildCache] Processing manifest with {manifest.Grains.Count} grains");
                 foreach (var grainType in manifest.Grains)
                 {
                     var id = grainType.Key;
                     grainType.Value.Properties.TryGetValue(WellKnownGrainTypeProperties.TypeName, out var typeName);
                     grainType.Value.Properties.TryGetValue(WellKnownGrainTypeProperties.FullTypeName, out var fullTypeName);
+                    
+                    // Debug: log grain properties
+                    Console.WriteLine($"[BuildCache] Grain {id} has {grainType.Value.Properties.Count} properties");
+                    
                     foreach (var property in grainType.Value.Properties)
                     {
-                        if (!property.Key.StartsWith(WellKnownGrainTypeProperties.ImplementedInterfacePrefix, StringComparison.Ordinal)) continue;
+                        if (!property.Key.StartsWith(WellKnownGrainTypeProperties.ImplementedInterfacePrefix, StringComparison.Ordinal))
+                        {
+                            Console.WriteLine($"[BuildCache] Skipping property {property.Key} (not interface)");
+                            continue;
+                        }
+                        Console.WriteLine($"[BuildCache] Found interface property {property.Key} = {property.Value}");
                         var implemented = GrainInterfaceType.Create(property.Value);
                         string interfaceTypeName;
                         if (manifest.Interfaces.TryGetValue(implemented, out var interfaceProperties))
@@ -253,6 +268,7 @@ namespace Forkleans
                 }
             }
 
+            Console.WriteLine($"[BuildCache] Final cache has {result.Count} interface mappings");
             return new Cache(clusterManifest.Version, result);
         }
 

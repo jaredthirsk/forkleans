@@ -1,5 +1,6 @@
 using Forkleans;
 using Forkleans.Metadata;
+using Forkleans.Runtime;
 using Forkleans.Rpc;
 using Forkleans.Rpc.Transport.LiteNetLib;
 using Forkleans.Serialization;
@@ -157,7 +158,7 @@ public class ForkleansRpcGameClientService : IDisposable
             // Debug: check what manifest provider we have
             try
             {
-                var manifestProvider = hostBuilder.Services.GetKeyedService<Forkleans.Metadata.IClusterManifestProvider>("rpc");
+                var manifestProvider = hostBuilder.Services.GetKeyedService<IClusterManifestProvider>("rpc");
                 _logger.LogInformation("RPC manifest provider type: {Type}", manifestProvider?.GetType().FullName ?? "NULL");
             }
             catch (Exception ex)
