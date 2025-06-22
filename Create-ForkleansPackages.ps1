@@ -162,11 +162,23 @@ foreach ($project in $projectsToPack) {
     $output = & dotnet $packArgs 2>&1
     
     if ($LASTEXITCODE -ne 0) {
-        Write-Warning "Pack failed for $project"
-        Write-Host "Error details:" -ForegroundColor Red
-        Write-Host $output -ForegroundColor Red
-        $failedPackages += $project
-        continue
+        Write-Warning "Pack failed for $project with --no-build, retrying with build..."
+        
+        # Retry without --no-build flag
+        $retryArgs = $packArgs | Where-Object { $_ -ne "--no-build" }
+        $retryOutput = & dotnet $retryArgs 2>&1
+        
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Pack failed for $project even with build"
+            Write-Host "Error details:" -ForegroundColor Red
+            Write-Host $retryOutput -ForegroundColor Red
+            $failedPackages += $project
+            continue
+        }
+        else {
+            Write-Host "Pack succeeded after retry with build" -ForegroundColor Green
+            $output = $retryOutput
+        }
     }
     
     # Find the created package
