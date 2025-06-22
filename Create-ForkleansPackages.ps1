@@ -163,6 +163,8 @@ foreach ($project in $projectsToPack) {
     
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "Pack failed for $project"
+        Write-Host "Error details:" -ForegroundColor Red
+        Write-Host $output -ForegroundColor Red
         $failedPackages += $project
         continue
     }
@@ -259,3 +261,8 @@ Write-Host "   - Forkleans.Rpc.Client (for client applications)" -ForegroundColo
 Write-Host "   - Forkleans.Rpc.Server (for server applications)" -ForegroundColor Gray
 Write-Host "   - Forkleans.Rpc.Sdk (for code generation)" -ForegroundColor Gray
 Write-Host "   - One transport package (LiteNetLib or Ruffles)" -ForegroundColor Gray
+
+# Exit with error code if any packages failed
+if ($failedPackages.Count -gt 0) {
+    exit 1
+}

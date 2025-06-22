@@ -57,7 +57,8 @@ namespace Forkleans.Rpc.Hosting
             // RPC Client
             services.TryAddSingleton<RpcClient>();
             services.TryAddFromExisting<IRpcClient, RpcClient>();
-            services.TryAddFromExisting<IClusterClient, RpcClient>();
+            // Don't register as IClusterClient to avoid conflicts with Orleans client
+            // services.TryAddFromExisting<IClusterClient, RpcClient>();
             services.AddFromExisting<IHostedService, RpcClient>();
             
             // RPC client lifecycle
@@ -91,7 +92,7 @@ namespace Forkleans.Rpc.Hosting
             services.TryAddSingleton<InterfaceToImplementationMappingCache>();
             // Use keyed singleton for RPC to avoid conflicts with Orleans client
             services.TryAddKeyedSingleton<GrainInterfaceTypeToGrainTypeResolver>("rpc", (sp, key) => new GrainInterfaceTypeToGrainTypeResolver(
-                sp.GetRequiredService<IClusterManifestProvider>()));
+                sp.GetRequiredKeyedService<IClusterManifestProvider>("rpc")));
             services.TryAddSingleton<GrainReferenceActivator>();
             // Add RPC grain reference provider first so it takes precedence
             services.AddSingleton<IGrainReferenceActivatorProvider, RpcGrainReferenceActivatorProvider>();
@@ -131,8 +132,13 @@ namespace Forkleans.Rpc.Hosting
             // services.AddSingleton<GrainVersionManifest>();
             
             // Cluster manifest provider for RPC (simplified version)
-            services.AddSingleton<RpcClientManifestProvider>();
-            services.AddSingleton<IClusterManifestProvider>(sp => sp.GetRequiredService<RpcClientManifestProvider>());
+            // Use keyed service to avoid overriding Orleans client's manifest provider
+            services.AddKeyedSingleton<RpcClientManifestProvider>("rpc");
+            services.AddKeyedSingleton<IClusterManifestProvider>("rpc", (sp, key) => sp.GetRequiredKeyedService<RpcClientManifestProvider>("rpc"));
+            
+            // For standalone RPC client (without Orleans), register as unkeyed to support GrainPropertiesResolver
+            // TryAddSingleton ensures Orleans client's manifest provider takes precedence when both are present
+            services.TryAddSingleton<IClusterManifestProvider>(sp => sp.GetRequiredKeyedService<RpcClientManifestProvider>("rpc"));
             
             // Grain version manifest
             services.TryAddSingleton<GrainVersionManifest>();
