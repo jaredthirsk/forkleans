@@ -117,11 +117,16 @@ if (-not $SkipBuild) {
         "-c", $Configuration
     )
     
-    & dotnet $buildArgs
+    $buildOutput = & dotnet $buildArgs 2>&1
     
     if ($LASTEXITCODE -ne 0) {
+        Write-Host "`nBuild failed for Orleans.sln" -ForegroundColor Red
+        Write-Host "Build output:" -ForegroundColor Red
+        Write-Host $buildOutput -ForegroundColor Red
         throw "Build failed for Orleans.sln"
     }
+    
+    Write-Host "Build completed successfully" -ForegroundColor Green
 }
 
 # Clean artifacts directory
@@ -164,13 +169,18 @@ foreach ($project in $projectsToPack) {
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "Pack failed for $project with --no-build, retrying with build..."
         
+        # First show the initial error to help diagnose
+        Write-Host "Initial pack error:" -ForegroundColor Yellow
+        Write-Host $output -ForegroundColor Yellow
+        
         # Retry without --no-build flag
         $retryArgs = $packArgs | Where-Object { $_ -ne "--no-build" }
+        Write-Host "Retrying with: dotnet $($retryArgs -join ' ')" -ForegroundColor Gray
         $retryOutput = & dotnet $retryArgs 2>&1
         
         if ($LASTEXITCODE -ne 0) {
             Write-Warning "Pack failed for $project even with build"
-            Write-Host "Error details:" -ForegroundColor Red
+            Write-Host "Build/Pack error details:" -ForegroundColor Red
             Write-Host $retryOutput -ForegroundColor Red
             $failedPackages += $project
             continue
