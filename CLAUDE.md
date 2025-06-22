@@ -134,3 +134,43 @@ The Shooter sample projects write detailed logs to help with debugging:
 - **Silo logs**: `samples/Rpc/Shooter.Silo/logs/*.log`
 
 These logs contain detailed information about zone transitions, entity updates, and RPC communications.
+
+## Migration Notes
+
+- **Orleans 7.0 Update**:
+  * The ConfigureApplicationParts method has been removed in Orleans 7.0, as mentioned in the migration documentation.
+
+## Notes about Keyed Services and Dependency Injection
+
+Using [FromKeyedServices] Attribute:
+You can inject keyed services into constructors or methods using the [FromKeyedServices] attribute, while unkeyed services are injected without it. For example:
+
+``` C#
+public class NotificationHandler
+{
+    private readonly INotificationService _defaultService;
+    private readonly INotificationService _emailService;
+
+    public NotificationHandler(
+        INotificationService defaultService,
+        [FromKeyedServices("email")] INotificationService emailService)
+    {
+        _defaultService = defaultService;
+        _emailService = emailService;
+    }
+
+    public void SendNotifications(string message)
+    {
+        Console.WriteLine(_defaultService.Send(message)); // Uses unkeyed service
+        Console.WriteLine(_emailService.Send(message));   // Uses keyed service
+    }
+}
+```
+
+However, when we want to avoid modifying code (we want to leave original Orleans code, not related to RPC, as untouched as possible), then we might have to resort to the other strategy of a factory method when adding a singleton to an IServicesCollection.  But hopefully we don't have to do this.
+
+Alternative:
+``` C#
+services.TryAddKeyedSingleton<GrainInterfaceTypeToGrainTypeResolver>("rpc", (sp, key) => new GrainInterfaceTypeToGrainTypeResolver(
+                sp.GetRequiredKeyedService<IClusterManifestProvider>("rpc")));
+```

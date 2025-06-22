@@ -9,11 +9,13 @@ using Shooter.ActionServer.Grains;
 using Shooter.Shared.Models;
 using System.Numerics;
 using Shooter.Shared.RpcInterfaces;
+using Shooter.Shared.GrainInterfaces;
 using Forkleans.Configuration;
 using Forkleans.Rpc;
 using Forkleans.Rpc.Hosting;
 using Forkleans.Rpc.Transport.LiteNetLib;
 using Forkleans.Hosting;
+using Forkleans.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,7 +63,7 @@ builder.Services.AddSingleton<IZoneAwareRpcServer, ZoneAwareRpcServerAdapter>();
 // Add Orleans startup delay service
 builder.Services.AddHostedService<OrleansStartupDelayService>();
 
-// Configure Orleans client with retry
+// IMPORTANT: Configure Orleans client BEFORE RPC to ensure correct service registration order
 builder.UseOrleansClient((Forkleans.Hosting.IClientBuilder clientBuilder) =>
 {
     // In Aspire, use the configured gateway endpoint
@@ -114,6 +116,22 @@ builder.UseOrleansClient((Forkleans.Hosting.IClientBuilder clientBuilder) =>
         options.ServiceId = "ShooterDemo";
     });
 });
+
+// Configure serialization to include grain interface assemblies
+builder.Services.AddSerializer(serializerBuilder =>
+{
+    serializerBuilder.AddAssembly(typeof(Shooter.Shared.GrainInterfaces.IWorldManagerGrain).Assembly);
+});
+
+// Diagnostic: Check for generated proxy types
+var sharedAssembly = typeof(Shooter.Shared.GrainInterfaces.IWorldManagerGrain).Assembly;
+Console.WriteLine($"Checking assembly: {sharedAssembly.FullName}");
+var generatedTypes = sharedAssembly.GetTypes()
+    .Where(t => t.Namespace?.StartsWith("ForkleansCodeGen") == true);
+foreach (var type in generatedTypes)
+{
+    Console.WriteLine($"Found generated type: {type.FullName}");
+}
 
 // Configure dynamic HTTP port assignment
 if (builder.Environment.IsDevelopment())
@@ -185,6 +203,7 @@ else
 rpcPortProvider.SetPort(rpcPort);
 builder.Configuration["RpcPort"] = rpcPort.ToString();
 
+
 builder.Host.UseOrleansRpc(rpcBuilder =>
 {
     // Use the selected port
@@ -198,8 +217,12 @@ builder.Host.UseOrleansRpc(rpcBuilder =>
              .AddAssemblyContaining<IGameRpcGrain>();          // Grain interfaces
 });
 
+
 // Add background service for registration
 builder.Services.AddHostedService<ActionServerRegistrationService>();
+
+// Add diagnostic service
+builder.Services.AddHostedService<DiagnosticService>();
 
 var app = builder.Build();
 
@@ -269,6 +292,60 @@ public class OrleansStartupDelayService : IHostedService
             await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
             _logger.LogInformation("Orleans startup delay complete");
         }
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+}
+
+// Diagnostic service to check service registrations
+public class DiagnosticService : IHostedService
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<DiagnosticService> _logger;
+
+    public DiagnosticService(IServiceProvider serviceProvider, ILogger<DiagnosticService> logger)
+    {
+        _serviceProvider = serviceProvider;
+        _logger = logger;
+    }
+
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogWarning("=== SERVICE DIAGNOSTICS ===");
+        
+        // Check which GrainFactory is registered
+        var grainFactory = _serviceProvider.GetService<Forkleans.IGrainFactory>();
+        _logger.LogWarning("IGrainFactory type: {Type}", grainFactory?.GetType().FullName ?? "NULL");
+        
+        // Check which IClusterClient is registered
+        var clusterClient = _serviceProvider.GetService<Forkleans.IClusterClient>();
+        _logger.LogWarning("IClusterClient type: {Type}", clusterClient?.GetType().FullName ?? "NULL");
+        
+        // Check if IRpcClient is registered
+        var rpcClient = _serviceProvider.GetService<Forkleans.Rpc.IRpcClient>();
+        _logger.LogWarning("IRpcClient type: {Type}", rpcClient?.GetType().FullName ?? "NULL");
+        
+        // Check all GrainReferenceActivatorProviders
+        var providers = _serviceProvider.GetServices<Forkleans.GrainReferences.IGrainReferenceActivatorProvider>();
+        foreach (var provider in providers)
+        {
+            _logger.LogWarning("GrainReferenceActivatorProvider: {Type}", provider.GetType().FullName);
+        }
+        
+        // Check manifest providers
+        var manifestProvider = _serviceProvider.GetService<Forkleans.Runtime.IClusterManifestProvider>();
+        _logger.LogWarning("IClusterManifestProvider type: {Type}", manifestProvider?.GetType().FullName ?? "NULL");
+        
+        // Check keyed manifest providers
+        var orleansManifest = _serviceProvider.GetKeyedService<Forkleans.Runtime.IClusterManifestProvider>("orleans");
+        _logger.LogWarning("IClusterManifestProvider[orleans] type: {Type}", orleansManifest?.GetType().FullName ?? "NULL");
+        
+        var rpcManifest = _serviceProvider.GetKeyedService<Forkleans.Runtime.IClusterManifestProvider>("rpc");
+        _logger.LogWarning("IClusterManifestProvider[rpc] type: {Type}", rpcManifest?.GetType().FullName ?? "NULL");
+        
+        _logger.LogWarning("=== END DIAGNOSTICS ===");
+        
+        return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

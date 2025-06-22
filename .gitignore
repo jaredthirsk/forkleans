@@ -220,11 +220,14 @@ src/SetupTestScriptOutput.txt
 
 # code coverage
 *.cobertura.xml
+
+# Forkleans additions
 namespace_conversion_report.txt
 assembly-names-report.txt
 class-names-fix-report.txt
 reference-fix-report.txt
-/.claude/settings.local.json
-
 /.claude
+/.claude/settings.local.json
 NuGet.config.local
+local-packages
+@local-packages

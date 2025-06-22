@@ -99,7 +99,7 @@ namespace Forkleans.Rpc.Hosting
             services.TryAddSingleton<InterfaceToImplementationMappingCache>();
             // Use keyed singleton for RPC to avoid conflicts with Orleans client
             services.TryAddKeyedSingleton<GrainInterfaceTypeToGrainTypeResolver>("rpc", (sp, key) => new GrainInterfaceTypeToGrainTypeResolver(
-                sp.GetRequiredService<IClusterManifestProvider>()));
+                sp.GetRequiredKeyedService<IClusterManifestProvider>("rpc")));
             services.TryAddFromExisting<IGrainFactory, GrainFactory>();
             services.TryAddFromExisting<IInternalGrainFactory, GrainFactory>();
             services.TryAddSingleton<IGrainReferenceRuntime, GrainReferenceRuntime>();
@@ -124,9 +124,13 @@ namespace Forkleans.Rpc.Hosting
             services.AddScoped<IGrainContext>(sp => throw new InvalidOperationException("Grain context must be set during activation"));
 
             // Type metadata
-            services.AddSingleton<RpcManifestProvider>();
-            services.AddFromExisting<IClusterManifestProvider, RpcManifestProvider>();
-            services.AddSingleton<GrainClassMap>(sp => sp.GetRequiredService<RpcManifestProvider>().GrainTypeMap);
+            // Use keyed service to avoid overriding Orleans client's manifest provider
+            services.AddKeyedSingleton<RpcManifestProvider>("rpc");
+            services.AddKeyedSingleton<IClusterManifestProvider>("rpc", (sp, key) => sp.GetRequiredKeyedService<RpcManifestProvider>("rpc"));
+            // Register GrainClassMap as keyed to avoid conflicts with Orleans
+            services.AddKeyedSingleton<GrainClassMap>("rpc", (sp, key) => sp.GetRequiredKeyedService<RpcManifestProvider>("rpc").GrainTypeMap);
+            // For RPC internal use, resolve the keyed version
+            services.TryAddSingleton<GrainClassMap>(sp => sp.GetRequiredKeyedService<GrainClassMap>("rpc"));
             services.AddSingleton<GrainTypeResolver>();
             services.AddSingleton<IGrainTypeProvider, AttributeGrainTypeProvider>();
             services.AddSingleton<GrainPropertiesResolver>();
@@ -174,7 +178,7 @@ namespace Forkleans.Rpc.Hosting
                 sp.GetRequiredService<Forkleans.Serialization.Serializer>(),
                 sp.GetRequiredService<IOptions<ClientMessagingOptions>>(),
                 sp.GetRequiredService<ILoggerFactory>(),
-                sp.GetRequiredService<IClusterManifestProvider>(),
+                sp.GetRequiredKeyedService<IClusterManifestProvider>("rpc"),
                 sp.GetRequiredKeyedService<GrainInterfaceTypeToGrainTypeResolver>("rpc"),
                 sp));
             services.AddFromExisting<ILifecycleParticipant<IRpcServerLifecycle>, RpcServer>();

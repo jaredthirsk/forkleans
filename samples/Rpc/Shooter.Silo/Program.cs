@@ -1,6 +1,7 @@
 using Forkleans;
 using Forkleans.Configuration;
 using Forkleans.Hosting;
+using Forkleans.Serialization;
 using Shooter.Silo;
 using Shooter.Silo.Controllers;
 using System.Net;
@@ -56,6 +57,29 @@ builder.Host.UseOrleans(siloBuilder =>
         .AddMemoryGrainStorage("worldStore")
         .AddMemoryGrainStorage("playerStore");
 });
+
+// Configure serialization to include grain assemblies
+builder.Services.AddSerializer(serializerBuilder =>
+{
+    serializerBuilder.AddAssembly(typeof(Shooter.Silo.Grains.WorldManagerGrain).Assembly);
+    serializerBuilder.AddAssembly(typeof(Shooter.Shared.GrainInterfaces.IWorldManagerGrain).Assembly);
+});
+
+// Add trace logging for Orleans type discovery and grain registration
+builder.Logging.AddFilter("Orleans.Metadata", LogLevel.Trace);
+builder.Logging.AddFilter("Orleans.Runtime.Catalog", LogLevel.Trace);
+builder.Logging.AddFilter("Orleans.Runtime.Placement", LogLevel.Trace);
+
+// Force load grain assembly to ensure it's available for discovery
+var grainAssembly = typeof(Shooter.Silo.Grains.WorldManagerGrain).Assembly;
+Console.WriteLine($"Loaded grain assembly: {grainAssembly.FullName}");
+foreach (var type in grainAssembly.GetTypes())
+{
+    if (type.IsClass && !type.IsAbstract && typeof(Forkleans.Grain).IsAssignableFrom(type))
+    {
+        Console.WriteLine($"Found grain implementation: {type.FullName}");
+    }
+}
 
 var app = builder.Build();
 
