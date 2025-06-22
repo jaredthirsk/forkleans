@@ -153,13 +153,41 @@ public class ForkleansRpcGameClientService : IDisposable
             _rpcHost = hostBuilder;
             _rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.Rpc.IRpcClient>();
             
-            // Wait longer for the handshake and manifest exchange to complete
-            // This is a workaround - ideally the RPC client would expose a way to wait for readiness
-            await Task.Delay(2000);
+            // Wait for the handshake and manifest exchange to complete
+            // Try to get the grain with retries to ensure manifest is ready
+            const int maxRetries = 10;
+            const int retryDelayMs = 500;
             
-            // Get the game grain - use a fixed key since this represents the server itself
-            // In RPC, grains are essentially singleton services per server
-            _gameGrain = _rpcClient.GetGrain<IGameRpcGrain>("game");
+            for (int i = 0; i < maxRetries; i++)
+            {
+                try
+                {
+                    // Get the game grain - use a fixed key since this represents the server itself
+                    // In RPC, grains are essentially singleton services per server
+                    _gameGrain = _rpcClient.GetGrain<IGameRpcGrain>("game");
+                    _logger.LogInformation("Successfully obtained game grain on attempt {Attempt}", i + 1);
+                    break;
+                }
+                catch (ArgumentException ex) when (ex.Message.Contains("Could not find an implementation"))
+                {
+                    if (i < maxRetries - 1)
+                    {
+                        _logger.LogDebug("Waiting for manifest update, attempt {Attempt}/{MaxRetries}", i + 1, maxRetries);
+                        await Task.Delay(retryDelayMs);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(
+                            $"Failed to get game grain after {maxRetries} attempts. " +
+                            "The RPC server may not have registered the grain implementation.", ex);
+                    }
+                }
+            }
+            
+            if (_gameGrain == null)
+            {
+                throw new InvalidOperationException("Failed to obtain game grain reference");
+            }
             
             // Connect via RPC
             _logger.LogInformation("Connecting player {PlayerId} via RPC", PlayerId);
