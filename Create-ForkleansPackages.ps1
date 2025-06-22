@@ -118,24 +118,14 @@ Write-Host "Planning to create $($projectsToPack.Count) packages" -ForegroundCol
 if (-not $SkipBuild) {
     Write-Host "`nBuilding projects in $Configuration configuration..." -ForegroundColor Cyan
     
-    # Build only the projects we're going to pack
-    Write-Host "Building $($projectsToPack.Count) projects that will be packed..." -ForegroundColor Gray
-    
-    $buildFailed = $false
-    $failedBuilds = @()
-    
-    foreach ($project in $projectsToPack) {
-        if (-not (Test-Path $project)) {
-            Write-Warning "Project not found: $project"
-            continue
-        }
-        
-        $projectName = [System.IO.Path]::GetFileNameWithoutExtension($project)
-        Write-Host "Building $projectName..." -ForegroundColor Gray
+    # For 'All' mode, build the entire solution (faster due to parallelization)
+    # For other modes, build only the specific projects
+    if ($Mode -eq "All") {
+        Write-Host "Building entire Orleans.sln (faster for 'All' mode due to parallel builds)..." -ForegroundColor Gray
         
         $buildArgs = @(
             "build",
-            $project,
+            "Orleans.sln",
             "-c", $Configuration,
             "--verbosity", "minimal"
         )
@@ -143,23 +133,58 @@ if (-not $SkipBuild) {
         $buildOutput = & dotnet $buildArgs 2>&1
         
         if ($LASTEXITCODE -ne 0) {
-            Write-Warning "Build failed for $project"
+            Write-Host "Build failed for Orleans.sln" -ForegroundColor Red
             Write-Host "Error details:" -ForegroundColor Red
             Write-Host $buildOutput -ForegroundColor Red
-            $buildFailed = $true
-            $failedBuilds += $project
+            throw "Build failed"
         }
+        
+        Write-Host "Solution built successfully" -ForegroundColor Green
     }
-    
-    if ($buildFailed) {
-        Write-Host "`nBuild failed for $($failedBuilds.Count) projects:" -ForegroundColor Red
-        foreach ($failed in $failedBuilds) {
-            Write-Host "  - $failed" -ForegroundColor Red
+    else {
+        # Build only the projects we're going to pack
+        Write-Host "Building $($projectsToPack.Count) projects that will be packed..." -ForegroundColor Gray
+        
+        $buildFailed = $false
+        $failedBuilds = @()
+        
+        foreach ($project in $projectsToPack) {
+            if (-not (Test-Path $project)) {
+                Write-Warning "Project not found: $project"
+                continue
+            }
+            
+            $projectName = [System.IO.Path]::GetFileNameWithoutExtension($project)
+            Write-Host "Building $projectName..." -ForegroundColor Gray
+            
+            $buildArgs = @(
+                "build",
+                $project,
+                "-c", $Configuration,
+                "--verbosity", "minimal"
+            )
+            
+            $buildOutput = & dotnet $buildArgs 2>&1
+            
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Build failed for $project"
+                Write-Host "Error details:" -ForegroundColor Red
+                Write-Host $buildOutput -ForegroundColor Red
+                $buildFailed = $true
+                $failedBuilds += $project
+            }
         }
-        throw "Build failed"
+        
+        if ($buildFailed) {
+            Write-Host "`nBuild failed for $($failedBuilds.Count) projects:" -ForegroundColor Red
+            foreach ($failed in $failedBuilds) {
+                Write-Host "  - $failed" -ForegroundColor Red
+            }
+            throw "Build failed"
+        }
+        
+        Write-Host "`nAll projects built successfully" -ForegroundColor Green
     }
-    
-    Write-Host "`nAll projects built successfully" -ForegroundColor Green
 }
 
 # Clean artifacts directory
@@ -175,6 +200,7 @@ Write-Host "`nCreating NuGet packages..." -ForegroundColor Cyan
 
 $packagesCreated = @()
 $failedPackages = @()
+$retriedPackages = @()
 
 foreach ($project in $projectsToPack) {
     if (-not (Test-Path $project)) {
@@ -221,6 +247,7 @@ foreach ($project in $projectsToPack) {
         else {
             Write-Host "Pack succeeded after retry with build" -ForegroundColor Green
             $output = $retryOutput
+            $retriedPackages += $project
         }
     }
     
@@ -257,6 +284,9 @@ Write-Host "Configuration: $Configuration" -ForegroundColor Gray
 Write-Host "Version Suffix: $(if ($VersionSuffix) { $VersionSuffix } else { 'none' })" -ForegroundColor Gray
 Write-Host "Local Feed: $LocalFeedPath" -ForegroundColor Gray
 Write-Host "Packages Created: $($packagesCreated.Count)" -ForegroundColor Gray
+if ($retriedPackages.Count -gt 0) {
+    Write-Host "Packages Requiring Build Retry: $($retriedPackages.Count)" -ForegroundColor Yellow
+}
 if ($failedPackages.Count -gt 0) {
     Write-Host "Failed Packages: $($failedPackages.Count)" -ForegroundColor Red
     foreach ($failed in $failedPackages) {
@@ -267,6 +297,14 @@ if ($failedPackages.Count -gt 0) {
 Write-Host "`nPackages:" -ForegroundColor Gray
 foreach ($package in $packagesCreated) {
     Write-Host "  ✓ $($package.Name)" -ForegroundColor Green
+}
+
+if ($retriedPackages.Count -gt 0) {
+    Write-Host "`nPackages that required retry with build:" -ForegroundColor Yellow
+    foreach ($retried in $retriedPackages) {
+        Write-Host "  ⚠ $retried" -ForegroundColor Yellow
+    }
+    Write-Host "`nNote: These packages may need their output paths configured or build dependencies resolved." -ForegroundColor Yellow
 }
 
 # Generate NuGet.config content
