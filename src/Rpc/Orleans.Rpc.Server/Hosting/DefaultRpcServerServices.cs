@@ -89,17 +89,30 @@ namespace Forkleans.Rpc.Hosting
             services.AddTransient<CancellationSourcesExtension>();
             
             // Grain factory and references
+            // RpcGrainFactory is RPC-specific, no conflict with Orleans
             services.TryAddSingleton<RpcGrainFactory>(sp => new RpcGrainFactory(
                 sp.GetRequiredService<IRuntimeClient>(),
                 sp.GetRequiredService<GrainReferenceActivator>(),
                 sp.GetRequiredService<GrainInterfaceTypeResolver>(),
                 sp.GetRequiredKeyedService<GrainInterfaceTypeToGrainTypeResolver>("rpc"),
                 sp.GetRequiredService<ILocalRpcServerDetails>()));
+            
+            // Register GrainFactory as keyed service for RPC to avoid overriding Orleans client's GrainFactory
+            services.AddKeyedSingleton<GrainFactory>("rpc", (sp, key) => sp.GetRequiredService<RpcGrainFactory>());
+            
+            // For standalone RPC server (without Orleans), register as unkeyed to support existing code
+            // TryAddSingleton ensures Orleans client's GrainFactory takes precedence when both are present
             services.TryAddSingleton<GrainFactory>(sp => sp.GetRequiredService<RpcGrainFactory>());
+            
             services.TryAddSingleton<InterfaceToImplementationMappingCache>();
             // Use keyed singleton for RPC to avoid conflicts with Orleans client
             services.TryAddKeyedSingleton<GrainInterfaceTypeToGrainTypeResolver>("rpc", (sp, key) => new GrainInterfaceTypeToGrainTypeResolver(
                 sp.GetRequiredKeyedService<IClusterManifestProvider>("rpc")));
+            // Register interface mappings as keyed services for RPC
+            services.AddKeyedSingleton<IGrainFactory>("rpc", (sp, key) => sp.GetRequiredKeyedService<GrainFactory>("rpc"));
+            services.AddKeyedSingleton<IInternalGrainFactory>("rpc", (sp, key) => sp.GetRequiredKeyedService<GrainFactory>("rpc"));
+            
+            // For standalone RPC server, register as unkeyed (Orleans client takes precedence when both are present)
             services.TryAddFromExisting<IGrainFactory, GrainFactory>();
             services.TryAddFromExisting<IInternalGrainFactory, GrainFactory>();
             services.TryAddSingleton<IGrainReferenceRuntime, GrainReferenceRuntime>();
@@ -133,7 +146,14 @@ namespace Forkleans.Rpc.Hosting
             services.TryAddSingleton<GrainClassMap>(sp => sp.GetRequiredKeyedService<GrainClassMap>("rpc"));
             services.AddSingleton<GrainTypeResolver>();
             services.AddSingleton<IGrainTypeProvider, AttributeGrainTypeProvider>();
-            services.AddSingleton<GrainPropertiesResolver>();
+            // Register GrainPropertiesResolver as keyed service for RPC
+            services.AddKeyedSingleton<GrainPropertiesResolver>("rpc", (sp, key) => 
+                new GrainPropertiesResolver(
+                    sp.GetRequiredKeyedService<IClusterManifestProvider>("rpc")
+                ));
+            // For standalone mode, also register as unkeyed
+            services.TryAddSingleton<GrainPropertiesResolver>(sp => 
+                sp.GetRequiredKeyedService<GrainPropertiesResolver>("rpc"));
             services.AddSingleton<GrainInterfaceTypeResolver>();
             services.AddSingleton<IGrainInterfaceTypeProvider, AttributeGrainInterfaceTypeProvider>();
             // Note: AttributeGrainInterfacePropertiesProvider is internal, removed for now

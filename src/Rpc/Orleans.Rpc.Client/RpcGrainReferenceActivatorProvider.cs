@@ -30,7 +30,7 @@ namespace Forkleans.Rpc
         public RpcGrainReferenceActivatorProvider(
             IServiceProvider services,
             RpcProvider rpcProvider,
-            GrainPropertiesResolver propertiesResolver,
+            [FromKeyedServices("rpc")] GrainPropertiesResolver propertiesResolver,
             GrainVersionManifest grainVersionManifest,
             CodecProvider codecProvider,
             CopyContextPool copyContextPool)
@@ -46,13 +46,13 @@ namespace Forkleans.Rpc
         public bool TryGet(GrainType grainType, GrainInterfaceType interfaceType, out IGrainReferenceActivator activator)
         {
             var logger = _services.GetRequiredService<ILogger<RpcGrainReferenceActivatorProvider>>();
-            logger.LogInformation("RpcGrainReferenceActivatorProvider.TryGet called for grainType: {GrainType}, interfaceType: {InterfaceType}", grainType, interfaceType);
+            logger.LogDebug("RpcGrainReferenceActivatorProvider.TryGet called for grainType: {GrainType}, interfaceType: {InterfaceType}", grainType, interfaceType);
             
-            // In RPC mode, we handle all grains
-            // First, try to get the generated proxy type
+            // Only handle grains that have RPC proxy types
+            // This prevents RPC from intercepting Orleans grain creation
             if (_rpcProvider.TryGet(interfaceType, out var proxyType))
             {
-                logger.LogInformation("Found proxy type {ProxyType} for interface {InterfaceType}", proxyType.FullName, interfaceType);
+                logger.LogDebug("Found RPC proxy type {ProxyType} for interface {InterfaceType}", proxyType.FullName, interfaceType);
                 
                 // Use the generated proxy type
                 var runtime = _grainReferenceRuntime ??= _services.GetRequiredService<IGrainReferenceRuntime>();
@@ -80,12 +80,10 @@ namespace Forkleans.Rpc
                 return true;
             }
             
-            logger.LogWarning("No proxy type found for interface {InterfaceType}, falling back to RpcGrainReference", interfaceType);
-            
-            // If no proxy type found, fall back to RpcGrainReference
-            // This shouldn't happen with properly generated code, but provides a fallback
-            activator = new RpcGrainReferenceActivator(_services, interfaceType);
-            return true;
+            // No RPC proxy type found - let other providers handle this grain
+            logger.LogTrace("No RPC proxy type found for interface {InterfaceType}, deferring to other providers", interfaceType);
+            activator = null;
+            return false;
         }
 
         /// <summary>
