@@ -21,7 +21,7 @@ public class ForkleansRpcGameClientService : IDisposable
     private readonly ILogger<ForkleansRpcGameClientService> _logger;
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
-    private Forkleans.IClusterClient? _rpcClient;
+    private Forkleans.Rpc.IRpcClient? _rpcClient;
     private IHost? _rpcHost;
     private IGameRpcGrain? _gameGrain;
     private Timer? _worldStateTimer;
@@ -151,7 +151,7 @@ public class ForkleansRpcGameClientService : IDisposable
             await hostBuilder.StartAsync();
             
             _rpcHost = hostBuilder;
-            _rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>();
+            _rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.Rpc.IRpcClient>();
             
             // Wait longer for the handshake and manifest exchange to complete
             // This is a workaround - ideally the RPC client would expose a way to wait for readiness
@@ -709,7 +709,7 @@ public class ForkleansRpcGameClientService : IDisposable
             await hostBuilder.StartAsync();
             
             _rpcHost = hostBuilder;
-            _rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>();
+            _rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.Rpc.IRpcClient>();
             
             // Wait for handshake and manifest exchange to complete with retry logic
             _logger.LogInformation("[ZONE_TRANSITION] Waiting for RPC handshake...");
@@ -1116,7 +1116,7 @@ public class ForkleansRpcGameClientService : IDisposable
             await hostBuilder.StartAsync();
             
             connection.RpcHost = hostBuilder;
-            connection.RpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>();
+            connection.RpcClient = hostBuilder.Services.GetRequiredService<Forkleans.Rpc.IRpcClient>();
             
             // Brief delay for handshake
             await Task.Delay(200);
@@ -1462,7 +1462,7 @@ public record PlayerRegistrationResponse(Shooter.Shared.Models.PlayerInfo Player
 internal class PreEstablishedConnection
 {
     public IHost? RpcHost { get; set; }
-    public Forkleans.IClusterClient? RpcClient { get; set; }
+    public Forkleans.Rpc.IRpcClient? RpcClient { get; set; }
     public IGameRpcGrain? GameGrain { get; set; }
     public Shooter.Shared.Models.ActionServerInfo ServerInfo { get; set; } = null!;
     public DateTime EstablishedAt { get; set; }
