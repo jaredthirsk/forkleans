@@ -14,8 +14,8 @@ for pid in $(ls /proc | grep -E '^[0-9]+$'); do
     if [ -r "/proc/$pid/cmdline" ] && [ -r "/proc/$pid/cwd" ]; then
         cmdline=$(tr '\0' ' ' < /proc/$pid/cmdline 2>/dev/null || true)
         
-        # Check if this is a Shooter process
-        if echo "$cmdline" | grep -qE "Shooter\.(Silo|ActionServer|Client|Bot|AppHost)"; then
+        # Check if this is a Shooter process (including those launched by AppHost)
+        if echo "$cmdline" | grep -qE "Shooter\.(Silo|ActionServer|Client|Bot|AppHost)" || echo "$cmdline" | grep -qE "dotnet run.*--project.*Shooter\.(Silo|ActionServer|Client|Bot)"; then
             # Get the working directory
             cwd=$(readlink /proc/$pid/cwd 2>/dev/null || echo "Unknown")
             
@@ -31,6 +31,13 @@ for pid in $(ls /proc | grep -E '^[0-9]+$'); do
             
             # Get the specific Shooter component
             component=$(echo "$cmdline" | grep -oE "Shooter\.(Silo|ActionServer|Client|Bot|AppHost)" | head -1)
+            # If not found, check for dotnet run pattern
+            if [ -z "$component" ]; then
+                component=$(echo "$cmdline" | grep -oE "Shooter\.(Silo|ActionServer|Client|Bot)" | head -1)
+                if [ -n "$component" ]; then
+                    component="$component (dotnet run)"
+                fi
+            fi
             
             echo "PID: $pid"
             echo "Component: $component"

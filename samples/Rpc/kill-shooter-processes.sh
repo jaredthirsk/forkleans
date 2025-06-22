@@ -27,11 +27,16 @@ kill_processes() {
 
 # Kill each type of Shooter process
 # Using patterns that match the DLL names when run with dotnet
-kill_processes "Shooter\.Silo\.dll|dotnet.*Shooter\.Silo" "Shooter.Silo"
-kill_processes "Shooter\.ActionServer\.dll|dotnet.*Shooter\.ActionServer" "Shooter.ActionServer"
-kill_processes "Shooter\.Client\.dll|dotnet.*Shooter\.Client" "Shooter.Client"
-kill_processes "Shooter\.Bot\.dll|dotnet.*Shooter\.Bot" "Shooter.Bot"
-kill_processes "Shooter\.AppHost\.dll|dotnet.*Shooter\.AppHost" "Shooter.AppHost"
+# Also match the AppHost executable and dotnet run commands launched by AppHost
+# Kill AppHost first - it should gracefully shut down its child processes
+kill_processes "Shooter\.AppHost\.dll|dotnet.*Shooter\.AppHost|/Shooter\.AppHost" "Shooter.AppHost"
+
+# Give AppHost a moment to clean up its children
+sleep 1
+kill_processes "Shooter\.Silo\.dll|dotnet.*Shooter\.Silo|/Shooter\.Silo" "Shooter.Silo"
+kill_processes "Shooter\.ActionServer\.dll|dotnet.*Shooter\.ActionServer|/Shooter\.ActionServer" "Shooter.ActionServer"
+kill_processes "Shooter\.Client\.dll|dotnet.*Shooter\.Client|/Shooter\.Client" "Shooter.Client"
+kill_processes "Shooter\.Bot\.dll|dotnet.*Shooter\.Bot|/Shooter\.Bot" "Shooter.Bot"
 
 # Also check for processes by checking /proc/*/cmdline for more accuracy
 echo ""
@@ -53,11 +58,11 @@ echo ""
 echo "Cleanup complete. Waiting 2 seconds for processes to terminate..."
 sleep 2
 
-# Final check
-remaining=$(ps aux | grep -E "Shooter\.(Silo|ActionServer|Client|Bot|AppHost)" | grep -v grep | wc -l)
+# Final check (including dotnet run processes)
+remaining=$(ps aux | grep -E "Shooter\.(Silo|ActionServer|Client|Bot|AppHost)|dotnet run.*Shooter\." | grep -v grep | wc -l)
 if [ "$remaining" -gt 0 ]; then
     echo "Warning: $remaining Shooter processes still running. Forcing kill..."
-    ps aux | grep -E "Shooter\.(Silo|ActionServer|Client|Bot|AppHost)" | grep -v grep | awk '{print $2}' | xargs -r kill -9 2>/dev/null || true
+    ps aux | grep -E "Shooter\.(Silo|ActionServer|Client|Bot|AppHost)|dotnet run.*Shooter\." | grep -v grep | awk '{print $2}' | xargs -r kill -9 2>/dev/null || true
 else
     echo "All Shooter processes terminated successfully"
 fi
