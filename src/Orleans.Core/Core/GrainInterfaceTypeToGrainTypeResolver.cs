@@ -99,7 +99,12 @@ namespace Forkleans
         {
             if (!TryGetGrainType(interfaceType, out var result))
             {
-                throw new ArgumentException($"Could not find an implementation for interface {interfaceType}");
+                var cache = GetCache();
+                var availableInterfaces = string.Join(", ", cache.Map.Keys.Select(k => k.ToString()).Take(10));
+                var manifestInfo = $"Manifest version: {_clusterManifestProvider.Current.Version}, Total grain manifests: {_clusterManifestProvider.Current.AllGrainManifests.Count()}";
+                var grainCount = _clusterManifestProvider.Current.AllGrainManifests.Sum(m => m.Grains.Count);
+                var interfaceCount = _clusterManifestProvider.Current.AllGrainManifests.Sum(m => m.Interfaces.Count);
+                throw new ArgumentException($"Could not find an implementation for interface {interfaceType}. Available interfaces: [{availableInterfaces}]. {manifestInfo}. Total grains: {grainCount}, Total interfaces: {interfaceCount}");
             }
 
             return result;

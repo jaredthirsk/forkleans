@@ -90,8 +90,7 @@ namespace Forkleans.Rpc.Hosting
                 sp.GetRequiredService<ILogger<RpcGrainReference>>(),
                 sp.GetRequiredService<Serializer>()));
             
-            // Register GrainFactory as keyed service for RPC to avoid overriding Orleans client's GrainFactory
-            services.AddKeyedSingleton<GrainFactory>("rpc", (sp, key) => sp.GetRequiredService<RpcGrainFactory>());
+            // Note: The keyed GrainFactory registration is done later with proper RPC resolver
             
             // For standalone RPC client (without Orleans), register as unkeyed to support existing code
             // TryAddSingleton ensures Orleans client's GrainFactory takes precedence when both are present
@@ -118,6 +117,17 @@ namespace Forkleans.Rpc.Hosting
                 sp.GetRequiredKeyedService<GrainPropertiesResolver>("rpc"));
             // Grain cancellation token runtime
             services.TryAddSingleton<IGrainCancellationTokenRuntime, GrainCancellationTokenRuntime>();
+            // Register GrainFactory as keyed service with RPC's resolver
+            services.AddKeyedSingleton<GrainFactory>("rpc", (sp, key) => 
+            {
+                var runtimeClient = sp.GetRequiredService<IRuntimeClient>();
+                var referenceActivator = sp.GetRequiredService<GrainReferenceActivator>();
+                var interfaceTypeResolver = sp.GetRequiredService<GrainInterfaceTypeResolver>();
+                // Use the keyed GrainInterfaceTypeToGrainTypeResolver for RPC
+                var interfaceToTypeResolver = sp.GetRequiredKeyedService<GrainInterfaceTypeToGrainTypeResolver>("rpc");
+                return new GrainFactory(runtimeClient, referenceActivator, interfaceTypeResolver, interfaceToTypeResolver);
+            });
+            
             // Register interface mappings as keyed services for RPC
             services.AddKeyedSingleton<IGrainFactory>("rpc", (sp, key) => sp.GetRequiredKeyedService<GrainFactory>("rpc"));
             services.AddKeyedSingleton<IInternalGrainFactory>("rpc", (sp, key) => sp.GetRequiredKeyedService<GrainFactory>("rpc"));

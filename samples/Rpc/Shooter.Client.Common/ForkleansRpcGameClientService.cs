@@ -1,4 +1,5 @@
 using Forkleans;
+using Forkleans.Metadata;
 using Forkleans.Rpc;
 using Forkleans.Rpc.Transport.LiteNetLib;
 using Forkleans.Serialization;
@@ -152,6 +153,17 @@ public class ForkleansRpcGameClientService : IDisposable
             
             _rpcHost = hostBuilder;
             _rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.Rpc.IRpcClient>();
+            
+            // Debug: check what manifest provider we have
+            try
+            {
+                var manifestProvider = hostBuilder.Services.GetKeyedService<Forkleans.Metadata.IClusterManifestProvider>("rpc");
+                _logger.LogInformation("RPC manifest provider type: {Type}", manifestProvider?.GetType().FullName ?? "NULL");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Could not get keyed manifest provider: {Error}", ex.Message);
+            }
             
             // Wait for the handshake and manifest exchange to complete
             // Try to get the grain with retries to ensure manifest is ready

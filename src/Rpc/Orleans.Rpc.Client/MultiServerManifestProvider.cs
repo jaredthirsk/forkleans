@@ -63,8 +63,14 @@ namespace Forkleans.Rpc
                 // Rebuild composite manifest
                 RebuildCompositeManifest();
                 
-                _logger.LogInformation("Updated manifest for server {ServerId}: {GrainCount} grains, {InterfaceCount} interfaces",
-                    serverId, grainManifest.GrainProperties?.Count ?? 0, grainManifest.InterfaceProperties?.Count ?? 0);
+                _logger.LogInformation("Updated manifest for server {ServerId}: {GrainCount} grains, {InterfaceCount} interfaces, {MappingCount} interface-to-grain mappings",
+                    serverId, grainManifest.GrainProperties?.Count ?? 0, grainManifest.InterfaceProperties?.Count ?? 0,
+                    grainManifest.InterfaceToGrainMappings?.Count ?? 0);
+                    
+                // Log the current state
+                _logger.LogDebug("Composite manifest now has {GrainCount} grains and {InterfaceCount} interfaces",
+                    _compositeManifest.AllGrainManifests.Sum(m => m.Grains.Count),
+                    _compositeManifest.AllGrainManifests.Sum(m => m.Interfaces.Count));
             }
             finally
             {
@@ -151,6 +157,19 @@ namespace Forkleans.Rpc
                 {
                     var grainType = GrainType.Create(kvp.Key);
                     var properties = kvp.Value.ToImmutableDictionary();
+                    
+                    // Ensure TypeName and FullTypeName are set if not already present
+                    if (!properties.ContainsKey("type-name") && kvp.Key.Contains('.'))
+                    {
+                        var lastDot = kvp.Key.LastIndexOf('.');
+                        var typeName = kvp.Key.Substring(lastDot + 1);
+                        properties = properties.Add("type-name", typeName);
+                    }
+                    if (!properties.ContainsKey("full-type-name"))
+                    {
+                        properties = properties.Add("full-type-name", kvp.Key);
+                    }
+                    
                     grainsBuilder[grainType] = new GrainProperties(properties);
                 }
             }
@@ -172,15 +191,18 @@ namespace Forkleans.Rpc
                 foreach (var mapping in grainManifest.InterfaceToGrainMappings)
                 {
                     var grainType = GrainType.Create(mapping.Value);
+                    var interfaceType = GrainInterfaceType.Create(mapping.Key);
+                    
                     GrainProperties existingProps;
                     if (grainsBuilder.TryGetValue(grainType, out existingProps))
                     {
-                        var newProps = existingProps.Properties.Add($"interface.{mapping.Key}", mapping.Key);
+                        // The property value should be the interface type ID that can be parsed by GrainInterfaceType.Create
+                        var newProps = existingProps.Properties.Add($"interface.{mapping.Key}", interfaceType.ToString());
                         grainsBuilder[grainType] = new GrainProperties(newProps);
                     }
                     else
                     {
-                        var props = ImmutableDictionary<string, string>.Empty.Add($"interface.{mapping.Key}", mapping.Key);
+                        var props = ImmutableDictionary<string, string>.Empty.Add($"interface.{mapping.Key}", interfaceType.ToString());
                         grainsBuilder[grainType] = new GrainProperties(props);
                     }
                 }
