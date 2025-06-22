@@ -1,11 +1,11 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    Bumps the Forkleans version and optionally builds and packages the RPC libraries.
+    Bumps the Forkleans version and optionally packages the RPC libraries.
 
 .DESCRIPTION
-    This script automates the process of bumping the Forkleans version number,
-    building the projects, and creating NuGet packages for the RPC libraries.
+    This script automates the process of bumping the Forkleans version number
+    and creating NuGet packages for the RPC libraries.
 
 .PARAMETER VersionPart
     Which part of the version to bump: Major, Minor, Patch, or Revision
@@ -13,10 +13,6 @@
 
 .PARAMETER SpecificVersion
     Set a specific version instead of bumping (e.g., "9.2.0.5-preview3")
-
-.PARAMETER SkipBuild
-    Skip building the Forkleans projects
-    Default: false
 
 .PARAMETER SkipPackage
     Skip creating NuGet packages
@@ -28,7 +24,7 @@
 
 .EXAMPLE
     ./forkleans-version-bump.ps1
-    Bumps the revision number, builds, and packages
+    Bumps the revision number and creates packages
 
 .EXAMPLE
     ./forkleans-version-bump.ps1 -VersionPart Patch
@@ -39,8 +35,8 @@
     Sets a specific version
 
 .EXAMPLE
-    ./forkleans-version-bump.ps1 -SkipBuild -SkipPackage
-    Only bumps the version without building or packaging
+    ./forkleans-version-bump.ps1 -SkipPackage
+    Only bumps the version without packaging
 #>
 
 [CmdletBinding()]
@@ -49,8 +45,6 @@ param(
     [string]$VersionPart = "Revision",
     
     [string]$SpecificVersion = "",
-    
-    [switch]$SkipBuild = $false,
     
     [switch]$SkipPackage = $false,
     
@@ -168,42 +162,6 @@ if (Test-Path $rpcPackagesPropsPath) {
     
     Set-Content -Path $rpcPackagesPropsPath -Value $packagesContent -NoNewline
     Write-Success "Updated samples/Rpc/Directory.Packages.props"
-}
-
-# Build projects
-if (-not $SkipBuild) {
-    Write-Header "Building Forkleans projects"
-    
-    $projectsToBuild = @(
-        "src/Orleans.Core.Abstractions/Orleans.Core.Abstractions.csproj",
-        "src/Orleans.Core/Orleans.Core.csproj",
-        "src/Orleans.Client/Orleans.Client.csproj",
-        "src/Rpc/Orleans.Rpc.Abstractions/Orleans.Rpc.Abstractions.csproj",
-        "src/Rpc/Orleans.Rpc.Sdk/Orleans.Rpc.Sdk.csproj",
-        "src/Rpc/Orleans.Rpc.Client/Orleans.Rpc.Client.csproj",
-        "src/Rpc/Orleans.Rpc.Server/Orleans.Rpc.Server.csproj",
-        "src/Rpc/Orleans.Rpc.Transport.LiteNetLib/Orleans.Rpc.Transport.LiteNetLib.csproj"
-    )
-    
-    $buildFailed = $false
-    foreach ($project in $projectsToBuild) {
-        $projectPath = Join-Path $scriptDir $project
-        $projectName = Split-Path -Leaf $project
-        Write-Info "Building $projectName..."
-        
-        $buildResult = dotnet build $projectPath -c $Configuration --verbosity quiet
-        if ($LASTEXITCODE -ne 0) {
-            Write-Error "Failed to build $projectName"
-            $buildFailed = $true
-        } else {
-            Write-Success "Built $projectName"
-        }
-    }
-    
-    if ($buildFailed) {
-        Write-Error "Some projects failed to build"
-        exit 1
-    }
 }
 
 # Create packages

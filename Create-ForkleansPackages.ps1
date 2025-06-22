@@ -108,25 +108,48 @@ Write-Host "Planning to create $($projectsToPack.Count) packages" -ForegroundCol
 if (-not $SkipBuild) {
     Write-Host "`nBuilding projects in $Configuration configuration..." -ForegroundColor Cyan
     
-    # Build the entire solution once - more efficient than individual builds
-    Write-Host "Building Orleans.sln..." -ForegroundColor Gray
+    # Build only the projects we're going to pack
+    Write-Host "Building $($projectsToPack.Count) projects that will be packed..." -ForegroundColor Gray
     
-    $buildArgs = @(
-        "build",
-        "Orleans.sln",
-        "-c", $Configuration
-    )
+    $buildFailed = $false
+    $failedBuilds = @()
     
-    $buildOutput = & dotnet $buildArgs 2>&1
-    
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "`nBuild failed for Orleans.sln" -ForegroundColor Red
-        Write-Host "Build output:" -ForegroundColor Red
-        Write-Host $buildOutput -ForegroundColor Red
-        throw "Build failed for Orleans.sln"
+    foreach ($project in $projectsToPack) {
+        if (-not (Test-Path $project)) {
+            Write-Warning "Project not found: $project"
+            continue
+        }
+        
+        $projectName = [System.IO.Path]::GetFileNameWithoutExtension($project)
+        Write-Host "Building $projectName..." -ForegroundColor Gray
+        
+        $buildArgs = @(
+            "build",
+            $project,
+            "-c", $Configuration,
+            "--verbosity", "minimal"
+        )
+        
+        $buildOutput = & dotnet $buildArgs 2>&1
+        
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Build failed for $project"
+            Write-Host "Error details:" -ForegroundColor Red
+            Write-Host $buildOutput -ForegroundColor Red
+            $buildFailed = $true
+            $failedBuilds += $project
+        }
     }
     
-    Write-Host "Build completed successfully" -ForegroundColor Green
+    if ($buildFailed) {
+        Write-Host "`nBuild failed for $($failedBuilds.Count) projects:" -ForegroundColor Red
+        foreach ($failed in $failedBuilds) {
+            Write-Host "  - $failed" -ForegroundColor Red
+        }
+        throw "Build failed"
+    }
+    
+    Write-Host "`nAll projects built successfully" -ForegroundColor Green
 }
 
 # Clean artifacts directory
