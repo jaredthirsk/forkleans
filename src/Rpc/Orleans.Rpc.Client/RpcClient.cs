@@ -25,7 +25,7 @@ namespace Forkleans.Rpc
         private readonly IRpcTransportFactory _transportFactory;
         private readonly IClusterClientLifecycle _lifecycle;
         private readonly RpcConnectionManager _connectionManager;
-        private readonly MultiServerManifestProvider _manifestProvider;
+        private readonly IClusterManifestProvider _manifestProvider;
         
         private readonly ConcurrentDictionary<Guid, TaskCompletionSource<Protocol.RpcResponse>> _pendingRequests 
             = new ConcurrentDictionary<Guid, TaskCompletionSource<Protocol.RpcResponse>>();
@@ -39,7 +39,8 @@ namespace Forkleans.Rpc
             IOptions<RpcClientOptions> clientOptions,
             IOptions<RpcTransportOptions> transportOptions,
             IRpcTransportFactory transportFactory,
-            IClusterClientLifecycle lifecycle)
+            IClusterClientLifecycle lifecycle,
+            [FromKeyedServices("rpc")] IClusterManifestProvider manifestProvider)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -47,10 +48,10 @@ namespace Forkleans.Rpc
             _transportOptions = transportOptions?.Value ?? throw new ArgumentNullException(nameof(transportOptions));
             _transportFactory = transportFactory ?? throw new ArgumentNullException(nameof(transportFactory));
             _lifecycle = lifecycle ?? throw new ArgumentNullException(nameof(lifecycle));
+            _manifestProvider = manifestProvider ?? throw new ArgumentNullException(nameof(manifestProvider));
             
             var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             _connectionManager = new RpcConnectionManager(loggerFactory.CreateLogger<RpcConnectionManager>());
-            _manifestProvider = new MultiServerManifestProvider(loggerFactory.CreateLogger<MultiServerManifestProvider>());
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -354,11 +355,19 @@ namespace Forkleans.Rpc
             // Update the manifest provider with server's grain manifest
             if (handshakeAck.GrainManifest != null)
             {
-                await _manifestProvider.UpdateFromServerAsync(serverId, handshakeAck.GrainManifest);
-                _logger.LogInformation("Updated manifest for server {ServerId} with {GrainCount} grains and {InterfaceCount} interfaces",
-                    serverId,
-                    handshakeAck.GrainManifest.GrainProperties.Count,
-                    handshakeAck.GrainManifest.InterfaceProperties.Count);
+                // Cast to the concrete type to access the UpdateFromServerAsync method
+                if (_manifestProvider is MultiServerManifestProvider multiServerManifestProvider)
+                {
+                    await multiServerManifestProvider.UpdateFromServerAsync(serverId, handshakeAck.GrainManifest);
+                    _logger.LogInformation("Updated manifest for server {ServerId} with {GrainCount} grains and {InterfaceCount} interfaces",
+                        serverId,
+                        handshakeAck.GrainManifest.GrainProperties.Count,
+                        handshakeAck.GrainManifest.InterfaceProperties.Count);
+                }
+                else
+                {
+                    _logger.LogWarning("Manifest provider is not MultiServerManifestProvider, cannot update from server");
+                }
             }
             else
             {

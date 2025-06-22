@@ -151,14 +151,14 @@ namespace Forkleans.Rpc.Hosting
             // Note: GrainVersionManifest might be internal
             // services.AddSingleton<GrainVersionManifest>();
             
-            // Cluster manifest provider for RPC (simplified version)
+            // Cluster manifest provider for RPC with multi-server support
             // Use keyed service to avoid overriding Orleans client's manifest provider
-            services.AddKeyedSingleton<RpcClientManifestProvider>("rpc");
-            services.AddKeyedSingleton<IClusterManifestProvider>("rpc", (sp, key) => sp.GetRequiredKeyedService<RpcClientManifestProvider>("rpc"));
+            services.AddKeyedSingleton<MultiServerManifestProvider>("rpc");
+            services.AddKeyedSingleton<IClusterManifestProvider>("rpc", (sp, key) => sp.GetRequiredKeyedService<MultiServerManifestProvider>("rpc"));
             
             // For standalone RPC client (without Orleans), register as unkeyed to support GrainPropertiesResolver
             // TryAddSingleton ensures Orleans client's manifest provider takes precedence when both are present
-            services.TryAddSingleton<IClusterManifestProvider>(sp => sp.GetRequiredKeyedService<RpcClientManifestProvider>("rpc"));
+            services.TryAddSingleton<IClusterManifestProvider>(sp => sp.GetRequiredKeyedService<MultiServerManifestProvider>("rpc"));
             
             // Grain version manifest
             services.TryAddSingleton<GrainVersionManifest>();
