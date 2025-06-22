@@ -18,7 +18,11 @@ param(
     [switch]$SkipPublish = $false,
     
     [Parameter()]
-    [switch]$IncludeAllPackages = $false
+    [ValidateSet("Essential", "RpcTypical", "All")]
+    [string]$Mode = "RpcTypical",
+    
+    [Parameter()]
+    [switch]$IncludeAllPackages = $false  # Deprecated, use -Mode All
 )
 
 $ErrorActionPreference = "Stop"
@@ -29,27 +33,26 @@ if (-not (Test-Path $LocalFeedPath)) {
     New-Item -ItemType Directory -Path $LocalFeedPath -Force | Out-Null
 }
 
-# Core packages that RPC depends on or are commonly needed (excluding clustering)
-$corePackages = @(
-    # Core abstractions and runtime
-    "src/Orleans.Core.Abstractions/Orleans.Core.Abstractions.csproj",
-    "src/Orleans.Core/Orleans.Core.csproj",
+# Essential packages - minimal set needed for basic RPC functionality
+$essentialPackages = @(
+    # Core abstractions and runtime (in dependency order)
     "src/Orleans.Serialization.Abstractions/Orleans.Serialization.Abstractions.csproj",
-    "src/Orleans.Serialization/Orleans.Serialization.csproj",
-    
-    # SDK and code generation
-    "src/Orleans.Sdk/Orleans.Sdk.csproj",
-    "src/Orleans.CodeGenerator/Orleans.CodeGenerator.csproj",
+    "src/Orleans.Core.Abstractions/Orleans.Core.Abstractions.csproj",
     "src/Orleans.Analyzers/Orleans.Analyzers.csproj",
-    
-    # Client and Server
+    "src/Orleans.CodeGenerator/Orleans.CodeGenerator.csproj",
+    "src/Orleans.Serialization/Orleans.Serialization.csproj",
+    "src/Orleans.Core/Orleans.Core.csproj",
+    "src/Orleans.Sdk/Orleans.Sdk.csproj",
+    "src/Orleans.Runtime/Orleans.Runtime.csproj",
     "src/Orleans.Client/Orleans.Client.csproj",
     "src/Orleans.Server/Orleans.Server.csproj",
-    "src/Orleans.Runtime/Orleans.Runtime.csproj",
-    
+    "src/Orleans.Persistence.Memory/Orleans.Persistence.Memory.csproj"
+)
+
+# Core packages that RPC depends on or are commonly needed (excluding clustering)
+$corePackages = @(
     # Common extensions (non-clustering)
     "src/Orleans.EventSourcing/Orleans.EventSourcing.csproj",
-    "src/Orleans.Persistence.Memory/Orleans.Persistence.Memory.csproj",
     "src/Orleans.Reminders/Orleans.Reminders.csproj",
     "src/Orleans.Streaming/Orleans.Streaming.csproj",
     "src/Orleans.Transactions/Orleans.Transactions.csproj",
@@ -96,10 +99,26 @@ $optionalPackages = @(
     "src/Orleans.Journaling/Orleans.Journaling.csproj"
 )
 
-# Combine package lists based on parameters
-$projectsToPack = $corePackages + $rpcPackages
+# Handle deprecated parameter
 if ($IncludeAllPackages) {
-    $projectsToPack += $optionalPackages
+    Write-Warning "-IncludeAllPackages is deprecated. Using -Mode All instead."
+    $Mode = "All"
+}
+
+# Combine package lists based on mode
+switch ($Mode) {
+    "Essential" {
+        $projectsToPack = $essentialPackages + $rpcPackages
+        Write-Host "Mode: Essential - Building minimal set for RPC functionality" -ForegroundColor Yellow
+    }
+    "RpcTypical" {
+        $projectsToPack = $essentialPackages + $corePackages + $rpcPackages
+        Write-Host "Mode: RpcTypical - Building typical packages for Forkleans RPC" -ForegroundColor Yellow
+    }
+    "All" {
+        $projectsToPack = $essentialPackages + $corePackages + $rpcPackages + $optionalPackages
+        Write-Host "Mode: All - Building all available packages" -ForegroundColor Yellow
+    }
 }
 
 Write-Host "Planning to create $($projectsToPack.Count) packages" -ForegroundColor Cyan
