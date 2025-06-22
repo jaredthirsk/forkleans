@@ -19,10 +19,7 @@ param(
     
     [Parameter()]
     [ValidateSet("Essential", "RpcTypical", "All")]
-    [string]$Mode = "RpcTypical",
-    
-    [Parameter()]
-    [switch]$IncludeAllPackages = $false  # Deprecated, use -Mode All
+    [string]$Mode = "RpcTypical"
 )
 
 $ErrorActionPreference = "Stop"
@@ -98,12 +95,6 @@ $optionalPackages = @(
     "src/Orleans.Clustering.Consul/Orleans.Clustering.Consul.csproj",
     "src/Orleans.Journaling/Orleans.Journaling.csproj"
 )
-
-# Handle deprecated parameter
-if ($IncludeAllPackages) {
-    Write-Warning "-IncludeAllPackages is deprecated. Using -Mode All instead."
-    $Mode = "All"
-}
 
 # Combine package lists based on mode
 switch ($Mode) {

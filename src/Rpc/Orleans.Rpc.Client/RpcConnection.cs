@@ -85,16 +85,11 @@ namespace Forkleans.Rpc
             _transport.ConnectionEstablished -= OnTransportConnectionEstablished;
             _transport.ConnectionClosed -= OnTransportConnectionClosed;
 
-            // Stop and dispose transport
-            try
-            {
-                _transport.StopAsync(CancellationToken.None).GetAwaiter().GetResult();
-                _transport.Dispose();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error disposing transport for connection {ServerId}", ServerId);
-            }
+            // Note: We don't stop or dispose the transport here because:
+            // 1. The transport might be shared between multiple connections
+            // 2. The RpcClient manages the transport lifecycle
+            // 3. Disposing the transport here causes "ObjectDisposedException" when trying to send subsequent messages
+            _logger.LogDebug("RpcConnection {ServerId} disposed (transport not disposed)", ServerId);
         }
     }
 }

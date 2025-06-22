@@ -38,7 +38,13 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
             _liteNetLibOptions = liteNetLibOptions?.Value ?? throw new ArgumentNullException(nameof(liteNetLibOptions));
         }
 
-        public async Task StartAsync(IPEndPoint endpoint, CancellationToken cancellationToken)
+        public Task StartAsync(IPEndPoint endpoint, CancellationToken cancellationToken)
+        {
+            // For client transport, StartAsync should not be used - use ConnectAsync instead
+            throw new NotSupportedException("Use ConnectAsync for client transport");
+        }
+
+        public async Task ConnectAsync(IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
         {
             if (_netManager != null)
             {
@@ -60,14 +66,14 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
                 throw new InvalidOperationException("Failed to start LiteNetLib client");
             }
 
-            _logger.LogInformation("LiteNetLib client transport started, connecting to {Endpoint}", endpoint);
+            _logger.LogInformation("LiteNetLib client transport started, connecting to {Endpoint}", remoteEndpoint);
 
             // Start polling thread
             var pollingTask = Task.Run(() => PollEvents(cancellationToken), cancellationToken);
 
             // Connect to server
-            _serverEndpoint = endpoint;
-            _serverPeer = _netManager.Connect(endpoint, "RpcConnection");
+            _serverEndpoint = remoteEndpoint;
+            _serverPeer = _netManager.Connect(remoteEndpoint, "RpcConnection");
             
             // Wait for connection with timeout
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
@@ -77,12 +83,12 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
                 try
                 {
                     await _connectionTcs.Task.WaitAsync(cts.Token);
-                    _logger.LogInformation("Successfully connected to RPC server at {Endpoint}", endpoint);
+                    _logger.LogInformation("Successfully connected to RPC server at {Endpoint}", remoteEndpoint);
                 }
                 catch (OperationCanceledException)
                 {
                     _netManager.Stop();
-                    throw new TimeoutException($"Failed to connect to server at {endpoint} within {_liteNetLibOptions.ConnectionTimeoutMs}ms");
+                    throw new TimeoutException($"Failed to connect to server at {remoteEndpoint} within {_liteNetLibOptions.ConnectionTimeoutMs}ms");
                 }
             }
         }

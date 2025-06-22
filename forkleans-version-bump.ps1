@@ -22,9 +22,16 @@
     Build configuration (Debug or Release)
     Default: Release
 
+.PARAMETER Mode
+    Package building mode: Essential, RpcTypical, or All
+    - Essential: Minimal packages needed for RPC functionality
+    - RpcTypical: Common packages for Forkleans RPC (default)
+    - All: All available packages
+    Default: RpcTypical
+
 .EXAMPLE
     ./forkleans-version-bump.ps1
-    Bumps the revision number and creates packages
+    Bumps the revision number and creates typical RPC packages
 
 .EXAMPLE
     ./forkleans-version-bump.ps1 -VersionPart Patch
@@ -37,6 +44,10 @@
 .EXAMPLE
     ./forkleans-version-bump.ps1 -SkipPackage
     Only bumps the version without packaging
+
+.EXAMPLE
+    ./forkleans-version-bump.ps1 -Mode Essential
+    Bumps version and creates only essential packages
 #>
 
 [CmdletBinding()]
@@ -49,7 +60,10 @@ param(
     [switch]$SkipPackage = $false,
     
     [ValidateSet("Debug", "Release")]
-    [string]$Configuration = "Release"
+    [string]$Configuration = "Release",
+    
+    [ValidateSet("Essential", "RpcTypical", "All")]
+    [string]$Mode = "RpcTypical"
 )
 
 $ErrorActionPreference = "Stop"
@@ -178,7 +192,7 @@ if (-not $SkipPackage) {
     $suffixOnly = if ($newSuffix) { $newSuffix.TrimStart('-') } else { "" }
     
     Write-Info "Running Create-ForkleansPackages.ps1..."
-    & $packageScript -Configuration $Configuration -VersionSuffix $suffixOnly -SkipBuild
+    & $packageScript -Configuration $Configuration -VersionSuffix $suffixOnly -Mode $Mode -SkipBuild
     
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Package creation failed"

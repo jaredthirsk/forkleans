@@ -16,6 +16,11 @@ namespace Forkleans.Rpc.Transport
         Task StartAsync(IPEndPoint endpoint, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Connects to a remote server endpoint (client mode).
+        /// </summary>
+        Task ConnectAsync(IPEndPoint remoteEndpoint, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Stops the transport.
         /// </summary>
         Task StopAsync(CancellationToken cancellationToken);

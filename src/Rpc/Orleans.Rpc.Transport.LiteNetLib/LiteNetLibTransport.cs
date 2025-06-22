@@ -59,9 +59,58 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
             _logger.LogInformation("LiteNetLib transport started on {Endpoint}", endpoint);
 
             // Start polling thread
-            Task.Run(() => PollEvents(cancellationToken), cancellationToken);
+            _ = Task.Run(() => PollEvents(cancellationToken), cancellationToken);
 
             return Task.CompletedTask;
+        }
+
+        public async Task ConnectAsync(IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
+        {
+            if (_netManager != null)
+            {
+                throw new InvalidOperationException("Transport is already started.");
+            }
+
+            _isServer = false;
+            _netManager = new NetManager(this)
+            {
+                AutoRecycle = true,
+                EnableStatistics = true,
+                UnconnectedMessagesEnabled = false,
+                NatPunchEnabled = false
+            };
+
+            if (!_netManager.Start())
+            {
+                throw new InvalidOperationException("Failed to start LiteNetLib in client mode");
+            }
+
+            // Start polling thread
+            _ = Task.Run(() => PollEvents(cancellationToken), cancellationToken);
+
+            // Connect to the server
+            var peer = _netManager.Connect(remoteEndpoint.Address.ToString(), remoteEndpoint.Port, string.Empty);
+            if (peer == null)
+            {
+                throw new InvalidOperationException($"Failed to connect to server at {remoteEndpoint}");
+            }
+
+            _logger.LogInformation("LiteNetLib transport connecting to {Endpoint}", remoteEndpoint);
+
+            // Wait for connection to be established (with timeout)
+            var connectionTimeout = TimeSpan.FromSeconds(5);
+            var startTime = DateTime.UtcNow;
+            while (peer.ConnectionState != ConnectionState.Connected && DateTime.UtcNow - startTime < connectionTimeout)
+            {
+                await Task.Delay(10, cancellationToken);
+            }
+
+            if (peer.ConnectionState != ConnectionState.Connected)
+            {
+                throw new TimeoutException($"Failed to connect to server at {remoteEndpoint} within {connectionTimeout.TotalSeconds} seconds");
+            }
+
+            _logger.LogInformation("Successfully connected to {Endpoint}", remoteEndpoint);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

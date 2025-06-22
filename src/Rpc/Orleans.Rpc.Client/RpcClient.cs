@@ -29,6 +29,8 @@ namespace Forkleans.Rpc
         
         private readonly ConcurrentDictionary<Guid, TaskCompletionSource<Protocol.RpcResponse>> _pendingRequests 
             = new ConcurrentDictionary<Guid, TaskCompletionSource<Protocol.RpcResponse>>();
+        private readonly ConcurrentDictionary<string, IRpcTransport> _transports 
+            = new ConcurrentDictionary<string, IRpcTransport>();
 
         public bool IsInitialized => _connectionManager?.GetAllConnections().Count > 0;
         public IServiceProvider ServiceProvider => _serviceProvider;
@@ -253,8 +255,11 @@ namespace Forkleans.Rpc
             
             try
             {
-                // Start transport (client mode will connect automatically)
-                await transport.StartAsync(endpoint, cancellationToken);
+                // Connect to the server
+                await transport.ConnectAsync(endpoint, cancellationToken);
+                
+                // Track the transport so we can dispose it later
+                _transports[serverId] = transport;
                 
                 // Add to connection manager
                 await _connectionManager.AddConnectionAsync(serverId, connection);
@@ -268,6 +273,7 @@ namespace Forkleans.Rpc
             {
                 _logger.LogError(ex, "Failed to connect to RPC server {ServerId} at {Endpoint}", serverId, endpoint);
                 connection.Dispose();
+                transport.Dispose();
                 throw;
             }
         }
@@ -278,6 +284,20 @@ namespace Forkleans.Rpc
             foreach (var kvp in connections)
             {
                 await _connectionManager.RemoveConnectionAsync(kvp.Key);
+                
+                // Dispose the transport for this connection
+                if (_transports.TryRemove(kvp.Key, out var transport))
+                {
+                    try
+                    {
+                        await transport.StopAsync(CancellationToken.None);
+                        transport.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error disposing transport for server {ServerId}", kvp.Key);
+                    }
+                }
             }
         }
 
@@ -423,7 +443,24 @@ namespace Forkleans.Rpc
             // Remove the closed connection
             if (e.ConnectionId != null)
             {
-                _ = _connectionManager.RemoveConnectionAsync(e.ConnectionId);
+                _ = Task.Run(async () =>
+                {
+                    await _connectionManager.RemoveConnectionAsync(e.ConnectionId);
+                    
+                    // Dispose the transport for this connection
+                    if (_transports.TryRemove(e.ConnectionId, out var transport))
+                    {
+                        try
+                        {
+                            await transport.StopAsync(CancellationToken.None);
+                            transport.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error disposing transport for server {ServerId}", e.ConnectionId);
+                        }
+                    }
+                });
             }
             
             // TODO: Implement reconnection logic if needed
