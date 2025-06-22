@@ -99,7 +99,8 @@ namespace Forkleans.Rpc
             where TGrainInterface : IGrainWithGuidKey
         {
             EnsureConnected();
-            var grainFactory = _serviceProvider.GetRequiredService<IGrainFactory>();
+            // Use keyed service to ensure we get RPC's grain factory
+            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
             return grainFactory.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
         }
 
@@ -107,7 +108,8 @@ namespace Forkleans.Rpc
             where TGrainInterface : IGrainWithIntegerKey
         {
             EnsureConnected();
-            var grainFactory = _serviceProvider.GetRequiredService<IGrainFactory>();
+            // Use keyed service to ensure we get RPC's grain factory
+            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
             return grainFactory.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
         }
 
@@ -115,7 +117,8 @@ namespace Forkleans.Rpc
             where TGrainInterface : IGrainWithStringKey
         {
             EnsureConnected();
-            var grainFactory = _serviceProvider.GetRequiredService<IGrainFactory>();
+            // Use keyed service to ensure we get RPC's grain factory
+            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
             return grainFactory.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
         }
 
@@ -123,7 +126,8 @@ namespace Forkleans.Rpc
             where TGrainInterface : IGrainWithGuidCompoundKey
         {
             EnsureConnected();
-            var grainFactory = _serviceProvider.GetRequiredService<IGrainFactory>();
+            // Use keyed service to ensure we get RPC's grain factory
+            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
             return grainFactory.GetGrain<TGrainInterface>(primaryKey, keyExtension, grainClassNamePrefix);
         }
 
@@ -131,63 +135,72 @@ namespace Forkleans.Rpc
             where TGrainInterface : IGrainWithIntegerCompoundKey
         {
             EnsureConnected();
-            var grainFactory = _serviceProvider.GetRequiredService<IGrainFactory>();
+            // Use keyed service to ensure we get RPC's grain factory
+            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
             return grainFactory.GetGrain<TGrainInterface>(primaryKey, keyExtension, grainClassNamePrefix);
         }
 
         public TGrainInterface GetGrain<TGrainInterface>(GrainId grainId) where TGrainInterface : IAddressable
         {
             EnsureConnected();
-            var grainFactory = _serviceProvider.GetRequiredService<IGrainFactory>();
+            // Use keyed service to ensure we get RPC's grain factory
+            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
             return grainFactory.GetGrain<TGrainInterface>(grainId);
         }
 
         public IAddressable GetGrain(GrainId grainId)
         {
             EnsureConnected();
-            var grainFactory = _serviceProvider.GetRequiredService<IGrainFactory>();
+            // Use keyed service to ensure we get RPC's grain factory
+            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
             return grainFactory.GetGrain(grainId);
         }
 
         public IAddressable GetGrain(GrainId grainId, GrainInterfaceType interfaceType)
         {
             EnsureConnected();
-            var grainFactory = _serviceProvider.GetRequiredService<IGrainFactory>();
+            // Use keyed service to ensure we get RPC's grain factory
+            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
             return grainFactory.GetGrain(grainId, interfaceType);
         }
 
         public IGrain GetGrain(Type grainInterfaceType, Guid grainPrimaryKey)
         {
             EnsureConnected();
-            var grainFactory = _serviceProvider.GetRequiredService<IGrainFactory>();
+            // Use keyed service to ensure we get RPC's grain factory
+            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
             return grainFactory.GetGrain(grainInterfaceType, grainPrimaryKey);
         }
 
         public IGrain GetGrain(Type grainInterfaceType, long grainPrimaryKey)
         {
             EnsureConnected();
-            var grainFactory = _serviceProvider.GetRequiredService<IGrainFactory>();
+            // Use keyed service to ensure we get RPC's grain factory
+            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
             return grainFactory.GetGrain(grainInterfaceType, grainPrimaryKey);
         }
 
         public IGrain GetGrain(Type grainInterfaceType, string grainPrimaryKey)
         {
             EnsureConnected();
-            var grainFactory = _serviceProvider.GetRequiredService<IGrainFactory>();
+            // Use keyed service to ensure we get RPC's grain factory
+            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
             return grainFactory.GetGrain(grainInterfaceType, grainPrimaryKey);
         }
 
         public IGrain GetGrain(Type grainInterfaceType, Guid grainPrimaryKey, string grainClassNamePrefix)
         {
             EnsureConnected();
-            var grainFactory = _serviceProvider.GetRequiredService<IGrainFactory>();
+            // Use keyed service to ensure we get RPC's grain factory
+            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
             return grainFactory.GetGrain(grainInterfaceType, grainPrimaryKey, grainClassNamePrefix);
         }
 
         public IGrain GetGrain(Type grainInterfaceType, long grainPrimaryKey, string grainClassNamePrefix)
         {
             EnsureConnected();
-            var grainFactory = _serviceProvider.GetRequiredService<IGrainFactory>();
+            // Use keyed service to ensure we get RPC's grain factory
+            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
             return grainFactory.GetGrain(grainInterfaceType, grainPrimaryKey, grainClassNamePrefix);
         }
 

@@ -32,7 +32,11 @@ These services have different implementations for RPC vs Orleans and must be reg
 
 | Service | Key | Purpose |
 |---------|-----|---------|
-| `IClusterManifestProvider` | `"rpc"` / `"orleans"` | Type metadata management |
+| `IClusterManifestProvider` | `"rpc"` | Type metadata management |
+| `GrainFactory` | `"rpc"` | Grain factory implementation |
+| `IGrainFactory` | `"rpc"` | Grain factory interface |
+| `IInternalGrainFactory` | `"rpc"` | Internal grain factory interface |
+| `GrainInterfaceTypeToGrainTypeResolver` | `"rpc"` | Interface to grain type mapping |
 | `IRpcTransportConnectionFactory` | Transport name | Transport-specific connection factories |
 
 ### 2. Services with RPC-Specific Implementations
@@ -79,13 +83,24 @@ New services introduced for RPC functionality:
 ### 1. Service Registration Pattern
 
 ```csharp
-// RPC Client Services
-services.AddKeyedSingleton<IClusterManifestProvider, ClientClusterManifestProvider>("rpc");
-services.AddSingleton<IClusterManifestProvider>(sp => 
-    sp.GetRequiredKeyedService<IClusterManifestProvider>("rpc"));
+// Step 1: Register RPC-specific types (no conflicts with Orleans)
+services.TryAddSingleton<RpcGrainFactory>(...);
+services.TryAddSingleton<RpcClientManifestProvider>(...);
 
-// Orleans Client Services (when both are used)
-services.AddKeyedSingleton<IClusterManifestProvider, OrleansProvider>("orleans");
+// Step 2: Register Orleans interfaces with RPC implementations as keyed services
+services.AddKeyedSingleton<IClusterManifestProvider>("rpc", sp => 
+    sp.GetRequiredService<RpcClientManifestProvider>());
+services.AddKeyedSingleton<GrainFactory>("rpc", sp => 
+    sp.GetRequiredService<RpcGrainFactory>());
+services.AddKeyedSingleton<IGrainFactory>("rpc", (sp, key) => 
+    sp.GetRequiredKeyedService<GrainFactory>("rpc"));
+
+// Step 3: For standalone RPC (without Orleans), register as unkeyed
+// TryAddSingleton ensures Orleans takes precedence when both are present
+services.TryAddSingleton<IClusterManifestProvider>(sp => 
+    sp.GetRequiredService<RpcClientManifestProvider>());
+services.TryAddSingleton<GrainFactory>(sp => 
+    sp.GetRequiredService<RpcGrainFactory>());
 ```
 
 ### 2. Transport Registration Pattern
@@ -171,69 +186,132 @@ The `GrainInterfaceTypeToGrainTypeResolver` is where the critical difference lie
 
 These are the services most likely to cause conflicts when an application uses both Orleans client and RPC server:
 
-### 1. High Risk - Services Both Systems Register
+### 1. Service Conflict Resolution
 
-| Service | Orleans Registration | RPC Registration | Risk |
-|---------|---------------------|------------------|------|
-| `GrainFactory` | Registered by Orleans client | Registered by RPC (as RpcGrainFactory) | **HIGH** - RPC may override |
-| `IGrainFactory` | Mapped from GrainFactory | Mapped from GrainFactory | **HIGH** - Wrong factory used |
-| `IInternalGrainFactory` | Mapped from GrainFactory | Mapped from GrainFactory | **HIGH** - Wrong factory used |
-| `GrainReferenceActivator` | Single instance | Single instance | **MEDIUM** - Shared service |
-| `IGrainReferenceActivatorProvider` | Multiple providers | RPC adds its own first | **MEDIUM** - Order matters |
-| `GrainPropertiesResolver` | Uses Orleans manifest | Uses RPC manifest | **MEDIUM** - TryAddSingleton, order matters |
-| `IClusterManifestProvider` (unkeyed) | Orleans provider | RPC provider (TryAdd) | **HIGH** - First registration wins |
+As of version 9.2.0.9, these conflicts have been resolved through keyed service registration:
 
-### 2. Critical Resolution Chain
+| Service | Resolution | Status |
+|---------|------------|--------|
+| `GrainFactory` | RPC uses keyed service `"rpc"`, Orleans uses unkeyed | **RESOLVED** |
+| `IGrainFactory` | RPC uses keyed service `"rpc"`, Orleans uses unkeyed | **RESOLVED** |
+| `IInternalGrainFactory` | RPC uses keyed service `"rpc"`, Orleans uses unkeyed | **RESOLVED** |
+| `IClusterManifestProvider` | RPC uses keyed service `"rpc"`, Orleans uses unkeyed | **RESOLVED** |
+| `GrainInterfaceTypeToGrainTypeResolver` | RPC uses keyed service `"rpc"` | **RESOLVED** |
+| `GrainReferenceActivator` | Shared single instance | **LOW RISK** - Works correctly |
+| `IGrainReferenceActivatorProvider` | Multiple providers, order matters | **LOW RISK** - Expected behavior |
+| `GrainPropertiesResolver` | Shared, uses unkeyed manifest provider | **LOW RISK** - TryAddSingleton protects |
+
+### 2. How the Resolution Works
 
 When `GetGrain<IWorldManagerGrain>()` is called:
+
+**In Orleans Client + RPC Server scenario:**
 ```
-IGrainFactory (which concrete type?)
+app.GetService<IGrainFactory>() → Orleans GrainFactory (unkeyed wins)
     ↓
-GrainFactory.GetGrain<T>() (Orleans or RPC?)
+Orleans GrainFactory.GetGrain<T>() → Uses Orleans manifest
     ↓  
-GrainInterfaceTypeToGrainTypeResolver (which manifest provider?)
-    ↓
-IClusterManifestProvider (Orleans or RPC?)
+Orleans creates proxy for Orleans silo
 ```
 
-### 3. Specific Conflict Points
+**In standalone RPC scenario:**
+```
+app.GetService<IGrainFactory>() → RPC GrainFactory (via TryAdd fallback)
+    ↓
+RPC GrainFactory.GetGrain<T>() → Uses RPC manifest
+    ↓  
+RPC creates proxy for RPC server
+```
 
-1. **GrainFactory Registration**:
-   - Orleans registers `ClusterClient.GrainFactory`
-   - RPC registers `RpcGrainFactory` as `GrainFactory`
-   - Last registration wins!
+**For RPC internal usage:**
+```
+sp.GetKeyedService<IGrainFactory>("rpc") → RPC GrainFactory
+    ↓
+Always uses RPC implementation
+```
 
-2. **GrainReferenceActivator Providers**:
-   - RPC adds `RpcGrainReferenceActivatorProvider` first
-   - This may intercept grain creation requests
+### 3. Key Design Principles
 
-3. **Manifest Provider Resolution**:
-   - Even with keyed services, the wrong resolver might get the wrong provider
-   
-4. **GrainPropertiesResolver Dependency**:
-   - `GrainPropertiesResolver` requires an unkeyed `IClusterManifestProvider`
-   - RPC's `RpcGrainReferenceActivatorProvider` uses `GrainPropertiesResolver`
-   - In standalone RPC client mode, RPC registers its manifest provider as unkeyed using `TryAddSingleton`
-   - When Orleans client is present, it must be configured first so its manifest provider is used
+1. **Orleans services remain unkeyed**: Minimizes changes to Orleans code
+2. **RPC uses keyed services**: Prevents conflicts when both are present
+3. **TryAdd provides fallback**: Enables standalone RPC mode
+4. **Registration order matters**: Orleans first, then RPC
 
-### 4. Recommended Investigation
+### 4. Service Registration Best Practices
 
-To diagnose which services are conflicting:
+1. **RPC-specific types**: Register normally (no conflict)
+   ```csharp
+   services.TryAddSingleton<RpcGrainFactory>(...);
+   services.TryAddSingleton<RpcClient>(...);
+   ```
+
+2. **Orleans interfaces**: Use keyed registration for RPC
+   ```csharp
+   services.AddKeyedSingleton<IGrainFactory>("rpc", ...);
+   services.AddKeyedSingleton<IClusterManifestProvider>("rpc", ...);
+   ```
+
+3. **Standalone support**: Add unkeyed fallback
+   ```csharp
+   services.TryAddSingleton<IGrainFactory>(sp => 
+       sp.GetRequiredService<RpcGrainFactory>());
+   ```
+
+### 5. Verifying Correct Service Resolution
+
+To verify services are correctly registered:
 
 ```csharp
-// Check which GrainFactory is registered
-var grainFactory = serviceProvider.GetService<IGrainFactory>();
-Console.WriteLine($"GrainFactory type: {grainFactory?.GetType().FullName}");
+// In ActionServer (Orleans + RPC), these should be different:
+var orleansFactory = serviceProvider.GetService<IGrainFactory>();
+var rpcFactory = serviceProvider.GetKeyedService<IGrainFactory>("rpc");
 
-// Check which IClusterClient is registered
-var clusterClient = serviceProvider.GetService<IClusterClient>();
-Console.WriteLine($"IClusterClient type: {clusterClient?.GetType().FullName}");
+Console.WriteLine($"Orleans factory: {orleansFactory?.GetType().Name}"); // Should be Orleans GrainFactory
+Console.WriteLine($"RPC factory: {rpcFactory?.GetType().Name}");        // Should be RpcGrainFactory
 
-// Check all GrainReferenceActivatorProviders
-var providers = serviceProvider.GetServices<IGrainReferenceActivatorProvider>();
-foreach (var provider in providers)
+// Check manifest providers
+var orleansManifest = serviceProvider.GetService<IClusterManifestProvider>();
+var rpcManifest = serviceProvider.GetKeyedService<IClusterManifestProvider>("rpc");
+
+Console.WriteLine($"Orleans manifest: {orleansManifest?.GetType().Name}"); // Orleans provider
+Console.WriteLine($"RPC manifest: {rpcManifest?.GetType().Name}");        // RPC provider
+```
+
+## Special Considerations for Triple-Mode Applications
+
+When an application is simultaneously an Orleans client, RPC server, and RPC client (like ActionServer):
+
+### 1. Grain Reference Activator Providers
+- Multiple `IGrainReferenceActivatorProvider` implementations can coexist
+- RPC's provider only handles grains with RPC proxy types (returns false for others)
+- Orleans' provider handles Orleans grains
+- Order matters: providers are tried in registration order
+
+### 2. Service Usage Patterns
+- **Orleans client operations**: Use injected `IClusterClient` (Orleans)
+- **RPC hosting**: Uses keyed services internally
+- **RPC client operations**: Create temporary hosts or use keyed services
+
+### 3. Temporary RPC Clients
+When creating temporary RPC clients for server-to-server communication:
+```csharp
+using var host = Host.CreateDefaultBuilder()
+    .UseOrleansRpcClient(...)
+    .Build();
+await host.StartAsync();
+try 
 {
-    Console.WriteLine($"Provider: {provider.GetType().FullName}");
+    var rpcClient = host.Services.GetRequiredService<IClusterClient>();
+    // Use client...
+}
+finally
+{
+    await host.StopAsync();
 }
 ```
+
+### 4. Known Limitations
+- `GrainPropertiesResolver` is shared and uses unkeyed `IClusterManifestProvider`
+- Service registration order is important (Orleans client before RPC)
+- Temporary RPC client hosts should be properly disposed to avoid resource leaks
 
