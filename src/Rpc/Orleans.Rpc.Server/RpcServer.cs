@@ -155,7 +155,7 @@ namespace Forkleans.Rpc
                         break;
                         
                     case Protocol.RpcRequest request:
-                        _logger.LogInformation("OnDataReceived: Received RPC request {MessageId} for grain {GrainId}, method {MethodId}", 
+                        _logger.LogTrace("OnDataReceived: Received RPC request {MessageId} for grain {GrainId}, method {MethodId}", 
                             request.MessageId, request.GrainId, request.MethodId);
                         await HandleRequest(request, e.RemoteEndPoint);
                         break;
@@ -305,7 +305,7 @@ namespace Forkleans.Rpc
 
         private async Task HandleRequest(Protocol.RpcRequest request, IPEndPoint remoteEndpoint)
         {
-            _logger.LogInformation("Handling RPC request {MessageId} for grain {GrainId} method {MethodId} from {Endpoint}", 
+            _logger.LogTrace("Handling RPC request {MessageId} for grain {GrainId} method {MethodId} from {Endpoint}", 
                 request.MessageId, request.GrainId, request.MethodId, remoteEndpoint);
 
             // Get or create connection for this endpoint

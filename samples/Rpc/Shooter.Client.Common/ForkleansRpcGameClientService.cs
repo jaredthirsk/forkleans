@@ -387,7 +387,7 @@ public class ForkleansRpcGameClientService : IDisposable
                         
                         if (nearLeftEdge || nearRightEdge || nearTopEdge || nearBottomEdge)
                         {
-                            _logger.LogDebug("Player near borders but no adjacent entities fetched. Position: {Position}, Near edges: L={Left} R={Right} T={Top} B={Bottom}", 
+                            _logger.LogTrace("Player near borders but no adjacent entities fetched. Position: {Position}, Near edges: L={Left} R={Right} T={Top} B={Bottom}", 
                                 pos, nearLeftEdge, nearRightEdge, nearTopEdge, nearBottomEdge);
                         }
                     }
@@ -1339,11 +1339,11 @@ public class ForkleansRpcGameClientService : IDisposable
         }
         
         // Log zones we want to fetch from
-        _logger.LogDebug("Want to fetch entities from zones: {Zones}", 
-            string.Join(", ", zonesToFetch.Select(z => $"({z.X},{z.Y})")));
+        _logger.LogTrace("Want to fetch entities from zones: {Zones}", 
+            string.Join(", ", zonesToFetch.Select(z => $"({z.X},{z.Y})"))); 
         
         // Log available pre-established connections
-        _logger.LogDebug("Available pre-established connections: {Connections}", 
+        _logger.LogTrace("Available pre-established connections: {Connections}", 
             string.Join(", ", _preEstablishedConnections.Select(kvp => $"{kvp.Key}:{(kvp.Value.IsConnected ? "Connected" : "Disconnected")}")));
         
         // Fetch entities from each adjacent zone using pre-established connections
@@ -1357,7 +1357,7 @@ public class ForkleansRpcGameClientService : IDisposable
             {
                 try
                 {
-                    _logger.LogDebug("Fetching entities from zone ({X},{Y}) via pre-established connection", zone.X, zone.Y);
+                    _logger.LogTrace("Fetching entities from zone ({X},{Y}) via pre-established connection", zone.X, zone.Y);
                     
                     // Use GetLocalWorldState to avoid recursive fetching on the server
                     var worldState = await connection.GameGrain.GetLocalWorldState();
@@ -1366,12 +1366,12 @@ public class ForkleansRpcGameClientService : IDisposable
                         // Get bounds of current zone for filtering
                         var (currentMin, currentMax) = _currentZone.GetBounds();
                         
-                        _logger.LogDebug("Filtering entities from zone ({X},{Y}). Current zone bounds: ({MinX},{MinY}) to ({MaxX},{MaxY})", 
+                        _logger.LogTrace("Filtering entities from zone ({X},{Y}). Current zone bounds: ({MinX},{MinY}) to ({MaxX},{MaxY})", 
                             zone.X, zone.Y, currentMin.X, currentMin.Y, currentMax.X, currentMax.Y);
                         
                         // Log total entities before filtering
                         var totalEntities = worldState.Entities.Count;
-                        _logger.LogDebug("Zone ({X},{Y}) has {Count} total entities before filtering", zone.X, zone.Y, totalEntities);
+                        _logger.LogTrace("Zone ({X},{Y}) has {Count} total entities before filtering", zone.X, zone.Y, totalEntities);
                         
                         // Filter to only include entities within 100 units of our zone
                         var filteredEntities = worldState.Entities.Where(e => 
@@ -1422,19 +1422,19 @@ public class ForkleansRpcGameClientService : IDisposable
                         }
                         else
                         {
-                            _logger.LogDebug("No entities from zone ({X},{Y}) were within 100 units of shared border", zone.X, zone.Y);
+                            _logger.LogTrace("No entities from zone ({X},{Y}) were within 100 units of shared border", zone.X, zone.Y);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogDebug("Failed to fetch entities from zone ({X},{Y}): {Error}", 
+                    _logger.LogTrace("Failed to fetch entities from zone ({X},{Y}): {Error}", 
                         zone.X, zone.Y, ex.Message);
                 }
             }
             else
             {
-                _logger.LogDebug("No pre-established connection for zone ({X},{Y}) - connection exists: {Exists}, connected: {Connected}", 
+                _logger.LogTrace("No pre-established connection for zone ({X},{Y}) - connection exists: {Exists}, connected: {Connected}", 
                     zone.X, zone.Y, 
                     _preEstablishedConnections.ContainsKey(connectionKey),
                     _preEstablishedConnections.TryGetValue(connectionKey, out var c) && c.IsConnected);
