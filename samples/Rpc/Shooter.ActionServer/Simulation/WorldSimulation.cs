@@ -1,15 +1,11 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
 using Shooter.Shared.GrainInterfaces;
 using Shooter.Shared.Models;
 using Shooter.Shared.RpcInterfaces;
 using System.Linq;
-using Forkleans.Rpc;
-using Forkleans.Rpc.Hosting;
-using Forkleans.Rpc.Transport.LiteNetLib;
-using Forkleans.Serialization;
+using Shooter.ActionServer.Services;
 
 namespace Shooter.ActionServer.Simulation;
 
@@ -17,6 +13,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
 {
     private readonly ILogger<WorldSimulation> _logger;
     private readonly Forkleans.IClusterClient _orleansClient;
+    private readonly CrossZoneRpcService _crossZoneRpc;
     private readonly ConcurrentDictionary<string, SimulatedEntity> _entities = new();
     private readonly ConcurrentDictionary<string, PlayerInput> _playerInputs = new();
     private readonly Random _random = new();
@@ -29,10 +26,11 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private TaskCompletionSource<bool> _zoneAssignedTcs = new();
     private readonly DateTime _startTime = DateTime.UtcNow;
 
-    public WorldSimulation(ILogger<WorldSimulation> logger, Forkleans.IClusterClient orleansClient)
+    public WorldSimulation(ILogger<WorldSimulation> logger, Forkleans.IClusterClient orleansClient, CrossZoneRpcService crossZoneRpc)
     {
         _logger = logger;
         _orleansClient = orleansClient;
+        _crossZoneRpc = crossZoneRpc;
     }
 
     public void SetAssignedSquare(GridSquare square)
@@ -1296,38 +1294,8 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     {
         try
         {
-            // Create RPC client to target server
-            var hostBuilder = Host.CreateDefaultBuilder()
-                .UseOrleansRpcClient(rpcBuilder =>
-                {
-                    var host = targetServer.IpAddress == "localhost" ? "127.0.0.1" : targetServer.IpAddress;
-                    rpcBuilder.ConnectTo(host, targetServer.RpcPort);
-                    rpcBuilder.UseLiteNetLib();
-                })
-                .ConfigureServices(services =>
-                {
-                    services.AddSerializer(serializer =>
-                    {
-                        serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
-                    });
-                })
-                .Build();
-                
-            await hostBuilder.StartAsync();
-            
-            try
-            {
-                var rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>();
-                await Task.Delay(200); // Brief delay for connection
-                
-                var gameGrain = rpcClient.GetGrain<IGameRpcGrain>("game");
-                await gameGrain.ReceiveScoutAlert(playerZone, playerPosition);
-            }
-            finally
-            {
-                await hostBuilder.StopAsync();
-                hostBuilder.Dispose();
-            }
+            var gameGrain = await _crossZoneRpc.GetGameGrainForServer(targetServer);
+            await gameGrain.ReceiveScoutAlert(playerZone, playerPosition);
         }
         catch (Exception ex)
         {
@@ -1741,38 +1709,8 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     {
         try
         {
-            // Create RPC client to target server
-            var hostBuilder = Host.CreateDefaultBuilder()
-                .UseOrleansRpcClient(rpcBuilder =>
-                {
-                    var host = targetServer.IpAddress == "localhost" ? "127.0.0.1" : targetServer.IpAddress;
-                    rpcBuilder.ConnectTo(host, targetServer.RpcPort);
-                    rpcBuilder.UseLiteNetLib();
-                })
-                .ConfigureServices(services =>
-                {
-                    services.AddSerializer(serializer =>
-                    {
-                        serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
-                    });
-                })
-                .Build();
-                
-            await hostBuilder.StartAsync();
-            
-            try
-            {
-                var rpcClient = hostBuilder.Services.GetRequiredService<Forkleans.IClusterClient>();
-                await Task.Delay(200); // Brief delay for connection
-                
-                var gameGrain = rpcClient.GetGrain<IGameRpcGrain>("game");
-                await gameGrain.TransferBulletTrajectory(bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId);
-            }
-            finally
-            {
-                await hostBuilder.StopAsync();
-                hostBuilder.Dispose();
-            }
+            var gameGrain = await _crossZoneRpc.GetGameGrainForServer(targetServer);
+            await gameGrain.TransferBulletTrajectory(bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId);
         }
         catch (Exception ex)
         {

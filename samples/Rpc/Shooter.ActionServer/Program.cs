@@ -49,6 +49,8 @@ builder.Logging.AddProvider(new FileLoggerProvider(logFileName));
 Console.WriteLine($"ActionServer logging to: {logFileName}");
 
 // Add services
+builder.Services.AddSingleton<CrossZoneRpcService>();
+builder.Services.AddHostedService(provider => provider.GetRequiredService<CrossZoneRpcService>());
 builder.Services.AddSingleton<WorldSimulation>(); // Register as concrete type
 builder.Services.AddSingleton<IWorldSimulation>(provider => provider.GetRequiredService<WorldSimulation>()); // Also register as interface
 builder.Services.AddHostedService(provider => provider.GetRequiredService<WorldSimulation>()); // Use same instance as hosted service

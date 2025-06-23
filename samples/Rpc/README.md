@@ -89,7 +89,7 @@ The ActionServers need to know where the Orleans Silo is running. This is config
 Ensure your NuGet.config includes the local Forkleans feed:
 ```xml
 <packageSources>
-  <add key="LocalForkleans" value="G:\NuGetLocalFeed\Forkleans" />
+  <add key="LocalForkleans" value="../../local-packages" />
 </packageSources>
 ```
 

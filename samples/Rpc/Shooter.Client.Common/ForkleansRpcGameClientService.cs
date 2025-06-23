@@ -368,7 +368,7 @@ public class ForkleansRpcGameClientService : IDisposable
                     allEntities.AddRange(adjacentEntities);
                     worldState = new WorldState(allEntities, worldState.Timestamp, worldState.SequenceNumber);
                     
-                    _logger.LogInformation("Added {Count} entities from adjacent zones, total: {Total}", 
+                    _logger.LogTrace("Added {Count} entities from adjacent zones, total: {Total}", 
                         adjacentEntities.Count, worldState.Entities.Count);
                 }
                 else if (_currentZone != null)
@@ -1407,7 +1407,7 @@ public class ForkleansRpcGameClientService : IDisposable
                         
                         if (filteredEntities.Any())
                         {
-                            _logger.LogInformation("Fetched {Count} entities from zone ({X},{Y}) via pre-established connection", 
+                            _logger.LogTrace("Fetched {Count} entities from zone ({X},{Y}) via pre-established connection", 
                                 filteredEntities.Count, zone.X, zone.Y);
                             
                             // Log details of fetched entities

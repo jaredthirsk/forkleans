@@ -15,6 +15,8 @@ builder.Logging.SetMinimumLevel(LogLevel.Information);
 builder.Logging.AddFilter("Shooter.Bot", LogLevel.Debug);
 builder.Logging.AddFilter("Shooter.Client.Common", LogLevel.Debug);
 builder.Logging.AddFilter("Forkleans.Rpc", LogLevel.Debug);
+builder.Logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
+builder.Logging.AddFilter("Polly", LogLevel.Warning);
 
 // Add file logging with unique filename based on bot name or instance
 string logFileName = "logs/bot.log";

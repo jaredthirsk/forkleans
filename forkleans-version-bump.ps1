@@ -269,7 +269,7 @@ if (-not $SkipPackage) {
     $suffixOnly = if ($newSuffix) { $newSuffix.TrimStart('-') } else { "" }
     
     Write-Info "Running Create-ForkleansPackages.ps1..."
-    & $packageScript -Configuration $Configuration -VersionSuffix $suffixOnly -Mode $Mode -SkipBuild
+    & $packageScript -Configuration $Configuration -VersionSuffix $suffixOnly -Mode $Mode
     
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Package creation failed"

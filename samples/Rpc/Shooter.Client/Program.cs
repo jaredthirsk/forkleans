@@ -10,6 +10,10 @@ builder.AddServiceDefaults();
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
 builder.Logging.AddFilter("Forkleans.Rpc", LogLevel.Debug);
 builder.Logging.AddFilter("Shooter.Client.Common", LogLevel.Debug);
+builder.Logging.AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.Warning);
+builder.Logging.AddFilter("Microsoft.AspNetCore.Routing", LogLevel.Warning);
+builder.Logging.AddFilter("Microsoft.AspNetCore.Mvc", LogLevel.Warning);
+builder.Logging.AddFilter("Microsoft.AspNetCore.StaticFiles", LogLevel.Warning);
 
 // Add file logging
 builder.Logging.AddProvider(new FileLoggerProvider("logs/client.log"));

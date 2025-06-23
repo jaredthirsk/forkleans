@@ -1,22 +1,23 @@
+#!/usr/bin/pwsh
 # Create-ForkleansPackages.ps1
 # Script to create NuGet packages for Forkleans projects and publish to local Windows feed
 
 param(
     [Parameter(Mandatory=$false)]
     [string]$LocalFeedPath = "$PSScriptRoot/local-packages",
-    
+
     [Parameter()]
     [string]$Configuration = "Release",
-    
+
     [Parameter()]
     [string]$VersionSuffix = "alpha",
-    
+
     [Parameter()]
     [switch]$SkipBuild = $false,
-    
+
     [Parameter()]
     [switch]$SkipPublish = $false,
-    
+
     [Parameter()]
     [ValidateSet("Essential", "RpcTypical", "All")]
     [string]$Mode = "RpcTypical"
@@ -54,7 +55,7 @@ $corePackages = @(
     "src/Orleans.Streaming/Orleans.Streaming.csproj",
     "src/Orleans.Transactions/Orleans.Transactions.csproj",
     "src/Orleans.Connections.Security/Orleans.Connections.Security.csproj",
-    
+
     # Testing support
     "src/Orleans.TestingHost/Orleans.TestingHost.csproj"
 )
@@ -77,17 +78,17 @@ $optionalPackages = @(
     "src/Azure/Orleans.Reminders.AzureStorage/Orleans.Reminders.AzureStorage.csproj",
     "src/Azure/Orleans.Streaming.AzureStorage/Orleans.Streaming.AzureStorage.csproj",
     "src/Azure/Orleans.Streaming.EventHubs/Orleans.Streaming.EventHubs.csproj",
-    
+
     # ADO.NET providers (non-clustering)
     "src/AdoNet/Orleans.Persistence.AdoNet/Orleans.Persistence.AdoNet.csproj",
     "src/AdoNet/Orleans.Reminders.AdoNet/Orleans.Reminders.AdoNet.csproj",
-    
+
     # AWS providers (non-clustering)
     "src/AWS/Orleans.Persistence.DynamoDB/Orleans.Persistence.DynamoDB.csproj",
-    
+
     # Redis providers (non-clustering)
     "src/Redis/Orleans.Persistence.Redis/Orleans.Persistence.Redis.csproj",
-    
+
     # Other extensions
     "src/Orleans.BroadcastChannel/Orleans.BroadcastChannel.csproj",
     "src/Orleans.Hosting.Kubernetes/Orleans.Hosting.Kubernetes.csproj",
@@ -117,55 +118,60 @@ Write-Host "Planning to create $($projectsToPack.Count) packages" -ForegroundCol
 # Build all projects first (unless skipped)
 if (-not $SkipBuild) {
     Write-Host "`nBuilding projects in $Configuration configuration..." -ForegroundColor Cyan
-    
+
     # For 'All' mode, build the entire solution (faster due to parallelization)
     # For other modes, build only the specific projects
     if ($Mode -eq "All") {
-        Write-Host "Building entire Orleans.sln (faster for 'All' mode due to parallel builds)..." -ForegroundColor Gray
+        Write-Host "Building in two phases to handle dependencies..." -ForegroundColor Gray
+        
+        # Phase 1: Build non-sample projects (core libraries)
+        Write-Host "`nPhase 1: Building core libraries..." -ForegroundColor Cyan
+        $coreSolution = "Orleans.sln"  # This excludes the RPC samples
         
         $buildArgs = @(
             "build",
-            "Orleans.sln",
+            $coreSolution,
             "-c", $Configuration,
             "--verbosity", "minimal"
         )
         
+        Write-Host "Building $coreSolution..." -ForegroundColor Gray
         $buildOutput = & dotnet $buildArgs 2>&1
         
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "Build failed for Orleans.sln" -ForegroundColor Red
+            Write-Host "Build failed for $coreSolution" -ForegroundColor Red
             Write-Host "Error details:" -ForegroundColor Red
             Write-Host $buildOutput -ForegroundColor Red
             throw "Build failed"
         }
         
-        Write-Host "Solution built successfully" -ForegroundColor Green
+        Write-Host "Core libraries built successfully" -ForegroundColor Green
     }
     else {
         # Build only the projects we're going to pack
         Write-Host "Building $($projectsToPack.Count) projects that will be packed..." -ForegroundColor Gray
-        
+
         $buildFailed = $false
         $failedBuilds = @()
-        
+
         foreach ($project in $projectsToPack) {
             if (-not (Test-Path $project)) {
                 Write-Warning "Project not found: $project"
                 continue
             }
-            
+
             $projectName = [System.IO.Path]::GetFileNameWithoutExtension($project)
             Write-Host "Building $projectName..." -ForegroundColor Gray
-            
+
             $buildArgs = @(
                 "build",
                 $project,
                 "-c", $Configuration,
                 "--verbosity", "minimal"
             )
-            
+
             $buildOutput = & dotnet $buildArgs 2>&1
-            
+
             if ($LASTEXITCODE -ne 0) {
                 Write-Warning "Build failed for $project"
                 Write-Host "Error details:" -ForegroundColor Red
@@ -174,7 +180,7 @@ if (-not $SkipBuild) {
                 $failedBuilds += $project
             }
         }
-        
+
         if ($buildFailed) {
             Write-Host "`nBuild failed for $($failedBuilds.Count) projects:" -ForegroundColor Red
             foreach ($failed in $failedBuilds) {
@@ -182,7 +188,7 @@ if (-not $SkipBuild) {
             }
             throw "Build failed"
         }
-        
+
         Write-Host "`nAll projects built successfully" -ForegroundColor Green
     }
 }
@@ -208,9 +214,9 @@ foreach ($project in $projectsToPack) {
         Write-Warning "Project not found: $project"
         continue
     }
-    
+
     Write-Host "Packaging $project..." -ForegroundColor Gray
-    
+
     $packArgs = @(
         "pack",
         $project,
@@ -218,26 +224,26 @@ foreach ($project in $projectsToPack) {
         "--no-build",  # We already built
         "-o", $artifactsPath
     )
-    
+
     if ($VersionSuffix) {
         $packArgs += "--version-suffix"
         $packArgs += $VersionSuffix
     }
-    
+
     $output = & dotnet $packArgs 2>&1
-    
+
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "Pack failed for $project with --no-build, retrying with build..."
-        
+
         # First show the initial error to help diagnose
         Write-Host "Initial pack error:" -ForegroundColor Yellow
         Write-Host $output -ForegroundColor Yellow
-        
+
         # Retry without --no-build flag
         $retryArgs = $packArgs | Where-Object { $_ -ne "--no-build" }
         Write-Host "Retrying with: dotnet $($retryArgs -join ' ')" -ForegroundColor Gray
         $retryOutput = & dotnet $retryArgs 2>&1
-        
+
         if ($LASTEXITCODE -ne 0) {
             Write-Warning "Pack failed for $project even with build"
             Write-Host "Build/Pack error details:" -ForegroundColor Red
@@ -251,14 +257,14 @@ foreach ($project in $projectsToPack) {
             $retriedPackages += $project
         }
     }
-    
+
     # Find the created package
     $projectName = [System.IO.Path]::GetFileNameWithoutExtension($project)
     # Convert Orleans.* to Forkleans.* for package name
     $packageName = $projectName -replace "^Orleans\.", "Forkleans."
     $packagePattern = "$packageName.*.nupkg"
     $package = Get-ChildItem -Path $artifactsPath -Filter $packagePattern | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-    
+
     if ($package) {
         $packagesCreated += $package
     }
@@ -267,16 +273,46 @@ foreach ($project in $projectsToPack) {
 # Publish to local feed (unless skipped)
 if (-not $SkipPublish -and $packagesCreated.Count -gt 0) {
     Write-Host "`nPublishing packages to local feed: $LocalFeedPath" -ForegroundColor Cyan
-    
+
     foreach ($package in $packagesCreated) {
         Write-Host "Publishing $($package.Name)..." -ForegroundColor Gray
-        
+
         # Copy to local feed
         Copy-Item -Path $package.FullName -Destination $LocalFeedPath -Force
     }
-    
+
     Write-Host "`nPackages published successfully!" -ForegroundColor Green
     Write-Host "Total packages: $($packagesCreated.Count)" -ForegroundColor Green
+}
+
+# Phase 2 for 'All' mode: Build RPC samples after packages are available
+if ($Mode -eq "All" -and -not $SkipBuild) {
+    Write-Host "`nPhase 2: Building RPC sample projects..." -ForegroundColor Cyan
+    
+    $samplesSolution = "samples/Rpc/ForkleansSamples.sln"
+    if (Test-Path $samplesSolution) {
+        Write-Host "Building $samplesSolution..." -ForegroundColor Gray
+        
+        $buildArgs = @(
+            "build",
+            $samplesSolution,
+            "-c", $Configuration,
+            "--verbosity", "minimal"
+        )
+        
+        $buildOutput = & dotnet $buildArgs 2>&1
+        
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Build failed for RPC samples"
+            Write-Host "Error details:" -ForegroundColor Red
+            Write-Host $buildOutput -ForegroundColor Red
+            Write-Warning "Samples failed to build, but packages were created successfully"
+        } else {
+            Write-Host "RPC samples built successfully" -ForegroundColor Green
+        }
+    } else {
+        Write-Warning "RPC samples solution not found at $samplesSolution"
+    }
 }
 
 # Display summary
@@ -319,7 +355,7 @@ $nugetConfigContent = @"
     <!-- Default NuGet feed -->
     <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
   </packageSources>
-  
+
   <packageSourceMapping>
     <!-- Map all Forkleans packages to local feed -->
     <packageSource key="LocalForkleans">
