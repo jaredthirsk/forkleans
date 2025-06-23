@@ -29,9 +29,17 @@
     - All: All available packages
     Default: RpcTypical
 
+.PARAMETER NoCleanLocalPackages
+    Skip cleaning old NuGet packages from ./local-packages/*.nupkg
+    Default: false (packages are cleaned)
+
+.PARAMETER NoCleanArtifacts
+    Skip cleaning old NuGet packages from ./Artifacts/packages/*.nupkg
+    Default: false (packages are cleaned)
+
 .EXAMPLE
     ./forkleans-version-bump.ps1
-    Bumps the revision number and creates typical RPC packages
+    Bumps the revision number, cleans old packages, and creates typical RPC packages
 
 .EXAMPLE
     ./forkleans-version-bump.ps1 -VersionPart Patch
@@ -48,6 +56,10 @@
 .EXAMPLE
     ./forkleans-version-bump.ps1 -Mode Essential
     Bumps version and creates only essential packages
+
+.EXAMPLE
+    ./forkleans-version-bump.ps1 -NoCleanLocalPackages -NoCleanArtifacts
+    Bumps version and creates packages without cleaning old packages
 #>
 
 [CmdletBinding()]
@@ -63,7 +75,11 @@ param(
     [string]$Configuration = "Release",
     
     [ValidateSet("Essential", "RpcTypical", "All")]
-    [string]$Mode = "RpcTypical"
+    [string]$Mode = "RpcTypical",
+    
+    [switch]$NoCleanLocalPackages = $false,
+    
+    [switch]$NoCleanArtifacts = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -176,6 +192,45 @@ if (Test-Path $rpcPackagesPropsPath) {
     
     Set-Content -Path $rpcPackagesPropsPath -Value $packagesContent -NoNewline
     Write-Success "Updated samples/Rpc/Directory.Packages.props"
+}
+
+# Clean old packages if requested
+if (-not $SkipPackage) {
+    # Clean local packages
+    if (-not $NoCleanLocalPackages) {
+        Write-Header "Cleaning local packages"
+        $localPackagesPath = Join-Path $scriptDir "local-packages"
+        if (Test-Path $localPackagesPath) {
+            $oldPackages = Get-ChildItem -Path $localPackagesPath -Filter "*.nupkg" -ErrorAction SilentlyContinue
+            if ($oldPackages) {
+                Write-Info "Removing $($oldPackages.Count) old package(s) from local-packages"
+                Remove-Item -Path (Join-Path $localPackagesPath "*.nupkg") -Force
+                Write-Success "Cleaned local packages"
+            } else {
+                Write-Info "No packages to clean in local-packages"
+            }
+        } else {
+            Write-Info "local-packages directory does not exist"
+        }
+    }
+    
+    # Clean artifacts packages
+    if (-not $NoCleanArtifacts) {
+        Write-Header "Cleaning artifact packages"
+        $artifactsPath = Join-Path $scriptDir "Artifacts/packages"
+        if (Test-Path $artifactsPath) {
+            $oldArtifacts = Get-ChildItem -Path $artifactsPath -Filter "*.nupkg" -ErrorAction SilentlyContinue
+            if ($oldArtifacts) {
+                Write-Info "Removing $($oldArtifacts.Count) old package(s) from Artifacts/packages"
+                Remove-Item -Path (Join-Path $artifactsPath "*.nupkg") -Force
+                Write-Success "Cleaned artifact packages"
+            } else {
+                Write-Info "No packages to clean in Artifacts/packages"
+            }
+        } else {
+            Write-Info "Artifacts/packages directory does not exist"
+        }
+    }
 }
 
 # Create packages
