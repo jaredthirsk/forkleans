@@ -27,6 +27,7 @@ namespace Forkleans.Rpc
         // Composite manifest that represents the union of all server manifests
         private ClusterManifest _compositeManifest;
         private GrainManifest _localGrainManifest;
+        private int _versionCounter = 0;
 
         public MultiServerManifestProvider(ILogger<MultiServerManifestProvider> logger)
         {
@@ -40,7 +41,7 @@ namespace Forkleans.Rpc
             var silos = ImmutableDictionary.CreateBuilder<SiloAddress, GrainManifest>();
             silos.Add(SiloAddress.New(System.Net.IPEndPoint.Parse("127.0.0.1:11111"), 0), _localGrainManifest);
             
-            _compositeManifest = new ClusterManifest(MajorMinorVersion.Zero, silos.ToImmutable());
+            _compositeManifest = new ClusterManifest(new MajorMinorVersion(++_versionCounter, 0), silos.ToImmutable());
             
             // Create the updates stream
             _updates = new AsyncEnumerable<ClusterManifest>(
@@ -71,6 +72,9 @@ namespace Forkleans.Rpc
                 _logger.LogDebug("Composite manifest now has {GrainCount} grains and {InterfaceCount} interfaces",
                     _compositeManifest.AllGrainManifests.Sum(m => m.Grains.Count),
                     _compositeManifest.AllGrainManifests.Sum(m => m.Interfaces.Count));
+                    
+                // Force the resolver to rebuild its cache
+                _logger.LogInformation("Manifest updated, version is now: {Version}", _compositeManifest.Version);
             }
             finally
             {
@@ -142,7 +146,7 @@ namespace Forkleans.Rpc
             var silos = ImmutableDictionary.CreateBuilder<SiloAddress, GrainManifest>();
             silos.Add(SiloAddress.New(System.Net.IPEndPoint.Parse("127.0.0.1:11111"), 0), _localGrainManifest);
             
-            _compositeManifest = new ClusterManifest(MajorMinorVersion.Zero, silos.ToImmutable());
+            _compositeManifest = new ClusterManifest(new MajorMinorVersion(++_versionCounter, 0), silos.ToImmutable());
         }
 
         private ClusterManifest BuildClusterManifest(RpcGrainManifest grainManifest)
@@ -215,6 +219,7 @@ namespace Forkleans.Rpc
             var silos = ImmutableDictionary.CreateBuilder<SiloAddress, GrainManifest>();
             silos.Add(SiloAddress.New(System.Net.IPEndPoint.Parse("127.0.0.1:11111"), 0), grainManifestBuilt);
             
+            // Note: This is a per-server manifest, not the composite one, so we can use Zero version
             return new ClusterManifest(MajorMinorVersion.Zero, silos.ToImmutable());
         }
     }

@@ -40,12 +40,21 @@ namespace Forkleans.Rpc
                 var added = _connections.TryAdd(serverId, connection);
                 if (!added)
                 {
-                    // Connection already exists, replace it
+                    // Connection already exists, check if it's the same instance
                     if (_connections.TryGetValue(serverId, out var oldConnection))
                     {
-                        oldConnection.Dispose();
+                        if (!ReferenceEquals(oldConnection, connection))
+                        {
+                            // Only dispose if it's a different connection
+                            oldConnection.Dispose();
+                            _connections[serverId] = connection;
+                        }
+                        // If it's the same connection, just update zone mapping below
                     }
-                    _connections[serverId] = connection;
+                    else
+                    {
+                        _connections[serverId] = connection;
+                    }
                 }
 
                 // Update zone mapping if provided

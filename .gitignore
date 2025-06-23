@@ -231,3 +231,5 @@ reference-fix-report.txt
 NuGet.config.local
 local-packages
 @local-packages
+samples/Rpc/Shooter.Silo/silo.out
+samples/Rpc/Shooter.ActionServer/actionserver.out

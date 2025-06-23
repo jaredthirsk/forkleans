@@ -52,6 +52,9 @@ namespace Forkleans.Rpc
             _lifecycle = lifecycle ?? throw new ArgumentNullException(nameof(lifecycle));
             _manifestProvider = manifestProvider ?? throw new ArgumentNullException(nameof(manifestProvider));
             
+            _logger.LogInformation("RpcClient created with manifest provider: {ManifestProviderType}", 
+                _manifestProvider.GetType().FullName);
+            
             var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             _connectionManager = new RpcConnectionManager(loggerFactory.CreateLogger<RpcConnectionManager>());
         }
@@ -358,6 +361,14 @@ namespace Forkleans.Rpc
         {
             _logger.LogInformation("Received handshake acknowledgment from server {ServerId}, manifest included: {HasManifest}, zone: {ZoneId}", 
                 handshakeAck.ServerId, handshakeAck.GrainManifest != null, handshakeAck.ZoneId);
+            
+            if (handshakeAck.GrainManifest != null)
+            {
+                _logger.LogInformation("Handshake manifest details: {GrainCount} grains, {InterfaceCount} interfaces, {MappingCount} mappings",
+                    handshakeAck.GrainManifest.GrainProperties?.Count ?? 0,
+                    handshakeAck.GrainManifest.InterfaceProperties?.Count ?? 0,
+                    handshakeAck.GrainManifest.InterfaceToGrainMappings?.Count ?? 0);
+            }
             
             // Update zone mappings if provided
             if (handshakeAck.ZoneId.HasValue)
