@@ -123,6 +123,13 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
             return Task.CompletedTask;
         }
 
+        public Task SendToConnectionAsync(string connectionId, ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
+        {
+            // For client transport, we only have one connection to the server
+            // so we ignore the connectionId and send to the server
+            return SendAsync(_serverEndpoint, data, cancellationToken);
+        }
+
         private async void PollEvents(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested && _netManager != null)

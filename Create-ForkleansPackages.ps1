@@ -187,10 +187,11 @@ if (-not $SkipBuild) {
     }
 }
 
-# Clean artifacts directory
-$artifactsPath = "artifacts/packages"
+# Clean artifacts directory - use the standard location from Directory.Build.props
+$artifactsPath = Join-Path $PSScriptRoot "Artifacts/$Configuration"
 if (Test-Path $artifactsPath) {
-    Remove-Item -Path "$artifactsPath/*" -Force -ErrorAction SilentlyContinue
+    Write-Host "Cleaning existing packages in $artifactsPath..." -ForegroundColor Gray
+    Remove-Item -Path "$artifactsPath/*.nupkg" -Force -ErrorAction SilentlyContinue
 } else {
     New-Item -ItemType Directory -Path $artifactsPath -Force | Out-Null
 }

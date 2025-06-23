@@ -34,8 +34,12 @@
     Default: false (packages are cleaned)
 
 .PARAMETER NoCleanArtifacts
-    Skip cleaning old NuGet packages from ./Artifacts/packages/*.nupkg
+    Skip cleaning old NuGet packages from ./Artifacts/{Configuration}/*.nupkg (e.g., ./Artifacts/Release/*.nupkg)
     Default: false (packages are cleaned)
+
+.PARAMETER CleanBuildArtifacts
+    Clean all bin and obj folders in the repository before building
+    Default: false
 
 .EXAMPLE
     ./forkleans-version-bump.ps1
@@ -79,7 +83,9 @@ param(
     
     [switch]$NoCleanLocalPackages = $false,
     
-    [switch]$NoCleanArtifacts = $false
+    [switch]$NoCleanArtifacts = $false,
+    
+    [switch]$CleanBuildArtifacts = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -194,6 +200,22 @@ if (Test-Path $rpcPackagesPropsPath) {
     Write-Success "Updated samples/Rpc/Directory.Packages.props"
 }
 
+# Clean build artifacts if requested
+if ($CleanBuildArtifacts) {
+    Write-Header "Cleaning build artifacts"
+    $cleanScript = Join-Path $scriptDir "clean-build-artifacts.ps1"
+    if (Test-Path $cleanScript) {
+        Write-Info "Running clean-build-artifacts.ps1..."
+        & $cleanScript
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to clean build artifacts"
+            exit 1
+        }
+    } else {
+        Write-Warning "clean-build-artifacts.ps1 not found, skipping build artifact cleanup"
+    }
+}
+
 # Clean old packages if requested
 if (-not $SkipPackage) {
     # Clean local packages
@@ -217,18 +239,18 @@ if (-not $SkipPackage) {
     # Clean artifacts packages
     if (-not $NoCleanArtifacts) {
         Write-Header "Cleaning artifact packages"
-        $artifactsPath = Join-Path $scriptDir "Artifacts/packages"
+        $artifactsPath = Join-Path $scriptDir "Artifacts/$Configuration"
         if (Test-Path $artifactsPath) {
             $oldArtifacts = Get-ChildItem -Path $artifactsPath -Filter "*.nupkg" -ErrorAction SilentlyContinue
             if ($oldArtifacts) {
-                Write-Info "Removing $($oldArtifacts.Count) old package(s) from Artifacts/packages"
+                Write-Info "Removing $($oldArtifacts.Count) old package(s) from Artifacts/$Configuration"
                 Remove-Item -Path (Join-Path $artifactsPath "*.nupkg") -Force
                 Write-Success "Cleaned artifact packages"
             } else {
-                Write-Info "No packages to clean in Artifacts/packages"
+                Write-Info "No packages to clean in Artifacts/$Configuration"
             }
         } else {
-            Write-Info "Artifacts/packages directory does not exist"
+            Write-Info "Artifacts/$Configuration directory does not exist"
         }
     }
 }
@@ -264,11 +286,11 @@ if (-not $SkipBuild) {
 
 if (-not $SkipPackage) {
     Write-Success "Packages created successfully"
-    Write-Info "Packages are available in: $(Join-Path $scriptDir 'local-packages')"
+    Write-Info "Packages are available in: $(Join-Path $scriptDir 'local-packages') and $(Join-Path $scriptDir "Artifacts/$Configuration")"
 }
 
 # Provide next steps
 Write-Header "Next steps"
-Write-Info "1. Clear NuGet caches: dotnet nuget locals http-cache --clear"
+Write-Info "1. Clear NuGet caches: dotnet nuget locals all --clear"
 Write-Info "2. Test the new packages in sample projects"
 Write-Info "3. Commit the version changes"

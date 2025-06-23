@@ -57,6 +57,12 @@ namespace Forkleans.Rpc.Transport.Ruffles
             throw new NotImplementedException("Ruffles transport is not yet implemented. This is a stub for future development.");
         }
 
+        public Task SendToConnectionAsync(string connectionId, ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
+        {
+            // TODO: Implement Ruffles transport
+            throw new NotImplementedException("Ruffles transport is not yet implemented. This is a stub for future development.");
+        }
+
         public void Dispose()
         {
             if (!_disposed)
