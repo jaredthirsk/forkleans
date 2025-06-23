@@ -23,6 +23,7 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
         private bool _disposed;
         private int _serverPort;
         private readonly Dictionary<int, IPEndPoint> _peerEndpoints = new();
+        private readonly Dictionary<int, NetPeer> _peers = new();
 
         public event EventHandler<RpcDataReceivedEventArgs> DataReceived;
         public event EventHandler<RpcConnectionEventArgs> ConnectionEstablished;
@@ -136,12 +137,15 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
             NetPeer peer = null;
             if (_isServer)
             {
-                // Try to find peer by endpoint using the tracked endpoints
-                foreach (var kvp in _peerEndpoints)
+                // Use the stored peers dictionary instead of relying on endpoint matching
+                // Since we don't know the client port, we'll use the most recently connected peer
+                // or find by partial matching (address only)
+                foreach (var kvp in _peers)
                 {
-                    if (kvp.Value.Equals(remoteEndpoint))
+                    var p = kvp.Value;
+                    if (p.ConnectionState == ConnectionState.Connected && p.Address.Equals(remoteEndpoint.Address))
                     {
-                        peer = _netManager.GetPeerById(kvp.Key);
+                        peer = p;
                         break;
                     }
                 }
@@ -182,6 +186,7 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
             // For server, we don't know the client's port, so we use 0 as placeholder
             var endpoint = new IPEndPoint(peer.Address, 0);
             _peerEndpoints[peer.Id] = endpoint;
+            _peers[peer.Id] = peer;
             _logger.LogInformation("Peer connected: {PeerId} from {Address}", connectionId, peer.Address);
             ConnectionEstablished?.Invoke(this, new RpcConnectionEventArgs(endpoint, connectionId));
         }
@@ -191,6 +196,7 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
             var connectionId = peer.Id.ToString();
             var endpoint = _peerEndpoints.GetValueOrDefault(peer.Id, new IPEndPoint(peer.Address, 0));
             _peerEndpoints.Remove(peer.Id);
+            _peers.Remove(peer.Id);
             _logger.LogInformation("Peer disconnected: {PeerId} from {Address}, Reason: {Reason}", 
                 connectionId, peer.Address, disconnectInfo.Reason);
             ConnectionClosed?.Invoke(this, new RpcConnectionEventArgs(endpoint, connectionId));
