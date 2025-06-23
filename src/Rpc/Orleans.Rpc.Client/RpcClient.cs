@@ -458,6 +458,13 @@ namespace Forkleans.Rpc
                 {
                     await _connectionManager.RemoveConnectionAsync(e.ConnectionId);
                     
+                    // Remove the manifest for this server to ensure clean state on reconnection
+                    if (_manifestProvider is MultiServerManifestProvider multiServerManifestProvider)
+                    {
+                        await multiServerManifestProvider.RemoveServerManifestAsync(e.ConnectionId);
+                        _logger.LogInformation("Removed manifest for disconnected server {ServerId}", e.ConnectionId);
+                    }
+                    
                     // Dispose the transport for this connection
                     if (_transports.TryRemove(e.ConnectionId, out var transport))
                     {

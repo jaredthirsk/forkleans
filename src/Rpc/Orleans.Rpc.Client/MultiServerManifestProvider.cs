@@ -146,7 +146,17 @@ namespace Forkleans.Rpc
             var silos = ImmutableDictionary.CreateBuilder<SiloAddress, GrainManifest>();
             silos.Add(SiloAddress.New(System.Net.IPEndPoint.Parse("127.0.0.1:11111"), 0), _localGrainManifest);
             
-            _compositeManifest = new ClusterManifest(new MajorMinorVersion(++_versionCounter, 0), silos.ToImmutable());
+            // Only increment version if we have actual content
+            if (grainsBuilder.Count > 0 || interfacesBuilder.Count > 0)
+            {
+                _compositeManifest = new ClusterManifest(new MajorMinorVersion(++_versionCounter, 0), silos.ToImmutable());
+            }
+            else
+            {
+                // Keep the same version to avoid triggering cache rebuilds with empty data
+                var currentVersion = _compositeManifest?.Version ?? new MajorMinorVersion(0, 0);
+                _compositeManifest = new ClusterManifest(currentVersion, silos.ToImmutable());
+            }
         }
 
         private ClusterManifest BuildClusterManifest(RpcGrainManifest grainManifest)
