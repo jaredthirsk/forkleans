@@ -137,8 +137,8 @@ namespace Forkleans.Rpc
         {
             try
             {
-                _logger.LogTrace("OnDataReceived: Received {ByteCount} bytes from {Endpoint}", 
-                    e.Data.Length, e.RemoteEndPoint);
+                _logger.LogTrace("OnDataReceived: Received {ByteCount} bytes from {Endpoint}, ConnectionId: {ConnectionId}", 
+                    e.Data.Length, e.RemoteEndPoint, e.ConnectionId);
                 
                 // Deserialize the message
                 var messageSerializer = _catalog.ServiceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
@@ -151,7 +151,7 @@ namespace Forkleans.Rpc
                 switch (message)
                 {
                     case Protocol.RpcHandshake handshake:
-                        await HandleHandshake(handshake, e.RemoteEndPoint);
+                        await HandleHandshake(handshake, e.RemoteEndPoint, e.ConnectionId);
                         break;
                         
                     case Protocol.RpcRequest request:
@@ -161,7 +161,7 @@ namespace Forkleans.Rpc
                         break;
                         
                     case Protocol.RpcHeartbeat heartbeat:
-                        await HandleHeartbeat(heartbeat, e.RemoteEndPoint);
+                        await HandleHeartbeat(heartbeat, e.RemoteEndPoint, e.ConnectionId);
                         break;
                         
                     default:
@@ -175,7 +175,7 @@ namespace Forkleans.Rpc
             }
         }
 
-        private async Task HandleHandshake(Protocol.RpcHandshake handshake, IPEndPoint remoteEndpoint)
+        private async Task HandleHandshake(Protocol.RpcHandshake handshake, IPEndPoint remoteEndpoint, string connectionId)
         {
             _logger.LogInformation("Received handshake from client {ClientId}, protocol version {Version}", 
                 handshake.ClientId, handshake.ProtocolVersion);
@@ -251,8 +251,20 @@ namespace Forkleans.Rpc
 
             var messageSerializer = _catalog.ServiceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
             var responseData = messageSerializer.SerializeMessage(response);
-            _logger.LogInformation("Sending handshake acknowledgment to {Endpoint} with {GrainCount} grains in manifest, ZoneId: {ZoneId}", 
-                remoteEndpoint, manifest.GrainProperties.Count, response.ZoneId);
+            _logger.LogInformation("Sending handshake acknowledgment to {Endpoint} (ConnectionId: {ConnectionId}) with {GrainCount} grains in manifest, ZoneId: {ZoneId}", 
+                remoteEndpoint, connectionId, manifest.GrainProperties.Count, response.ZoneId);
+            
+            // Use SendToConnectionAsync if available (for LiteNetLib transport)
+            if (!string.IsNullOrEmpty(connectionId))
+            {
+                var sendToConnectionMethod = _transport.GetType().GetMethod("SendToConnectionAsync");
+                if (sendToConnectionMethod != null)
+                {
+                    await (Task)sendToConnectionMethod.Invoke(_transport, new object[] { connectionId, responseData, CancellationToken.None });
+                    return;
+                }
+            }
+            
             await _transport.SendAsync(remoteEndpoint, responseData, CancellationToken.None);
         }
 
@@ -328,7 +340,7 @@ namespace Forkleans.Rpc
             });
         }
 
-        private async Task HandleHeartbeat(Protocol.RpcHeartbeat heartbeat, IPEndPoint remoteEndpoint)
+        private async Task HandleHeartbeat(Protocol.RpcHeartbeat heartbeat, IPEndPoint remoteEndpoint, string connectionId)
         {
             _logger.LogDebug("Received heartbeat from {SourceId}", heartbeat.SourceId);
             
@@ -340,6 +352,18 @@ namespace Forkleans.Rpc
 
             var messageSerializer = _catalog.ServiceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
             var responseData = messageSerializer.SerializeMessage(response);
+            
+            // Use SendToConnectionAsync if available (for LiteNetLib transport)
+            if (!string.IsNullOrEmpty(connectionId))
+            {
+                var sendToConnectionMethod = _transport.GetType().GetMethod("SendToConnectionAsync");
+                if (sendToConnectionMethod != null)
+                {
+                    await (Task)sendToConnectionMethod.Invoke(_transport, new object[] { connectionId, responseData, CancellationToken.None });
+                    return;
+                }
+            }
+            
             await _transport.SendAsync(remoteEndpoint, responseData, CancellationToken.None);
         }
 

@@ -169,6 +169,35 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Sends data to a specific connection ID (used by server).
+        /// </summary>
+        public Task SendToConnectionAsync(string connectionId, ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
+        {
+            if (_netManager == null)
+            {
+                throw new InvalidOperationException("Transport is not started.");
+            }
+
+            if (!int.TryParse(connectionId, out var peerId))
+            {
+                throw new ArgumentException($"Invalid connection ID: {connectionId}");
+            }
+
+            var peer = _peers.GetValueOrDefault(peerId);
+            if (peer == null || peer.ConnectionState != ConnectionState.Connected)
+            {
+                _logger.LogWarning("No connected peer available for connection ID {ConnectionId}. Connection state: {State}", 
+                    connectionId, peer?.ConnectionState.ToString() ?? "null");
+                throw new InvalidOperationException($"No connected peer available for connection ID {connectionId}.");
+            }
+
+            var deliveryMethod = _options.EnableReliableDelivery ? DeliveryMethod.ReliableOrdered : DeliveryMethod.Unreliable;
+            peer.Send(data.ToArray(), deliveryMethod);
+
+            return Task.CompletedTask;
+        }
+
         private async void PollEvents(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested && _netManager != null)
@@ -215,8 +244,12 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
                 reader.GetBytes(data, reader.AvailableBytes);
                 var endpoint = _peerEndpoints.GetValueOrDefault(peer.Id, new IPEndPoint(peer.Address, 0));
                 
+                var eventArgs = new RpcDataReceivedEventArgs(endpoint, data)
+                {
+                    ConnectionId = peer.Id.ToString()
+                };
                 
-                DataReceived?.Invoke(this, new RpcDataReceivedEventArgs(endpoint, data));
+                DataReceived?.Invoke(this, eventArgs);
             }
             finally
             {
