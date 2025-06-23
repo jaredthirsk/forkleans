@@ -31,6 +31,11 @@ namespace Forkleans.Rpc.Transport
         Task SendAsync(IPEndPoint remoteEndpoint, ReadOnlyMemory<byte> data, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Sends data to a specific connection ID (used by server).
+        /// </summary>
+        Task SendToConnectionAsync(string connectionId, ReadOnlyMemory<byte> data, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Event raised when data is received.
         /// </summary>
         event EventHandler<RpcDataReceivedEventArgs> DataReceived;

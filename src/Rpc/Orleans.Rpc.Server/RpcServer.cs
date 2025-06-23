@@ -254,18 +254,15 @@ namespace Forkleans.Rpc
             _logger.LogInformation("Sending handshake acknowledgment to {Endpoint} (ConnectionId: {ConnectionId}) with {GrainCount} grains in manifest, ZoneId: {ZoneId}", 
                 remoteEndpoint, connectionId, manifest.GrainProperties.Count, response.ZoneId);
             
-            // Use SendToConnectionAsync if available (for LiteNetLib transport)
+            // Use SendToConnectionAsync when we have a connection ID
             if (!string.IsNullOrEmpty(connectionId))
             {
-                var sendToConnectionMethod = _transport.GetType().GetMethod("SendToConnectionAsync");
-                if (sendToConnectionMethod != null)
-                {
-                    await (Task)sendToConnectionMethod.Invoke(_transport, new object[] { connectionId, responseData, CancellationToken.None });
-                    return;
-                }
+                await _transport.SendToConnectionAsync(connectionId, responseData, CancellationToken.None);
             }
-            
-            await _transport.SendAsync(remoteEndpoint, responseData, CancellationToken.None);
+            else
+            {
+                await _transport.SendAsync(remoteEndpoint, responseData, CancellationToken.None);
+            }
         }
 
         private Protocol.RpcGrainManifest BuildGrainManifest()
@@ -353,18 +350,15 @@ namespace Forkleans.Rpc
             var messageSerializer = _catalog.ServiceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
             var responseData = messageSerializer.SerializeMessage(response);
             
-            // Use SendToConnectionAsync if available (for LiteNetLib transport)
+            // Use SendToConnectionAsync when we have a connection ID
             if (!string.IsNullOrEmpty(connectionId))
             {
-                var sendToConnectionMethod = _transport.GetType().GetMethod("SendToConnectionAsync");
-                if (sendToConnectionMethod != null)
-                {
-                    await (Task)sendToConnectionMethod.Invoke(_transport, new object[] { connectionId, responseData, CancellationToken.None });
-                    return;
-                }
+                await _transport.SendToConnectionAsync(connectionId, responseData, CancellationToken.None);
             }
-            
-            await _transport.SendAsync(remoteEndpoint, responseData, CancellationToken.None);
+            else
+            {
+                await _transport.SendAsync(remoteEndpoint, responseData, CancellationToken.None);
+            }
         }
 
         private void OnConnectionEstablished(object sender, RpcConnectionEventArgs e)
