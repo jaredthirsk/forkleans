@@ -160,7 +160,7 @@ public class WorldManagerGrain : Forkleans.Grain, IWorldManagerGrain
     {
         // Get the new grid square for the player's current position
         var newGridSquare = GridSquare.FromPosition(currentPosition);
-        _logger.LogInformation("InitiatePlayerTransfer: Player {PlayerId} at position {Position} is in zone {Zone}", 
+        _logger.LogDebug("InitiatePlayerTransfer: Player {PlayerId} at position {Position} is in zone {Zone}", 
             playerId, currentPosition, newGridSquare);
         
         // Get the new server for this position
@@ -199,7 +199,7 @@ public class WorldManagerGrain : Forkleans.Grain, IWorldManagerGrain
         // If the player is already on the correct server, no transfer needed
         if (oldServer?.ServerId == newServer.ServerId)
         {
-            _logger.LogInformation("Player {PlayerId} is already on server {ServerId}, no transfer needed", playerId, newServer.ServerId);
+            _logger.LogDebug("Player {PlayerId} is already on server {ServerId}, no transfer needed", playerId, newServer.ServerId);
             return null;
         }
 

@@ -41,6 +41,8 @@ public class ForkleansRpcGameClientService : IDisposable
     private Vector2 _lastInputDirection = Vector2.Zero;
     private bool _lastInputShooting = false;
     private readonly HashSet<string> _visitedZones = new();
+    private bool _worldStateErrorLogged = false;
+    private DateTime _lastWorldStateError = DateTime.MinValue;
     
     public event Action<WorldState>? WorldStateUpdated;
     public event Action<string>? ServerChanged;
@@ -488,7 +490,13 @@ public class ForkleansRpcGameClientService : IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to get world state");
+            // Throttle error logging to avoid spamming logs during connection issues
+            if (!_worldStateErrorLogged || (DateTime.UtcNow - _lastWorldStateError).TotalSeconds > 5)
+            {
+                _logger.LogError(ex, "Failed to get world state");
+                _worldStateErrorLogged = true;
+                _lastWorldStateError = DateTime.UtcNow;
+            }
         }
     }
     
@@ -1278,7 +1286,7 @@ public class ForkleansRpcGameClientService : IDisposable
         var (min, max) = _currentZone.GetBounds();
         var pos = playerEntity.Position;
         
-        _logger.LogDebug("Current zone ({X},{Y}) bounds: ({MinX},{MinY}) to ({MaxX},{MaxY}), player at {Position}", 
+        _logger.LogTrace("Current zone ({X},{Y}) bounds: ({MinX},{MinY}) to ({MaxX},{MaxY}), player at {Position}", 
             _currentZone.X, _currentZone.Y, min.X, min.Y, max.X, max.Y, pos);
         
         bool nearLeftEdge = pos.X <= min.X + 100;
@@ -1292,7 +1300,7 @@ public class ForkleansRpcGameClientService : IDisposable
             return adjacentEntities;
         }
         
-        _logger.LogDebug("Player at {Position} near borders - L:{Left} R:{Right} T:{Top} B:{Bottom}", 
+        _logger.LogTrace("Player at {Position} near borders - L:{Left} R:{Right} T:{Top} B:{Bottom}", 
             pos, nearLeftEdge, nearRightEdge, nearTopEdge, nearBottomEdge);
         
         // Determine which zones to fetch from based on player position
