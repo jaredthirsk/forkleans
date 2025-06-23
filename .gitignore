@@ -222,14 +222,16 @@ src/SetupTestScriptOutput.txt
 *.cobertura.xml
 
 # Forkleans additions
-namespace_conversion_report.txt
-assembly-names-report.txt
-class-names-fix-report.txt
-reference-fix-report.txt
 /.claude
 /.claude/settings.local.json
 NuGet.config.local
 local-packages
+
+# Forkleans additions - slop to clean up
 @local-packages
+namespace_conversion_report.txt
+assembly-names-report.txt
+class-names-fix-report.txt
+reference-fix-report.txt
 samples/Rpc/Shooter.Silo/silo.out
 samples/Rpc/Shooter.ActionServer/actionserver.out
