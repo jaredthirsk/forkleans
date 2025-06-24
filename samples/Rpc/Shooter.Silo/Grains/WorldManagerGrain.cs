@@ -75,7 +75,7 @@ public class WorldManagerGrain : Forkleans.Grain, IWorldManagerGrain
         }
         
         _logger.LogInformation("Assigning server {ServerId} to zone ({X},{Y}) in {GridSize}x{GridSize} grid (found {ExistingCount} existing servers)", 
-            serverId, assignedSquare.X, assignedSquare.Y, gridSize, _gridToServer.Count);
+            serverId, assignedSquare.X, assignedSquare.Y, gridSize, gridSize, _gridToServer.Count);
 
         var serverInfo = new ActionServerInfo(serverId, ipAddress, udpPort, httpEndpoint, assignedSquare, DateTime.UtcNow, rpcPort);
         

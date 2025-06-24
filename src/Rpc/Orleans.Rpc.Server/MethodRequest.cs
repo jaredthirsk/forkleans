@@ -9,8 +9,8 @@ namespace Forkleans.Rpc
     /// </summary>
     internal class MethodRequest
     {
-        public GrainInterfaceType InterfaceType { get; set; }
+        public GrainInterfaceType InterfaceType { get; set; } = default!;
         public int MethodId { get; set; }
-        public object[] Arguments { get; set; }
+        public object[] Arguments { get; set; } = Array.Empty<object>();
     }
 }

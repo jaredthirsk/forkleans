@@ -35,13 +35,13 @@ namespace Forkleans.Rpc.Protocol
         /// Target grain ID.
         /// </summary>
         [Id(2)]
-        public GrainId GrainId { get; set; }
+        public GrainId GrainId { get; set; } = default!
 
         /// <summary>
         /// Interface type.
         /// </summary>
         [Id(3)]
-        public GrainInterfaceType InterfaceType { get; set; }
+        public GrainInterfaceType InterfaceType { get; set; } = default!
 
         /// <summary>
         /// Method ID to invoke.
@@ -53,7 +53,7 @@ namespace Forkleans.Rpc.Protocol
         /// Serialized arguments.
         /// </summary>
         [Id(5)]
-        public byte[] Arguments { get; set; }
+        public byte[] Arguments { get; set; } = Array.Empty<byte>();
 
         /// <summary>
         /// Request timeout in milliseconds.
@@ -65,7 +65,7 @@ namespace Forkleans.Rpc.Protocol
         /// Return type name for deserialization.
         /// </summary>
         [Id(7)]
-        public string ReturnTypeName { get; set; }
+        public string ReturnTypeName { get; set; } = string.Empty;
 
         /// <summary>
         /// Optional target zone ID for zone-aware routing.
@@ -96,13 +96,13 @@ namespace Forkleans.Rpc.Protocol
         /// Serialized result (if success) or exception (if failure).
         /// </summary>
         [Id(4)]
-        public byte[] Payload { get; set; }
+        public byte[] Payload { get; set; } = Array.Empty<byte>();
 
         /// <summary>
         /// Error message if the call failed.
         /// </summary>
         [Id(5)]
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ namespace Forkleans.Rpc.Protocol
         /// Client or server ID.
         /// </summary>
         [Id(2)]
-        public string SourceId { get; set; }
+        public string SourceId { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ namespace Forkleans.Rpc.Protocol
         /// Client ID.
         /// </summary>
         [Id(2)] // TODO FIXME: Fork cleanup - The Id should start at 0, even though there is a base class with serialized properties.
-        public string ClientId { get; set; }
+        public string ClientId { get; set; } = string.Empty;
 
         /// <summary>
         /// Protocol version.
@@ -153,7 +153,7 @@ namespace Forkleans.Rpc.Protocol
         /// Server ID.
         /// </summary>
         [Id(2)]
-        public string ServerId { get; set; }
+        public string ServerId { get; set; } = string.Empty;
 
         /// <summary>
         /// Protocol version accepted.
@@ -165,7 +165,7 @@ namespace Forkleans.Rpc.Protocol
         /// Grain manifest from the server.
         /// </summary>
         [Id(4)]
-        public RpcGrainManifest GrainManifest { get; set; }
+        public RpcGrainManifest GrainManifest { get; set; } = new();
 
         /// <summary>
         /// Zone ID that this server handles (for zone-aware servers).
@@ -177,7 +177,7 @@ namespace Forkleans.Rpc.Protocol
         /// Mapping of zone IDs to server IDs for zone routing.
         /// </summary>
         [Id(6)]
-        public Dictionary<int, string> ZoneToServerMapping { get; set; }
+        public Dictionary<int, string> ZoneToServerMapping { get; set; } = new();
     }
 
     /// <summary>
@@ -215,13 +215,13 @@ namespace Forkleans.Rpc.Protocol
         /// Target grain ID.
         /// </summary>
         [Id(2)]
-        public GrainId GrainId { get; set; }
+        public GrainId GrainId { get; set; } = default!
 
         /// <summary>
         /// Interface type.
         /// </summary>
         [Id(3)]
-        public GrainInterfaceType InterfaceType { get; set; }
+        public GrainInterfaceType InterfaceType { get; set; } = default!
 
         /// <summary>
         /// Method ID to invoke.
@@ -233,7 +233,7 @@ namespace Forkleans.Rpc.Protocol
         /// Serialized arguments.
         /// </summary>
         [Id(5)]
-        public byte[] Arguments { get; set; }
+        public byte[] Arguments { get; set; } = Array.Empty<byte>();
 
         /// <summary>
         /// Stream ID for correlation.
@@ -264,7 +264,7 @@ namespace Forkleans.Rpc.Protocol
         /// Serialized item data.
         /// </summary>
         [Id(4)]
-        public byte[] ItemData { get; set; }
+        public byte[] ItemData { get; set; } = Array.Empty<byte>();
 
         /// <summary>
         /// Whether this is the last item in the stream.

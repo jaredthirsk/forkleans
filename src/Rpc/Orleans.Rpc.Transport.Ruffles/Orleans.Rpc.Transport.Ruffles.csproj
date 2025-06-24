@@ -6,6 +6,7 @@
     <RootNamespace>Forkleans.Rpc.Transport.Ruffles</RootNamespace>
     <Description>Ruffles transport implementation for Orleans RPC (stub)</Description>
     <PackageTags>$(PackageTags);RPC;Transport;Ruffles;UDP</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

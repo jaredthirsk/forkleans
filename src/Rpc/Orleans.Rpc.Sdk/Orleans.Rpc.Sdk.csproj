@@ -6,6 +6,7 @@
     <RootNamespace>Forkleans.Rpc</RootNamespace>
     <Description>Orleans RPC SDK - attributes and interfaces for RPC-specific grain features</Description>
     <PackageTags>$(PackageTags);SDK;RPC</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

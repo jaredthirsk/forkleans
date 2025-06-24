@@ -6,6 +6,7 @@
     <RootNamespace>Forkleans.Rpc</RootNamespace>
     <Description>Orleans RPC abstractions - core interfaces and types for RPC functionality</Description>
     <PackageTags>$(PackageTags);RPC;Abstractions</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

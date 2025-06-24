@@ -10,7 +10,7 @@ namespace Forkleans.Rpc.Configuration
         /// <summary>
         /// Gets or sets the server name.
         /// </summary>
-        public string ServerName { get; set; }
+        public string ServerName { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the port to listen on.
@@ -30,6 +30,6 @@ namespace Forkleans.Rpc.Configuration
         /// <summary>
         /// Gets or sets the endpoint to listen on.
         /// </summary>
-        public IPEndPoint ListenEndpoint { get; set; }
+        public IPEndPoint ListenEndpoint { get; set; } = null!;
     }
 }

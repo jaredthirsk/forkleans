@@ -6,6 +6,7 @@
     <RootNamespace>Forkleans.Rpc</RootNamespace>
     <Description>Orleans RPC Client - simplified RPC client without clustering</Description>
     <PackageTags>$(PackageTags);Client;RPC</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

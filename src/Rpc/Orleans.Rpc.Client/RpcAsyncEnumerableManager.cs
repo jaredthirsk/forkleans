@@ -143,7 +143,7 @@ namespace Forkleans.Rpc
         private abstract class AsyncEnumerableOperation
         {
             public Guid StreamId { get; set; }
-            public Type ItemType { get; set; }
+            public Type ItemType { get; set; } = typeof(object);
             public CancellationToken CancellationToken { get; set; }
             public DateTime StartedAt { get; set; }
 
@@ -155,7 +155,7 @@ namespace Forkleans.Rpc
 
         private class AsyncEnumerableOperation<T> : AsyncEnumerableOperation
         {
-            public Channel<T> Channel { get; set; }
+            public Channel<T> Channel { get; set; } = null!;
 
             public override async Task AddItem(object item)
             {

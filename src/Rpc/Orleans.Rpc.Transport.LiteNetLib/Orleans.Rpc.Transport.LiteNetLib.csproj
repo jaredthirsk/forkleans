@@ -6,6 +6,7 @@
     <RootNamespace>Forkleans.Rpc.Transport.LiteNetLib</RootNamespace>
     <Description>LiteNetLib transport implementation for Orleans RPC</Description>
     <PackageTags>$(PackageTags);RPC;Transport;LiteNetLib;UDP</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
