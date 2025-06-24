@@ -821,10 +821,10 @@ class GamePhaser {
             const distToTop = playerY - zoneMinY;
             const distToBottom = zoneMaxY - playerY;
             
-            // First, gray out all adjacent zones
+            // Draw gray overlay for adjacent zones, but exclude peek areas
             this.gridGraphics.fillStyle(0x000000, 0.3); // 30% opacity gray
             
-            // Gray out all 8 adjacent zones (including diagonals)
+            // Process each adjacent zone
             for (let dx = -1; dx <= 1; dx++) {
                 for (let dy = -1; dy <= 1; dy++) {
                     if (dx === 0 && dy === 0) continue; // Skip current zone
@@ -832,157 +832,40 @@ class GamePhaser {
                     const adjacentX = (this.playerZone.x + dx) * 500;
                     const adjacentY = (this.playerZone.y + dy) * 500;
                     
-                    // Only draw if the zone is visible in the viewport
-                    const zoneRect = {
-                        x: Math.max(adjacentX, worldView.left),
-                        y: Math.max(adjacentY, worldView.top),
-                        width: Math.min(adjacentX + 500, worldView.right) - Math.max(adjacentX, worldView.left),
-                        height: Math.min(adjacentY + 500, worldView.bottom) - Math.max(adjacentY, worldView.top)
+                    // Calculate the gray area for this zone
+                    let grayX = adjacentX;
+                    let grayY = adjacentY;
+                    let grayWidth = 500;
+                    let grayHeight = 500;
+                    
+                    // Adjust for peek areas (only for cardinal directions, not diagonals)
+                    if (dx === -1 && dy === 0 && distToLeft <= ZONE_PEEK_DISTANCE) {
+                        // Left zone - don't gray the rightmost ZONE_PEEK_DISTANCE pixels
+                        grayWidth = 500 - ZONE_PEEK_DISTANCE;
+                    } else if (dx === 1 && dy === 0 && distToRight <= ZONE_PEEK_DISTANCE) {
+                        // Right zone - don't gray the leftmost ZONE_PEEK_DISTANCE pixels
+                        grayX = adjacentX + ZONE_PEEK_DISTANCE;
+                        grayWidth = 500 - ZONE_PEEK_DISTANCE;
+                    } else if (dx === 0 && dy === -1 && distToTop <= ZONE_PEEK_DISTANCE) {
+                        // Top zone - don't gray the bottommost ZONE_PEEK_DISTANCE pixels
+                        grayHeight = 500 - ZONE_PEEK_DISTANCE;
+                    } else if (dx === 0 && dy === 1 && distToBottom <= ZONE_PEEK_DISTANCE) {
+                        // Bottom zone - don't gray the topmost ZONE_PEEK_DISTANCE pixels
+                        grayY = adjacentY + ZONE_PEEK_DISTANCE;
+                        grayHeight = 500 - ZONE_PEEK_DISTANCE;
+                    }
+                    
+                    // Clip to viewport
+                    const clippedRect = {
+                        x: Math.max(grayX, worldView.left),
+                        y: Math.max(grayY, worldView.top),
+                        width: Math.min(grayX + grayWidth, worldView.right) - Math.max(grayX, worldView.left),
+                        height: Math.min(grayY + grayHeight, worldView.bottom) - Math.max(grayY, worldView.top)
                     };
                     
-                    if (zoneRect.width > 0 && zoneRect.height > 0) {
-                        this.gridGraphics.fillRect(zoneRect.x, zoneRect.y, zoneRect.width, zoneRect.height);
+                    if (clippedRect.width > 0 && clippedRect.height > 0) {
+                        this.gridGraphics.fillRect(clippedRect.x, clippedRect.y, clippedRect.width, clippedRect.height);
                     }
-                }
-            }
-            
-            // Now clear the peek areas based on player proximity to zone edges
-            // Use a clipping approach - we'll draw clear rectangles over the grayed areas
-            
-            // Clear peek area for cardinal directions only
-            if (distToLeft <= ZONE_PEEK_DISTANCE) {
-                // Clear the right portion of the left zone
-                const adjacentX = (this.playerZone.x - 1) * 500;
-                const clearStartX = Math.max(adjacentX + 500 - ZONE_PEEK_DISTANCE, worldView.left);
-                const clearEndX = Math.min(adjacentX + 500, worldView.right);
-                const clearWidth = clearEndX - clearStartX;
-                
-                if (clearWidth > 0) {
-                    const clearY = Math.max(this.playerZone.y * 500, worldView.top);
-                    const clearHeight = Math.min(500, worldView.bottom - clearY);
-                    
-                    // Draw entities and grid lines in this area (effectively clearing the gray)
-                    // We'll use a save/restore with clipping
-                    this.gridGraphics.save();
-                    this.gridGraphics.beginPath();
-                    this.gridGraphics.rect(clearStartX, clearY, clearWidth, clearHeight);
-                    this.gridGraphics.clip();
-                    
-                    // Redraw grid lines in the clear area
-                    this.gridGraphics.lineStyle(1, 0x333333, 0.5);
-                    // Vertical lines
-                    for (let x = Math.floor(clearStartX / 100) * 100; x <= clearEndX; x += 100) {
-                        if (x % 500 !== 0) {
-                            this.gridGraphics.lineBetween(x, clearY, x, clearY + clearHeight);
-                        }
-                    }
-                    // Horizontal lines
-                    for (let y = Math.floor(clearY / 100) * 100; y <= clearY + clearHeight; y += 100) {
-                        if (y % 500 !== 0) {
-                            this.gridGraphics.lineBetween(clearStartX, y, clearEndX, y);
-                        }
-                    }
-                    
-                    this.gridGraphics.restore();
-                }
-            }
-            
-            if (distToRight <= ZONE_PEEK_DISTANCE) {
-                // Clear the left portion of the right zone
-                const adjacentX = (this.playerZone.x + 1) * 500;
-                const clearStartX = Math.max(adjacentX, worldView.left);
-                const clearEndX = Math.min(adjacentX + ZONE_PEEK_DISTANCE, worldView.right);
-                const clearWidth = clearEndX - clearStartX;
-                
-                if (clearWidth > 0) {
-                    const clearY = Math.max(this.playerZone.y * 500, worldView.top);
-                    const clearHeight = Math.min(500, worldView.bottom - clearY);
-                    
-                    this.gridGraphics.save();
-                    this.gridGraphics.beginPath();
-                    this.gridGraphics.rect(clearStartX, clearY, clearWidth, clearHeight);
-                    this.gridGraphics.clip();
-                    
-                    // Redraw grid lines
-                    this.gridGraphics.lineStyle(1, 0x333333, 0.5);
-                    for (let x = Math.floor(clearStartX / 100) * 100; x <= clearEndX; x += 100) {
-                        if (x % 500 !== 0) {
-                            this.gridGraphics.lineBetween(x, clearY, x, clearY + clearHeight);
-                        }
-                    }
-                    for (let y = Math.floor(clearY / 100) * 100; y <= clearY + clearHeight; y += 100) {
-                        if (y % 500 !== 0) {
-                            this.gridGraphics.lineBetween(clearStartX, y, clearEndX, y);
-                        }
-                    }
-                    
-                    this.gridGraphics.restore();
-                }
-            }
-            
-            if (distToTop <= ZONE_PEEK_DISTANCE) {
-                // Clear the bottom portion of the top zone
-                const adjacentY = (this.playerZone.y - 1) * 500;
-                const clearStartY = Math.max(adjacentY + 500 - ZONE_PEEK_DISTANCE, worldView.top);
-                const clearEndY = Math.min(adjacentY + 500, worldView.bottom);
-                const clearHeight = clearEndY - clearStartY;
-                
-                if (clearHeight > 0) {
-                    const clearX = Math.max(this.playerZone.x * 500, worldView.left);
-                    const clearWidth = Math.min(500, worldView.right - clearX);
-                    
-                    this.gridGraphics.save();
-                    this.gridGraphics.beginPath();
-                    this.gridGraphics.rect(clearX, clearStartY, clearWidth, clearHeight);
-                    this.gridGraphics.clip();
-                    
-                    // Redraw grid lines
-                    this.gridGraphics.lineStyle(1, 0x333333, 0.5);
-                    for (let x = Math.floor(clearX / 100) * 100; x <= clearX + clearWidth; x += 100) {
-                        if (x % 500 !== 0) {
-                            this.gridGraphics.lineBetween(x, clearStartY, x, clearEndY);
-                        }
-                    }
-                    for (let y = Math.floor(clearStartY / 100) * 100; y <= clearEndY; y += 100) {
-                        if (y % 500 !== 0) {
-                            this.gridGraphics.lineBetween(clearX, y, clearX + clearWidth, y);
-                        }
-                    }
-                    
-                    this.gridGraphics.restore();
-                }
-            }
-            
-            if (distToBottom <= ZONE_PEEK_DISTANCE) {
-                // Clear the top portion of the bottom zone
-                const adjacentY = (this.playerZone.y + 1) * 500;
-                const clearStartY = Math.max(adjacentY, worldView.top);
-                const clearEndY = Math.min(adjacentY + ZONE_PEEK_DISTANCE, worldView.bottom);
-                const clearHeight = clearEndY - clearStartY;
-                
-                if (clearHeight > 0) {
-                    const clearX = Math.max(this.playerZone.x * 500, worldView.left);
-                    const clearWidth = Math.min(500, worldView.right - clearX);
-                    
-                    this.gridGraphics.save();
-                    this.gridGraphics.beginPath();
-                    this.gridGraphics.rect(clearX, clearStartY, clearWidth, clearHeight);
-                    this.gridGraphics.clip();
-                    
-                    // Redraw grid lines
-                    this.gridGraphics.lineStyle(1, 0x333333, 0.5);
-                    for (let x = Math.floor(clearX / 100) * 100; x <= clearX + clearWidth; x += 100) {
-                        if (x % 500 !== 0) {
-                            this.gridGraphics.lineBetween(x, clearStartY, x, clearEndY);
-                        }
-                    }
-                    for (let y = Math.floor(clearStartY / 100) * 100; y <= clearEndY; y += 100) {
-                        if (y % 500 !== 0) {
-                            this.gridGraphics.lineBetween(clearX, y, clearX + clearWidth, y);
-                        }
-                    }
-                    
-                    this.gridGraphics.restore();
                 }
             }
         }
