@@ -1271,8 +1271,19 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     var targetServer = await worldManager.GetActionServerForPosition(targetPosition);
                     if (targetServer != null)
                     {
-                        await SendScoutAlert(targetServer, _assignedSquare, playerPosition);
-                        _logger.LogInformation("Scout alert sent to zone ({X},{Y})", targetZone.X, targetZone.Y);
+                        // Fire and forget - don't await scout alerts
+                        _ = SendScoutAlert(targetServer, _assignedSquare, playerPosition)
+                            .ContinueWith(t => 
+                            {
+                                if (t.IsFaulted)
+                                {
+                                    _logger.LogError(t.Exception, "Failed to send scout alert to zone ({X},{Y})", targetZone.X, targetZone.Y);
+                                }
+                                else
+                                {
+                                    _logger.LogInformation("Scout alert sent to zone ({X},{Y})", targetZone.X, targetZone.Y);
+                                }
+                            });
                     }
                 }
                 catch (Exception ex)
@@ -1710,11 +1721,19 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         try
         {
             var gameGrain = await _crossZoneRpc.GetGameGrainForServer(targetServer);
-            await gameGrain.TransferBulletTrajectory(bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId);
+            // Fire and forget - bullet transfers don't need confirmation
+            _ = gameGrain.TransferBulletTrajectory(bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId)
+                .ContinueWith(t =>
+                {
+                    if (t.IsFaulted)
+                    {
+                        _logger.LogError(t.Exception, "Failed to send RPC bullet trajectory to server {ServerId}", targetServer.ServerId);
+                    }
+                });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send RPC bullet trajectory to server {ServerId}", targetServer.ServerId);
+            _logger.LogError(ex, "Failed to get game grain for server {ServerId}", targetServer.ServerId);
         }
     }
 }

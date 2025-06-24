@@ -17,12 +17,14 @@ public class BotService : BackgroundService
     private readonly ForkleansRpcGameClientService _gameClient;
     private readonly bool _testMode;
     private readonly string _botName;
+    private readonly int _botIndex;
     
     private WorldState? _lastWorldState;
     private List<GridSquare> _availableZones = new();
     private int _currentZoneIndex = 0;
     private DateTime _lastShootTime = DateTime.UtcNow;
     private Vector2 _currentMoveDirection = Vector2.Zero;
+    private GridSquare? _targetSpawnZone;
 
     public BotService(
         ILogger<BotService> logger,
@@ -35,6 +37,26 @@ public class BotService : BackgroundService
         
         _testMode = _configuration.GetValue<bool>("TestMode", true);
         _botName = _configuration.GetValue<string>("BotName", $"Bot_{Guid.NewGuid():N}".Substring(0, 12));
+        
+        // Extract bot index from instance ID or bot name
+        var instanceId = _configuration.GetValue<string>("ASPIRE_INSTANCE_ID", "0");
+        if (!int.TryParse(instanceId, out _botIndex))
+        {
+            // Try to extract from bot name
+            var parts = _botName.Split('_');
+            if (parts.Length > 1 && int.TryParse(parts.Last(), out var index))
+            {
+                _botIndex = index;
+            }
+        }
+        
+        // Calculate target spawn zone in binary pattern (0,0), (0,1), (1,0), (1,1)
+        var zoneX = _botIndex % 2;
+        var zoneY = (_botIndex / 2) % 2;
+        _targetSpawnZone = new GridSquare(zoneX, zoneY);
+        
+        _logger.LogInformation("Bot {BotName} (index {BotIndex}) will target spawn zone ({X}, {Y})", 
+            _botName, _botIndex, zoneX, zoneY);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -44,7 +66,7 @@ public class BotService : BackgroundService
             _logger.LogInformation("Bot {BotName} starting in {Mode} mode", _botName, _testMode ? "test" : "normal");
             
             // Wait for services to be ready
-            _logger.LogInformation("Waiting 10 seconds for services to be ready...");
+            _logger.LogInformation("Waiting 5 seconds for services to be ready...");
             await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
             
             // Connect to the game
@@ -106,28 +128,55 @@ public class BotService : BackgroundService
 
     private async Task RunTestMode(CancellationToken cancellationToken)
     {
-        // Test mode: Methodically visit every zone
+        // Test mode: First go to designated spawn zone, then methodically visit every zone
         if (_availableZones.Count == 0) return;
         
         var player = _lastWorldState?.Entities.FirstOrDefault(e => e.EntityId == _gameClient.PlayerId);
         if (player == null) return;
         
-        // Get target zone
-        var targetZone = _availableZones[_currentZoneIndex % _availableZones.Count];
+        GridSquare targetZone;
+        bool reachedSpawnZone = false;
+        
+        // First, ensure we're in our designated spawn zone
+        if (_targetSpawnZone != null && _currentZoneIndex == 0)
+        {
+            targetZone = _targetSpawnZone;
+            var spawnPos = targetZone.GetCenter();
+            var spawnDistance = player.Position.DistanceTo(spawnPos);
+            
+            if (spawnDistance < 100f)
+            {
+                _logger.LogInformation("Bot {BotName} reached spawn zone ({X}, {Y})", 
+                    _botName, targetZone.X, targetZone.Y);
+                _currentZoneIndex = 1; // Start visiting other zones
+                reachedSpawnZone = true;
+            }
+        }
+        else
+        {
+            // After reaching spawn zone, visit zones in order
+            targetZone = _availableZones[(_currentZoneIndex - 1) % _availableZones.Count];
+            reachedSpawnZone = true;
+        }
+        
         var targetPos = targetZone.GetCenter();
         var distance = player.Position.DistanceTo(targetPos);
         
-        if (distance < 100f) // Close enough to zone center
+        if (reachedSpawnZone && distance < 100f) // Close enough to zone center
         {
             // Move to next zone
             _currentZoneIndex++;
-            _logger.LogInformation("Bot {BotName} reached zone {Zone}, moving to next", _botName, targetZone);
+            _logger.LogInformation("Bot {BotName} reached zone ({X}, {Y}), moving to next", 
+                _botName, targetZone.X, targetZone.Y);
         }
         else
         {
             // Move towards target zone
             var direction = (targetPos - player.Position).Normalized();
             await _gameClient.SendPlayerInputEx(direction * 100f, null);
+            
+            _logger.LogDebug("Bot {BotName} moving towards zone ({X}, {Y}), distance: {Distance:F1}", 
+                _botName, targetZone.X, targetZone.Y, distance);
         }
         
         // Shoot occasionally in test mode (once per 2 seconds)

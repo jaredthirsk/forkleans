@@ -866,6 +866,9 @@ public class ForkleansRpcGameClientService : IDisposable
     
     private async Task PreEstablishNeighborConnections(List<GridSquare> zones)
     {
+        // Disable pre-established connections entirely to prevent timeouts
+        return;
+        
         if (_currentZone == null || zones == null || zones.Count == 0)
         {
             return;
@@ -874,8 +877,8 @@ public class ForkleansRpcGameClientService : IDisposable
         _logger.LogDebug("Pre-establishing connections for current zone ({X},{Y}). Current connections: {Count} [{Keys}]", 
             _currentZone.X, _currentZone.Y, _preEstablishedConnections.Count, string.Join(", ", _preEstablishedConnections.Keys));
         
-        // First, check health of existing connections
-        await CheckPreEstablishedConnectionHealth();
+        // Skip health check - it's causing too many GetAvailableZones requests
+        // await CheckPreEstablishedConnectionHealth();
         
         // Get player position from last world state
         var playerEntity = _lastWorldState?.Entities?.FirstOrDefault(e => e.EntityId == PlayerId);

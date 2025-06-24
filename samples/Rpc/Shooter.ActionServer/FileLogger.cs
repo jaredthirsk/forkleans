@@ -47,7 +47,7 @@ public class FileLogger : ILogger
 
     public IDisposable BeginScope<TState>(TState state) where TState : notnull => null!;
 
-    public bool IsEnabled(LogLevel logLevel) => true;
+    public bool IsEnabled(LogLevel logLevel) => true; // Let the logging framework handle filtering based on configuration
 
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {

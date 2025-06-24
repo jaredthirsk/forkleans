@@ -10,11 +10,8 @@ var builder = Host.CreateApplicationBuilder(args);
 
 builder.AddServiceDefaults();
 
-// Configure logging
-builder.Logging.SetMinimumLevel(LogLevel.Information);
-builder.Logging.AddFilter("Shooter.Bot", LogLevel.Debug);
-builder.Logging.AddFilter("Shooter.Client.Common", LogLevel.Debug);
-builder.Logging.AddFilter("Forkleans.Rpc", LogLevel.Debug);
+// Configure logging from appsettings.json
+// Don't override with hardcoded values - let appsettings.json control the log levels
 builder.Logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
 builder.Logging.AddFilter("Polly", LogLevel.Warning);
 

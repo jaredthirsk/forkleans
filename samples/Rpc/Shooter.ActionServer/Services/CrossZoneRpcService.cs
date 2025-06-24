@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Forkleans.Rpc;
+using Forkleans.Rpc.Configuration;
 using Forkleans.Rpc.Hosting;
 using Forkleans.Rpc.Transport.LiteNetLib;
 using Forkleans.Serialization;
@@ -54,20 +55,15 @@ public class CrossZoneRpcService : IHostedService, IDisposable
         _cleanupTimer?.Dispose();
         
         // Dispose all connections
+        var disposeTasks = new List<Task>();
         foreach (var connection in _connections.Values)
         {
-            try
-            {
-                connection.Host.StopAsync(cancellationToken).GetAwaiter().GetResult();
-                connection.Host.Dispose();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error disposing connection {ConnectionKey}", connection.ConnectionKey);
-            }
+            disposeTasks.Add(DisposeConnectionAsync(connection, cancellationToken));
         }
         
+        Task.WaitAll(disposeTasks.ToArray(), TimeSpan.FromSeconds(10));
         _connections.Clear();
+        
         return Task.CompletedTask;
     }
 
@@ -102,6 +98,13 @@ public class CrossZoneRpcService : IHostedService, IDisposable
                     var host = targetServer.IpAddress == "localhost" ? "127.0.0.1" : targetServer.IpAddress;
                     rpcBuilder.ConnectTo(host, targetServer.RpcPort);
                     rpcBuilder.UseLiteNetLib();
+                    
+                    // Configure connection pooling and timeouts
+                    rpcBuilder.Services.Configure<RpcClientOptions>(options =>
+                    {
+                        options.ClientId = $"crosszone-{targetServer.ServerId}-{Guid.NewGuid():N}";
+                        options.ConnectionTimeoutMs = 5000; // 5 second connection timeout
+                    });
                 })
                 .ConfigureServices(services =>
                 {
@@ -109,6 +112,11 @@ public class CrossZoneRpcService : IHostedService, IDisposable
                     {
                         serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
                     });
+                })
+                .ConfigureLogging(logging =>
+                {
+                    // Reduce logging noise from RPC client
+                    logging.AddFilter("Forkleans.Rpc", LogLevel.Warning);
                 })
                 .Build();
 
@@ -132,6 +140,11 @@ public class CrossZoneRpcService : IHostedService, IDisposable
             _logger.LogInformation("Successfully connected to server {ServerId}", targetServer.ServerId);
 
             return rpcClient.GetGrain<IGameRpcGrain>("game");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create RPC connection to server {ServerId}", targetServer.ServerId);
+            throw;
         }
         finally
         {
@@ -158,16 +171,21 @@ public class CrossZoneRpcService : IHostedService, IDisposable
             if (_connections.TryRemove(key, out var connection))
             {
                 _logger.LogInformation("Removing idle connection {ConnectionKey}", key);
-                try
-                {
-                    connection.Host.StopAsync().GetAwaiter().GetResult();
-                    connection.Host.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error disposing idle connection {ConnectionKey}", key);
-                }
+                _ = DisposeConnectionAsync(connection, CancellationToken.None);
             }
+        }
+    }
+    
+    private async Task DisposeConnectionAsync(RpcConnectionInfo connection, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await connection.Host.StopAsync(cancellationToken);
+            connection.Host.Dispose();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error disposing connection {ConnectionKey}", connection.ConnectionKey);
         }
     }
 

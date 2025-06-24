@@ -134,6 +134,12 @@ dotnet test --filter "Category=BVT" --no-build -c Debug
 - `fork-maintenance-guide.md`: Detailed fork maintenance instructions
 - `forkleans-version-bump-guide.md`: Guide for bumping Forkleans NuGet package versions
 
+### Bumping the version number
+
+- We always want to bump the revision part of the version (because the rest of the version is staying in sync with upstream Orleans.)
+- Also, you always seem to time out on `forkleans-version-bump.ps1 -Mode All` after 2 minutes. Is there a way you can use a longer timeout such as 5 minutes?
+- And it seems better to do `-Mode All` so we rebuild all packages.  Maybe in some cases we only need to bump the RPC packages.
+
 ### Log Files
 
 The Shooter sample projects write detailed logs to help with debugging:

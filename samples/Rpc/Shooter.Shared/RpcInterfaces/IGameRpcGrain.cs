@@ -1,4 +1,5 @@
 using Forkleans;
+using Forkleans.Concurrency;
 using Forkleans.Rpc;
 using Shooter.Shared.Models;
 
@@ -47,6 +48,7 @@ public interface IGameRpcGrain : Forkleans.Rpc.IRpcGrainInterfaceWithStringKey, 
     Task<List<GridSquare>> GetAvailableZones();
     
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    [OneWay]
     Task ReceiveScoutAlert(GridSquare playerZone, Vector2 playerPosition);
     
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Unreliable)]
@@ -60,5 +62,6 @@ public interface IGameRpcGrain : Forkleans.Rpc.IRpcGrainInterfaceWithStringKey, 
     /// The bullet will be spawned at the calculated position based on current time.
     /// </summary>
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    [OneWay]
     Task TransferBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId);
 }

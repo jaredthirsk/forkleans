@@ -212,11 +212,11 @@ namespace Forkleans.Rpc.Transport.LiteNetLib
         public void OnPeerConnected(NetPeer peer)
         {
             var connectionId = peer.Id.ToString();
-            // For server, we don't know the client's port, so we use 0 as placeholder
+            // LiteNetLib doesn't expose the client's actual port, so we use Address with port 0
             var endpoint = new IPEndPoint(peer.Address, 0);
             _peerEndpoints[peer.Id] = endpoint;
             _peers[peer.Id] = peer;
-            _logger.LogInformation("Peer connected: {PeerId} from {Address}", connectionId, peer.Address);
+            _logger.LogInformation("Peer connected: {PeerId} from {Address} (using peer ID for connection tracking)", connectionId, peer.Address);
             ConnectionEstablished?.Invoke(this, new RpcConnectionEventArgs(endpoint, connectionId));
         }
 

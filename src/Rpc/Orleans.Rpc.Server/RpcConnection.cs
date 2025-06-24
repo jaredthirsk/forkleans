@@ -96,6 +96,8 @@ namespace Forkleans.Rpc
                     Payload = SerializeResult(result)
                 };
 
+                _logger.LogInformation("RPC Connection: Sending success response for request {MessageId}, payload size: {PayloadSize} bytes", 
+                    request.MessageId, response.Payload?.Length ?? 0);
                 await SendResponseAsync(response);
             }
             catch (Exception ex)
@@ -124,7 +126,7 @@ namespace Forkleans.Rpc
             {
                 var messageSerializer = _catalog.ServiceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
                 var responseData = messageSerializer.SerializeMessage(response);
-                await _transport.SendAsync(_remoteEndPoint, responseData, CancellationToken.None);
+                await _transport.SendToConnectionAsync(_connectionId, responseData, CancellationToken.None);
             }
             catch (InvalidOperationException ex) when (ex.Message.Contains("No connected peer"))
             {

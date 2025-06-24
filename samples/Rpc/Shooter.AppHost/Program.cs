@@ -37,7 +37,7 @@ builder.AddProject<Projects.Shooter_Client>("shooter-client")
     .WaitFor(silo);
 
 // Add bot instances for testing - wait for at least one action server to be ready
-for (int i = 0; i < 1; i++)
+for (int i = 0; i < 2; i++)
 {
     var bot = builder.AddProject<Projects.Shooter_Bot>($"shooter-bot-{i}")
         .WithEnvironment("SiloUrl", silo.GetEndpoint("https"))

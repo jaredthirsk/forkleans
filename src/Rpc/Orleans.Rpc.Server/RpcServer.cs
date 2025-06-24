@@ -137,14 +137,14 @@ namespace Forkleans.Rpc
         {
             try
             {
-                _logger.LogTrace("OnDataReceived: Received {ByteCount} bytes from {Endpoint}, ConnectionId: {ConnectionId}", 
+                _logger.LogInformation("RPC Server OnDataReceived: Received {ByteCount} bytes from {Endpoint}, ConnectionId: {ConnectionId}", 
                     e.Data.Length, e.RemoteEndPoint, e.ConnectionId);
                 
                 // Deserialize the message
                 var messageSerializer = _catalog.ServiceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
                 var message = messageSerializer.DeserializeMessage(e.Data);
                 
-                _logger.LogTrace("OnDataReceived: Deserialized message of type {MessageType} from {Endpoint}", 
+                _logger.LogInformation("RPC Server OnDataReceived: Deserialized message of type {MessageType} from {Endpoint}", 
                     message?.GetType().Name ?? "null", e.RemoteEndPoint);
 
                 // Handle different message types
@@ -155,9 +155,9 @@ namespace Forkleans.Rpc
                         break;
                         
                     case Protocol.RpcRequest request:
-                        _logger.LogTrace("OnDataReceived: Received RPC request {MessageId} for grain {GrainId}, method {MethodId}", 
+                        _logger.LogInformation("RPC Server OnDataReceived: Received RPC request {MessageId} for grain {GrainId}, method {MethodId}", 
                             request.MessageId, request.GrainId, request.MethodId);
-                        await HandleRequest(request, e.RemoteEndPoint);
+                        await HandleRequest(request, e.RemoteEndPoint, e.ConnectionId);
                         break;
                         
                     case Protocol.RpcHeartbeat heartbeat:
@@ -303,13 +303,13 @@ namespace Forkleans.Rpc
             return manifest;
         }
 
-        private async Task HandleRequest(Protocol.RpcRequest request, IPEndPoint remoteEndpoint)
+        private async Task HandleRequest(Protocol.RpcRequest request, IPEndPoint remoteEndpoint, string actualConnectionId = null)
         {
-            _logger.LogTrace("Handling RPC request {MessageId} for grain {GrainId} method {MethodId} from {Endpoint}", 
-                request.MessageId, request.GrainId, request.MethodId, remoteEndpoint);
+            _logger.LogInformation("RPC Server HandleRequest: Processing request {MessageId} for grain {GrainId} method {MethodId} from {Endpoint}, ConnectionId: {ConnectionId}", 
+                request.MessageId, request.GrainId, request.MethodId, remoteEndpoint, actualConnectionId);
 
-            // Get or create connection for this endpoint
-            var connectionId = remoteEndpoint.ToString();
+            // Use the actual connection ID if provided (from transport), otherwise use endpoint
+            var connectionId = actualConnectionId ?? remoteEndpoint.ToString();
             var connection = GetOrCreateConnection(connectionId, remoteEndpoint);
             
             // Process the request through the connection

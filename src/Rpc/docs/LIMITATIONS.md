@@ -69,6 +69,8 @@ public void UpdateFromServer(RpcGrainManifest grainManifest)
 
 4. **No Connection Pooling**: Each client maintains a single connection, no pooling for better resource utilization.
 
+5. **Multiple Hosts for Cross-Zone Communication**: In the Shooter sample, CrossZoneRpcService creates a new IHost (with full DI container) for each server connection, which is inefficient. The ideal solution would be to have a single RPC client that can dynamically connect to multiple servers, but this would require changes to the Forkleans RPC client implementation to support adding/removing connections at runtime.
+
 ### Version Management
 
 1. **No Version Tracking**: The `RpcClientManifestProvider` uses `MajorMinorVersion.Zero` for all manifests, providing no version conflict detection.

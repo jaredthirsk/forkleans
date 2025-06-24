@@ -114,7 +114,7 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
     
     public Task TransferBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId)
     {
-        _logger.LogInformation("RPC: Receiving bullet trajectory {BulletId} with origin {Origin}, velocity {Velocity}, lifespan {Lifespan}", 
+        _logger.LogDebug("RPC: Receiving bullet trajectory {BulletId} with origin {Origin}, velocity {Velocity}, lifespan {Lifespan}", 
             bulletId, origin, velocity, lifespan);
         
         // Transfer the bullet trajectory to the world simulation

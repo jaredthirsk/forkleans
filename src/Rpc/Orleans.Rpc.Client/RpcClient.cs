@@ -318,12 +318,13 @@ namespace Forkleans.Rpc
         {
             try
             {
-                _logger.LogDebug("Received {ByteCount} bytes from server", e.Data.Length);
+                _logger.LogInformation("RPC Client OnDataReceived: Received {ByteCount} bytes from {Endpoint}, ConnectionId: {ConnectionId}", 
+                    e.Data.Length, e.RemoteEndPoint, e.ConnectionId);
                 
                 // Deserialize the message
                 var messageSerializer = _serviceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
                 var message = messageSerializer.DeserializeMessage(e.Data);
-                _logger.LogDebug("Deserialized message type: {MessageType}", message.GetType().Name);
+                _logger.LogInformation("RPC Client OnDataReceived: Deserialized message type: {MessageType}", message.GetType().Name);
 
                 // Handle different message types
                 switch (message)
@@ -408,6 +409,9 @@ namespace Forkleans.Rpc
 
         private void HandleResponse(Protocol.RpcResponse response)
         {
+            _logger.LogInformation("RPC Client HandleResponse: Received response for request {RequestId}, Success: {Success}, ErrorMessage: {ErrorMessage}", 
+                response.RequestId, response.Success, response.ErrorMessage);
+                
             if (_pendingRequests.TryRemove(response.RequestId, out var tcs))
             {
                 
@@ -506,6 +510,8 @@ namespace Forkleans.Rpc
                 // Serialize and send the request
                 var messageSerializer = _serviceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
                 var data = messageSerializer.SerializeMessage(request);
+                _logger.LogInformation("RPC Client: Sending request {MessageId} to server {ServerId}, data size: {DataSize} bytes", 
+                    request.MessageId, connection.ServerId, data.Length);
                 await connection.SendAsync(data, CancellationToken.None);
 
                 // Wait for response with timeout

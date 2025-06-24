@@ -70,7 +70,7 @@ namespace Forkleans.Rpc
         {
             try
             {
-                _logger.LogInformation("SendRequest called for {Target} method {MethodName} (entry point)", target, request.GetMethodName());
+                _logger.LogTrace("SendRequest called for {Target} method {MethodName} (entry point)", target, request.GetMethodName());
             
             Task.Run(async () =>
             {
@@ -115,13 +115,14 @@ namespace Forkleans.Rpc
                         ReturnTypeName = returnTypeName
                     };
                     
-                    _logger.LogInformation("Sending RPC request {MessageId} to grain {GrainId} interface {InterfaceType} method {MethodId}", 
-                        rpcRequest.MessageId, rpcRequest.GrainId, rpcRequest.InterfaceType, rpcRequest.MethodId);
+                    _logger.LogInformation("OutsideRpcRuntimeClient: Sending RPC request {MessageId} to grain {GrainId} interface {InterfaceType} method {MethodId}, timeout: {TimeoutMs}ms", 
+                        rpcRequest.MessageId, rpcRequest.GrainId, rpcRequest.InterfaceType, rpcRequest.MethodId, rpcRequest.TimeoutMs);
                     
                     // Send request and wait for response
                     var response = await _rpcClient.SendRequestAsync(rpcRequest);
                     
-                    _logger.LogInformation("Received RPC response for {MessageId}: Success={Success}", rpcRequest.MessageId, response.Success);
+                    _logger.LogInformation("OutsideRpcRuntimeClient: Received RPC response for {MessageId}: Success={Success}, PayloadSize={PayloadSize}", 
+                        rpcRequest.MessageId, response.Success, response.Payload?.Length ?? 0);
                     
                     if (response.Success)
                     {
@@ -130,7 +131,7 @@ namespace Forkleans.Rpc
                         if (response.Payload != null && response.Payload.Length > 0)
                         {
                             var json = System.Text.Encoding.UTF8.GetString(response.Payload);
-                            _logger.LogInformation("Deserializing response payload: '{Json}' (length: {Length} bytes)", json, response.Payload.Length);
+                            _logger.LogTrace("Deserializing response payload: '{Json}' (length: {Length} bytes)", json, response.Payload.Length);
                             
                             // Try to deserialize using the return type information if available
                             if (!string.IsNullOrEmpty(rpcRequest.ReturnTypeName))
@@ -213,7 +214,7 @@ namespace Forkleans.Rpc
                             }
                         }
                         
-                        _logger.LogInformation("Final deserialized result - Type: {Type}, Value: {Value}", 
+                        _logger.LogTrace("Final deserialized result - Type: {Type}, Value: {Value}", 
                             result?.GetType().Name ?? "null", result);
                         
                         context.Complete(Response.FromResult(result));
@@ -307,7 +308,7 @@ namespace Forkleans.Rpc
             {
                 if (methods[i].Name == methodName)
                 {
-                    _logger.LogInformation("Method {MethodName} on {Interface} has ID {MethodId}", methodName, interfaceType, i);
+                    _logger.LogTrace("Method {MethodName} on {Interface} has ID {MethodId}", methodName, interfaceType, i);
                     return i;
                 }
             }
