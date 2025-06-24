@@ -1357,7 +1357,7 @@ public class ForkleansRpcGameClientService : IDisposable
             _currentZone.X, _currentZone.Y, min.X, min.Y, max.X, max.Y, pos);
         
         // Use zone peek distance for consistent visibility
-        const float ZONE_PEEK_DISTANCE = 150f; // Match GameConstants.ZonePeekDistance
+        const float ZONE_PEEK_DISTANCE = 200f; // Match GameConstants.ZonePeekDistance
         
         bool nearLeftEdge = pos.X <= min.X + ZONE_PEEK_DISTANCE;
         bool nearRightEdge = pos.X >= max.X - ZONE_PEEK_DISTANCE;

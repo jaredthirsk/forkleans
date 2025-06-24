@@ -649,7 +649,7 @@ class GamePhaser {
         //console.log('Camera worldView:', worldView);
         
         // Zone peek distance constant - how far into adjacent zones we can see
-        const ZONE_PEEK_DISTANCE = 150; // This should match GameConstants.ZonePeekDistance
+        const ZONE_PEEK_DISTANCE = 200; // This should match GameConstants.ZonePeekDistance
         
         // Calculate which zones are visible
         const startZoneX = Math.floor(worldView.left / 500);
