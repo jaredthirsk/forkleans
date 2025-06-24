@@ -129,7 +129,7 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
     
     public Task Subscribe(IGameRpcObserver observer)
     {
-        _observers.Subscribe(observer);
+        _observers.Subscribe(observer, observer);
         _logger.LogInformation("RPC: Observer subscribed to game updates");
         return Task.CompletedTask;
     }
@@ -169,7 +169,7 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
         
         while (!cancellationToken.IsCancellationRequested)
         {
-            var state = await _worldSimulation.GetWorldStateAsync();
+            var state = _worldSimulation.GetCurrentState();
             yield return state;
             
             // Stream at 60 FPS
@@ -183,10 +183,10 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
         
         while (!cancellationToken.IsCancellationRequested)
         {
-            var state = await _worldSimulation.GetWorldStateAsync();
+            var state = _worldSimulation.GetCurrentState();
             var stats = new ZoneStatistics
             {
-                Zone = _gameService.AssignedSquare,
+                Zone = _worldSimulation.GetAssignedSquare(),
                 PlayerCount = state.Entities.Count(e => e.Type == EntityType.Player && e.SubType == 0 && e.State != EntityStateType.Dead),
                 EntityCount = state.Entities.Count(e => e.State != EntityStateType.Dead),
                 BulletCount = state.Entities.Count(e => e.Type == EntityType.Bullet),
@@ -208,7 +208,7 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
         while (!cancellationToken.IsCancellationRequested)
         {
             // Get player's position
-            var state = await _worldSimulation.GetWorldStateAsync();
+            var state = _worldSimulation.GetCurrentState();
             var player = state.Entities.FirstOrDefault(e => e.EntityId == playerId);
             
             if (player != null)
