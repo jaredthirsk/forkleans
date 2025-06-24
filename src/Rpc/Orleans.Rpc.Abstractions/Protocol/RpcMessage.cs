@@ -206,10 +206,10 @@ namespace Forkleans.Rpc.Protocol
     }
 
     /// <summary>
-    /// Streaming request to start an IAsyncEnumerable stream.
+    /// Request to start an IAsyncEnumerable method result.
     /// </summary>
     [GenerateSerializer]
-    public class RpcStreamingRequest : RpcMessage
+    public class RpcAsyncEnumerableRequest : RpcMessage
     {
         /// <summary>
         /// Target grain ID.
@@ -243,10 +243,10 @@ namespace Forkleans.Rpc.Protocol
     }
 
     /// <summary>
-    /// Streaming response containing a single item from the stream.
+    /// Response containing a single item from an IAsyncEnumerable stream.
     /// </summary>
     [GenerateSerializer]
-    public class RpcStreamingItem : RpcMessage
+    public class RpcAsyncEnumerableItem : RpcMessage
     {
         /// <summary>
         /// Stream ID for correlation.
@@ -280,10 +280,10 @@ namespace Forkleans.Rpc.Protocol
     }
 
     /// <summary>
-    /// Request to cancel a streaming operation.
+    /// Request to cancel an IAsyncEnumerable operation.
     /// </summary>
     [GenerateSerializer]
-    public class RpcStreamingCancel : RpcMessage
+    public class RpcAsyncEnumerableCancel : RpcMessage
     {
         /// <summary>
         /// Stream ID to cancel.

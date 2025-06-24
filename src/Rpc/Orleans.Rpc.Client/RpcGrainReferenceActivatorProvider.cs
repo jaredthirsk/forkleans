@@ -156,7 +156,7 @@ namespace Forkleans.Rpc
                     _services);
 
                 return new RpcGrainReference(shared, grainId.Key, referenceLogger, rpcClient, serializer, 
-                    rpcClient.StreamingManager);
+                    rpcClient.AsyncEnumerableManager);
             }
             
             public GrainReference CreateReference(GrainId grainId)

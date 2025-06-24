@@ -85,9 +85,9 @@ namespace Forkleans.Rpc.Protocol
                     3 => JsonSerializer.Deserialize<RpcHeartbeat>(json, _jsonOptions),
                     4 => JsonSerializer.Deserialize<RpcHandshake>(json, _jsonOptions),
                     5 => JsonSerializer.Deserialize<RpcHandshakeAck>(json, _jsonOptions),
-                    6 => JsonSerializer.Deserialize<RpcStreamingRequest>(json, _jsonOptions),
-                    7 => JsonSerializer.Deserialize<RpcStreamingItem>(json, _jsonOptions),
-                    8 => JsonSerializer.Deserialize<RpcStreamingCancel>(json, _jsonOptions),
+                    6 => JsonSerializer.Deserialize<RpcAsyncEnumerableRequest>(json, _jsonOptions),
+                    7 => JsonSerializer.Deserialize<RpcAsyncEnumerableItem>(json, _jsonOptions),
+                    8 => JsonSerializer.Deserialize<RpcAsyncEnumerableCancel>(json, _jsonOptions),
                     _ => throw new NotSupportedException($"Unknown message type: {messageType}")
                 };
             }
@@ -107,9 +107,9 @@ namespace Forkleans.Rpc.Protocol
                 RpcHeartbeat => 3,
                 RpcHandshake => 4,
                 RpcHandshakeAck => 5,
-                RpcStreamingRequest => 6,
-                RpcStreamingItem => 7,
-                RpcStreamingCancel => 8,
+                RpcAsyncEnumerableRequest => 6,
+                RpcAsyncEnumerableItem => 7,
+                RpcAsyncEnumerableCancel => 8,
                 _ => throw new NotSupportedException($"Unknown message type: {message.GetType()}")
             };
         }

@@ -1,5 +1,7 @@
 using System;
 using System.Buffers;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,7 +24,7 @@ namespace Forkleans.Rpc
         private readonly ILogger<RpcGrainReference> _logger;
         private readonly RpcClient _rpcClient;
         private readonly Serializer _serializer;
-        private readonly RpcStreamingManager _streamingManager;
+        private readonly RpcAsyncEnumerableManager _asyncEnumerableManager;
 
         /// <summary>
         /// Optional zone ID for zone-aware routing.
@@ -35,13 +37,13 @@ namespace Forkleans.Rpc
             ILogger<RpcGrainReference> logger,
             RpcClient rpcClient,
             Serializer serializer,
-            RpcStreamingManager streamingManager)
+            RpcAsyncEnumerableManager asyncEnumerableManager)
             : base(shared, key)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _rpcClient = rpcClient ?? throw new ArgumentNullException(nameof(rpcClient));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-            _streamingManager = streamingManager ?? throw new ArgumentNullException(nameof(streamingManager));
+            _asyncEnumerableManager = asyncEnumerableManager ?? throw new ArgumentNullException(nameof(asyncEnumerableManager));
         }
 
         public async Task<T> InvokeRpcMethodAsync<T>(int methodId, object[] arguments)
@@ -94,13 +96,13 @@ namespace Forkleans.Rpc
         }
 
         /// <summary>
-        /// Invokes a streaming method that returns IAsyncEnumerable.
+        /// Invokes a method that returns IAsyncEnumerable.
         /// </summary>
-        public IAsyncEnumerable<T> InvokeStreamingMethodAsync<T>(int methodId, object[] arguments, CancellationToken cancellationToken)
+        public IAsyncEnumerable<T> InvokeAsyncEnumerableMethodAsync<T>(int methodId, object[] arguments, CancellationToken cancellationToken)
         {
             var streamId = Guid.NewGuid();
             
-            // Start the streaming operation asynchronously
+            // Start the async enumerable operation asynchronously
             _ = Task.Run(async () =>
             {
                 try
@@ -109,8 +111,8 @@ namespace Forkleans.Rpc
                     var writer = new ArrayBufferWriter<byte>();
                     _serializer.Serialize(arguments, writer);
                     
-                    // Create streaming request
-                    var request = new Protocol.RpcStreamingRequest
+                    // Create async enumerable request
+                    var request = new Protocol.RpcAsyncEnumerableRequest
                     {
                         MessageId = Guid.NewGuid(),
                         GrainId = this.GrainId,
@@ -120,25 +122,25 @@ namespace Forkleans.Rpc
                         StreamId = streamId
                     };
 
-                    // Send streaming request
+                    // Send async enumerable request
                     var response = await _rpcClient.SendRequestAsync(request);
                     
                     if (!response.Success)
                     {
-                        _streamingManager.CancelStream(streamId);
-                        throw new Exception($"Streaming request failed: {response.ErrorMessage}");
+                        _asyncEnumerableManager.CancelStream(streamId);
+                        throw new Exception($"Async enumerable request failed: {response.ErrorMessage}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error starting streaming method {MethodId} on grain {GrainId}", 
+                    _logger.LogError(ex, "Error starting async enumerable method {MethodId} on grain {GrainId}", 
                         methodId, this.GrainId);
-                    _streamingManager.CancelStream(streamId);
+                    _asyncEnumerableManager.CancelStream(streamId);
                 }
             }, cancellationToken);
 
             // Return the async enumerable that will receive items
-            return _streamingManager.CreateStream<T>(streamId, cancellationToken);
+            return _asyncEnumerableManager.CreateStream<T>(streamId, cancellationToken);
         }
 
         // TODO: Implement proper invocation once we have RpcConnection

@@ -164,16 +164,16 @@ namespace Forkleans.Rpc
                         await HandleHeartbeat(heartbeat, e.RemoteEndPoint, e.ConnectionId);
                         break;
                         
-                    case Protocol.RpcStreamingRequest streamingRequest:
-                        _logger.LogDebug("RPC Server OnDataReceived: Received streaming request {StreamId} for grain {GrainId}, method {MethodId}", 
-                            streamingRequest.StreamId, streamingRequest.GrainId, streamingRequest.MethodId);
-                        await HandleStreamingRequest(streamingRequest, e.RemoteEndPoint, e.ConnectionId);
+                    case Protocol.RpcAsyncEnumerableRequest asyncEnumRequest:
+                        _logger.LogDebug("RPC Server OnDataReceived: Received async enumerable request {StreamId} for grain {GrainId}, method {MethodId}", 
+                            asyncEnumRequest.StreamId, asyncEnumRequest.GrainId, asyncEnumRequest.MethodId);
+                        await HandleAsyncEnumerableRequest(asyncEnumRequest, e.RemoteEndPoint, e.ConnectionId);
                         break;
                         
-                    case Protocol.RpcStreamingCancel streamingCancel:
-                        _logger.LogDebug("RPC Server OnDataReceived: Received streaming cancel for stream {StreamId}", 
-                            streamingCancel.StreamId);
-                        await HandleStreamingCancel(streamingCancel, e.RemoteEndPoint, e.ConnectionId);
+                    case Protocol.RpcAsyncEnumerableCancel asyncEnumCancel:
+                        _logger.LogDebug("RPC Server OnDataReceived: Received async enumerable cancel for stream {StreamId}", 
+                            asyncEnumCancel.StreamId);
+                        await HandleAsyncEnumerableCancel(asyncEnumCancel, e.RemoteEndPoint, e.ConnectionId);
                         break;
                         
                     default:
@@ -373,27 +373,27 @@ namespace Forkleans.Rpc
             }
         }
 
-        private async Task HandleStreamingRequest(Protocol.RpcStreamingRequest request, IPEndPoint remoteEndpoint, string connectionId)
+        private async Task HandleAsyncEnumerableRequest(Protocol.RpcAsyncEnumerableRequest request, IPEndPoint remoteEndpoint, string connectionId)
         {
-            _logger.LogDebug("RPC Server HandleStreamingRequest: Processing streaming request {StreamId} for grain {GrainId} method {MethodId}", 
+            _logger.LogDebug("RPC Server HandleAsyncEnumerableRequest: Processing async enumerable request {StreamId} for grain {GrainId} method {MethodId}", 
                 request.StreamId, request.GrainId, request.MethodId);
 
-            // Get or create connection for streaming
+            // Get or create connection for async enumerable
             var connection = GetOrCreateConnection(connectionId ?? remoteEndpoint.ToString(), remoteEndpoint);
             
-            // Process the streaming request through the connection
-            await connection.ProcessStreamingRequestAsync(request);
+            // Process the async enumerable request through the connection
+            await connection.ProcessAsyncEnumerableRequestAsync(request);
         }
         
-        private async Task HandleStreamingCancel(Protocol.RpcStreamingCancel cancel, IPEndPoint remoteEndpoint, string connectionId)
+        private async Task HandleAsyncEnumerableCancel(Protocol.RpcAsyncEnumerableCancel cancel, IPEndPoint remoteEndpoint, string connectionId)
         {
-            _logger.LogDebug("RPC Server HandleStreamingCancel: Cancelling stream {StreamId}", cancel.StreamId);
+            _logger.LogDebug("RPC Server HandleAsyncEnumerableCancel: Cancelling stream {StreamId}", cancel.StreamId);
 
             // Get connection
             var connection = GetOrCreateConnection(connectionId ?? remoteEndpoint.ToString(), remoteEndpoint);
             
             // Cancel the stream
-            await connection.CancelStreamAsync(cancel.StreamId);
+            await connection.CancelAsyncEnumerableAsync(cancel.StreamId);
         }
 
         private void OnConnectionEstablished(object sender, RpcConnectionEventArgs e)

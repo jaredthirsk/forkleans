@@ -11,22 +11,23 @@ using Forkleans.Serialization;
 namespace Forkleans.Rpc
 {
     /// <summary>
-    /// Manages streaming operations for IAsyncEnumerable on the client side.
+    /// Manages IAsyncEnumerable operations on the client side.
+    /// This is distinct from Orleans streams which are pub/sub based.
     /// </summary>
-    internal class RpcStreamingManager
+    internal class RpcAsyncEnumerableManager
     {
-        private readonly ILogger<RpcStreamingManager> _logger;
+        private readonly ILogger<RpcAsyncEnumerableManager> _logger;
         private readonly Serializer _serializer;
-        private readonly ConcurrentDictionary<Guid, StreamingOperation> _activeStreams = new();
+        private readonly ConcurrentDictionary<Guid, AsyncEnumerableOperation> _activeOperations = new();
 
-        public RpcStreamingManager(ILogger<RpcStreamingManager> logger, Serializer serializer)
+        public RpcAsyncEnumerableManager(ILogger<RpcAsyncEnumerableManager> logger, Serializer serializer)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
         /// <summary>
-        /// Creates a new streaming operation and returns an IAsyncEnumerable.
+        /// Creates a new async enumerable operation and returns an IAsyncEnumerable.
         /// </summary>
         public IAsyncEnumerable<T> CreateStream<T>(Guid streamId, CancellationToken cancellationToken)
         {
@@ -36,7 +37,7 @@ namespace Forkleans.Rpc
                 SingleWriter = true
             });
 
-            var operation = new StreamingOperation<T>
+            var operation = new AsyncEnumerableOperation<T>
             {
                 StreamId = streamId,
                 Channel = channel,
@@ -45,12 +46,12 @@ namespace Forkleans.Rpc
                 StartedAt = DateTime.UtcNow
             };
 
-            if (!_activeStreams.TryAdd(streamId, operation))
+            if (!_activeOperations.TryAdd(streamId, operation))
             {
                 throw new InvalidOperationException($"Stream {streamId} already exists");
             }
 
-            _logger.LogDebug("Created streaming operation {StreamId} for type {Type}", streamId, typeof(T).Name);
+            _logger.LogDebug("Created async enumerable operation {StreamId} for type {Type}", streamId, typeof(T).Name);
 
             // Register cancellation
             cancellationToken.Register(() => CancelStream(streamId));
@@ -59,13 +60,13 @@ namespace Forkleans.Rpc
         }
 
         /// <summary>
-        /// Processes a streaming item received from the server.
+        /// Processes an async enumerable item received from the server.
         /// </summary>
-        public async Task ProcessStreamingItem(Protocol.RpcStreamingItem item)
+        public async Task ProcessAsyncEnumerableItem(Protocol.RpcAsyncEnumerableItem item)
         {
-            if (!_activeStreams.TryGetValue(item.StreamId, out var operation))
+            if (!_activeOperations.TryGetValue(item.StreamId, out var operation))
             {
-                _logger.LogWarning("Received streaming item for unknown stream {StreamId}", item.StreamId);
+                _logger.LogWarning("Received async enumerable item for unknown stream {StreamId}", item.StreamId);
                 return;
             }
 
@@ -87,12 +88,14 @@ namespace Forkleans.Rpc
                         await operation.Complete();
                     }
                     
-                    _activeStreams.TryRemove(item.StreamId, out _);
+                    _activeOperations.TryRemove(item.StreamId, out _);
                 }
                 else if (item.ItemData != null && item.ItemData.Length > 0)
                 {
                     // Process stream item
-                    var value = _serializer.Deserialize(item.ItemData, operation.ItemType);
+                    // Deserialize using JSON for now (matching server-side serialization)
+                    var json = System.Text.Encoding.UTF8.GetString(item.ItemData);
+                    var value = System.Text.Json.JsonSerializer.Deserialize(json, operation.ItemType);
                     await operation.AddItem(value);
                     
                     _logger.LogTrace("Processed item {SequenceNumber} for stream {StreamId}", 
@@ -101,25 +104,25 @@ namespace Forkleans.Rpc
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing streaming item for stream {StreamId}", item.StreamId);
+                _logger.LogError(ex, "Error processing async enumerable item for stream {StreamId}", item.StreamId);
                 await operation.SetError(ex);
-                _activeStreams.TryRemove(item.StreamId, out _);
+                _activeOperations.TryRemove(item.StreamId, out _);
             }
         }
 
         /// <summary>
-        /// Cancels a streaming operation.
+        /// Cancels an async enumerable operation.
         /// </summary>
         public void CancelStream(Guid streamId)
         {
-            if (_activeStreams.TryRemove(streamId, out var operation))
+            if (_activeOperations.TryRemove(streamId, out var operation))
             {
                 _logger.LogDebug("Cancelling stream {StreamId}", streamId);
                 operation.Cancel();
             }
         }
 
-        private async IAsyncEnumerable<T> ReadFromChannel<T>(StreamingOperation<T> operation, 
+        private async IAsyncEnumerable<T> ReadFromChannel<T>(AsyncEnumerableOperation<T> operation, 
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var reader = operation.Channel.Reader;
@@ -133,11 +136,11 @@ namespace Forkleans.Rpc
             }
             finally
             {
-                _activeStreams.TryRemove(operation.StreamId, out _);
+                _activeOperations.TryRemove(operation.StreamId, out _);
             }
         }
 
-        private abstract class StreamingOperation
+        private abstract class AsyncEnumerableOperation
         {
             public Guid StreamId { get; set; }
             public Type ItemType { get; set; }
@@ -150,7 +153,7 @@ namespace Forkleans.Rpc
             public abstract void Cancel();
         }
 
-        private class StreamingOperation<T> : StreamingOperation
+        private class AsyncEnumerableOperation<T> : AsyncEnumerableOperation
         {
             public Channel<T> Channel { get; set; }
 

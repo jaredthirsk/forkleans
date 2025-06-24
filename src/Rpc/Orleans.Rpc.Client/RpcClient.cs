@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace Forkleans.Rpc
         private readonly IClusterClientLifecycle _lifecycle;
         private readonly RpcConnectionManager _connectionManager;
         private readonly IClusterManifestProvider _manifestProvider;
-        private readonly RpcStreamingManager _streamingManager;
+        private readonly RpcAsyncEnumerableManager _asyncEnumerableManager;
         
         private readonly ConcurrentDictionary<Guid, TaskCompletionSource<Protocol.RpcResponse>> _pendingRequests 
             = new ConcurrentDictionary<Guid, TaskCompletionSource<Protocol.RpcResponse>>();
@@ -60,7 +61,7 @@ namespace Forkleans.Rpc
             _connectionManager = new RpcConnectionManager(loggerFactory.CreateLogger<RpcConnectionManager>());
             
             var serializer = serviceProvider.GetRequiredService<Forkleans.Serialization.Serializer>();
-            _streamingManager = new RpcStreamingManager(loggerFactory.CreateLogger<RpcStreamingManager>(), serializer);
+            _asyncEnumerableManager = new RpcAsyncEnumerableManager(loggerFactory.CreateLogger<RpcAsyncEnumerableManager>(), serializer);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -351,8 +352,8 @@ namespace Forkleans.Rpc
                         _logger.LogDebug("Received heartbeat from server {ServerId}", heartbeat.SourceId);
                         break;
                         
-                    case Protocol.RpcStreamingItem streamingItem:
-                        await _streamingManager.ProcessStreamingItem(streamingItem);
+                    case Protocol.RpcAsyncEnumerableItem asyncEnumerableItem:
+                        await _asyncEnumerableManager.ProcessAsyncEnumerableItem(asyncEnumerableItem);
                         break;
                         
                     default:
@@ -559,18 +560,18 @@ namespace Forkleans.Rpc
             {
                 return await SendRequestAsync(request);
             }
-            else if (message is Protocol.RpcStreamingRequest streamingReq)
+            else if (message is Protocol.RpcAsyncEnumerableRequest asyncEnumReq)
             {
-                // For streaming requests, route based on grain ID
+                // For async enumerable requests, route based on grain ID
                 connection = _connectionManager.GetConnectionForRequest(new Protocol.RpcRequest 
                 { 
-                    GrainId = streamingReq.GrainId,
-                    InterfaceType = streamingReq.InterfaceType 
+                    GrainId = asyncEnumReq.GrainId,
+                    InterfaceType = asyncEnumReq.InterfaceType 
                 });
             }
-            else if (message is Protocol.RpcStreamingCancel)
+            else if (message is Protocol.RpcAsyncEnumerableCancel)
             {
-                // For streaming cancel, use any available connection
+                // For async enumerable cancel, use any available connection
                 var connections = _connectionManager.GetAllConnections();
                 if (connections.Count == 0)
                 {
@@ -596,11 +597,13 @@ namespace Forkleans.Rpc
 
             try
             {
-                _logger.LogDebug("Sending {MessageType} {MessageId} via connection {ConnectionId}", 
-                    message.GetType().Name, messageId, connection.ConnectionId);
+                _logger.LogDebug("Sending {MessageType} {MessageId} via connection to {Endpoint}", 
+                    message.GetType().Name, messageId, connection.Endpoint);
                 
-                // Send the message
-                await connection.SendMessageAsync(message);
+                // Serialize and send the message
+                var messageSerializer = _serviceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
+                var messageData = messageSerializer.SerializeMessage(message);
+                await connection.SendAsync(messageData, CancellationToken.None);
                 
                 // Wait for response with timeout
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
@@ -621,9 +624,9 @@ namespace Forkleans.Rpc
         }
         
         /// <summary>
-        /// Gets the streaming manager for this client.
+        /// Gets the async enumerable manager for this client.
         /// </summary>
-        internal RpcStreamingManager StreamingManager => _streamingManager;
+        internal RpcAsyncEnumerableManager AsyncEnumerableManager => _asyncEnumerableManager;
 
         public void Dispose()
         {

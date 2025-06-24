@@ -36,18 +36,18 @@ namespace Forkleans.Rpc.Protocol
         HandshakeAck = 6,
 
         /// <summary>
-        /// Streaming request to start an IAsyncEnumerable stream.
+        /// Request to start an IAsyncEnumerable stream.
         /// </summary>
-        StreamingRequest = 7,
+        AsyncEnumerableRequest = 7,
 
         /// <summary>
-        /// Streaming item containing data from the stream.
+        /// Item from an IAsyncEnumerable stream.
         /// </summary>
-        StreamingItem = 8,
+        AsyncEnumerableItem = 8,
 
         /// <summary>
-        /// Request to cancel a streaming operation.
+        /// Request to cancel an IAsyncEnumerable operation.
         /// </summary>
-        StreamingCancel = 9
+        AsyncEnumerableCancel = 9
     }
 }

@@ -37,6 +37,7 @@ namespace Forkleans.Rpc
         private readonly IRpcTransport _transport;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly ConcurrentDictionary<Guid, Protocol.RpcRequest> _pendingRequests = new();
+        private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _activeAsyncEnumerables = new();
         private readonly InterfaceToImplementationMappingCache _interfaceToImplementationMapping;
 
         private int _disposed;
@@ -358,41 +359,41 @@ namespace Forkleans.Rpc
         }
 
         /// <summary>
-        /// Processes a streaming request and starts streaming results back to the client.
+        /// Processes an IAsyncEnumerable request and starts sending results back to the client.
         /// </summary>
-        public async Task ProcessStreamingRequestAsync(Protocol.RpcStreamingRequest request)
+        public async Task ProcessAsyncEnumerableRequestAsync(Protocol.RpcAsyncEnumerableRequest request)
         {
             if (_disposed != 0)
             {
-                _logger.LogWarning("Ignoring streaming request on disposed connection {ConnectionId}", _connectionId);
+                _logger.LogWarning("Ignoring async enumerable request on disposed connection {ConnectionId}", _connectionId);
                 return;
             }
 
-            var streamingCts = new CancellationTokenSource();
+            var asyncEnumerableCts = new CancellationTokenSource();
             
             try
             {
                 // Store the cancellation token source for this stream
-                if (!_pendingRequests.TryAdd(request.StreamId, request))
+                if (!_activeAsyncEnumerables.TryAdd(request.StreamId, asyncEnumerableCts))
                 {
                     _logger.LogWarning("Duplicate stream ID: {StreamId}", request.StreamId);
                     return;
                 }
                 
-                // Start streaming in background
+                // Start async enumeration in background
                 _ = Task.Run(async () =>
                 {
                     try
                     {
-                        await StreamGrainMethodAsync(request, streamingCts.Token);
+                        await StreamAsyncEnumerableMethodAsync(request, asyncEnumerableCts.Token);
                     }
                     finally
                     {
-                        _pendingRequests.TryRemove(request.StreamId, out _);
+                        _activeAsyncEnumerables.TryRemove(request.StreamId, out _);
                     }
-                }, streamingCts.Token);
+                }, asyncEnumerableCts.Token);
 
-                // Send initial response to acknowledge streaming started
+                // Send initial response to acknowledge async enumeration started
                 var response = new Protocol.RpcResponse
                 {
                     RequestId = request.MessageId,
@@ -402,41 +403,43 @@ namespace Forkleans.Rpc
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to process streaming request {StreamId}", request.StreamId);
+                _logger.LogError(ex, "Failed to process async enumerable request {StreamId}", request.StreamId);
                 
                 // Send error item
-                var errorItem = new Protocol.RpcStreamingItem
+                var errorItem = new Protocol.RpcAsyncEnumerableItem
                 {
                     StreamId = request.StreamId,
                     SequenceNumber = 0,
                     IsComplete = true,
                     ErrorMessage = ex.Message
                 };
-                await SendStreamingItemAsync(errorItem);
+                await SendAsyncEnumerableItemAsync(errorItem);
             }
         }
         
         /// <summary>
-        /// Cancels an active stream.
+        /// Cancels an active IAsyncEnumerable stream.
         /// </summary>
-        public async Task CancelStreamAsync(Guid streamId)
+        public async Task CancelAsyncEnumerableAsync(Guid streamId)
         {
-            if (_pendingRequests.TryRemove(streamId, out _))
+            if (_activeAsyncEnumerables.TryRemove(streamId, out var cts))
             {
+                cts?.Cancel();
+                cts?.Dispose();
                 _logger.LogDebug("Cancelled stream {StreamId}", streamId);
                 
                 // Send completion item
-                var completeItem = new Protocol.RpcStreamingItem
+                var completeItem = new Protocol.RpcAsyncEnumerableItem
                 {
                     StreamId = streamId,
                     SequenceNumber = -1,
                     IsComplete = true
                 };
-                await SendStreamingItemAsync(completeItem);
+                await SendAsyncEnumerableItemAsync(completeItem);
             }
         }
         
-        private async Task StreamGrainMethodAsync(Protocol.RpcStreamingRequest request, CancellationToken cancellationToken)
+        private async Task StreamAsyncEnumerableMethodAsync(Protocol.RpcAsyncEnumerableRequest request, CancellationToken cancellationToken)
         {
             try
             {
@@ -562,7 +565,7 @@ namespace Forkleans.Rpc
                     var current = currentProperty.GetValue(asyncEnumerator);
                     
                     // Serialize and send the item
-                    var item = new Protocol.RpcStreamingItem
+                    var item = new Protocol.RpcAsyncEnumerableItem
                     {
                         StreamId = request.StreamId,
                         SequenceNumber = sequenceNumber++,
@@ -570,25 +573,25 @@ namespace Forkleans.Rpc
                         IsComplete = false
                     };
                     
-                    await SendStreamingItemAsync(item);
+                    await SendAsyncEnumerableItemAsync(item);
                 }
                 
                 // Send completion item
-                var completeItem = new Protocol.RpcStreamingItem
+                var completeItem = new Protocol.RpcAsyncEnumerableItem
                 {
                     StreamId = request.StreamId,
                     SequenceNumber = sequenceNumber,
                     IsComplete = true
                 };
                 
-                await SendStreamingItemAsync(completeItem);
+                await SendAsyncEnumerableItemAsync(completeItem);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error streaming from grain method");
+                _logger.LogError(ex, "Error enumerating from grain method");
                 
                 // Send error item
-                var errorItem = new Protocol.RpcStreamingItem
+                var errorItem = new Protocol.RpcAsyncEnumerableItem
                 {
                     StreamId = request.StreamId,
                     SequenceNumber = -1,
@@ -596,11 +599,11 @@ namespace Forkleans.Rpc
                     ErrorMessage = ex.Message
                 };
                 
-                await SendStreamingItemAsync(errorItem);
+                await SendAsyncEnumerableItemAsync(errorItem);
             }
         }
         
-        private async Task SendStreamingItemAsync(Protocol.RpcStreamingItem item)
+        private async Task SendAsyncEnumerableItemAsync(Protocol.RpcAsyncEnumerableItem item)
         {
             var messageSerializer = _catalog.ServiceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
             var messageData = messageSerializer.SerializeMessage(item);
@@ -620,6 +623,14 @@ namespace Forkleans.Rpc
         {
             if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
             {
+                // Cancel all active async enumerable operations
+                foreach (var kvp in _activeAsyncEnumerables)
+                {
+                    kvp.Value?.Cancel();
+                    kvp.Value?.Dispose();
+                }
+                _activeAsyncEnumerables.Clear();
+                
                 _cancellationTokenSource?.Cancel();
                 _cancellationTokenSource?.Dispose();
             }

@@ -14,9 +14,9 @@ namespace Forkleans.Rpc
         public RpcDeliveryMode DeliveryMode { get; set; } = RpcDeliveryMode.Reliable;
 
         /// <summary>
-        /// Gets or sets whether this method supports streaming responses.
+        /// Gets or sets whether this method supports IAsyncEnumerable responses.
         /// </summary>
-        public bool SupportsStreaming { get; set; }
+        public bool SupportsAsyncEnumerable { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum message size in bytes.
