@@ -17,6 +17,7 @@
     <PackageVersion Include="Forkleans.Rpc.Sdk" Version="9.2.0.35-preview3" />
     <PackageVersion Include="Forkleans.Rpc.Server" Version="9.2.0.35-preview3" />
     <PackageVersion Include="Forkleans.Rpc.Transport.LiteNetLib" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Rpc.Transport.Ruffles" Version="9.2.0.35-preview3" />
     <PackageVersion Include="Forkleans.Rpc.Abstractions" Version="9.2.0.35-preview3" />
     <PackageVersion Include="Forkleans.Server" Version="9.2.0.35-preview3" />
     <PackageVersion Include="Forkleans.Persistence.Memory" Version="9.2.0.35-preview3" />
