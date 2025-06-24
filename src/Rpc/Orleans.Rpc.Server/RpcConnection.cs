@@ -96,7 +96,7 @@ namespace Forkleans.Rpc
                     Payload = SerializeResult(result)
                 };
 
-                _logger.LogInformation("RPC Connection: Sending success response for request {MessageId}, payload size: {PayloadSize} bytes", 
+                _logger.LogDebug("RPC Connection: Sending success response for request {MessageId}, payload size: {PayloadSize} bytes", 
                     request.MessageId, response.Payload?.Length ?? 0);
                 await SendResponseAsync(response);
             }

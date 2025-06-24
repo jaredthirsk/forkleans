@@ -124,8 +124,8 @@ public class CrossZoneRpcService : IHostedService, IDisposable
 
             var rpcClient = hostBuilder.Services.GetRequiredService<IRpcClient>();
             
-            // Brief delay for connection establishment
-            await Task.Delay(200);
+            // Wait for connection establishment
+            await Task.Delay(1000);
 
             connectionInfo = new RpcConnectionInfo
             {

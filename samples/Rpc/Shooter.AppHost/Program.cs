@@ -5,6 +5,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 // Configuration
 const int InitialActionServerCount = 4;
+var transportType = args.FirstOrDefault(arg => arg.StartsWith("--transport="))?.Replace("--transport=", "") ?? "litenetlib";
 
 // Add the Orleans silo with Orleans ports exposed
 var silo = builder.AddProject<Projects.Shooter_Silo>("shooter-silo")
@@ -24,6 +25,7 @@ for (int i = 0; i < InitialActionServerCount; i++)
         .WithEnvironment("Orleans__GatewayEndpoint", silo.GetEndpoint("orleans-gateway"))
         .WithEnvironment("RPC_PORT", rpcPort.ToString())
         .WithEnvironment("ASPIRE_INSTANCE_ID", i.ToString()) // Help identify instances
+        .WithArgs($"--transport={transportType}")
         .WithReference(silo)
         .WaitFor(silo);
     actionServers.Add(server);
@@ -33,6 +35,7 @@ for (int i = 0; i < InitialActionServerCount; i++)
 // Add the Blazor client - it depends on the silo being ready
 builder.AddProject<Projects.Shooter_Client>("shooter-client")
     .WithEnvironment("SiloUrl", silo.GetEndpoint("https"))
+    .WithEnvironment("RpcTransport", transportType)
     .WithReference(silo)
     .WaitFor(silo);
 

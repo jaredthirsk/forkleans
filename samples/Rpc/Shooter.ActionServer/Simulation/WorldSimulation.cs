@@ -1698,7 +1698,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     {
                         // Send trajectory to this server
                         await SendBulletTrajectoryToServer(targetServer, bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId);
-                        _logger.LogInformation("Sent bullet trajectory {BulletId} to zone ({X},{Y})", 
+                        _logger.LogDebug("Sent bullet trajectory {BulletId} to zone ({X},{Y})", 
                             bulletId, targetZone.X, targetZone.Y);
                     }
                 }

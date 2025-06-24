@@ -3,6 +3,7 @@ using Forkleans.Metadata;
 using Forkleans.Runtime;
 using Forkleans.Rpc;
 using Forkleans.Rpc.Transport.LiteNetLib;
+using Forkleans.Rpc.Transport.Ruffles;
 using Forkleans.Serialization;
 using Shooter.Shared.Models;
 using Shooter.Shared.RpcInterfaces;
@@ -43,11 +44,16 @@ public class ForkleansRpcGameClientService : IDisposable
     private readonly HashSet<string> _visitedZones = new();
     private bool _worldStateErrorLogged = false;
     private DateTime _lastWorldStateError = DateTime.MinValue;
+    private GameRpcObserver? _observer;
+    private List<GridSquare> _cachedAvailableZones = new();
+    private Dictionary<string, List<EntityState>> _cachedAdjacentEntities = new();
     
     public event Action<WorldState>? WorldStateUpdated;
     public event Action<string>? ServerChanged;
     public event Action<List<GridSquare>>? AvailableZonesUpdated;
     public event Action<Dictionary<string, (bool isConnected, bool isNeighbor, bool isConnecting)>>? PreEstablishedConnectionsUpdated;
+    public event Action<ZoneStatistics>? ZoneStatsUpdated;
+    public event Action<ScoutAlert>? ScoutAlertReceived;
     
     public bool IsConnected { get; private set; }
     public string? PlayerId { get; private set; }
@@ -140,7 +146,20 @@ public class ForkleansRpcGameClientService : IDisposable
                 .UseOrleansRpcClient(rpcBuilder =>
                 {
                     rpcBuilder.ConnectTo(resolvedHost, rpcPort);
-                    rpcBuilder.UseLiteNetLib();
+                    // Configure transport based on configuration
+                    var transportType = _configuration["RpcTransport"] ?? "litenetlib";
+                    switch (transportType.ToLowerInvariant())
+                    {
+                        case "ruffles":
+                            _logger.LogInformation("Using Ruffles UDP transport");
+                            rpcBuilder.UseRuffles();
+                            break;
+                        case "litenetlib":
+                        default:
+                            _logger.LogInformation("Using LiteNetLib UDP transport");
+                            rpcBuilder.UseLiteNetLib();
+                            break;
+                    }
                 })
                 .ConfigureServices(services =>
                 {
@@ -217,6 +236,28 @@ public class ForkleansRpcGameClientService : IDisposable
             
             IsConnected = true;
             _logger.LogInformation("Player {PlayerId} successfully connected to server {ServerId}", PlayerId, CurrentServerId);
+            
+            // Create and subscribe observer for push updates
+            try
+            {
+                var loggerFactory = _rpcHost.Services.GetRequiredService<ILoggerFactory>();
+                _observer = new GameRpcObserver(loggerFactory.CreateLogger<GameRpcObserver>(), this);
+                
+                // Create an observer reference
+                var observerRef = await _rpcClient.CreateObjectReference<IGameRpcObserver>(_observer);
+                await _gameGrain.Subscribe(observerRef);
+                
+                _logger.LogInformation("Successfully subscribed to game updates via observer");
+            }
+            catch (NotSupportedException)
+            {
+                _logger.LogWarning("Observer pattern not supported by RPC transport, falling back to polling");
+                // Observer pattern might not be supported yet, continue with polling
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to subscribe observer, continuing with polling");
+            }
             
             // Start polling for world state
             _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(16));
@@ -380,10 +421,10 @@ public class ForkleansRpcGameClientService : IDisposable
                         var (min, max) = _currentZone.GetBounds();
                         var pos = player.Position;
                         
-                        bool nearLeftEdge = pos.X <= min.X + 100;
-                        bool nearRightEdge = pos.X >= max.X - 100;
-                        bool nearTopEdge = pos.Y <= min.Y + 100;
-                        bool nearBottomEdge = pos.Y >= max.Y - 100;
+                        bool nearLeftEdge = pos.X <= min.X + 150;
+                        bool nearRightEdge = pos.X >= max.X - 150;
+                        bool nearTopEdge = pos.Y <= min.Y + 150;
+                        bool nearBottomEdge = pos.Y >= max.Y - 150;
                         
                         if (nearLeftEdge || nearRightEdge || nearTopEdge || nearBottomEdge)
                         {
@@ -744,7 +785,20 @@ public class ForkleansRpcGameClientService : IDisposable
                 .UseOrleansRpcClient(rpcBuilder =>
                 {
                     rpcBuilder.ConnectTo(resolvedHost, rpcPort);
-                    rpcBuilder.UseLiteNetLib();
+                    // Configure transport based on configuration
+                    var transportType = _configuration["RpcTransport"] ?? "litenetlib";
+                    switch (transportType.ToLowerInvariant())
+                    {
+                        case "ruffles":
+                            _logger.LogInformation("Using Ruffles UDP transport");
+                            rpcBuilder.UseRuffles();
+                            break;
+                        case "litenetlib":
+                        default:
+                            _logger.LogInformation("Using LiteNetLib UDP transport");
+                            rpcBuilder.UseLiteNetLib();
+                            break;
+                    }
                 })
                 .ConfigureServices(services =>
                 {
@@ -866,9 +920,6 @@ public class ForkleansRpcGameClientService : IDisposable
     
     private async Task PreEstablishNeighborConnections(List<GridSquare> zones)
     {
-        // Disable pre-established connections entirely to prevent timeouts
-        return;
-        
         if (_currentZone == null || zones == null || zones.Count == 0)
         {
             return;
@@ -1154,7 +1205,20 @@ public class ForkleansRpcGameClientService : IDisposable
                 .UseOrleansRpcClient(rpcBuilder =>
                 {
                     rpcBuilder.ConnectTo(resolvedHost, rpcPort);
-                    rpcBuilder.UseLiteNetLib();
+                    // Configure transport based on configuration
+                    var transportType = _configuration["RpcTransport"] ?? "litenetlib";
+                    switch (transportType.ToLowerInvariant())
+                    {
+                        case "ruffles":
+                            _logger.LogInformation("Using Ruffles UDP transport");
+                            rpcBuilder.UseRuffles();
+                            break;
+                        case "litenetlib":
+                        default:
+                            _logger.LogInformation("Using LiteNetLib UDP transport");
+                            rpcBuilder.UseLiteNetLib();
+                            break;
+                    }
                 })
                 .ConfigureServices(services =>
                 {
@@ -1292,10 +1356,13 @@ public class ForkleansRpcGameClientService : IDisposable
         _logger.LogTrace("Current zone ({X},{Y}) bounds: ({MinX},{MinY}) to ({MaxX},{MaxY}), player at {Position}", 
             _currentZone.X, _currentZone.Y, min.X, min.Y, max.X, max.Y, pos);
         
-        bool nearLeftEdge = pos.X <= min.X + 100;
-        bool nearRightEdge = pos.X >= max.X - 100;
-        bool nearTopEdge = pos.Y <= min.Y + 100;
-        bool nearBottomEdge = pos.Y >= max.Y - 100;
+        // Use zone peek distance for consistent visibility
+        const float ZONE_PEEK_DISTANCE = 150f; // Match GameConstants.ZonePeekDistance
+        
+        bool nearLeftEdge = pos.X <= min.X + ZONE_PEEK_DISTANCE;
+        bool nearRightEdge = pos.X >= max.X - ZONE_PEEK_DISTANCE;
+        bool nearTopEdge = pos.Y <= min.Y + ZONE_PEEK_DISTANCE;
+        bool nearBottomEdge = pos.Y >= max.Y - ZONE_PEEK_DISTANCE;
         
         if (!nearLeftEdge && !nearRightEdge && !nearTopEdge && !nearBottomEdge)
         {
@@ -1388,18 +1455,18 @@ public class ForkleansRpcGameClientService : IDisposable
                             
                             // Check distance to our zone
                             // Zone (0,0) is to the left of zone (1,0), so entities near X=500 (right edge of 0,0) should be included
-                            if (zone.X < _currentZone.X && e.Position.X >= currentMin.X - 100) return true; // Left zone, entities near our left edge
-                            if (zone.X > _currentZone.X && e.Position.X <= currentMax.X + 100) return true; // Right zone, entities near our right edge
-                            if (zone.Y < _currentZone.Y && e.Position.Y >= currentMin.Y - 100) return true; // Top zone, entities near our top edge
-                            if (zone.Y > _currentZone.Y && e.Position.Y <= currentMax.Y + 100) return true; // Bottom zone, entities near our bottom edge
+                            if (zone.X < _currentZone.X && e.Position.X >= currentMin.X - ZONE_PEEK_DISTANCE) return true; // Left zone, entities near our left edge
+                            if (zone.X > _currentZone.X && e.Position.X <= currentMax.X + ZONE_PEEK_DISTANCE) return true; // Right zone, entities near our right edge
+                            if (zone.Y < _currentZone.Y && e.Position.Y >= currentMin.Y - ZONE_PEEK_DISTANCE) return true; // Top zone, entities near our top edge
+                            if (zone.Y > _currentZone.Y && e.Position.Y <= currentMax.Y + ZONE_PEEK_DISTANCE) return true; // Bottom zone, entities near our bottom edge
                             
                             // For corner zones, check both axes
                             if (zone.X != _currentZone.X && zone.Y != _currentZone.Y)
                             {
-                                bool xInRange = (zone.X < _currentZone.X && e.Position.X >= currentMin.X - 100) ||
-                                               (zone.X > _currentZone.X && e.Position.X <= currentMax.X + 100);
-                                bool yInRange = (zone.Y < _currentZone.Y && e.Position.Y >= currentMin.Y - 100) ||
-                                               (zone.Y > _currentZone.Y && e.Position.Y <= currentMax.Y + 100);
+                                bool xInRange = (zone.X < _currentZone.X && e.Position.X >= currentMin.X - ZONE_PEEK_DISTANCE) ||
+                                               (zone.X > _currentZone.X && e.Position.X <= currentMax.X + ZONE_PEEK_DISTANCE);
+                                bool yInRange = (zone.Y < _currentZone.Y && e.Position.Y >= currentMin.Y - ZONE_PEEK_DISTANCE) ||
+                                               (zone.Y > _currentZone.Y && e.Position.Y <= currentMax.Y + ZONE_PEEK_DISTANCE);
                                 return xInRange && yInRange;
                             }
                             
@@ -1489,6 +1556,29 @@ public class ForkleansRpcGameClientService : IDisposable
         // PlayerId = null;
         CurrentServerId = null;
         _currentZone = null;
+    }
+    
+    // Observer update methods
+    public void UpdateZoneStats(ZoneStatistics stats)
+    {
+        ZoneStatsUpdated?.Invoke(stats);
+    }
+    
+    public void UpdateAvailableZones(List<GridSquare> availableZones)
+    {
+        _cachedAvailableZones = availableZones;
+        AvailableZonesUpdated?.Invoke(availableZones);
+    }
+    
+    public void UpdateAdjacentEntities(Dictionary<string, List<EntityState>> entitiesByZone)
+    {
+        _cachedAdjacentEntities = entitiesByZone;
+        // Merge with current world state if needed
+    }
+    
+    public void HandleScoutAlert(ScoutAlert alert)
+    {
+        ScoutAlertReceived?.Invoke(alert);
     }
     
     public void Dispose()

@@ -80,8 +80,7 @@ public class ActionServerManager : IHostedService
             var arguments = new List<string>
             {
                 "run",
-                "--no-build", // Assume it's already built
-                "--",
+                "--", // Remove --no-build to ensure the project is built
                 $"--urls=http://localhost:{7072 + instanceId}",
                 $"--environment=Production"
             };

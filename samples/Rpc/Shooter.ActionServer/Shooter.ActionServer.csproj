@@ -12,6 +12,7 @@
     <PackageReference Include="Forkleans.Rpc.Server" />
     <PackageReference Include="Forkleans.Rpc.Client" />
     <PackageReference Include="Forkleans.Rpc.Transport.LiteNetLib" />
+    <PackageReference Include="Forkleans.Rpc.Transport.Ruffles" />
     <PackageReference Include="Forkleans.Client" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Http" />

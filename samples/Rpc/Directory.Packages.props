@@ -5,21 +5,21 @@
 
   <ItemGroup>
     <!-- Forkleans packages -->
-    <PackageVersion Include="Forkleans.Core.Abstractions" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.Core" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.Sdk" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.Client" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.Serialization" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.Serialization.Abstractions" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.CodeGenerator" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.Analyzers" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.Rpc.Client" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.Rpc.Sdk" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.Rpc.Server" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.Rpc.Transport.LiteNetLib" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.Rpc.Abstractions" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.Server" Version="9.2.0.33-preview3" />
-    <PackageVersion Include="Forkleans.Persistence.Memory" Version="9.2.0.33-preview3" />
+    <PackageVersion Include="Forkleans.Core.Abstractions" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Core" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Sdk" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Client" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Serialization" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Serialization.Abstractions" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.CodeGenerator" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Analyzers" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Rpc.Client" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Rpc.Sdk" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Rpc.Server" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Rpc.Transport.LiteNetLib" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Rpc.Abstractions" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Server" Version="9.2.0.35-preview3" />
+    <PackageVersion Include="Forkleans.Persistence.Memory" Version="9.2.0.35-preview3" />
 
     <!-- Microsoft packages -->
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.0" />

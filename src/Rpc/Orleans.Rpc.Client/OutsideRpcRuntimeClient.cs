@@ -115,13 +115,13 @@ namespace Forkleans.Rpc
                         ReturnTypeName = returnTypeName
                     };
                     
-                    _logger.LogInformation("OutsideRpcRuntimeClient: Sending RPC request {MessageId} to grain {GrainId} interface {InterfaceType} method {MethodId}, timeout: {TimeoutMs}ms", 
+                    _logger.LogDebug("OutsideRpcRuntimeClient: Sending RPC request {MessageId} to grain {GrainId} interface {InterfaceType} method {MethodId}, timeout: {TimeoutMs}ms", 
                         rpcRequest.MessageId, rpcRequest.GrainId, rpcRequest.InterfaceType, rpcRequest.MethodId, rpcRequest.TimeoutMs);
                     
                     // Send request and wait for response
                     var response = await _rpcClient.SendRequestAsync(rpcRequest);
                     
-                    _logger.LogInformation("OutsideRpcRuntimeClient: Received RPC response for {MessageId}: Success={Success}, PayloadSize={PayloadSize}", 
+                    _logger.LogDebug("OutsideRpcRuntimeClient: Received RPC response for {MessageId}: Success={Success}, PayloadSize={PayloadSize}", 
                         rpcRequest.MessageId, response.Success, response.Payload?.Length ?? 0);
                     
                     if (response.Success)

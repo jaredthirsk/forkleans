@@ -64,4 +64,44 @@ public interface IGameRpcGrain : Forkleans.Rpc.IRpcGrainInterfaceWithStringKey, 
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
     [OneWay]
     Task TransferBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId);
+    
+    /// <summary>
+    /// Subscribe to game updates via observer pattern.
+    /// </summary>
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    Task Subscribe(IGameRpcObserver observer);
+    
+    /// <summary>
+    /// Unsubscribe from game updates.
+    /// </summary>
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    Task Unsubscribe(IGameRpcObserver observer);
+    
+    /// <summary>
+    /// Stream world state updates continuously.
+    /// </summary>
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Unreliable)]
+    IAsyncEnumerable<WorldState> StreamWorldStateUpdates(CancellationToken cancellationToken);
+    
+    /// <summary>
+    /// Stream zone statistics updates.
+    /// </summary>
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    IAsyncEnumerable<ZoneStatistics> StreamZoneStatistics(CancellationToken cancellationToken);
+    
+    /// <summary>
+    /// Stream entities in adjacent zones.
+    /// </summary>
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Unreliable)]
+    IAsyncEnumerable<AdjacentZoneEntities> StreamAdjacentZoneEntities(string playerId, CancellationToken cancellationToken);
+}
+
+/// <summary>
+/// Container for adjacent zone entities to use with IAsyncEnumerable.
+/// </summary>
+[GenerateSerializer]
+public class AdjacentZoneEntities
+{
+    [Id(0)] public Dictionary<string, List<EntityState>> EntitiesByZone { get; set; } = new();
+    [Id(1)] public DateTime Timestamp { get; set; }
 }

@@ -318,13 +318,13 @@ namespace Forkleans.Rpc
         {
             try
             {
-                _logger.LogInformation("RPC Client OnDataReceived: Received {ByteCount} bytes from {Endpoint}, ConnectionId: {ConnectionId}", 
+                _logger.LogDebug("RPC Client OnDataReceived: Received {ByteCount} bytes from {Endpoint}, ConnectionId: {ConnectionId}", 
                     e.Data.Length, e.RemoteEndPoint, e.ConnectionId);
                 
                 // Deserialize the message
                 var messageSerializer = _serviceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
                 var message = messageSerializer.DeserializeMessage(e.Data);
-                _logger.LogInformation("RPC Client OnDataReceived: Deserialized message type: {MessageType}", message.GetType().Name);
+                _logger.LogDebug("RPC Client OnDataReceived: Deserialized message type: {MessageType}", message.GetType().Name);
 
                 // Handle different message types
                 switch (message)
@@ -409,7 +409,7 @@ namespace Forkleans.Rpc
 
         private void HandleResponse(Protocol.RpcResponse response)
         {
-            _logger.LogInformation("RPC Client HandleResponse: Received response for request {RequestId}, Success: {Success}, ErrorMessage: {ErrorMessage}", 
+            _logger.LogDebug("RPC Client HandleResponse: Received response for request {RequestId}, Success: {Success}, ErrorMessage: {ErrorMessage}", 
                 response.RequestId, response.Success, response.ErrorMessage);
                 
             if (_pendingRequests.TryRemove(response.RequestId, out var tcs))

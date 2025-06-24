@@ -14,8 +14,12 @@ using Forkleans.Configuration;
 using Forkleans.Rpc;
 using Forkleans.Rpc.Hosting;
 using Forkleans.Rpc.Transport.LiteNetLib;
+using Forkleans.Rpc.Transport.Ruffles;
 using Forkleans.Hosting;
 using Forkleans.Serialization;
+
+// Parse command line arguments
+var transportType = args.FirstOrDefault(arg => arg.StartsWith("--transport="))?.Replace("--transport=", "") ?? "litenetlib";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -211,8 +215,19 @@ builder.Host.UseOrleansRpc(rpcBuilder =>
     // Use the selected port
     rpcBuilder.ConfigureEndpoint(rpcPort);
     
-    // Use LiteNetLib transport for UDP
-    rpcBuilder.UseLiteNetLib();
+    // Configure transport based on command line option
+    switch (transportType.ToLowerInvariant())
+    {
+        case "ruffles":
+            Console.WriteLine("Using Ruffles UDP transport");
+            rpcBuilder.UseRuffles();
+            break;
+        case "litenetlib":
+        default:
+            Console.WriteLine("Using LiteNetLib UDP transport");
+            rpcBuilder.UseLiteNetLib();
+            break;
+    }
     
     // Add assemblies containing grains
     rpcBuilder.AddAssemblyContaining<GameRpcGrain>()           // Grain implementations

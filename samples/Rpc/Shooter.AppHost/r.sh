@@ -7,5 +7,7 @@ rm ../Shooter.Bot/logs/*.log
 rm logs/apphost.log
 
 dotnet clean
-dotnet run -c Release
+dotnet run -c Release -- "$@"
+
+
 

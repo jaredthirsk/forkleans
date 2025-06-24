@@ -1,9 +1,11 @@
 using Forkleans;
+using Forkleans.Utilities;
 using Shooter.ActionServer.Services;
 using Shooter.ActionServer.Simulation;
 using Shooter.Shared.Models;
 using Shooter.Shared.RpcInterfaces;
 using Shooter.Shared.GrainInterfaces;
+using System.Runtime.CompilerServices;
 
 namespace Shooter.ActionServer.Grains;
 
@@ -18,6 +20,7 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
     private readonly IWorldSimulation _worldSimulation;
     private readonly ILogger<GameRpcGrain> _logger;
     private readonly Forkleans.IClusterClient _orleansClient;
+    private readonly ObserverManager<IGameRpcObserver> _observers;
 
     public GameRpcGrain(
         GameService gameService,
@@ -29,6 +32,7 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
         _worldSimulation = worldSimulation;
         _logger = logger;
         _orleansClient = orleansClient;
+        _observers = new ObserverManager<IGameRpcObserver>(TimeSpan.FromMinutes(5), logger);
     }
 
     public async Task<string> ConnectPlayer(string playerId)
@@ -121,5 +125,139 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
         _worldSimulation.ReceiveBulletTrajectory(bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId);
         
         return Task.CompletedTask;
+    }
+    
+    public Task Subscribe(IGameRpcObserver observer)
+    {
+        _observers.Subscribe(observer);
+        _logger.LogInformation("RPC: Observer subscribed to game updates");
+        return Task.CompletedTask;
+    }
+    
+    public Task Unsubscribe(IGameRpcObserver observer)
+    {
+        _observers.Unsubscribe(observer);
+        _logger.LogInformation("RPC: Observer unsubscribed from game updates");
+        return Task.CompletedTask;
+    }
+    
+    // Methods to notify observers
+    public void NotifyZoneStatsUpdated(ZoneStatistics stats)
+    {
+        _observers.Notify(observer => observer.OnZoneStatsUpdated(stats));
+    }
+    
+    public void NotifyAvailableZonesChanged(List<GridSquare> availableZones)
+    {
+        _observers.Notify(observer => observer.OnAvailableZonesChanged(availableZones));
+    }
+    
+    public void NotifyAdjacentEntitiesUpdated(Dictionary<string, List<EntityState>> entitiesByZone)
+    {
+        _observers.Notify(observer => observer.OnAdjacentEntitiesUpdated(entitiesByZone));
+    }
+    
+    public void NotifyScoutAlert(ScoutAlert alert)
+    {
+        _observers.Notify(observer => observer.OnScoutAlert(alert));
+    }
+    
+    // IAsyncEnumerable implementations
+    public async IAsyncEnumerable<WorldState> StreamWorldStateUpdates([EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("RPC: Starting world state stream");
+        
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            var state = await _worldSimulation.GetWorldStateAsync();
+            yield return state;
+            
+            // Stream at 60 FPS
+            await Task.Delay(16, cancellationToken);
+        }
+    }
+    
+    public async IAsyncEnumerable<ZoneStatistics> StreamZoneStatistics([EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("RPC: Starting zone statistics stream");
+        
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            var state = await _worldSimulation.GetWorldStateAsync();
+            var stats = new ZoneStatistics
+            {
+                Zone = _gameService.AssignedSquare,
+                PlayerCount = state.Entities.Count(e => e.Type == EntityType.Player && e.SubType == 0 && e.State != EntityStateType.Dead),
+                EntityCount = state.Entities.Count(e => e.State != EntityStateType.Dead),
+                BulletCount = state.Entities.Count(e => e.Type == EntityType.Bullet),
+                AverageUpdateTime = 0, // TODO: Track actual update time
+                LastUpdate = DateTime.UtcNow
+            };
+            
+            yield return stats;
+            
+            // Update every second
+            await Task.Delay(1000, cancellationToken);
+        }
+    }
+    
+    public async IAsyncEnumerable<AdjacentZoneEntities> StreamAdjacentZoneEntities(string playerId, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("RPC: Starting adjacent zone entities stream for player {PlayerId}", playerId);
+        
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            // Get player's position
+            var state = await _worldSimulation.GetWorldStateAsync();
+            var player = state.Entities.FirstOrDefault(e => e.EntityId == playerId);
+            
+            if (player != null)
+            {
+                var playerPosition = player.Position;
+                var playerZone = GridSquare.FromPosition(playerPosition);
+                
+                // Get adjacent zones
+                var adjacentZones = new List<GridSquare>();
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    for (int dy = -1; dy <= 1; dy++)
+                    {
+                        if (dx == 0 && dy == 0) continue; // Skip current zone
+                        adjacentZones.Add(new GridSquare(playerZone.X + dx, playerZone.Y + dy));
+                    }
+                }
+                
+                // Get entities from adjacent zones
+                var entitiesByZone = new Dictionary<string, List<EntityState>>();
+                var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
+                
+                foreach (var zone in adjacentZones)
+                {
+                    try
+                    {
+                        var serverInfo = await worldManager.GetActionServerForPosition(zone.GetCenter());
+                        if (serverInfo != null)
+                        {
+                            // TODO: Get entities from the adjacent zone's ActionServer
+                            // For now, just return empty lists
+                            entitiesByZone[$"{zone.X},{zone.Y}"] = new List<EntityState>();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogDebug(ex, "Failed to get entities for adjacent zone ({X},{Y})", zone.X, zone.Y);
+                    }
+                }
+                
+                yield return new AdjacentZoneEntities
+                {
+                    EntitiesByZone = entitiesByZone,
+                    Timestamp = DateTime.UtcNow
+                };
+            }
+            
+            // Update every 100ms
+            await Task.Delay(100, cancellationToken);
+        }
     }
 }

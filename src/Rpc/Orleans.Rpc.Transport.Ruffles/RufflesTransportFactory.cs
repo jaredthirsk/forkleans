@@ -8,6 +8,13 @@ namespace Forkleans.Rpc.Transport.Ruffles
     /// </summary>
     public class RufflesTransportFactory : IRpcTransportFactory
     {
+        private readonly bool _isServer;
+
+        public RufflesTransportFactory(bool isServer)
+        {
+            _isServer = isServer;
+        }
+
         public IRpcTransport CreateTransport(IServiceProvider serviceProvider)
         {
             return ActivatorUtilities.CreateInstance<RufflesTransport>(serviceProvider);

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Forkleans.Rpc.Configuration;
 using Forkleans.Rpc.Hosting;
 
@@ -20,7 +21,13 @@ namespace Forkleans.Rpc.Transport.Ruffles
                 options.TransportType = "Ruffles";
             });
 
-            builder.Services.TryAddSingleton<IRpcTransportFactory, RufflesTransportFactory>();
+            // Replace any existing transport factory
+            builder.Services.RemoveAll<IRpcTransportFactory>();
+            builder.Services.AddSingleton<IRpcTransportFactory>(_ => new RufflesTransportFactory(isServer: true));
+
+            // Register default Ruffles options
+            builder.Services.TryAddSingleton<IOptions<RufflesOptions>>(sp =>
+                Microsoft.Extensions.Options.Options.Create(new RufflesOptions()));
 
             return builder;
         }
@@ -35,7 +42,13 @@ namespace Forkleans.Rpc.Transport.Ruffles
                 options.TransportType = "Ruffles";
             });
 
-            builder.Services.TryAddSingleton<IRpcTransportFactory, RufflesTransportFactory>();
+            // Replace any existing transport factory
+            builder.Services.RemoveAll<IRpcTransportFactory>();
+            builder.Services.AddSingleton<IRpcTransportFactory>(_ => new RufflesTransportFactory(isServer: false));
+
+            // Register default Ruffles options
+            builder.Services.TryAddSingleton<IOptions<RufflesOptions>>(sp =>
+                Microsoft.Extensions.Options.Options.Create(new RufflesOptions()));
 
             return builder;
         }
@@ -65,28 +78,58 @@ namespace Forkleans.Rpc.Transport.Ruffles
     public class RufflesOptions
     {
         /// <summary>
-        /// Gets or sets the channel count.
+        /// Gets or sets the challenge difficulty for connection security.
         /// </summary>
-        public int ChannelCount { get; set; } = 4;
+        public int ChallengeDifficulty { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets whether to enable congestion control.
+        /// Gets or sets the heartbeat delay in milliseconds.
         /// </summary>
-        public bool EnableCongestionControl { get; set; } = true;
+        public int HeartbeatDelayMs { get; set; } = 5000;
 
         /// <summary>
-        /// Gets or sets the window size for reliable channels.
+        /// Gets or sets the handshake timeout in milliseconds.
         /// </summary>
-        public int ReliableWindowSize { get; set; } = 512;
+        public int HandshakeTimeoutMs { get; set; } = 5000;
 
         /// <summary>
-        /// Gets or sets the resend delay in milliseconds.
+        /// Gets or sets the connection request timeout in milliseconds.
         /// </summary>
-        public int ResendDelayMs { get; set; } = 100;
+        public int ConnectionRequestTimeoutMs { get; set; } = 5000;
 
         /// <summary>
-        /// Gets or sets whether to enable message coalescing.
+        /// Gets or sets the maximum buffer size.
         /// </summary>
-        public bool EnableMessageCoalescing { get; set; } = true;
+        public int MaxBufferSize { get; set; } = 1024 * 1024; // 1MB
+
+        /// <summary>
+        /// Gets or sets the minimum MTU size.
+        /// </summary>
+        public int MinimumMTU { get; set; } = 512;
+
+        /// <summary>
+        /// Gets or sets the maximum MTU size.
+        /// </summary>
+        public int MaximumMTU { get; set; } = 4096;
+
+        /// <summary>
+        /// Gets or sets the reliability window size.
+        /// </summary>
+        public int ReliabilityWindowSize { get; set; } = 512;
+
+        /// <summary>
+        /// Gets or sets the maximum number of reliability resend attempts.
+        /// </summary>
+        public int ReliabilityMaxResendAttempts { get; set; } = 30;
+
+        /// <summary>
+        /// Gets or sets whether to enable timeout detection.
+        /// </summary>
+        public bool EnableTimeouts { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the polling interval in milliseconds.
+        /// </summary>
+        public int PollingIntervalMs { get; set; } = 1;
     }
 }
