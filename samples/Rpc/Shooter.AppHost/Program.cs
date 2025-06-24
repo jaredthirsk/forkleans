@@ -4,7 +4,7 @@ using Aspire.Hosting.ApplicationModel;
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Configuration
-const int InitialActionServerCount = 4;
+const int InitialActionServerCount = 12;
 var transportType = args.FirstOrDefault(arg => arg.StartsWith("--transport="))?.Replace("--transport=", "") ?? "litenetlib";
 
 // Add the Orleans silo with Orleans ports exposed

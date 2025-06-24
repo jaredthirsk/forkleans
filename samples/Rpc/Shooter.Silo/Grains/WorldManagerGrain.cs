@@ -34,35 +34,52 @@ public class WorldManagerGrain : Forkleans.Grain, IWorldManagerGrain
 
     public async Task<ActionServerInfo> RegisterActionServer(string serverId, string ipAddress, int udpPort, string httpEndpoint, int rpcPort = 0)
     {
+        // Check if this server is already registered
+        if (_serverIdToInfo.ContainsKey(serverId))
+        {
+            _logger.LogWarning("Server {ServerId} is already registered, returning existing assignment", serverId);
+            return _serverIdToInfo[serverId];
+        }
+        
         // Create a square grid pattern that grows as servers are added
         // 1 server: 1x1
         // 2-4 servers: 2x2
         // 5-9 servers: 3x3
         // 10-16 servers: 4x4, etc.
         
-        // Calculate index based on existing servers in persisted state
-        var serverIndex = _state.State.ActionServers.Count;
-        var totalServers = serverIndex + 1;
+        // Find the first available zone in the grid
+        var totalServers = _gridToServer.Count + 1; // Use actual count including this new server
         var gridSize = (int)Math.Ceiling(Math.Sqrt(totalServers));
         
-        // Fill row by row
-        var gridX = serverIndex % gridSize;
-        var gridY = serverIndex / gridSize;
-        var assignedSquare = new GridSquare(gridX, gridY);
+        GridSquare? assignedSquare = null;
         
-        _logger.LogInformation("Assigning server {ServerId} (index {Index}) to zone ({X},{Y}) in {GridSize}x{GridSize} grid", 
-            serverId, serverIndex, gridX, gridY, gridSize, gridSize);
+        // Search for first unoccupied zone in row-by-row order
+        for (int y = 0; y < gridSize; y++)
+        {
+            for (int x = 0; x < gridSize; x++)
+            {
+                var candidate = new GridSquare(x, y);
+                if (!_gridToServer.ContainsKey(candidate))
+                {
+                    assignedSquare = candidate;
+                    break;
+                }
+            }
+            if (assignedSquare != null) break;
+        }
+        
+        // If somehow all zones are taken (shouldn't happen), expand the grid
+        if (assignedSquare == null)
+        {
+            assignedSquare = new GridSquare(0, gridSize); // Start a new row
+        }
+        
+        _logger.LogInformation("Assigning server {ServerId} to zone ({X},{Y}) in {GridSize}x{GridSize} grid (found {ExistingCount} existing servers)", 
+            serverId, assignedSquare.X, assignedSquare.Y, gridSize, _gridToServer.Count);
 
         var serverInfo = new ActionServerInfo(serverId, ipAddress, udpPort, httpEndpoint, assignedSquare, DateTime.UtcNow, rpcPort);
         
-        // If a server already manages this square, remove it first
-        if (_gridToServer.ContainsKey(assignedSquare))
-        {
-            var oldServer = _gridToServer[assignedSquare];
-            _serverIdToInfo.Remove(oldServer.ServerId);
-            _state.State.ActionServers.RemoveAll(s => s.ServerId == oldServer.ServerId);
-        }
-        
+        // Add the server to our mappings
         _gridToServer[assignedSquare] = serverInfo;
         _serverIdToInfo[serverId] = serverInfo;
         
