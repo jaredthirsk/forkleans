@@ -244,7 +244,7 @@ public class ForkleansRpcGameClientService : IDisposable
                 _observer = new GameRpcObserver(loggerFactory.CreateLogger<GameRpcObserver>(), this);
                 
                 // Create an observer reference
-                var observerRef = await _rpcClient.CreateObjectReference<IGameRpcObserver>(_observer);
+                var observerRef = _rpcClient.CreateObjectReference<IGameRpcObserver>(_observer);
                 await _gameGrain.Subscribe(observerRef);
                 
                 _logger.LogInformation("Successfully subscribed to game updates via observer");

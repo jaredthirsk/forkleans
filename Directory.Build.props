@@ -105,7 +105,7 @@
   </Choose>
   <PropertyGroup>
     <PackageIdPrefix>Forkleans.</PackageIdPrefix>
-    <Version>9.2.0.39-preview3</Version>
+    <Version>9.2.0.40-preview3</Version>
     <PackageProjectUrl>https://github.com/jaredthirsk/forkleans</PackageProjectUrl>
   </PropertyGroup>
 </Project>

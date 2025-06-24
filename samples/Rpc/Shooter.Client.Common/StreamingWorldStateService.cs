@@ -23,7 +23,7 @@ public class StreamingWorldStateService
         _gameGrain = gameGrain;
     }
     
-    public async Task StartStreamingAsync(string playerId)
+    public Task StartStreamingAsync(string playerId)
     {
         _streamCancellation = new CancellationTokenSource();
         var token = _streamCancellation.Token;
@@ -42,6 +42,8 @@ public class StreamingWorldStateService
                     _logger.LogError(t.Exception, "Streaming tasks failed");
                 }
             }, TaskContinuationOptions.OnlyOnFaulted);
+        
+        return Task.CompletedTask;
     }
     
     public void StopStreaming()
