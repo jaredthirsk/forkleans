@@ -1,6 +1,7 @@
 @using Microsoft.JSInterop
 @using Shooter.Client.Common
 @using Shooter.Shared.Models
+@using Shooter.Shared.Movement
 @inject IJSRuntime JS
 @inject ForkleansRpcGameClientService RpcGameClient
 @inject NavigationManager Navigation
@@ -17,7 +18,9 @@
             <strong>Controls:</strong><br/>
             Movement: WASD + Numbers 0-9 for speed<br/>
             Right Click: Set heading direction<br/>
-            Left Click: Shoot
+            Left Click: Shoot<br/>
+            V: Toggle automove (@(_isAutoMoveEnabled ? "ON" : "OFF"))<br/>
+            T: Toggle test mode (@(_isTestMode ? "ON" : "OFF"))
         </p>
         @if (!string.IsNullOrEmpty(_error))
         {
@@ -32,6 +35,12 @@
     private bool _isInitialized = false;
     private System.Timers.Timer? _updateTimer;
     private Dictionary<string, GridSquare> _serverZoneMap = new();
+    private AutoMoveController? _autoMoveController;
+    private bool _isAutoMoveEnabled = false;
+    private bool _isTestMode = false;
+    private System.Timers.Timer? _autoMoveTimer;
+    private WorldState? _lastWorldState;
+    private List<GridSquare> _availableZones = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -59,6 +68,14 @@
                 RpcGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
                 RpcGameClient.PreEstablishedConnectionsUpdated += OnPreEstablishedConnectionsUpdated;
                 
+                // Create automove controller
+                _autoMoveController = new AutoMoveController(Logger, playerId, _isTestMode);
+                
+                // Start automove timer
+                _autoMoveTimer = new System.Timers.Timer(100); // 100ms update rate
+                _autoMoveTimer.Elapsed += async (sender, e) => await UpdateAutoMove();
+                _autoMoveTimer.Start();
+                
                 _isInitialized = true;
                 
                 // Fetch server zone mappings
@@ -79,6 +96,8 @@
 
     private void OnWorldStateUpdated(WorldState worldState)
     {
+        _lastWorldState = worldState;
+        
         if (_isInitialized)
         {
             _ = InvokeAsync(async () =>
@@ -97,6 +116,8 @@
 
     private void OnAvailableZonesUpdated(List<GridSquare> zones)
     {
+        _availableZones = zones;
+        
         if (_isInitialized)
         {
             _ = InvokeAsync(async () =>
@@ -190,15 +211,74 @@
         Logger.LogWarning("[ZONE_MISMATCH] Player at position ({PlayerX:F1}, {PlayerY:F1}) is in zone ({PlayerZoneX}, {PlayerZoneY}) but server thinks they should be in zone ({ServerZoneX}, {ServerZoneY})",
             playerX, playerY, playerZoneX, playerZoneY, serverZoneX, serverZoneY);
     }
+    
+    [JSInvokable]
+    public void OnKeyPress(string key)
+    {
+        switch (key.ToLower())
+        {
+            case "v":
+                _isAutoMoveEnabled = !_isAutoMoveEnabled;
+                Logger.LogInformation("Automove {State}", _isAutoMoveEnabled ? "enabled" : "disabled");
+                StateHasChanged();
+                break;
+            case "t":
+                _isTestMode = !_isTestMode;
+                if (_autoMoveController != null)
+                {
+                    // Recreate controller with new test mode setting
+                    var playerId = RpcGameClient.PlayerId;
+                    if (!string.IsNullOrEmpty(playerId))
+                    {
+                        _autoMoveController = new AutoMoveController(Logger, playerId, _isTestMode);
+                    }
+                }
+                Logger.LogInformation("Test mode {State}", _isTestMode ? "enabled" : "disabled");
+                StateHasChanged();
+                break;
+        }
+    }
+    
+    private async Task UpdateAutoMove()
+    {
+        if (!_isAutoMoveEnabled || _autoMoveController == null || _lastWorldState == null || !RpcGameClient.IsConnected)
+        {
+            return;
+        }
+        
+        var playerId = RpcGameClient.PlayerId;
+        if (string.IsNullOrEmpty(playerId)) return;
+        
+        var player = _lastWorldState.Entities?.FirstOrDefault(e => e.EntityId == playerId);
+        if (player == null) return;
+        
+        try
+        {
+            // Get movement decision from automove controller
+            var (moveDirection, shootDirection) = _autoMoveController.Update(
+                _lastWorldState,
+                _availableZones,
+                player.Position);
+            
+            // Send input to server
+            await RpcGameClient.SendPlayerInputEx(moveDirection, shootDirection);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to update automove");
+        }
+    }
 
     public async ValueTask DisposeAsync()
     {
         _updateTimer?.Dispose();
+        _autoMoveTimer?.Dispose();
         
         if (_isInitialized)
         {
             RpcGameClient.WorldStateUpdated -= OnWorldStateUpdated;
             RpcGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
+            RpcGameClient.PreEstablishedConnectionsUpdated -= OnPreEstablishedConnectionsUpdated;
             
             try
             {

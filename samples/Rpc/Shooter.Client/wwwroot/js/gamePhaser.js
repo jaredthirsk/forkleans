@@ -360,6 +360,16 @@ class GamePhaser {
             'EIGHT': Phaser.Input.Keyboard.KeyCodes.EIGHT,
             'NINE': Phaser.Input.Keyboard.KeyCodes.NINE
         });
+        
+        // Add special key handlers for automove and test mode
+        this.automoveKey = this.scene.input.keyboard.addKey('V'); // V for automove (A is already used for left)
+        this.testModeKey = this.scene.input.keyboard.addKey('T');
+        
+        // Track key state to detect press events
+        this.keyStates = {
+            automove: false,
+            testMode: false
+        };
 
         // Prevent right-click context menu
         this.scene.game.canvas.addEventListener('contextmenu', (e) => {
@@ -369,6 +379,25 @@ class GamePhaser {
     }
 
     update() {
+        // Handle special key press events
+        if (this.automoveKey.isDown && !this.keyStates.automove) {
+            this.keyStates.automove = true;
+            if (this.dotNetReference) {
+                this.dotNetReference.invokeMethodAsync('OnKeyPress', 'v');
+            }
+        } else if (!this.automoveKey.isDown && this.keyStates.automove) {
+            this.keyStates.automove = false;
+        }
+        
+        if (this.testModeKey.isDown && !this.keyStates.testMode) {
+            this.keyStates.testMode = true;
+            if (this.dotNetReference) {
+                this.dotNetReference.invokeMethodAsync('OnKeyPress', 't');
+            }
+        } else if (!this.testModeKey.isDown && this.keyStates.testMode) {
+            this.keyStates.testMode = false;
+        }
+        
         // Handle keyboard input
         let moveX = 0;
         let moveY = 0;

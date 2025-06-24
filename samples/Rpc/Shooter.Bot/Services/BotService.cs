@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Shooter.Client.Common;
 using Shooter.Shared.Models;
+using Shooter.Shared.Movement;
 
 namespace Shooter.Bot.Services;
 
@@ -21,10 +22,8 @@ public class BotService : BackgroundService
     
     private WorldState? _lastWorldState;
     private List<GridSquare> _availableZones = new();
-    private int _currentZoneIndex = 0;
+    private AutoMoveController? _autoMoveController;
     private DateTime _lastShootTime = DateTime.UtcNow;
-    private Vector2 _currentMoveDirection = Vector2.Zero;
-    private GridSquare? _targetSpawnZone;
 
     public BotService(
         ILogger<BotService> logger,
@@ -49,14 +48,6 @@ public class BotService : BackgroundService
                 _botIndex = index;
             }
         }
-        
-        // Calculate target spawn zone in binary pattern (0,0), (0,1), (1,0), (1,1)
-        var zoneX = _botIndex % 2;
-        var zoneY = (_botIndex / 2) % 2;
-        _targetSpawnZone = new GridSquare(zoneX, zoneY);
-        
-        _logger.LogInformation("Bot {BotName} (index {BotIndex}) will target spawn zone ({X}, {Y})", 
-            _botName, _botIndex, zoneX, zoneY);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -81,6 +72,9 @@ public class BotService : BackgroundService
             
             _logger.LogInformation("Bot {BotName} connected as player {PlayerId}", _botName, _gameClient.PlayerId);
             
+            // Create automove controller
+            _autoMoveController = new AutoMoveController(_logger, _gameClient.PlayerId ?? _botName, _testMode);
+            
             // Subscribe to game events
             _gameClient.WorldStateUpdated += OnWorldStateUpdated;
             _gameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
@@ -90,15 +84,7 @@ public class BotService : BackgroundService
             {
                 try
                 {
-                    if (_testMode)
-                    {
-                        await RunTestMode(stoppingToken);
-                    }
-                    else
-                    {
-                        await RunNormalMode(stoppingToken);
-                    }
-                    
+                    await RunAutoMove(stoppingToken);
                     await Task.Delay(100, stoppingToken); // Update rate
                 }
                 catch (Exception ex)
@@ -126,125 +112,26 @@ public class BotService : BackgroundService
         }
     }
 
-    private async Task RunTestMode(CancellationToken cancellationToken)
+    private async Task RunAutoMove(CancellationToken cancellationToken)
     {
-        // Test mode: First go to designated spawn zone, then methodically visit every zone
-        if (_availableZones.Count == 0) return;
-        
-        var player = _lastWorldState?.Entities.FirstOrDefault(e => e.EntityId == _gameClient.PlayerId);
-        if (player == null) return;
-        
-        GridSquare targetZone;
-        bool reachedSpawnZone = false;
-        
-        // First, ensure we're in our designated spawn zone
-        if (_targetSpawnZone != null && _currentZoneIndex == 0)
-        {
-            targetZone = _targetSpawnZone;
-            var spawnPos = targetZone.GetCenter();
-            var spawnDistance = player.Position.DistanceTo(spawnPos);
-            
-            if (spawnDistance < 100f)
-            {
-                _logger.LogInformation("Bot {BotName} reached spawn zone ({X}, {Y})", 
-                    _botName, targetZone.X, targetZone.Y);
-                _currentZoneIndex = 1; // Start visiting other zones
-                reachedSpawnZone = true;
-            }
-        }
-        else
-        {
-            // After reaching spawn zone, visit zones in order
-            targetZone = _availableZones[(_currentZoneIndex - 1) % _availableZones.Count];
-            reachedSpawnZone = true;
-        }
-        
-        var targetPos = targetZone.GetCenter();
-        var distance = player.Position.DistanceTo(targetPos);
-        
-        if (reachedSpawnZone && distance < 100f) // Close enough to zone center
-        {
-            // Move to next zone
-            _currentZoneIndex++;
-            _logger.LogInformation("Bot {BotName} reached zone ({X}, {Y}), moving to next", 
-                _botName, targetZone.X, targetZone.Y);
-        }
-        else
-        {
-            // Move towards target zone
-            var direction = (targetPos - player.Position).Normalized();
-            await _gameClient.SendPlayerInputEx(direction * 100f, null);
-            
-            _logger.LogDebug("Bot {BotName} moving towards zone ({X}, {Y}), distance: {Distance:F1}", 
-                _botName, targetZone.X, targetZone.Y, distance);
-        }
-        
-        // Shoot occasionally in test mode (once per 2 seconds)
-        if ((DateTime.UtcNow - _lastShootTime).TotalSeconds >= 2.0)
-        {
-            await _gameClient.SendPlayerInputEx(null, new Vector2(1, 0)); // Shoot right
-            await Task.Delay(200, cancellationToken);
-            await _gameClient.SendPlayerInputEx(null, null); // Stop shooting
-            _lastShootTime = DateTime.UtcNow;
-        }
-    }
-
-    private async Task RunNormalMode(CancellationToken cancellationToken)
-    {
-        // Normal mode: Act like a human player
-        if (_lastWorldState == null) return;
+        if (_lastWorldState == null || _autoMoveController == null) return;
         
         var player = _lastWorldState.Entities.FirstOrDefault(e => e.EntityId == _gameClient.PlayerId);
         if (player == null) return;
         
-        // Find nearest enemy or asteroid
-        var targets = _lastWorldState.Entities
-            .Where(e => (e.Type == EntityType.Enemy || e.Type == EntityType.Asteroid) && e.Health > 0)
-            .OrderBy(e => player.Position.DistanceTo(e.Position))
-            .ToList();
+        // Get movement decision from automove controller
+        var (moveDirection, shootDirection) = _autoMoveController.Update(
+            _lastWorldState,
+            _availableZones,
+            player.Position);
         
-        if (targets.Any())
-        {
-            var target = targets.First();
-            var distance = player.Position.DistanceTo(target.Position);
-            var direction = (target.Position - player.Position).Normalized();
-            
-            // Combat behavior
-            Vector2? moveDir = null;
-            Vector2? shootDir = null;
-            
-            if (distance > 200f)
-            {
-                // Move closer
-                moveDir = direction * 100f;
-            }
-            else if (distance < 100f)
-            {
-                // Too close, back away
-                moveDir = direction * -100f;
-            }
-            else
-            {
-                // Good distance, strafe
-                var strafeDir = new Vector2(-direction.Y, direction.X);
-                moveDir = strafeDir * 100f;
-            }
-            
-            // Shoot at target if in range
-            if (distance < 300f)
-            {
-                shootDir = direction;
-            }
-            
-            await _gameClient.SendPlayerInputEx(moveDir, shootDir);
-        }
-        else
-        {
-            // No targets, explore
-            var randomAngle = Random.Shared.NextSingle() * MathF.PI * 2;
-            var randomDir = new Vector2(MathF.Cos(randomAngle), MathF.Sin(randomAngle));
-            await _gameClient.SendPlayerInputEx(randomDir * 100f, null);
-        }
+        // Send input to server
+        await _gameClient.SendPlayerInputEx(moveDirection, shootDirection);
+        
+        // Log mode changes
+        var currentMode = _autoMoveController.CurrentMode;
+        _logger.LogDebug("Bot {BotName} in mode {Mode}, move: {Move}, shoot: {Shoot}",
+            _botName, currentMode, moveDirection != null, shootDirection != null);
     }
 
     private void OnWorldStateUpdated(WorldState worldState)
