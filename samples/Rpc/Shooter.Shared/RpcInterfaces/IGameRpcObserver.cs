@@ -35,7 +35,7 @@ public interface IGameRpcObserver : IGrainObserver
 [GenerateSerializer]
 public class ZoneStatistics
 {
-    [Id(0)] public GridSquare Zone { get; set; }
+    [Id(0)] public required GridSquare Zone { get; set; }
     [Id(1)] public int PlayerCount { get; set; }
     [Id(2)] public int EntityCount { get; set; }
     [Id(3)] public int BulletCount { get; set; }
@@ -49,10 +49,10 @@ public class ZoneStatistics
 [GenerateSerializer]
 public class ScoutAlert
 {
-    [Id(0)] public string AlertId { get; set; }
-    [Id(1)] public GridSquare FromZone { get; set; }
-    [Id(2)] public GridSquare ToZone { get; set; }
-    [Id(3)] public string EntityId { get; set; }
+    [Id(0)] public required string AlertId { get; set; }
+    [Id(1)] public required GridSquare FromZone { get; set; }
+    [Id(2)] public required GridSquare ToZone { get; set; }
+    [Id(3)] public required string EntityId { get; set; }
     [Id(4)] public EntityType EntityType { get; set; }
     [Id(5)] public Vector2 Position { get; set; }
     [Id(6)] public DateTime Timestamp { get; set; }
