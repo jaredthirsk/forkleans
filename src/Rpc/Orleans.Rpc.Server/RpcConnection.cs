@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -353,6 +355,265 @@ namespace Forkleans.Rpc
             // For now, use JSON serialization for results
             var json = System.Text.Json.JsonSerializer.Serialize(result);
             return System.Text.Encoding.UTF8.GetBytes(json);
+        }
+
+        /// <summary>
+        /// Processes a streaming request and starts streaming results back to the client.
+        /// </summary>
+        public async Task ProcessStreamingRequestAsync(Protocol.RpcStreamingRequest request)
+        {
+            if (_disposed != 0)
+            {
+                _logger.LogWarning("Ignoring streaming request on disposed connection {ConnectionId}", _connectionId);
+                return;
+            }
+
+            var streamingCts = new CancellationTokenSource();
+            
+            try
+            {
+                // Store the cancellation token source for this stream
+                if (!_pendingRequests.TryAdd(request.StreamId, request))
+                {
+                    _logger.LogWarning("Duplicate stream ID: {StreamId}", request.StreamId);
+                    return;
+                }
+                
+                // Start streaming in background
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await StreamGrainMethodAsync(request, streamingCts.Token);
+                    }
+                    finally
+                    {
+                        _pendingRequests.TryRemove(request.StreamId, out _);
+                    }
+                }, streamingCts.Token);
+
+                // Send initial response to acknowledge streaming started
+                var response = new Protocol.RpcResponse
+                {
+                    RequestId = request.MessageId,
+                    Success = true
+                };
+                await SendResponseAsync(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to process streaming request {StreamId}", request.StreamId);
+                
+                // Send error item
+                var errorItem = new Protocol.RpcStreamingItem
+                {
+                    StreamId = request.StreamId,
+                    SequenceNumber = 0,
+                    IsComplete = true,
+                    ErrorMessage = ex.Message
+                };
+                await SendStreamingItemAsync(errorItem);
+            }
+        }
+        
+        /// <summary>
+        /// Cancels an active stream.
+        /// </summary>
+        public async Task CancelStreamAsync(Guid streamId)
+        {
+            if (_pendingRequests.TryRemove(streamId, out _))
+            {
+                _logger.LogDebug("Cancelled stream {StreamId}", streamId);
+                
+                // Send completion item
+                var completeItem = new Protocol.RpcStreamingItem
+                {
+                    StreamId = streamId,
+                    SequenceNumber = -1,
+                    IsComplete = true
+                };
+                await SendStreamingItemAsync(completeItem);
+            }
+        }
+        
+        private async Task StreamGrainMethodAsync(Protocol.RpcStreamingRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                // Get or create the grain activation
+                var grainContext = await _catalog.GetOrCreateActivationAsync(request.GrainId);
+                var grain = grainContext.GrainInstance;
+
+                if (grain == null)
+                {
+                    throw new InvalidOperationException($"Grain instance not found for {request.GrainId}");
+                }
+
+                // Find the method to invoke
+                var grainType = grain.GetType();
+                Type interfaceType = null;
+                
+                foreach (var iface in grainType.GetInterfaces())
+                {
+                    if (!iface.IsClass &&
+                        typeof(IGrain).IsAssignableFrom(iface) &&
+                        iface != typeof(IGrainObserver) &&
+                        iface != typeof(IAddressable) &&
+                        iface != typeof(IGrainExtension) &&
+                        iface != typeof(IGrain) &&
+                        iface != typeof(IGrainWithGuidKey) &&
+                        iface != typeof(IGrainWithIntegerKey) &&
+                        iface != typeof(IGrainWithGuidCompoundKey) &&
+                        iface != typeof(IGrainWithIntegerCompoundKey) &&
+                        iface != typeof(ISystemTarget))
+                    {
+                        interfaceType = iface;
+                        break;
+                    }
+                }
+
+                if (interfaceType == null)
+                {
+                    throw new InvalidOperationException($"No grain interface found on type {grainType.Name}");
+                }
+
+                // Get methods sorted alphabetically
+                var methods = interfaceType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(m => !m.IsSpecialName)
+                    .OrderBy(m => m.Name, StringComparer.Ordinal)
+                    .ToArray();
+
+                if (request.MethodId >= methods.Length)
+                {
+                    throw new InvalidOperationException($"Method ID {request.MethodId} not found on interface {interfaceType.Name}");
+                }
+
+                var method = methods[request.MethodId];
+                
+                // Verify the method returns IAsyncEnumerable<T>
+                if (!method.ReturnType.IsGenericType ||
+                    method.ReturnType.GetGenericTypeDefinition() != typeof(IAsyncEnumerable<>))
+                {
+                    throw new InvalidOperationException($"Method {method.Name} does not return IAsyncEnumerable");
+                }
+
+                // Deserialize arguments
+                object[] arguments = null;
+                var parameters = method.GetParameters();
+
+                if (request.Arguments != null && request.Arguments.Length > 0)
+                {
+                    var jsonArray = JsonSerializer.Deserialize<JsonElement[]>(request.Arguments);
+                    arguments = new object[parameters.Length];
+
+                    for (int i = 0; i < Math.Min(jsonArray.Length, parameters.Length); i++)
+                    {
+                        var paramType = parameters[i].ParameterType;
+                        if (paramType == typeof(CancellationToken))
+                        {
+                            arguments[i] = cancellationToken;
+                        }
+                        else
+                        {
+                            arguments[i] = JsonSerializer.Deserialize(jsonArray[i].GetRawText(), paramType);
+                        }
+                    }
+                }
+                else
+                {
+                    arguments = new object[parameters.Length];
+                    // Check if last parameter is CancellationToken
+                    if (parameters.Length > 0 && parameters[^1].ParameterType == typeof(CancellationToken))
+                    {
+                        arguments[^1] = cancellationToken;
+                    }
+                }
+
+                // Find the implementation method
+                var implementationMap = _interfaceToImplementationMapping.GetOrCreate(grainType, interfaceType);
+                if (!implementationMap.TryGetValue(method, out var methodEntry))
+                {
+                    throw new InvalidOperationException($"Implementation not found for method {method.Name}");
+                }
+
+                // Invoke the method
+                var result = methodEntry.ImplementationMethod.Invoke(grain, arguments);
+                
+                // Get the IAsyncEnumerable<T>
+                var itemType = method.ReturnType.GetGenericArguments()[0];
+                var enumerableType = typeof(IAsyncEnumerable<>).MakeGenericType(itemType);
+                
+                // Use reflection to iterate the async enumerable
+                var getAsyncEnumeratorMethod = enumerableType.GetMethod("GetAsyncEnumerator");
+                var asyncEnumerator = getAsyncEnumeratorMethod.Invoke(result, new object[] { cancellationToken });
+                var moveNextAsyncMethod = asyncEnumerator.GetType().GetMethod("MoveNextAsync");
+                var currentProperty = asyncEnumerator.GetType().GetProperty("Current");
+                
+                long sequenceNumber = 0;
+                
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    var moveNextTask = (ValueTask<bool>)moveNextAsyncMethod.Invoke(asyncEnumerator, null);
+                    var hasNext = await moveNextTask;
+                    
+                    if (!hasNext)
+                        break;
+                    
+                    var current = currentProperty.GetValue(asyncEnumerator);
+                    
+                    // Serialize and send the item
+                    var item = new Protocol.RpcStreamingItem
+                    {
+                        StreamId = request.StreamId,
+                        SequenceNumber = sequenceNumber++,
+                        ItemData = SerializeResult(current),
+                        IsComplete = false
+                    };
+                    
+                    await SendStreamingItemAsync(item);
+                }
+                
+                // Send completion item
+                var completeItem = new Protocol.RpcStreamingItem
+                {
+                    StreamId = request.StreamId,
+                    SequenceNumber = sequenceNumber,
+                    IsComplete = true
+                };
+                
+                await SendStreamingItemAsync(completeItem);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error streaming from grain method");
+                
+                // Send error item
+                var errorItem = new Protocol.RpcStreamingItem
+                {
+                    StreamId = request.StreamId,
+                    SequenceNumber = -1,
+                    IsComplete = true,
+                    ErrorMessage = ex.Message
+                };
+                
+                await SendStreamingItemAsync(errorItem);
+            }
+        }
+        
+        private async Task SendStreamingItemAsync(Protocol.RpcStreamingItem item)
+        {
+            var messageSerializer = _catalog.ServiceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
+            var messageData = messageSerializer.SerializeMessage(item);
+            
+            // Use SendToConnectionAsync when we have a connection ID
+            if (!string.IsNullOrEmpty(_connectionId))
+            {
+                await _transport.SendToConnectionAsync(_connectionId, messageData, CancellationToken.None);
+            }
+            else
+            {
+                await _transport.SendAsync(_remoteEndPoint, messageData, CancellationToken.None);
+            }
         }
 
         public void Dispose()

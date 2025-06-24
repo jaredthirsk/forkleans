@@ -204,4 +204,91 @@ namespace Forkleans.Rpc.Protocol
         [Id(2)]
         public Dictionary<string, Dictionary<string, string>> InterfaceProperties { get; set; } = new();
     }
+
+    /// <summary>
+    /// Streaming request to start an IAsyncEnumerable stream.
+    /// </summary>
+    [GenerateSerializer]
+    public class RpcStreamingRequest : RpcMessage
+    {
+        /// <summary>
+        /// Target grain ID.
+        /// </summary>
+        [Id(2)]
+        public GrainId GrainId { get; set; }
+
+        /// <summary>
+        /// Interface type.
+        /// </summary>
+        [Id(3)]
+        public GrainInterfaceType InterfaceType { get; set; }
+
+        /// <summary>
+        /// Method ID to invoke.
+        /// </summary>
+        [Id(4)]
+        public int MethodId { get; set; }
+
+        /// <summary>
+        /// Serialized arguments.
+        /// </summary>
+        [Id(5)]
+        public byte[] Arguments { get; set; }
+
+        /// <summary>
+        /// Stream ID for correlation.
+        /// </summary>
+        [Id(6)]
+        public Guid StreamId { get; set; }
+    }
+
+    /// <summary>
+    /// Streaming response containing a single item from the stream.
+    /// </summary>
+    [GenerateSerializer]
+    public class RpcStreamingItem : RpcMessage
+    {
+        /// <summary>
+        /// Stream ID for correlation.
+        /// </summary>
+        [Id(2)]
+        public Guid StreamId { get; set; }
+
+        /// <summary>
+        /// Sequence number of this item in the stream.
+        /// </summary>
+        [Id(3)]
+        public long SequenceNumber { get; set; }
+
+        /// <summary>
+        /// Serialized item data.
+        /// </summary>
+        [Id(4)]
+        public byte[] ItemData { get; set; }
+
+        /// <summary>
+        /// Whether this is the last item in the stream.
+        /// </summary>
+        [Id(5)]
+        public bool IsComplete { get; set; }
+
+        /// <summary>
+        /// Error message if the stream failed.
+        /// </summary>
+        [Id(6)]
+        public string ErrorMessage { get; set; }
+    }
+
+    /// <summary>
+    /// Request to cancel a streaming operation.
+    /// </summary>
+    [GenerateSerializer]
+    public class RpcStreamingCancel : RpcMessage
+    {
+        /// <summary>
+        /// Stream ID to cancel.
+        /// </summary>
+        [Id(2)]
+        public Guid StreamId { get; set; }
+    }
 }

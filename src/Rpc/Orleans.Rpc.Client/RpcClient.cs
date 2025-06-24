@@ -26,6 +26,7 @@ namespace Forkleans.Rpc
         private readonly IClusterClientLifecycle _lifecycle;
         private readonly RpcConnectionManager _connectionManager;
         private readonly IClusterManifestProvider _manifestProvider;
+        private readonly RpcStreamingManager _streamingManager;
         
         private readonly ConcurrentDictionary<Guid, TaskCompletionSource<Protocol.RpcResponse>> _pendingRequests 
             = new ConcurrentDictionary<Guid, TaskCompletionSource<Protocol.RpcResponse>>();
@@ -57,6 +58,9 @@ namespace Forkleans.Rpc
             
             var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             _connectionManager = new RpcConnectionManager(loggerFactory.CreateLogger<RpcConnectionManager>());
+            
+            var serializer = serviceProvider.GetRequiredService<Forkleans.Serialization.Serializer>();
+            _streamingManager = new RpcStreamingManager(loggerFactory.CreateLogger<RpcStreamingManager>(), serializer);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -347,6 +351,10 @@ namespace Forkleans.Rpc
                         _logger.LogDebug("Received heartbeat from server {ServerId}", heartbeat.SourceId);
                         break;
                         
+                    case Protocol.RpcStreamingItem streamingItem:
+                        await _streamingManager.ProcessStreamingItem(streamingItem);
+                        break;
+                        
                     default:
                         _logger.LogWarning("Received unexpected message type: {Type}", message.GetType().Name);
                         break;
@@ -534,6 +542,88 @@ namespace Forkleans.Rpc
                 throw;
             }
         }
+
+        /// <summary>
+        /// Sends any RPC message and returns a response.
+        /// </summary>
+        internal async Task<Protocol.RpcResponse> SendRequestAsync(Protocol.RpcMessage message)
+        {
+            EnsureConnected();
+            
+            // For non-request messages, we need to send them and potentially wait for acknowledgment
+            var messageId = message.MessageId;
+            RpcConnection connection = null;
+            
+            // Determine which connection to use based on message type
+            if (message is Protocol.RpcRequest request)
+            {
+                return await SendRequestAsync(request);
+            }
+            else if (message is Protocol.RpcStreamingRequest streamingReq)
+            {
+                // For streaming requests, route based on grain ID
+                connection = _connectionManager.GetConnectionForRequest(new Protocol.RpcRequest 
+                { 
+                    GrainId = streamingReq.GrainId,
+                    InterfaceType = streamingReq.InterfaceType 
+                });
+            }
+            else if (message is Protocol.RpcStreamingCancel)
+            {
+                // For streaming cancel, use any available connection
+                var connections = _connectionManager.GetAllConnections();
+                if (connections.Count == 0)
+                {
+                    throw new InvalidOperationException("No connections available");
+                }
+                connection = connections.Values.First();
+            }
+            else
+            {
+                throw new NotSupportedException($"Unsupported message type for SendRequestAsync: {message.GetType()}");
+            }
+            
+            if (connection == null)
+            {
+                throw new InvalidOperationException("No suitable connection found for message");
+            }
+            
+            var tcs = new TaskCompletionSource<Protocol.RpcResponse>();
+            if (!_pendingRequests.TryAdd(messageId, tcs))
+            {
+                throw new InvalidOperationException($"Duplicate message ID: {messageId}");
+            }
+
+            try
+            {
+                _logger.LogDebug("Sending {MessageType} {MessageId} via connection {ConnectionId}", 
+                    message.GetType().Name, messageId, connection.ConnectionId);
+                
+                // Send the message
+                await connection.SendMessageAsync(message);
+                
+                // Wait for response with timeout
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                return await tcs.Task.WaitAsync(cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                _pendingRequests.TryRemove(messageId, out _);
+                _logger.LogError("Message {MessageId} timed out", messageId);
+                throw new TimeoutException($"RPC message {messageId} timed out");
+            }
+            catch (Exception ex)
+            {
+                _pendingRequests.TryRemove(messageId, out _);
+                _logger.LogError(ex, "Error in SendRequestAsync for message {MessageId}", messageId);
+                throw;
+            }
+        }
+        
+        /// <summary>
+        /// Gets the streaming manager for this client.
+        /// </summary>
+        internal RpcStreamingManager StreamingManager => _streamingManager;
 
         public void Dispose()
         {

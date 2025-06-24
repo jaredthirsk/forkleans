@@ -28,6 +28,26 @@ namespace Forkleans.Rpc.Protocol
         /// <summary>
         /// Error message for protocol-level errors.
         /// </summary>
-        Error = 5
+        Error = 5,
+
+        /// <summary>
+        /// Handshake acknowledgment from server.
+        /// </summary>
+        HandshakeAck = 6,
+
+        /// <summary>
+        /// Streaming request to start an IAsyncEnumerable stream.
+        /// </summary>
+        StreamingRequest = 7,
+
+        /// <summary>
+        /// Streaming item containing data from the stream.
+        /// </summary>
+        StreamingItem = 8,
+
+        /// <summary>
+        /// Request to cancel a streaming operation.
+        /// </summary>
+        StreamingCancel = 9
     }
 }

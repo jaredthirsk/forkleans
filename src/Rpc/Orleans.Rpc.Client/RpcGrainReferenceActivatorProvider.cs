@@ -155,7 +155,8 @@ namespace Forkleans.Rpc
                     copyContextPool,
                     _services);
 
-                return new RpcGrainReference(shared, grainId.Key, referenceLogger, rpcClient, serializer);
+                return new RpcGrainReference(shared, grainId.Key, referenceLogger, rpcClient, serializer, 
+                    rpcClient.StreamingManager);
             }
             
             public GrainReference CreateReference(GrainId grainId)

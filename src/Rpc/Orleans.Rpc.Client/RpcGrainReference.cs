@@ -22,6 +22,7 @@ namespace Forkleans.Rpc
         private readonly ILogger<RpcGrainReference> _logger;
         private readonly RpcClient _rpcClient;
         private readonly Serializer _serializer;
+        private readonly RpcStreamingManager _streamingManager;
 
         /// <summary>
         /// Optional zone ID for zone-aware routing.
@@ -33,12 +34,14 @@ namespace Forkleans.Rpc
             IdSpan key,
             ILogger<RpcGrainReference> logger,
             RpcClient rpcClient,
-            Serializer serializer)
+            Serializer serializer,
+            RpcStreamingManager streamingManager)
             : base(shared, key)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _rpcClient = rpcClient ?? throw new ArgumentNullException(nameof(rpcClient));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _streamingManager = streamingManager ?? throw new ArgumentNullException(nameof(streamingManager));
         }
 
         public async Task<T> InvokeRpcMethodAsync<T>(int methodId, object[] arguments)
@@ -88,6 +91,54 @@ namespace Forkleans.Rpc
         public async Task InvokeRpcMethodAsync(int methodId, object[] arguments)
         {
             await InvokeRpcMethodAsync<object>(methodId, arguments);
+        }
+
+        /// <summary>
+        /// Invokes a streaming method that returns IAsyncEnumerable.
+        /// </summary>
+        public IAsyncEnumerable<T> InvokeStreamingMethodAsync<T>(int methodId, object[] arguments, CancellationToken cancellationToken)
+        {
+            var streamId = Guid.NewGuid();
+            
+            // Start the streaming operation asynchronously
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    // Serialize arguments
+                    var writer = new ArrayBufferWriter<byte>();
+                    _serializer.Serialize(arguments, writer);
+                    
+                    // Create streaming request
+                    var request = new Protocol.RpcStreamingRequest
+                    {
+                        MessageId = Guid.NewGuid(),
+                        GrainId = this.GrainId,
+                        InterfaceType = this.InterfaceType,
+                        MethodId = methodId,
+                        Arguments = writer.WrittenMemory.ToArray(),
+                        StreamId = streamId
+                    };
+
+                    // Send streaming request
+                    var response = await _rpcClient.SendRequestAsync(request);
+                    
+                    if (!response.Success)
+                    {
+                        _streamingManager.CancelStream(streamId);
+                        throw new Exception($"Streaming request failed: {response.ErrorMessage}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error starting streaming method {MethodId} on grain {GrainId}", 
+                        methodId, this.GrainId);
+                    _streamingManager.CancelStream(streamId);
+                }
+            }, cancellationToken);
+
+            // Return the async enumerable that will receive items
+            return _streamingManager.CreateStream<T>(streamId, cancellationToken);
         }
 
         // TODO: Implement proper invocation once we have RpcConnection
