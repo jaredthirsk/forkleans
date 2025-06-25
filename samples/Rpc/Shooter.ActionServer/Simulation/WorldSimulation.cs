@@ -25,6 +25,9 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private long _sequenceNumber = 0;
     private TaskCompletionSource<bool> _zoneAssignedTcs = new();
     private readonly DateTime _startTime = DateTime.UtcNow;
+    private GamePhase _currentPhase = GamePhase.Playing;
+    private DateTime _gameOverTime = DateTime.MinValue;
+    private readonly ConcurrentDictionary<string, int> _playerRespawnCounts = new();
 
     public WorldSimulation(ILogger<WorldSimulation> logger, Forkleans.IClusterClient orleansClient, CrossZoneRpcService crossZoneRpc)
     {
@@ -293,29 +296,51 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             var deltaTime = (float)(now - _lastUpdate).TotalSeconds;
             _lastUpdate = now;
             
-            // Update simulation
-            await UpdatePhysicsAsync(deltaTime);
-            UpdateAI(deltaTime);
-            CheckCollisions();
-            UpdateEntityStates(deltaTime);
-            CleanupDeadEntities();
-            
-            // Spawn new enemies occasionally
-            if (_random.NextDouble() < 0.0005) // 0.05% chance per frame (50% reduction)
+            // Update simulation based on current phase
+            if (_currentPhase == GamePhase.Playing)
             {
-                // Weighted enemy type selection - favor scouts slightly
-                var roll = _random.NextDouble();
-                EnemySubType enemyType;
-                if (roll < 0.35) // 35% scouts (increased from 25%)
-                    enemyType = EnemySubType.Scout;
-                else if (roll < 0.60) // 25% kamikaze
-                    enemyType = EnemySubType.Kamikaze;
-                else if (roll < 0.80) // 20% sniper
-                    enemyType = EnemySubType.Sniper;
-                else // 20% strafing
-                    enemyType = EnemySubType.Strafing;
-                    
-                SpawnEnemies(1, enemyType);
+                await UpdatePhysicsAsync(deltaTime);
+                UpdateAI(deltaTime);
+                CheckCollisions();
+                UpdateEntityStates(deltaTime);
+                CleanupDeadEntities();
+                
+                // Check for game over condition
+                await CheckGameOverCondition();
+                
+                // Spawn new enemies occasionally
+                if (_random.NextDouble() < 0.0005) // 0.05% chance per frame (50% reduction)
+                {
+                    // Weighted enemy type selection - favor scouts slightly
+                    var roll = _random.NextDouble();
+                    EnemySubType enemyType;
+                    if (roll < 0.35) // 35% scouts (increased from 25%)
+                        enemyType = EnemySubType.Scout;
+                    else if (roll < 0.60) // 25% kamikaze
+                        enemyType = EnemySubType.Kamikaze;
+                    else if (roll < 0.80) // 20% sniper
+                        enemyType = EnemySubType.Sniper;
+                    else // 20% strafing
+                        enemyType = EnemySubType.Strafing;
+                        
+                    SpawnEnemies(1, enemyType);
+                }
+            }
+            else if (_currentPhase == GamePhase.GameOver)
+            {
+                // During game over, just update physics to let things settle
+                await UpdatePhysicsAsync(deltaTime);
+                UpdateEntityStates(deltaTime);
+                
+                // Check if it's time to restart
+                if ((now - _gameOverTime).TotalSeconds >= 15)
+                {
+                    await RestartGame();
+                }
+            }
+            else if (_currentPhase == GamePhase.Restarting)
+            {
+                // Do nothing during restart transition
             }
             
             await Task.Delay(16, stoppingToken); // ~60 FPS
@@ -908,6 +933,10 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                             entity.State = EntityStateType.Respawning;
                             entity.StateTimer = 0f;
                             
+                            // Increment respawn count
+                            entity.RespawnCount++;
+                            _playerRespawnCounts.AddOrUpdate(entity.EntityId, entity.RespawnCount, (_, _) => entity.RespawnCount);
+                            
                             // Respawn at random location within the assigned zone
                             var (min, max) = _assignedSquare.GetBounds();
                             var respawnX = min.X + _random.NextSingle() * (max.X - min.X);
@@ -916,8 +945,8 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                             entity.Health = 1000f;
                             entity.Velocity = Vector2.Zero;
                             
-                            _logger.LogInformation("Player {PlayerId} respawning at position {Position} in zone {Zone}", 
-                                entity.EntityId, entity.Position, _assignedSquare);
+                            _logger.LogInformation("Player {PlayerId} respawning at position {Position} in zone {Zone} (respawn #{RespawnCount})", 
+                                entity.EntityId, entity.Position, _assignedSquare, entity.RespawnCount);
                                 
                             // Update player position in Orleans to ensure consistency
                             _ = Task.Run(async () => {
@@ -1353,6 +1382,9 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         public DateTime AlertedUntil { get; set; }
         public Vector2 LastKnownPlayerPosition { get; set; }
         public string? PlayerName { get; set; }
+        
+        // Game stats tracking
+        public int RespawnCount { get; set; }
     }
 
     private class PlayerInput
@@ -1762,6 +1794,132 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to get game grain for server {ServerId}", targetServer.ServerId);
+        }
+    }
+    
+    private async Task CheckGameOverCondition()
+    {
+        // Count living enemies and factories
+        var enemyCount = _entities.Values.Count(e => 
+            (e.Type == EntityType.Enemy || e.Type == EntityType.Factory) && 
+            e.State != EntityStateType.Dead && e.State != EntityStateType.Dying);
+            
+        if (enemyCount == 0)
+        {
+            // No enemies left - game over!
+            _currentPhase = GamePhase.GameOver;
+            _gameOverTime = DateTime.UtcNow;
+            
+            _logger.LogInformation("GAME OVER! All enemies destroyed. Sending game over message to all players.");
+            
+            // Collect player scores
+            var playerScores = new List<PlayerScore>();
+            foreach (var (playerId, entity) in _entities.Where(e => e.Value.Type == EntityType.Player))
+            {
+                var respawnCount = _playerRespawnCounts.GetValueOrDefault(playerId, 0);
+                playerScores.Add(new PlayerScore(playerId, entity.PlayerName ?? "Unknown", respawnCount));
+            }
+            
+            // Send game over message to all players
+            var gameOverMessage = new GameOverMessage(playerScores, _gameOverTime, 15);
+            await NotifyAllPlayersGameOver(gameOverMessage);
+        }
+    }
+    
+    private async Task NotifyAllPlayersGameOver(GameOverMessage gameOverMessage)
+    {
+        try
+        {
+            // Get all player grains and notify them
+            var tasks = new List<Task>();
+            foreach (var playerId in _entities.Where(e => e.Value.Type == EntityType.Player).Select(e => e.Key))
+            {
+                var playerGrain = _orleansClient.GetGrain<IPlayerGrain>(playerId);
+                tasks.Add(playerGrain.NotifyGameOver(gameOverMessage));
+            }
+            
+            await Task.WhenAll(tasks);
+            
+            // Also notify through RPC - get the GameRpcGrain for this zone
+            var grainId = $"zone_{_assignedSquare.X}_{_assignedSquare.Y}";
+            var gameRpcGrain = _orleansClient.GetGrain<IGameRpcGrain>(grainId);
+            
+            // The grain should implement a method to notify observers
+            // For now, just log that we would notify RPC clients
+            _logger.LogInformation("Would notify RPC clients about game over through grain {GrainId}", grainId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to notify players of game over");
+        }
+    }
+    
+    private async Task RestartGame()
+    {
+        _logger.LogInformation("Restarting game...");
+        _currentPhase = GamePhase.Restarting;
+        
+        // Clear all entities except players
+        var playersToKeep = _entities.Where(e => e.Value.Type == EntityType.Player).ToList();
+        _entities.Clear();
+        
+        // Re-add players with full health and reset respawn counts
+        foreach (var (playerId, player) in playersToKeep)
+        {
+            player.Health = 1000f;
+            player.State = EntityStateType.Active;
+            player.StateTimer = 0f;
+            player.RespawnCount = 0;
+            
+            // Respawn at random location
+            var (min, max) = _assignedSquare.GetBounds();
+            var respawnX = min.X + _random.NextSingle() * (max.X - min.X);
+            var respawnY = min.Y + _random.NextSingle() * (max.Y - min.Y);
+            player.Position = new Vector2(respawnX, respawnY);
+            player.Velocity = Vector2.Zero;
+            
+            _entities.TryAdd(playerId, player);
+        }
+        
+        // Clear respawn counts
+        _playerRespawnCounts.Clear();
+        
+        // Spawn fresh enemies and factories
+        var factoryCount = _random.Next(1, 3); // 1-2 factories
+        _logger.LogInformation("Spawning {Count} factories for new game", factoryCount);
+        SpawnFactories(factoryCount);
+        
+        SpawnAsteroids();
+        
+        SpawnEnemies(2, EnemySubType.Kamikaze);
+        SpawnEnemies(2, EnemySubType.Sniper);
+        SpawnEnemies(1, EnemySubType.Strafing);
+        SpawnEnemies(1, EnemySubType.Scout);
+        
+        // Notify players that game has restarted
+        await NotifyAllPlayersGameRestarted();
+        
+        // Resume playing
+        _currentPhase = GamePhase.Playing;
+        _logger.LogInformation("Game restarted!");
+    }
+    
+    private async Task NotifyAllPlayersGameRestarted()
+    {
+        try
+        {
+            var tasks = new List<Task>();
+            foreach (var playerId in _entities.Where(e => e.Value.Type == EntityType.Player).Select(e => e.Key))
+            {
+                var playerGrain = _orleansClient.GetGrain<IPlayerGrain>(playerId);
+                tasks.Add(playerGrain.NotifyGameRestarted());
+            }
+            
+            await Task.WhenAll(tasks);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to notify players of game restart");
         }
     }
 }

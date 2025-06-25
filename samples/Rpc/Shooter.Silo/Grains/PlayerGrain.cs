@@ -69,6 +69,32 @@ public class PlayerGrain : Forkleans.Grain, IPlayerGrain
         _state.State.Health = Math.Max(0, health);
         await _state.WriteStateAsync();
     }
+    
+    public Task NotifyGameOver(GameOverMessage gameOverMessage)
+    {
+        // For now, just log the game over message
+        // In a real implementation, this would notify the connected client
+        var logger = this.GetLogger();
+        logger.LogInformation("Player {PlayerId} notified of game over. Scores: {Scores}", 
+            this.GetPrimaryKeyString(), 
+            string.Join(", ", gameOverMessage.PlayerScores.Select(s => $"{s.PlayerName}: {s.RespawnCount} respawns")));
+        
+        // Store the game over message in state if needed
+        _state.State.LastGameOverMessage = gameOverMessage;
+        _state.State.GamePhase = GamePhase.GameOver;
+        return _state.WriteStateAsync();
+    }
+    
+    public Task NotifyGameRestarted()
+    {
+        var logger = this.GetLogger();
+        logger.LogInformation("Player {PlayerId} notified of game restart", this.GetPrimaryKeyString());
+        
+        // Reset game phase
+        _state.State.GamePhase = GamePhase.Playing;
+        _state.State.LastGameOverMessage = null;
+        return _state.WriteStateAsync();
+    }
 }
 
 [Forkleans.GenerateSerializer]
@@ -79,4 +105,6 @@ public class PlayerState
     public Vector2 Velocity { get; set; } = Vector2.Zero;
     public float Health { get; set; } = 1000f;
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
+    public GamePhase GamePhase { get; set; } = GamePhase.Playing;
+    public GameOverMessage? LastGameOverMessage { get; set; }
 }

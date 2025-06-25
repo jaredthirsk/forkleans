@@ -124,3 +124,24 @@ public record ZoneStats
         PlayerCount = playerCount;
     }
 }
+
+[Forkleans.GenerateSerializer]
+public record PlayerScore(
+    string PlayerId,
+    string PlayerName,
+    int RespawnCount);
+
+[Forkleans.GenerateSerializer]
+public record GameOverMessage(
+    List<PlayerScore> PlayerScores,
+    DateTime GameEndTime,
+    int RestartDelaySeconds = 15);
+
+[Forkleans.GenerateSerializer]
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum GamePhase
+{
+    Playing,
+    GameOver,
+    Restarting
+}

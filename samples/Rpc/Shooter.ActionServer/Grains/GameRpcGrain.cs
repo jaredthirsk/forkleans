@@ -261,4 +261,22 @@ public class GameRpcGrain : Forkleans.Grain, IGameRpcGrain
             await Task.Delay(100, cancellationToken);
         }
     }
+    
+    /// <summary>
+    /// Called by WorldSimulation to notify all connected clients about game over.
+    /// </summary>
+    public void NotifyObserversGameOver(GameOverMessage gameOverMessage)
+    {
+        _logger.LogInformation("Notifying {ObserverCount} observers about game over", _observers.Count);
+        _observers.Notify(observer => observer.OnGameOver(gameOverMessage));
+    }
+    
+    /// <summary>
+    /// Called by WorldSimulation to notify all connected clients about game restart.
+    /// </summary>
+    public void NotifyObserversGameRestarted()
+    {
+        _logger.LogInformation("Notifying {ObserverCount} observers about game restart", _observers.Count);
+        _observers.Notify(observer => observer.OnGameRestarted());
+    }
 }

@@ -867,21 +867,28 @@ class GamePhaser {
                     let grayWidth = 500;
                     let grayHeight = 500;
                     
-                    // Adjust for peek areas (only for cardinal directions, not diagonals)
-                    if (dx === -1 && dy === 0 && distToLeft <= ZONE_PEEK_DISTANCE) {
-                        // Left zone - don't gray the rightmost ZONE_PEEK_DISTANCE pixels
-                        grayWidth = 500 - ZONE_PEEK_DISTANCE;
-                    } else if (dx === 1 && dy === 0 && distToRight <= ZONE_PEEK_DISTANCE) {
-                        // Right zone - don't gray the leftmost ZONE_PEEK_DISTANCE pixels
-                        grayX = adjacentX + ZONE_PEEK_DISTANCE;
-                        grayWidth = 500 - ZONE_PEEK_DISTANCE;
-                    } else if (dx === 0 && dy === -1 && distToTop <= ZONE_PEEK_DISTANCE) {
-                        // Top zone - don't gray the bottommost ZONE_PEEK_DISTANCE pixels
-                        grayHeight = 500 - ZONE_PEEK_DISTANCE;
-                    } else if (dx === 0 && dy === 1 && distToBottom <= ZONE_PEEK_DISTANCE) {
-                        // Bottom zone - don't gray the topmost ZONE_PEEK_DISTANCE pixels
-                        grayY = adjacentY + ZONE_PEEK_DISTANCE;
-                        grayHeight = 500 - ZONE_PEEK_DISTANCE;
+                    // Check if this adjacent zone is available
+                    const adjacentZoneKey = `${this.playerZone.x + dx},${this.playerZone.y + dy}`;
+                    const isAdjacentZoneAvailable = this.availableZones && 
+                        this.availableZones.some(z => z.x === this.playerZone.x + dx && z.y === this.playerZone.y + dy);
+                    
+                    // Adjust for peek areas (only for cardinal directions, not diagonals, and only if zone is available)
+                    if (isAdjacentZoneAvailable) {
+                        if (dx === -1 && dy === 0 && distToLeft <= ZONE_PEEK_DISTANCE) {
+                            // Left zone - don't gray the rightmost ZONE_PEEK_DISTANCE pixels
+                            grayWidth = 500 - ZONE_PEEK_DISTANCE;
+                        } else if (dx === 1 && dy === 0 && distToRight <= ZONE_PEEK_DISTANCE) {
+                            // Right zone - don't gray the leftmost ZONE_PEEK_DISTANCE pixels
+                            grayX = adjacentX + ZONE_PEEK_DISTANCE;
+                            grayWidth = 500 - ZONE_PEEK_DISTANCE;
+                        } else if (dx === 0 && dy === -1 && distToTop <= ZONE_PEEK_DISTANCE) {
+                            // Top zone - don't gray the bottommost ZONE_PEEK_DISTANCE pixels
+                            grayHeight = 500 - ZONE_PEEK_DISTANCE;
+                        } else if (dx === 0 && dy === 1 && distToBottom <= ZONE_PEEK_DISTANCE) {
+                            // Bottom zone - don't gray the topmost ZONE_PEEK_DISTANCE pixels
+                            grayY = adjacentY + ZONE_PEEK_DISTANCE;
+                            grayHeight = 500 - ZONE_PEEK_DISTANCE;
+                        }
                     }
                     
                     // Clip to viewport

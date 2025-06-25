@@ -27,6 +27,16 @@ public interface IGameRpcObserver : IGrainObserver
     /// Called when a scout alert is triggered.
     /// </summary>
     void OnScoutAlert(ScoutAlert alert);
+    
+    /// <summary>
+    /// Called when the game is over (all enemies destroyed).
+    /// </summary>
+    void OnGameOver(GameOverMessage gameOverMessage);
+    
+    /// <summary>
+    /// Called when the game has been restarted.
+    /// </summary>
+    void OnGameRestarted();
 }
 
 /// <summary>

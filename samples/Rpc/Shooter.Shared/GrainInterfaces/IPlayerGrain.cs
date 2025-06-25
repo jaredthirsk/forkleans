@@ -12,4 +12,6 @@ public interface IPlayerGrain : Forkleans.IGrainWithStringKey
     Task TakeDamage(float damage);
     Task<bool> IsAlive();
     Task UpdateHealth(float health);
+    Task NotifyGameOver(GameOverMessage gameOverMessage);
+    Task NotifyGameRestarted();
 }
