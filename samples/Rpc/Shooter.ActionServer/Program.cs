@@ -238,6 +238,9 @@ builder.Host.UseOrleansRpc(rpcBuilder =>
 // Add background service for registration
 builder.Services.AddHostedService<ActionServerRegistrationService>();
 
+// Add stats reporting service
+builder.Services.AddHostedService<StatsReportingService>();
+
 // Add diagnostic service
 builder.Services.AddHostedService<DiagnosticService>();
 

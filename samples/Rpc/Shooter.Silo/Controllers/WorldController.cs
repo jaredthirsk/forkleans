@@ -259,6 +259,47 @@ public class WorldController : ControllerBase
             return StatusCode(500, new { error = ex.Message });
         }
     }
+    
+    [HttpGet("damage-stats")]
+    public async Task<ActionResult<Dictionary<string, object>>> GetDamageStats()
+    {
+        var statsCollector = _grainFactory.GetGrain<IStatsCollectorGrain>(0);
+        
+        var topByDamageDealt = await statsCollector.GetTopPlayersByDamageDealt(10);
+        var topByDamageReceived = await statsCollector.GetTopPlayersByDamageReceived(10);
+        var allZoneReports = await statsCollector.GetAllZoneReports();
+        
+        return Ok(new
+        {
+            TopPlayersByDamageDealt = topByDamageDealt,
+            TopPlayersByDamageReceived = topByDamageReceived,
+            ZoneReports = allZoneReports.Select(kvp => new
+            {
+                ServerId = kvp.Key,
+                Zone = kvp.Value.Zone,
+                PlayerCount = kvp.Value.PlayerStats.Count,
+                DamageEventCount = kvp.Value.DamageEvents.Count,
+                StartTime = kvp.Value.StartTime,
+                EndTime = kvp.Value.EndTime
+            })
+        });
+    }
+    
+    [HttpGet("damage-stats/player/{playerId}")]
+    public async Task<ActionResult<PlayerDamageStats>> GetPlayerDamageStats(string playerId)
+    {
+        var statsCollector = _grainFactory.GetGrain<IStatsCollectorGrain>(0);
+        var stats = await statsCollector.GetPlayerStats(playerId);
+        return Ok(stats);
+    }
+    
+    [HttpPost("damage-stats/clear")]
+    public async Task<IActionResult> ClearDamageStats()
+    {
+        var statsCollector = _grainFactory.GetGrain<IStatsCollectorGrain>(0);
+        await statsCollector.ClearStats();
+        return Ok(new { message = "Damage statistics cleared" });
+    }
 }
 
 public record RegisterActionServerRequest(string ServerId, string IpAddress, int UdpPort, string HttpEndpoint, int RpcPort = 0);
