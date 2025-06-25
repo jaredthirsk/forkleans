@@ -54,9 +54,12 @@ public class ForkleansRpcGameClientService : IDisposable
     public event Action<Dictionary<string, (bool isConnected, bool isNeighbor, bool isConnecting)>>? PreEstablishedConnectionsUpdated;
     public event Action<ZoneStatistics>? ZoneStatsUpdated;
     public event Action<ScoutAlert>? ScoutAlertReceived;
+    public event Action<GameOverMessage>? GameOverReceived;
+    public event Action? GameRestartedReceived;
     
     public bool IsConnected { get; private set; }
     public string? PlayerId { get; private set; }
+    public string? PlayerName { get; private set; }
     public string? CurrentServerId { get; private set; }
     
     public ForkleansRpcGameClientService(
@@ -80,6 +83,7 @@ public class ForkleansRpcGameClientService : IDisposable
             if (registrationResponse == null) return false;
             
             PlayerId = registrationResponse.PlayerInfo?.PlayerId ?? string.Empty;
+            PlayerName = registrationResponse.PlayerInfo?.Name ?? playerName;
             CurrentServerId = registrationResponse.ActionServer?.ServerId ?? "Unknown";
             _currentZone = registrationResponse.ActionServer?.AssignedSquare;
             
@@ -1644,16 +1648,16 @@ public class ForkleansRpcGameClientService : IDisposable
             _logger.LogInformation("  {PlayerName}: {RespawnCount} deaths", score.PlayerName, score.RespawnCount);
         }
         
-        // TODO: Notify UI about game over
-        // For now, just log the information
+        // Notify UI about game over
+        GameOverReceived?.Invoke(gameOverMessage);
     }
     
     public void HandleGameRestarted()
     {
         _logger.LogInformation("Game restarted! New round beginning.");
         
-        // TODO: Notify UI about game restart
-        // For now, just log the information
+        // Notify UI about game restart
+        GameRestartedReceived?.Invoke();
     }
 }
 

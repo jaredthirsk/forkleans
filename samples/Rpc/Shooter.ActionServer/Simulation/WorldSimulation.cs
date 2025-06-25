@@ -27,6 +27,8 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private readonly DateTime _startTime = DateTime.UtcNow;
     private GamePhase _currentPhase = GamePhase.Playing;
     private DateTime _gameOverTime = DateTime.MinValue;
+    private DateTime _lastEnemyDeathTime = DateTime.MinValue;
+    private bool _allEnemiesDefeated = false;
     private readonly ConcurrentDictionary<string, int> _playerRespawnCounts = new();
 
     public WorldSimulation(ILogger<WorldSimulation> logger, Forkleans.IClusterClient orleansClient, CrossZoneRpcService crossZoneRpc)
@@ -1804,13 +1806,28 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             (e.Type == EntityType.Enemy || e.Type == EntityType.Factory) && 
             e.State != EntityStateType.Dead && e.State != EntityStateType.Dying);
             
-        if (enemyCount == 0)
+        if (enemyCount == 0 && !_allEnemiesDefeated)
         {
-            // No enemies left - game over!
+            // Mark that all enemies have been defeated
+            _allEnemiesDefeated = true;
+            _lastEnemyDeathTime = DateTime.UtcNow;
+            _logger.LogInformation("All enemies destroyed! Starting 15 second countdown to game over...");
+        }
+        else if (enemyCount > 0)
+        {
+            // Reset if enemies respawn somehow
+            _allEnemiesDefeated = false;
+        }
+        
+        // Check if it's time to trigger game over (15 seconds after last enemy death)
+        if (_allEnemiesDefeated && !(_currentPhase == GamePhase.GameOver) && 
+            (DateTime.UtcNow - _lastEnemyDeathTime).TotalSeconds >= 15)
+        {
+            // Now trigger game over
             _currentPhase = GamePhase.GameOver;
             _gameOverTime = DateTime.UtcNow;
             
-            _logger.LogInformation("GAME OVER! All enemies destroyed. Sending game over message to all players.");
+            _logger.LogInformation("GAME OVER! 15 seconds have passed since all enemies were destroyed.");
             
             // Collect player scores
             var playerScores = new List<PlayerScore>();
@@ -1883,6 +1900,10 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         
         // Clear respawn counts
         _playerRespawnCounts.Clear();
+        
+        // Reset game over tracking
+        _allEnemiesDefeated = false;
+        _lastEnemyDeathTime = DateTime.MinValue;
         
         // Spawn fresh enemies and factories
         var factoryCount = _random.Next(1, 3); // 1-2 factories

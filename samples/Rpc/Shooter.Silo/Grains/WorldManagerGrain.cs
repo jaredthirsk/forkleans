@@ -215,9 +215,24 @@ public class WorldManagerGrain : Forkleans.Grain, IWorldManagerGrain
                 playerId, _state.State.Players.Count);
             _logger.LogWarning("Registered players: {Players}", string.Join(", ", _state.State.Players.Keys));
             
-            // Auto-register the player if not found
-            _logger.LogInformation("Auto-registering player {PlayerId} with unknown name", playerId);
-            playerInfo = await RegisterPlayer(playerId, "Unknown");
+            // Get player's current health before auto-registering
+            var playerGrain = GrainFactory.GetGrain<IPlayerGrain>(playerId);
+            var existingInfo = await playerGrain.GetInfo();
+            
+            // Auto-register the player if not found, but preserve their health
+            _logger.LogInformation("Auto-registering player {PlayerId} with unknown name, preserving health: {Health}", 
+                playerId, existingInfo?.Health ?? 1000f);
+            
+            if (existingInfo != null && existingInfo.Name != "")
+            {
+                // Player exists, use their actual name
+                playerInfo = await RegisterPlayer(playerId, existingInfo.Name);
+            }
+            else
+            {
+                // New player
+                playerInfo = await RegisterPlayer(playerId, "Unknown");
+            }
         }
         _logger.LogInformation("Player {PlayerId} current stored position: {Position}", playerId, playerInfo.Position);
         

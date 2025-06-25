@@ -13,6 +13,31 @@
 <div class="game-container">
     <div id="phaser-container" style="width: 800px; height: 600px; margin: 0 auto;"></div>
     
+    <div class="chat-container mt-3" style="width: 800px; margin: 0 auto;">
+        <div class="chat-history" style="height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background-color: #f8f9fa;">
+            @foreach (var message in _chatMessages)
+            {
+                <div class="chat-message" style="color: @message.Color">
+                    <span class="timestamp">[(@message.Timestamp.ToString("HH:mm:ss"))]</span>
+                    <span class="sender">@message.Sender:</span>
+                    <span class="text">@message.Text</span>
+                </div>
+            }
+            <div @ref="_chatScrollAnchor"></div>
+        </div>
+        <div class="chat-input mt-2">
+            <form @onsubmit="SendChatMessage" @onsubmit:preventDefault="true">
+                <div class="input-group">
+                    <input type="text" class="form-control" @bind="_chatInput" @bind:event="oninput" 
+                           placeholder="Type a message..." maxlength="200" />
+                    <button class="btn btn-primary" type="submit" disabled="@(string.IsNullOrWhiteSpace(_chatInput))">
+                        Send
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <div class="game-info mt-3">
         <p>
             <strong>Controls:</strong><br/>
@@ -41,6 +66,19 @@
     private System.Timers.Timer? _autoMoveTimer;
     private WorldState? _lastWorldState;
     private List<GridSquare> _availableZones = new();
+    
+    // Chat related fields
+    private List<ChatMessage> _chatMessages = new();
+    private string _chatInput = "";
+    private ElementReference _chatScrollAnchor;
+    
+    private class ChatMessage
+    {
+        public DateTime Timestamp { get; set; } = DateTime.Now;
+        public string Sender { get; set; } = "";
+        public string Text { get; set; } = "";
+        public string Color { get; set; } = "#000000";
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -67,6 +105,11 @@
                 RpcGameClient.WorldStateUpdated += OnWorldStateUpdated;
                 RpcGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
                 RpcGameClient.PreEstablishedConnectionsUpdated += OnPreEstablishedConnectionsUpdated;
+                RpcGameClient.GameOverReceived += OnGameOverReceived;
+                RpcGameClient.GameRestartedReceived += OnGameRestartedReceived;
+                
+                // Add initial system message
+                AddSystemMessage("Connected to game server");
                 
                 // Create automove controller
                 _autoMoveController = new AutoMoveController(Logger, playerId, _isTestMode);
@@ -323,6 +366,73 @@
         }
     }
     
+    private void AddChatMessage(string sender, string text, string color = "#000000")
+    {
+        _chatMessages.Add(new ChatMessage
+        {
+            Sender = sender,
+            Text = text,
+            Color = color
+        });
+        
+        // Keep only last 100 messages
+        if (_chatMessages.Count > 100)
+        {
+            _chatMessages.RemoveAt(0);
+        }
+        
+        InvokeAsync(async () =>
+        {
+            StateHasChanged();
+            await Task.Delay(50); // Small delay to ensure render
+            await _chatScrollAnchor.FocusAsync();
+        });
+    }
+    
+    private void AddSystemMessage(string text)
+    {
+        AddChatMessage("System", text, "#0066cc");
+    }
+    
+    private async Task SendChatMessage()
+    {
+        if (string.IsNullOrWhiteSpace(_chatInput)) return;
+        
+        var playerName = RpcGameClient.PlayerName ?? "Player";
+        AddChatMessage(playerName, _chatInput);
+        
+        // TODO: Send chat message to server
+        _chatInput = "";
+        await Task.CompletedTask;
+    }
+    
+    private void OnGameOverReceived(GameOverMessage gameOverMessage)
+    {
+        _ = InvokeAsync(() =>
+        {
+            AddSystemMessage("=== GAME OVER ===");
+            AddSystemMessage($"All enemies destroyed! Restarting in {gameOverMessage.RestartDelaySeconds} seconds...");
+            AddSystemMessage("Final Scores (deaths):");
+            
+            foreach (var score in gameOverMessage.PlayerScores.OrderBy(s => s.RespawnCount))
+            {
+                var color = score.PlayerId == RpcGameClient.PlayerId ? "#ff6600" : "#333333";
+                AddChatMessage("Score", $"{score.PlayerName}: {score.RespawnCount} deaths", color);
+            }
+            
+            AddSystemMessage("================");
+        });
+    }
+    
+    private void OnGameRestartedReceived()
+    {
+        _ = InvokeAsync(() =>
+        {
+            AddSystemMessage("=== NEW GAME STARTED ===");
+            AddSystemMessage("Good luck!");
+        });
+    }
+    
     public void Dispose()
     {
         _updateTimer?.Dispose();
@@ -332,6 +442,8 @@
         RpcGameClient.WorldStateUpdated -= OnWorldStateUpdated;
         RpcGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
         RpcGameClient.PreEstablishedConnectionsUpdated -= OnPreEstablishedConnectionsUpdated;
+        RpcGameClient.GameOverReceived -= OnGameOverReceived;
+        RpcGameClient.GameRestartedReceived -= OnGameRestartedReceived;
         
         // Destroy Phaser game
         if (_isInitialized)
