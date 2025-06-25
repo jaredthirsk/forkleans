@@ -42,14 +42,25 @@
     <div class="game-info mt-3" style="width: 800px; margin: 0 auto;">
         <div class="d-flex align-items-center">
             <span style="color: #888;">Controls</span>
-            <span class="ms-2" style="cursor: help;" title="Movement: WASD + Numbers 0-9 for speed&#10;Right Click: Set heading direction&#10;Left Click: Shoot&#10;V: Toggle automove&#10;T: Toggle test mode">
+            <span class="ms-2" style="cursor: help;" title="Movement: WASD + Numbers 0-9 for speed&#10;Right Click: Set heading direction&#10;Left Click: Shoot&#10;V: Toggle automove&#10;T: Toggle test mode&#10;Space: Auto shoot (when enabled)">
                 <svg width="16" height="16" fill="currentColor" style="color: #888;">
                     <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1" fill="none"/>
                     <text x="8" y="12" text-anchor="middle" font-size="12" font-weight="bold">i</text>
                 </svg>
             </span>
-            <span class="ms-3" style="color: #888;">
-                Automove: @(_isAutoMoveEnabled ? "ON" : "OFF") | Test mode: @(_isTestMode ? "ON" : "OFF")
+            <span class="ms-4" style="color: #888;">
+                <span @onclick="ToggleAutoMove" style="cursor: pointer; user-select: none;">
+                    Automove: <strong>@(_isAutoMoveEnabled ? "ON" : "OFF")</strong>
+                </span>
+                <span class="ms-3">|</span>
+                <span class="ms-3" @onclick="ToggleAutoShoot" style="cursor: pointer; user-select: none;">
+                    Auto shoot: <strong>@(_isAutoShootEnabled ? "ON" : "OFF")</strong>
+                </span>
+                <span class="ms-3">|</span>
+                <span class="ms-3" @onclick="ToggleTestMode" style="cursor: pointer; user-select: none;" 
+                      title="In test mode, bots move slowly and predictably for easier testing">
+                    Test mode: <strong>@(_isTestMode ? "ON" : "OFF")</strong>
+                </span>
             </span>
         </div>
         @if (!string.IsNullOrEmpty(_error))
@@ -67,6 +78,7 @@
     private Dictionary<string, GridSquare> _serverZoneMap = new();
     private AutoMoveController? _autoMoveController;
     private bool _isAutoMoveEnabled = false;
+    private bool _isAutoShootEnabled = false;
     private bool _isTestMode = false;
     private System.Timers.Timer? _autoMoveTimer;
     private WorldState? _lastWorldState;
@@ -287,6 +299,36 @@
         }
     }
     
+    private void ToggleAutoMove()
+    {
+        _isAutoMoveEnabled = !_isAutoMoveEnabled;
+        Logger.LogInformation("Automove {State}", _isAutoMoveEnabled ? "enabled" : "disabled");
+        StateHasChanged();
+    }
+    
+    private void ToggleAutoShoot()
+    {
+        _isAutoShootEnabled = !_isAutoShootEnabled;
+        Logger.LogInformation("Auto shoot {State}", _isAutoShootEnabled ? "enabled" : "disabled");
+        StateHasChanged();
+    }
+    
+    private void ToggleTestMode()
+    {
+        _isTestMode = !_isTestMode;
+        if (_autoMoveController != null)
+        {
+            // Recreate controller with new test mode setting
+            var playerId = RpcGameClient.PlayerId;
+            if (!string.IsNullOrEmpty(playerId))
+            {
+                _autoMoveController = new AutoMoveController(Logger, playerId, _isTestMode);
+            }
+        }
+        Logger.LogInformation("Test mode {State}", _isTestMode ? "enabled" : "disabled");
+        StateHasChanged();
+    }
+
     private async Task UpdateAutoMove()
     {
         if (!_isAutoMoveEnabled || _autoMoveController == null || _lastWorldState == null || !RpcGameClient.IsConnected)
@@ -307,6 +349,20 @@
                 _lastWorldState,
                 _availableZones,
                 player.Position);
+            
+            // Include auto shoot if enabled
+            if (_isAutoShootEnabled && shootDirection == null)
+            {
+                // Find nearest enemy to shoot at
+                var enemies = _lastWorldState.Entities?.Where(e => 
+                    e.Type == EntityType.Enemy && e.State == EntityStateType.Active).ToList();
+                    
+                if (enemies?.Any() == true)
+                {
+                    var nearestEnemy = enemies.OrderBy(e => (player.Position - e.Position).Length()).First();
+                    shootDirection = (nearestEnemy.Position - player.Position).Normalized();
+                }
+            }
             
             // Send input to server
             await RpcGameClient.SendPlayerInputEx(moveDirection, shootDirection);

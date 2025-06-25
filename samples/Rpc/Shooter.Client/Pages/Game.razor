@@ -72,14 +72,6 @@
                 }
             </div>
             <div class="game-sidebar">
-                <GameControls IsConnected="_isConnected"
-                             OnMove="HandleMove"
-                             OnShoot="HandleShoot"
-                             OnSpeedChange="HandleSpeedChange"
-                             OnAutoMoveChange="HandleAutoMoveChange"
-                             OnAutoShootChange="HandleAutoShootChange"
-                             OnTestModeChange="HandleTestModeChange" />
-                
                 <Minimap
                     WorldState="@_currentWorldState"
                     AvailableZones="@_availableZones" />
