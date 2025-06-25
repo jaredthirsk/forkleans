@@ -25,10 +25,13 @@
     
     <div class="test-mode">
         <h4>Test Mode</h4>
-        <label class="toggle-label">
+        <label class="toggle-label" title="In test mode, bots move more predictably and slowly, making it easier to test game mechanics">
             <input type="checkbox" @bind="TestMode" @bind:after="OnTestModeChanged" />
             <span>Enable Test Bot</span>
         </label>
+        <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+            Makes bots move slowly and predictably for testing
+        </p>
     </div>
     
     @if (IsConnected)

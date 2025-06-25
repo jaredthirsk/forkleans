@@ -1746,7 +1746,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     {
         if (_entities.TryGetValue(playerId, out var entity) && entity.Type == EntityType.Player)
         {
-            return new PlayerInfo(playerId, playerId, entity.Position, entity.Velocity, entity.Health);
+            return new PlayerInfo(playerId, entity.PlayerName ?? playerId, entity.Position, entity.Velocity, entity.Health);
         }
         return null;
     }

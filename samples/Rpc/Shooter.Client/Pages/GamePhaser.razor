@@ -14,11 +14,11 @@
     <div id="phaser-container" style="width: 800px; height: 600px; margin: 0 auto;"></div>
     
     <div class="chat-container mt-3" style="width: 800px; margin: 0 auto;">
-        <div class="chat-history" style="height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background-color: #f8f9fa;">
+        <div class="chat-history" style="height: 200px; overflow-y: auto; border: 1px solid #444; padding: 10px; background-color: #1a1a1a; color: #e0e0e0;">
             @foreach (var message in _chatMessages)
             {
                 <div class="chat-message" style="color: @message.Color">
-                    <span class="timestamp">[(@message.Timestamp.ToString("HH:mm:ss"))]</span>
+                    <span class="timestamp" style="color: #888;">[(@message.Timestamp.ToString("HH:mm:ss"))]</span>
                     <span class="sender">@message.Sender:</span>
                     <span class="text">@message.Text</span>
                 </div>
@@ -29,7 +29,8 @@
             <form @onsubmit="SendChatMessage" @onsubmit:preventDefault="true">
                 <div class="input-group">
                     <input type="text" class="form-control" @bind="_chatInput" @bind:event="oninput" 
-                           placeholder="Type a message..." maxlength="200" />
+                           placeholder="Type a message..." maxlength="200" 
+                           style="background-color: #2a2a2a; border-color: #444; color: #e0e0e0;" />
                     <button class="btn btn-primary" type="submit" disabled="@(string.IsNullOrWhiteSpace(_chatInput))">
                         Send
                     </button>
@@ -38,18 +39,22 @@
         </div>
     </div>
     
-    <div class="game-info mt-3">
-        <p>
-            <strong>Controls:</strong><br/>
-            Movement: WASD + Numbers 0-9 for speed<br/>
-            Right Click: Set heading direction<br/>
-            Left Click: Shoot<br/>
-            V: Toggle automove (@(_isAutoMoveEnabled ? "ON" : "OFF"))<br/>
-            T: Toggle test mode (@(_isTestMode ? "ON" : "OFF"))
-        </p>
+    <div class="game-info mt-3" style="width: 800px; margin: 0 auto;">
+        <div class="d-flex align-items-center">
+            <span style="color: #888;">Controls</span>
+            <span class="ms-2" style="cursor: help;" title="Movement: WASD + Numbers 0-9 for speed&#10;Right Click: Set heading direction&#10;Left Click: Shoot&#10;V: Toggle automove&#10;T: Toggle test mode">
+                <svg width="16" height="16" fill="currentColor" style="color: #888;">
+                    <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1" fill="none"/>
+                    <text x="8" y="12" text-anchor="middle" font-size="12" font-weight="bold">i</text>
+                </svg>
+            </span>
+            <span class="ms-3" style="color: #888;">
+                Automove: @(_isAutoMoveEnabled ? "ON" : "OFF") | Test mode: @(_isTestMode ? "ON" : "OFF")
+            </span>
+        </div>
         @if (!string.IsNullOrEmpty(_error))
         {
-            <div class="alert alert-danger">@_error</div>
+            <div class="alert alert-danger mt-2">@_error</div>
         }
     </div>
 </div>
