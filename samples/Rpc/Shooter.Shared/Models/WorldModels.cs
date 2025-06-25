@@ -145,3 +145,33 @@ public enum GamePhase
     GameOver,
     Restarting
 }
+
+[Forkleans.GenerateSerializer]
+public record DamageEvent(
+    string AttackerId,
+    string TargetId,
+    EntityType AttackerType,
+    EntityType TargetType,
+    int AttackerSubType,
+    int TargetSubType,
+    float Damage,
+    string WeaponType,
+    DateTime Timestamp);
+
+[Forkleans.GenerateSerializer]
+public record PlayerDamageStats(
+    string PlayerId,
+    string PlayerName,
+    Dictionary<string, float> DamageDealtByWeapon,
+    Dictionary<string, float> DamageReceivedByEnemyType,
+    Dictionary<string, float> DamageReceivedByWeapon,
+    float TotalDamageDealt,
+    float TotalDamageReceived);
+
+[Forkleans.GenerateSerializer]
+public record ZoneDamageReport(
+    GridSquare Zone,
+    DateTime StartTime,
+    DateTime EndTime,
+    List<DamageEvent> DamageEvents,
+    Dictionary<string, PlayerDamageStats> PlayerStats);

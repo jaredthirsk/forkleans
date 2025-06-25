@@ -25,4 +25,7 @@ public interface IWorldSimulation
     
     // Bullet trajectories
     void ReceiveBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId);
+    
+    // Damage tracking
+    ZoneDamageReport GetDamageReport();
 }

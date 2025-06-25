@@ -30,6 +30,8 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private DateTime _lastEnemyDeathTime = DateTime.MinValue;
     private bool _allEnemiesDefeated = false;
     private readonly ConcurrentDictionary<string, int> _playerRespawnCounts = new();
+    private readonly List<DamageEvent> _damageEvents = new();
+    private readonly object _damageEventsLock = new();
 
     public WorldSimulation(ILogger<WorldSimulation> logger, Forkleans.IClusterClient orleansClient, CrossZoneRpcService crossZoneRpc)
     {
@@ -825,8 +827,12 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     if (e1.Type == EntityType.Bullet && e2.Type != EntityType.Bullet)
                     {
                         var wasAlive = e2.Health > 0;
-                        e2.Health -= 25f;
+                        var damage = 25f;
+                        e2.Health -= damage;
                         e1.Health = 0; // Destroy bullet
+                        
+                        // Record damage event
+                        RecordDamageEvent(e1, e2, damage);
                         
                         // If this killed an enemy, give health to the player who shot the bullet
                         if (wasAlive && e2.Health <= 0 && e2.Type == EntityType.Enemy && e1.SubType == 0) // Player bullet
@@ -853,8 +859,12 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     else if (e2.Type == EntityType.Bullet && e1.Type != EntityType.Bullet)
                     {
                         var wasAlive = e1.Health > 0;
-                        e1.Health -= 25f;
+                        var damage = 25f;
+                        e1.Health -= damage;
                         e2.Health = 0; // Destroy bullet
+                        
+                        // Record damage event
+                        RecordDamageEvent(e2, e1, damage);
                         
                         // If this killed an enemy, give health to the player who shot the bullet
                         if (wasAlive && e1.Health <= 0 && e1.Type == EntityType.Enemy && e2.SubType == 0) // Player bullet
@@ -884,24 +894,40 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                         var damage = (EnemySubType)e2.SubType == EnemySubType.Kamikaze ? 30f : 10f;
                         e1.Health -= damage;
                         e2.Health -= 10f;
+                        
+                        // Record damage events
+                        RecordDamageEvent(e2, e1, damage, "collision"); // Enemy damages player
+                        RecordDamageEvent(e1, e2, 10f, "collision"); // Player damages enemy
                     }
                     else if (e2.Type == EntityType.Player && e1.Type == EntityType.Enemy)
                     {
                         var damage = (EnemySubType)e1.SubType == EnemySubType.Kamikaze ? 30f : 10f;
                         e2.Health -= damage;
                         e1.Health -= 10f;
+                        
+                        // Record damage events
+                        RecordDamageEvent(e1, e2, damage, "collision"); // Enemy damages player
+                        RecordDamageEvent(e2, e1, 10f, "collision"); // Player damages enemy
                     }
                     else if (e1.Type == EntityType.Player && e2.Type == EntityType.Asteroid)
                     {
                         // Colliding with asteroids damages the player
                         e1.Health -= 20f;
                         e2.Health -= 25f; // Damage the asteroid too
+                        
+                        // Record damage events
+                        RecordDamageEvent(e2, e1, 20f, "collision"); // Asteroid damages player
+                        RecordDamageEvent(e1, e2, 25f, "collision"); // Player damages asteroid
                     }
                     else if (e2.Type == EntityType.Player && e1.Type == EntityType.Asteroid)
                     {
                         // Colliding with asteroids damages the player
                         e2.Health -= 20f;
                         e1.Health -= 25f; // Damage the asteroid too
+                        
+                        // Record damage events
+                        RecordDamageEvent(e1, e2, 20f, "collision"); // Asteroid damages player
+                        RecordDamageEvent(e2, e1, 25f, "collision"); // Player damages asteroid
                     }
                 }
             }
@@ -1010,6 +1036,26 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             {
                 entity.Health = 0; // Mark for cleanup
             }
+        }
+    }
+
+    private void RecordDamageEvent(SimulatedEntity attacker, SimulatedEntity target, float damage, string weaponType = "gun")
+    {
+        var damageEvent = new DamageEvent(
+            attacker.EntityId,
+            target.EntityId,
+            attacker.Type,
+            target.Type,
+            attacker.SubType,
+            target.SubType,
+            damage,
+            weaponType,
+            DateTime.UtcNow
+        );
+        
+        lock (_damageEventsLock)
+        {
+            _damageEvents.Add(damageEvent);
         }
     }
 
@@ -1595,6 +1641,107 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         return _availableZones.Contains(zone);
     }
     
+    public ZoneDamageReport GetDamageReport()
+    {
+        lock (_damageEventsLock)
+        {
+            // Calculate player stats from damage events
+            var playerStats = new Dictionary<string, PlayerDamageStats>();
+            
+            foreach (var damage in _damageEvents)
+            {
+                // Track damage dealt
+                if (damage.AttackerType == EntityType.Player)
+                {
+                    if (!playerStats.ContainsKey(damage.AttackerId))
+                    {
+                        var playerName = _entities.TryGetValue(damage.AttackerId, out var player) ? player.PlayerName ?? damage.AttackerId : damage.AttackerId;
+                        playerStats[damage.AttackerId] = new PlayerDamageStats(
+                            damage.AttackerId,
+                            playerName,
+                            new Dictionary<string, float>(),
+                            new Dictionary<string, float>(),
+                            new Dictionary<string, float>(),
+                            0,
+                            0
+                        );
+                    }
+                    
+                    var stats = playerStats[damage.AttackerId];
+                    
+                    // Track damage by weapon type
+                    if (!stats.DamageDealtByWeapon.ContainsKey(damage.WeaponType))
+                        stats.DamageDealtByWeapon[damage.WeaponType] = 0;
+                    stats.DamageDealtByWeapon[damage.WeaponType] += damage.Damage;
+                    
+                    // Update total damage dealt
+                    playerStats[damage.AttackerId] = stats with { 
+                        TotalDamageDealt = stats.TotalDamageDealt + damage.Damage 
+                    };
+                }
+                
+                // Track damage received
+                if (damage.TargetType == EntityType.Player)
+                {
+                    if (!playerStats.ContainsKey(damage.TargetId))
+                    {
+                        var playerName = _entities.TryGetValue(damage.TargetId, out var player) ? player.PlayerName ?? damage.TargetId : damage.TargetId;
+                        playerStats[damage.TargetId] = new PlayerDamageStats(
+                            damage.TargetId,
+                            playerName,
+                            new Dictionary<string, float>(),
+                            new Dictionary<string, float>(),
+                            new Dictionary<string, float>(),
+                            0,
+                            0
+                        );
+                    }
+                    
+                    var stats = playerStats[damage.TargetId];
+                    
+                    // Track damage by enemy type
+                    if (damage.AttackerType == EntityType.Enemy)
+                    {
+                        var enemyTypeName = GetEnemyTypeName(damage.AttackerSubType);
+                        if (!stats.DamageReceivedByEnemyType.ContainsKey(enemyTypeName))
+                            stats.DamageReceivedByEnemyType[enemyTypeName] = 0;
+                        stats.DamageReceivedByEnemyType[enemyTypeName] += damage.Damage;
+                    }
+                    
+                    // Track damage by weapon type
+                    if (!stats.DamageReceivedByWeapon.ContainsKey(damage.WeaponType))
+                        stats.DamageReceivedByWeapon[damage.WeaponType] = 0;
+                    stats.DamageReceivedByWeapon[damage.WeaponType] += damage.Damage;
+                    
+                    // Update total damage received
+                    playerStats[damage.TargetId] = stats with { 
+                        TotalDamageReceived = stats.TotalDamageReceived + damage.Damage 
+                    };
+                }
+            }
+            
+            return new ZoneDamageReport(
+                _assignedSquare,
+                _startTime,
+                DateTime.UtcNow,
+                new List<DamageEvent>(_damageEvents),
+                playerStats
+            );
+        }
+    }
+    
+    private string GetEnemyTypeName(int subType)
+    {
+        return subType switch
+        {
+            1 => "Kamikaze",
+            2 => "Sniper",
+            3 => "Strafing",
+            4 => "Scout",
+            _ => "Unknown"
+        };
+    }
+
     public PlayerInfo? GetPlayerInfo(string playerId)
     {
         if (_entities.TryGetValue(playerId, out var entity) && entity.Type == EntityType.Player)
@@ -1934,6 +2081,12 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         
         // Clear respawn counts
         _playerRespawnCounts.Clear();
+        
+        // Clear damage events
+        lock (_damageEventsLock)
+        {
+            _damageEvents.Clear();
+        }
         
         // Reset game over tracking
         _allEnemiesDefeated = false;
