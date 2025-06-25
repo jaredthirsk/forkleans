@@ -1,5 +1,6 @@
 using Forkleans;
 using Forkleans.Runtime;
+using Microsoft.Extensions.Logging;
 using Shooter.Shared.GrainInterfaces;
 using Shooter.Shared.Models;
 
@@ -8,11 +9,14 @@ namespace Shooter.Silo.Grains;
 public class PlayerGrain : Forkleans.Grain, IPlayerGrain
 {
     private readonly IPersistentState<PlayerState> _state;
+    private readonly ILogger<PlayerGrain> _logger;
 
     public PlayerGrain(
-        [PersistentState("player", "playerStore")] IPersistentState<PlayerState> state)
+        [PersistentState("player", "playerStore")] IPersistentState<PlayerState> state,
+        ILogger<PlayerGrain> logger)
     {
         _state = state;
+        _logger = logger;
     }
 
     public Task<PlayerInfo> GetInfo()
@@ -74,8 +78,7 @@ public class PlayerGrain : Forkleans.Grain, IPlayerGrain
     {
         // For now, just log the game over message
         // In a real implementation, this would notify the connected client
-        var logger = this.GetLogger();
-        logger.LogInformation("Player {PlayerId} notified of game over. Scores: {Scores}", 
+        _logger.LogInformation("Player {PlayerId} notified of game over. Scores: {Scores}", 
             this.GetPrimaryKeyString(), 
             string.Join(", ", gameOverMessage.PlayerScores.Select(s => $"{s.PlayerName}: {s.RespawnCount} respawns")));
         
@@ -87,8 +90,7 @@ public class PlayerGrain : Forkleans.Grain, IPlayerGrain
     
     public Task NotifyGameRestarted()
     {
-        var logger = this.GetLogger();
-        logger.LogInformation("Player {PlayerId} notified of game restart", this.GetPrimaryKeyString());
+        _logger.LogInformation("Player {PlayerId} notified of game restart", this.GetPrimaryKeyString());
         
         // Reset game phase
         _state.State.GamePhase = GamePhase.Playing;

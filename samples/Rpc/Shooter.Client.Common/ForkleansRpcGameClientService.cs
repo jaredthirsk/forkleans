@@ -1635,6 +1635,26 @@ public class ForkleansRpcGameClientService : IDisposable
         
         PlayerId = null;  // Clear PlayerId only on final dispose
     }
+    
+    public void HandleGameOver(GameOverMessage gameOverMessage)
+    {
+        _logger.LogInformation("Game Over! Final scores:");
+        foreach (var score in gameOverMessage.PlayerScores.OrderBy(s => s.RespawnCount))
+        {
+            _logger.LogInformation("  {PlayerName}: {RespawnCount} deaths", score.PlayerName, score.RespawnCount);
+        }
+        
+        // TODO: Notify UI about game over
+        // For now, just log the information
+    }
+    
+    public void HandleGameRestarted()
+    {
+        _logger.LogInformation("Game restarted! New round beginning.");
+        
+        // TODO: Notify UI about game restart
+        // For now, just log the information
+    }
 }
 
 // Response types from Silo HTTP endpoints - using models from Shooter.Shared

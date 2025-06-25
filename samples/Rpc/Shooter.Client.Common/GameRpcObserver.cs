@@ -52,4 +52,21 @@ public class GameRpcObserver : IGameRpcObserver
         // Handle scout alert
         _clientService.HandleScoutAlert(alert);
     }
+    
+    public void OnGameOver(GameOverMessage gameOverMessage)
+    {
+        _logger.LogInformation("Received game over notification. Scores: {Scores}",
+            string.Join(", ", gameOverMessage.PlayerScores.Select(s => $"{s.PlayerName}: {s.RespawnCount} deaths")));
+        
+        // Handle game over
+        _clientService.HandleGameOver(gameOverMessage);
+    }
+    
+    public void OnGameRestarted()
+    {
+        _logger.LogInformation("Received game restart notification");
+        
+        // Handle game restart
+        _clientService.HandleGameRestarted();
+    }
 }
