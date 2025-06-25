@@ -57,7 +57,9 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             // Check if player already exists
             if (_entities.ContainsKey(playerId))
             {
-                _logger.LogWarning("Player {PlayerId} already exists in simulation, skipping add", playerId);
+                var existingEntity = _entities[playerId];
+                _logger.LogWarning("Player {PlayerId} ({PlayerName}) already exists in simulation at position {Position} with state {State}, health {Health}. Request to add rejected.", 
+                    playerId, existingEntity.PlayerName, existingEntity.Position, existingEntity.State, existingEntity.Health);
                 return true; // Return true since player is already here
             }
             
@@ -100,10 +102,17 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             _logger.LogInformation("Retrieved player info: {PlayerId} at position {Position} with health {Health}", 
                 playerId, playerInfo.Position, playerInfo.Health);
             
+            // Determine if this is a bot based on the name pattern
+            bool isBot = System.Text.RegularExpressions.Regex.IsMatch(
+                playerInfo.Name, 
+                @"^(LiteNetLib|Ruffles)(Test)?\d+$", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            
             var entity = new SimulatedEntity
             {
                 EntityId = playerId,
                 Type = EntityType.Player,
+                SubType = isBot ? 1 : 0, // 1 for bots, 0 for human players
                 Position = playerInfo.Position,
                 Velocity = playerInfo.Velocity,
                 Health = playerInfo.Health,
@@ -1015,6 +1024,23 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         {
             _entities.TryRemove(id, out _);
         }
+        
+        // Also clean up disconnected players (those with no recent input)
+        var now = DateTime.UtcNow;
+        var disconnectedPlayers = _playerInputs
+            .Where(p => (now - p.Value.LastUpdated).TotalSeconds > 30) // No input for 30 seconds
+            .Select(p => p.Key)
+            .ToList();
+            
+        foreach (var playerId in disconnectedPlayers)
+        {
+            if (_entities.TryGetValue(playerId, out var entity))
+            {
+                _logger.LogWarning("Removing disconnected player {PlayerId} ({PlayerName}) - no input for 30+ seconds", 
+                    playerId, entity.PlayerName);
+                RemovePlayer(playerId);
+            }
+        }
     }
 
     private void SpawnFactories(int count)
@@ -1502,8 +1528,16 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                         if (playerInfo != null && !string.IsNullOrEmpty(playerInfo.Name))
                         {
                             entity.PlayerName = playerInfo.Name;
-                            _logger.LogInformation("[TRANSFER_IN] Got player name {PlayerName} for {PlayerId}", 
-                                playerInfo.Name, entityId);
+                            
+                            // Update SubType based on name pattern if not already set correctly
+                            bool isBot = System.Text.RegularExpressions.Regex.IsMatch(
+                                playerInfo.Name, 
+                                @"^(LiteNetLib|Ruffles)(Test)?\d+$", 
+                                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                            entity.SubType = isBot ? 1 : 0;
+                            
+                            _logger.LogInformation("[TRANSFER_IN] Got player name {PlayerName} for {PlayerId}, isBot: {IsBot}", 
+                                playerInfo.Name, entityId, isBot);
                         }
                         
                         // Update player position and health in Orleans grain for consistency
