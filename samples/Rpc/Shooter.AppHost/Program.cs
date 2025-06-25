@@ -4,7 +4,7 @@ using Aspire.Hosting.ApplicationModel;
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Configuration
-const int InitialActionServerCount = 12;
+const int InitialActionServerCount = 4;
 var transportType = args.FirstOrDefault(arg => arg.StartsWith("--transport="))?.Replace("--transport=", "") ?? "litenetlib";
 
 // Add the Orleans silo with Orleans ports exposed
@@ -40,11 +40,11 @@ builder.AddProject<Projects.Shooter_Client>("shooter-client")
     .WaitFor(silo);
 
 // Add bot instances for testing - wait for at least one action server to be ready
-for (int i = 0; i < 2; i++)
+for (int i = 0; i < 3; i++)
 {
     var bot = builder.AddProject<Projects.Shooter_Bot>($"shooter-bot-{i}")
         .WithEnvironment("SiloUrl", silo.GetEndpoint("https"))
-        .WithEnvironment("BotName", $"TestBot_{i.ToString()}")
+        .WithEnvironment("RpcTransport", transportType)
         .WithEnvironment("TestMode", "true")
         .WithEnvironment("ASPIRE_INSTANCE_ID", i.ToString())
         .WithReference(silo)

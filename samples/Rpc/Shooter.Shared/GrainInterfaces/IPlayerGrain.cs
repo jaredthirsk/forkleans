@@ -11,4 +11,5 @@ public interface IPlayerGrain : Forkleans.IGrainWithStringKey
     Task<GridSquare> GetCurrentGridSquare();
     Task TakeDamage(float damage);
     Task<bool> IsAlive();
+    Task UpdateHealth(float health);
 }

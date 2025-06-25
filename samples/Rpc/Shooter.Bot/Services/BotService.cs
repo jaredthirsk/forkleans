@@ -35,18 +35,32 @@ public class BotService : BackgroundService
         _gameClient = gameClient;
         
         _testMode = _configuration.GetValue<bool>("TestMode", true);
-        _botName = _configuration.GetValue<string>("BotName", $"Bot_{Guid.NewGuid():N}".Substring(0, 12));
         
-        // Extract bot index from instance ID or bot name
+        // Extract bot index from instance ID or configuration
         var instanceId = _configuration.GetValue<string>("ASPIRE_INSTANCE_ID", "0");
         if (!int.TryParse(instanceId, out _botIndex))
         {
-            // Try to extract from bot name
-            var parts = _botName.Split('_');
-            if (parts.Length > 1 && int.TryParse(parts.Last(), out var index))
-            {
-                _botIndex = index;
-            }
+            _botIndex = 0;
+        }
+        
+        // Get transport type from configuration
+        var transportType = _configuration.GetValue<string>("RpcTransport", "litenetlib");
+        var transportName = transportType.ToLowerInvariant() switch
+        {
+            "ruffles" => "Ruffles",
+            "litenetlib" => "LiteNetLib",
+            _ => "LiteNetLib"
+        };
+        
+        // Build bot name: [TransportName][Test?][BotId]
+        var testIndicator = _testMode ? "Test" : "";
+        _botName = $"{transportName}{testIndicator}{_botIndex}";
+        
+        // Allow override from configuration
+        var configuredBotName = _configuration.GetValue<string>("BotName");
+        if (!string.IsNullOrEmpty(configuredBotName))
+        {
+            _botName = configuredBotName;
         }
     }
 
@@ -54,23 +68,33 @@ public class BotService : BackgroundService
     {
         try
         {
-            _logger.LogInformation("Bot {BotName} starting in {Mode} mode", _botName, _testMode ? "test" : "normal");
+            var transportType = _configuration.GetValue<string>("RpcTransport", "litenetlib");
+            _logger.LogInformation("Bot {BotName} starting in {Mode} mode using {Transport} transport", 
+                _botName, _testMode ? "test" : "normal", transportType);
             
             // Wait for services to be ready
             _logger.LogInformation("Waiting 5 seconds for services to be ready...");
             await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
             
             // Connect to the game
-            _logger.LogInformation("Connecting to game...");
+            _logger.LogInformation("Bot {BotName} connecting to game...", _botName);
             var connected = await _gameClient.ConnectAsync(_botName);
             
             if (!connected)
             {
-                _logger.LogError("Failed to connect to game");
+                _logger.LogError("Bot {BotName} failed to connect to game", _botName);
                 return;
             }
             
-            _logger.LogInformation("Bot {BotName} connected as player {PlayerId}", _botName, _gameClient.PlayerId);
+            _logger.LogInformation("Bot {BotName} connected as player {PlayerId}, checking connection status...", 
+                _botName, _gameClient.PlayerId);
+            
+            // Verify connection
+            if (!_gameClient.IsConnected)
+            {
+                _logger.LogError("Bot {BotName} connection check failed - IsConnected is false", _botName);
+                return;
+            }
             
             // Create automove controller
             _autoMoveController = new AutoMoveController(_logger, _gameClient.PlayerId ?? _botName, _testMode);
@@ -80,12 +104,59 @@ public class BotService : BackgroundService
             _gameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
             
             // Main bot loop
-            while (!stoppingToken.IsCancellationRequested && _gameClient.IsConnected)
+            var loopCount = 0;
+            var reconnectAttempts = 0;
+            const int maxReconnectAttempts = 5;
+            
+            while (!stoppingToken.IsCancellationRequested)
             {
+                // Check if we need to reconnect
+                if (!_gameClient.IsConnected)
+                {
+                    if (reconnectAttempts >= maxReconnectAttempts)
+                    {
+                        _logger.LogError("Bot {BotName} failed to reconnect after {Attempts} attempts, giving up", 
+                            _botName, maxReconnectAttempts);
+                        break;
+                    }
+                    
+                    _logger.LogWarning("Bot {BotName} lost connection, attempting to reconnect (attempt {Attempt}/{Max})", 
+                        _botName, reconnectAttempts + 1, maxReconnectAttempts);
+                    
+                    await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                    
+                    // Try to reconnect
+                    var reconnected = await _gameClient.ConnectAsync(_botName);
+                    if (reconnected)
+                    {
+                        _logger.LogInformation("Bot {BotName} reconnected successfully", _botName);
+                        reconnectAttempts = 0;
+                        
+                        // Re-subscribe to events
+                        _gameClient.WorldStateUpdated -= OnWorldStateUpdated;
+                        _gameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
+                        _gameClient.WorldStateUpdated += OnWorldStateUpdated;
+                        _gameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
+                    }
+                    else
+                    {
+                        reconnectAttempts++;
+                        continue;
+                    }
+                }
+                
                 try
                 {
                     await RunAutoMove(stoppingToken);
                     await Task.Delay(100, stoppingToken); // Update rate
+                    
+                    // Log status every 5 seconds
+                    loopCount++;
+                    if (loopCount % 50 == 0)
+                    {
+                        _logger.LogInformation("Bot {BotName} status - Connected: {Connected}, WorldState: {HasWorldState}, Entities: {EntityCount}",
+                            _botName, _gameClient.IsConnected, _lastWorldState != null, _lastWorldState?.Entities?.Count ?? 0);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -114,10 +185,20 @@ public class BotService : BackgroundService
 
     private async Task RunAutoMove(CancellationToken cancellationToken)
     {
-        if (_lastWorldState == null || _autoMoveController == null) return;
+        if (_lastWorldState == null || _autoMoveController == null)
+        {
+            _logger.LogDebug("Bot {BotName}: Skipping automove - worldState: {HasWorldState}, controller: {HasController}",
+                _botName, _lastWorldState != null, _autoMoveController != null);
+            return;
+        }
         
         var player = _lastWorldState.Entities.FirstOrDefault(e => e.EntityId == _gameClient.PlayerId);
-        if (player == null) return;
+        if (player == null)
+        {
+            _logger.LogWarning("Bot {BotName}: Player entity not found in world state (PlayerId: {PlayerId})",
+                _botName, _gameClient.PlayerId);
+            return;
+        }
         
         // Get movement decision from automove controller
         var (moveDirection, shootDirection) = _autoMoveController.Update(
@@ -137,6 +218,8 @@ public class BotService : BackgroundService
     private void OnWorldStateUpdated(WorldState worldState)
     {
         _lastWorldState = worldState;
+        _logger.LogDebug("Bot {BotName}: World state updated with {EntityCount} entities (sequence: {Sequence})",
+            _botName, worldState?.Entities?.Count ?? 0, worldState?.SequenceNumber ?? -1);
     }
 
     private void OnAvailableZonesUpdated(List<GridSquare> zones)

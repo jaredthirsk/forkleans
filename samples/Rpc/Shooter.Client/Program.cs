@@ -16,7 +16,7 @@ builder.Logging.AddFilter("Microsoft.AspNetCore.Mvc", LogLevel.Warning);
 builder.Logging.AddFilter("Microsoft.AspNetCore.StaticFiles", LogLevel.Warning);
 
 // Add file logging
-builder.Logging.AddProvider(new FileLoggerProvider("logs/client.log"));
+builder.Logging.AddProvider(new FileLoggerProvider("../logs/client.log"));
 
 // Add services to the container.
 builder.Services.AddRazorPages();

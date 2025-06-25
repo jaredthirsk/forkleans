@@ -49,6 +49,13 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     {
         try
         {
+            // Check if player already exists
+            if (_entities.ContainsKey(playerId))
+            {
+                _logger.LogWarning("Player {PlayerId} already exists in simulation, skipping add", playerId);
+                return true; // Return true since player is already here
+            }
+            
             _logger.LogInformation("AddPlayer called for {PlayerId}", playerId);
             var playerGrain = _orleansClient.GetGrain<IPlayerGrain>(playerId);
             _logger.LogInformation("Got player grain reference for {PlayerId}", playerId);
@@ -97,14 +104,15 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 Health = playerInfo.Health,
                 Rotation = 0,
                 State = EntityStateType.Active,
-                StateTimer = 0f
+                StateTimer = 0f,
+                PlayerName = playerInfo.Name // Store the player name
             };
             
             _entities[playerId] = entity;
             _playerInputs[playerId] = new PlayerInput();
             
-            _logger.LogInformation("Player {PlayerId} added to simulation at position {Position} in zone {Zone}", 
-                playerId, entity.Position, _assignedSquare);
+            _logger.LogInformation("Player {PlayerId} ({PlayerName}) added to simulation at position {Position} in zone {Zone}", 
+                playerId, playerInfo.Name, entity.Position, _assignedSquare);
             return true;
         }
         catch (Exception ex)
@@ -221,7 +229,8 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 e.Rotation,
                 e.SubType,
                 e.State,
-                e.StateTimer))
+                e.StateTimer,
+                e.PlayerName))
             .ToList();
         
         // Log entity counts by type for debugging
@@ -237,10 +246,10 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 string.Join(", ", outsideEntities.Select(e => $"{e.Type} {e.EntityId} at {e.Position} (zone {GridSquare.FromPosition(e.Position)})")));
         }
         
-        if (entities.Count > 0)
+        if (entities.Count() > 0)
         {
             _logger.LogDebug("GetCurrentState returning {Total} entities: Players={Players}, Enemies={Enemies}, Bullets={Bullets}, Explosions={Explosions}, Factories={Factories}, Asteroids={Asteroids}",
-                entities.Count,
+                entities.Count(),
                 entityCounts.GetValueOrDefault(EntityType.Player, 0),
                 entityCounts.GetValueOrDefault(EntityType.Enemy, 0),
                 entityCounts.GetValueOrDefault(EntityType.Bullet, 0),
@@ -1153,9 +1162,15 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         if (spawnPosition.X < min.X || spawnPosition.X > max.X || 
             spawnPosition.Y < min.Y || spawnPosition.Y > max.Y)
         {
-            // If bullet would spawn outside zone, don't create it
-            _logger.LogDebug("Bullet spawn position {Position} is outside zone bounds, skipping", spawnPosition);
-            return;
+            // If bullet would spawn outside zone, adjust the spawn position to be at the edge
+            var adjustedPosition = new Vector2(
+                Math.Clamp(spawnPosition.X, min.X + 1f, max.X - 1f),
+                Math.Clamp(spawnPosition.Y, min.Y + 1f, max.Y - 1f)
+            );
+            
+            _logger.LogDebug("Bullet spawn position {Original} outside zone, adjusted to {Adjusted}", 
+                spawnPosition, adjustedPosition);
+            spawnPosition = adjustedPosition;
         }
         
         var bulletId = $"bullet_{_assignedSquare.X}_{_assignedSquare.Y}_{_nextEntityId++}";
@@ -1337,6 +1352,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         public bool IsAlerted { get; set; }
         public DateTime AlertedUntil { get; set; }
         public Vector2 LastKnownPlayerPosition { get; set; }
+        public string? PlayerName { get; set; }
     }
 
     private class PlayerInput
@@ -1432,7 +1448,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             
             _entities[entityId] = entity;
             
-            // If it's a player, also add to player inputs
+            // If it's a player, also add to player inputs and get the player name
             if (type == EntityType.Player)
             {
                 _playerInputs[entityId] = new PlayerInput
@@ -1442,23 +1458,34 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     IsShooting = false,
                     LastUpdated = DateTime.UtcNow
                 };
-                _logger.LogInformation("[TRANSFER_IN] Player {EntityId} successfully transferred to zone {Zone} at position {Position}", 
-                    entityId, _assignedSquare, position);
-                    
-                // Update player position in Orleans grain for consistency
+                
+                // Get player name from grain
                 _ = Task.Run(async () => {
                     try
                     {
                         var playerGrain = _orleansClient.GetGrain<IPlayerGrain>(entityId);
+                        var playerInfo = await playerGrain.GetInfo();
+                        if (playerInfo != null && !string.IsNullOrEmpty(playerInfo.Name))
+                        {
+                            entity.PlayerName = playerInfo.Name;
+                            _logger.LogInformation("[TRANSFER_IN] Got player name {PlayerName} for {PlayerId}", 
+                                playerInfo.Name, entityId);
+                        }
+                        
+                        // Update player position and health in Orleans grain for consistency
                         await playerGrain.UpdatePosition(position, velocity);
-                        _logger.LogInformation("[TRANSFER_IN] Updated player grain position for {PlayerId} to {Position}", 
-                            entityId, position);
+                        await playerGrain.UpdateHealth(health);
+                        _logger.LogInformation("[TRANSFER_IN] Updated player grain for {PlayerId} - position: {Position}, health: {Health}", 
+                            entityId, position, health);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "[TRANSFER_IN] Failed to update player grain position for {PlayerId}", entityId);
+                        _logger.LogError(ex, "[TRANSFER_IN] Failed to update player grain for {PlayerId}", entityId);
                     }
                 });
+                
+                _logger.LogInformation("[TRANSFER_IN] Player {EntityId} successfully transferred to zone {Zone} at position {Position} with health {Health}", 
+                    entityId, _assignedSquare, position, health);
             }
             else
             {
@@ -1681,8 +1708,9 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 return;
             }
             
-            _logger.LogDebug("Bullet {BulletId} trajectory will pass through zones: {Zones}", 
-                bulletId, string.Join(", ", zonesToNotify.Select(z => $"({z.X},{z.Y})")));
+            _logger.LogInformation("Bullet {BulletId} from zone ({FromX},{FromY}) will pass through zones: {Zones}", 
+                bulletId, _assignedSquare.X, _assignedSquare.Y, 
+                string.Join(", ", zonesToNotify.Select(z => $"({z.X},{z.Y})")));
             
             // Get server information for each zone
             var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);

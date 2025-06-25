@@ -278,12 +278,37 @@ public class ForkleansRpcGameClientService : IDisposable
         }
     }
     
+    private bool IsBotName(string playerName)
+    {
+        // Bot names follow patterns like "LiteNetLibTest0", "RufflesTest1", etc.
+        // They contain transport name + optional "Test" + number
+        // This method helps identify bots so they can use predictable player IDs
+        // instead of random GUIDs, preventing duplicate bot ships when multiple
+        // bot instances connect with the same bot name
+        return System.Text.RegularExpressions.Regex.IsMatch(playerName, @"^(LiteNetLib|Ruffles)(Test)?\d+$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+    }
+    
     private async Task<PlayerRegistrationResponse?> RegisterWithHttpAsync(string playerName)
     {
         try
         {
+            // For bots, use the bot name as the player ID to ensure consistency
+            // This prevents duplicate bot ships when multiple bot instances try to connect
+            string playerId;
+            if (IsBotName(playerName))
+            {
+                // Use the bot name directly as the player ID
+                playerId = playerName;
+                _logger.LogInformation("Registering bot with predictable ID: {PlayerId}", playerId);
+            }
+            else
+            {
+                // For human players, generate a unique ID
+                playerId = Guid.NewGuid().ToString();
+            }
+            
             var response = await _httpClient.PostAsJsonAsync("api/world/players/register", 
-                new { PlayerId = Guid.NewGuid().ToString(), Name = playerName });
+                new { PlayerId = playerId, Name = playerName });
             
             if (response.IsSuccessStatusCode)
             {
@@ -354,11 +379,26 @@ public class ForkleansRpcGameClientService : IDisposable
         
         try
         {
-            await _gameGrain.UpdatePlayerInputEx(PlayerId, moveDirection, shootDirection);
+            // Add timeout to prevent 30-second hangs
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            await _gameGrain.UpdatePlayerInputEx(PlayerId, moveDirection, shootDirection).WaitAsync(cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("Player input timed out after 5 seconds, marking connection as lost");
+            IsConnected = false;
+            // Fire connection lost event
+            ServerChanged?.Invoke("Connection lost");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to send player input");
+            // Check if this is a connection error
+            if (ex.Message.Contains("Not connected") || ex.Message.Contains("RPC client is not connected"))
+            {
+                IsConnected = false;
+                ServerChanged?.Invoke("Connection lost");
+            }
         }
     }
     

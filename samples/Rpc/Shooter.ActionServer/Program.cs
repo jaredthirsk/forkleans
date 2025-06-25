@@ -31,13 +31,13 @@ builder.Logging.AddFilter("Forkleans.Rpc", LogLevel.Debug);
 builder.Logging.AddFilter("Shooter.ActionServer", LogLevel.Debug);
 
 // Add file logging with unique filename based on Aspire instance
-string logFileName = "logs/actionserver.log";
+string logFileName = "../logs/actionserver.log";
 
 // Try to get instance ID from ASPIRE_INSTANCE_ID environment variable (set in AppHost)
 var aspireInstanceId = Environment.GetEnvironmentVariable("ASPIRE_INSTANCE_ID");
 if (!string.IsNullOrEmpty(aspireInstanceId))
 {
-    logFileName = $"logs/actionserver-{aspireInstanceId}.log";
+    logFileName = $"../logs/actionserver-{aspireInstanceId}.log";
 }
 else
 {
@@ -45,7 +45,7 @@ else
     var replicaIndex = Environment.GetEnvironmentVariable("DOTNET_ASPIRE_REPLICA_INDEX");
     if (!string.IsNullOrEmpty(replicaIndex))
     {
-        logFileName = $"logs/actionserver-{replicaIndex}.log";
+        logFileName = $"../logs/actionserver-{replicaIndex}.log";
     }
 }
 

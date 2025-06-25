@@ -27,10 +27,15 @@ public class PlayerGrain : Forkleans.Grain, IPlayerGrain
 
     public async Task Initialize(string name, Vector2 startPosition)
     {
+        // Only update fields that should be reset on initialization
+        // Preserve health if the player already has less than full health (they were damaged)
+        var currentHealth = _state.State.Health;
+        var preserveHealth = currentHealth > 0 && currentHealth < 1000f;
+        
         _state.State.Name = name;
         _state.State.Position = startPosition;
         _state.State.Velocity = Vector2.Zero;
-        _state.State.Health = 1000f;
+        _state.State.Health = preserveHealth ? currentHealth : 1000f;
         _state.State.LastUpdated = DateTime.UtcNow;
         await _state.WriteStateAsync();
     }
@@ -57,6 +62,12 @@ public class PlayerGrain : Forkleans.Grain, IPlayerGrain
     public Task<bool> IsAlive()
     {
         return Task.FromResult(_state.State.Health > 0);
+    }
+    
+    public async Task UpdateHealth(float health)
+    {
+        _state.State.Health = Math.Max(0, health);
+        await _state.WriteStateAsync();
     }
 }
 

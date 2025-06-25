@@ -63,23 +63,30 @@ public class AutoMoveController
             _logger.LogInformation("AutoMove {EntityId}: Entered zone ({X},{Y})", _entityId, newZone.X, newZone.Y);
         }
         
-        // Find nearby enemies
+        // Find nearby enemies and factories
         var nearbyEnemies = worldState.Entities
             .Where(e => e.Type == EntityType.Enemy && e.Health > 0)
             .Where(e => currentPosition.DistanceTo(e.Position) <= EnemyDetectionRange)
             .OrderBy(e => currentPosition.DistanceTo(e.Position))
             .ToList();
+            
+        var nearbyFactories = worldState.Entities
+            .Where(e => e.Type == EntityType.Factory && e.Health > 0)
+            .Where(e => currentPosition.DistanceTo(e.Position) <= EnemyDetectionRange)
+            .OrderBy(e => currentPosition.DistanceTo(e.Position))
+            .ToList();
         
         var hasEnemies = nearbyEnemies.Any();
+        var hasTargets = hasEnemies || nearbyFactories.Any();
         var timeInZone = (DateTime.UtcNow - _zoneEntryTime).TotalSeconds;
         
         // Determine mode based on conditions
-        if (hasEnemies && _currentMode != MoveMode.StrafeEnemy)
+        if (hasTargets && _currentMode != MoveMode.StrafeEnemy)
         {
             _currentMode = MoveMode.StrafeEnemy;
             _logger.LogDebug("AutoMove {EntityId}: Switching to StrafeEnemy mode", _entityId);
         }
-        else if (!hasEnemies && _currentMode == MoveMode.StrafeEnemy)
+        else if (!hasTargets && _currentMode == MoveMode.StrafeEnemy)
         {
             // No more enemies
             if (!_isTestMode)
@@ -116,9 +123,33 @@ public class AutoMoveController
             MoveMode.IntraZone => ExecuteIntraZoneMode(currentPosition, availableZones),
             MoveMode.RandomInterZone => ExecuteRandomInterZoneMode(currentPosition, availableZones),
             MoveMode.PredictableInterZone => ExecutePredictableInterZoneMode(currentPosition, availableZones),
-            MoveMode.StrafeEnemy => ExecuteStrafeEnemyMode(currentPosition, nearbyEnemies.FirstOrDefault()),
+            MoveMode.StrafeEnemy => ExecuteStrafeEnemyMode(currentPosition, GetPrioritizedTarget(nearbyEnemies, nearbyFactories, currentPosition)),
             _ => (null, null)
         };
+    }
+    
+    private EntityState? GetPrioritizedTarget(List<EntityState> enemies, List<EntityState> factories, Vector2 currentPosition)
+    {
+        // Priority 1: Kamikaze enemies (they seek to collide)
+        var kamikazeEnemies = enemies.Where(e => e.SubType == (int)EnemySubType.Kamikaze).ToList();
+        if (kamikazeEnemies.Any())
+        {
+            return kamikazeEnemies.OrderBy(e => currentPosition.DistanceTo(e.Position)).First();
+        }
+        
+        // Priority 2: All other enemies by distance
+        if (enemies.Any())
+        {
+            return enemies.OrderBy(e => currentPosition.DistanceTo(e.Position)).First();
+        }
+        
+        // Priority 3: Factories (lowest priority)
+        if (factories.Any())
+        {
+            return factories.OrderBy(e => currentPosition.DistanceTo(e.Position)).First();
+        }
+        
+        return null;
     }
     
     private (Vector2? moveDirection, Vector2? shootDirection) ExecuteIntraZoneMode(
@@ -232,41 +263,93 @@ public class AutoMoveController
     }
     
     private (Vector2? moveDirection, Vector2? shootDirection) ExecuteStrafeEnemyMode(
-        Vector2 currentPosition, EntityState? nearestEnemy)
+        Vector2 currentPosition, EntityState? nearestTarget)
     {
-        if (nearestEnemy == null) return (null, null);
+        if (nearestTarget == null) return (null, null);
         
-        var distance = currentPosition.DistanceTo(nearestEnemy.Position);
-        var direction = (nearestEnemy.Position - currentPosition).Normalized();
+        var distance = currentPosition.DistanceTo(nearestTarget.Position);
+        var direction = (nearestTarget.Position - currentPosition).Normalized();
         
         Vector2? moveDir = null;
-        Vector2? shootDir = direction; // Always shoot at enemy
+        Vector2? shootDir = direction; // Always shoot at target
+        
+        // Get zone boundaries for staying within zone
+        var (min, max) = _currentZone!.GetBounds();
         
         if (distance > EnemyStrafeDistance * 1.5f)
         {
             // Move closer
             moveDir = direction * 100f;
-            _logger.LogDebug("AutoMove {EntityId}: Moving closer to enemy", _entityId);
+            _logger.LogDebug("AutoMove {EntityId}: Moving closer to target", _entityId);
         }
         else if (distance < EnemyBackAwayDistance)
         {
             // Too close, back away
-            moveDir = new Vector2(-direction.X, -direction.Y) * 100f;
-            _logger.LogDebug("AutoMove {EntityId}: Backing away from enemy", _entityId);
+            var backAwayDir = new Vector2(-direction.X, -direction.Y);
+            
+            // Check if backing away would take us out of zone
+            var futurePos = currentPosition + backAwayDir * 5f; // Check 5 units ahead
+            if (futurePos.X < min.X + BorderDistance || futurePos.X > max.X - BorderDistance ||
+                futurePos.Y < min.Y + BorderDistance || futurePos.Y > max.Y - BorderDistance)
+            {
+                // Would go out of zone, strafe instead
+                var strafeDir = new Vector2(-direction.Y, direction.X);
+                moveDir = strafeDir * 100f;
+                _logger.LogDebug("AutoMove {EntityId}: Would leave zone backing away, strafing instead", _entityId);
+            }
+            else
+            {
+                moveDir = backAwayDir * 100f;
+                _logger.LogDebug("AutoMove {EntityId}: Backing away from target", _entityId);
+            }
         }
         else
         {
             // Good distance, strafe
             var strafeDir = new Vector2(-direction.Y, direction.X);
             
-            // Alternate strafe direction occasionally
-            if (_random.NextSingle() < 0.1f) // 10% chance to change direction
+            // Check if we're near a zone boundary
+            var nearLeftBorder = currentPosition.X - min.X < BorderDistance;
+            var nearRightBorder = max.X - currentPosition.X < BorderDistance;
+            var nearBottomBorder = currentPosition.Y - min.Y < BorderDistance;
+            var nearTopBorder = max.Y - currentPosition.Y < BorderDistance;
+            
+            // If very close to border (within 25 units), move away from it
+            var veryNearBorder = false;
+            if (currentPosition.X - min.X < 25f || max.X - currentPosition.X < 25f ||
+                currentPosition.Y - min.Y < 25f || max.Y - currentPosition.Y < 25f)
             {
-                strafeDir = new Vector2(-strafeDir.X, -strafeDir.Y);
+                veryNearBorder = true;
+                // Move toward zone center instead of strafing
+                var centerX = (min.X + max.X) / 2f;
+                var centerY = (min.Y + max.Y) / 2f;
+                var toCenter = new Vector2(centerX - currentPosition.X, centerY - currentPosition.Y).Normalized();
+                moveDir = toCenter * 100f;
+                _logger.LogDebug("AutoMove {EntityId}: Very near zone border at {Position}, moving toward center", _entityId, currentPosition);
+            }
+            else
+            {
+                // Normal strafing logic
+                // If near a border, strafe in the opposite direction
+                if (nearLeftBorder && strafeDir.X < 0 || nearRightBorder && strafeDir.X > 0 ||
+                    nearBottomBorder && strafeDir.Y < 0 || nearTopBorder && strafeDir.Y > 0)
+                {
+                    strafeDir = new Vector2(-strafeDir.X, -strafeDir.Y);
+                    _logger.LogDebug("AutoMove {EntityId}: Near zone border, reversing strafe direction", _entityId);
+                }
+                else if (_random.NextSingle() < 0.1f) // 10% chance to change direction
+                {
+                    strafeDir = new Vector2(-strafeDir.X, -strafeDir.Y);
+                }
+                
+                if (!veryNearBorder)
+                {
+                    moveDir = strafeDir * 100f;
+                }
             }
             
-            moveDir = strafeDir * 100f;
-            _logger.LogDebug("AutoMove {EntityId}: Strafing enemy at distance {Distance:F1}", _entityId, distance);
+            var targetType = nearestTarget.Type == EntityType.Factory ? "factory" : "enemy";
+            _logger.LogDebug("AutoMove {EntityId}: Strafing {TargetType} at distance {Distance:F1}", _entityId, targetType, distance);
         }
         
         return (moveDir, shootDir);

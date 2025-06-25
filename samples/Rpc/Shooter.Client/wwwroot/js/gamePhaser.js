@@ -1165,9 +1165,8 @@ class GamePhaser {
         if (shouldShowName) {
             // Create or update the name text
             if (!sprite.nameText) {
-                // Extract a readable name from the entity ID
-                // Entity IDs are GUIDs, so we'll take the first 8 characters
-                const displayName = entity.entityId.substring(0, 8) + '...';
+                // Use the player name if available, otherwise fall back to entity ID
+                const displayName = entity.playerName || entity.entityId.substring(0, 8) + '...';
                 
                 sprite.nameText = this.scene.add.text(0, 0, displayName, {
                     fontSize: '12px',
@@ -1177,6 +1176,9 @@ class GamePhaser {
                     align: 'center'
                 });
                 sprite.nameText.setOrigin(0.5, 0);
+            } else if (entity.playerName && sprite.nameText.text !== entity.playerName) {
+                // Update the text if the player name changed
+                sprite.nameText.setText(entity.playerName);
             }
 
             // Update position to be below the sprite

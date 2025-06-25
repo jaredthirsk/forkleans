@@ -114,16 +114,33 @@ public class WorldManagerGrain : Forkleans.Grain, IWorldManagerGrain
     public async Task<PlayerInfo> RegisterPlayer(string playerId, string name)
     {
         var playerGrain = GrainFactory.GetGrain<IPlayerGrain>(playerId);
-        var startPosition = await GetPlayerStartPosition(playerId);
         
-        // Initialize the player grain with name and starting position
-        await playerGrain.Initialize(name, startPosition);
+        // Check if player already exists and has health info
+        var existingInfo = await playerGrain.GetInfo();
         
-        var playerInfo = new PlayerInfo(playerId, name, startPosition, Vector2.Zero, 1000f);
-        _state.State.Players[playerId] = playerInfo;
-        await _state.WriteStateAsync();
-        
-        return playerInfo;
+        if (existingInfo != null && existingInfo.Health > 0 && existingInfo.Health < 1000f)
+        {
+            // Player exists with damaged health - preserve it
+            _logger.LogInformation("Preserving existing player {PlayerId} with health {Health}", playerId, existingInfo.Health);
+            var playerInfo = new PlayerInfo(playerId, name, existingInfo.Position, existingInfo.Velocity, existingInfo.Health);
+            _state.State.Players[playerId] = playerInfo;
+            await _state.WriteStateAsync();
+            return playerInfo;
+        }
+        else
+        {
+            // New player or respawning - initialize with full health
+            var startPosition = await GetPlayerStartPosition(playerId);
+            
+            // Initialize the player grain with name and starting position
+            await playerGrain.Initialize(name, startPosition);
+            
+            var playerInfo = new PlayerInfo(playerId, name, startPosition, Vector2.Zero, 1000f);
+            _state.State.Players[playerId] = playerInfo;
+            await _state.WriteStateAsync();
+            
+            return playerInfo;
+        }
     }
 
     public async Task ResetAllServerAssignments()

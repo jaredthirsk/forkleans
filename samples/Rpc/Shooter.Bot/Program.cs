@@ -6,6 +6,12 @@ using Shooter.Bot;
 using Shooter.Bot.Services;
 using Shooter.Client.Common;
 
+// Command line options:
+// --test or -t: Enable test mode (default: true)
+// --transport: Specify transport type (litenetlib or ruffles, default: litenetlib)
+// --SiloUrl: Specify the Orleans silo URL (default: https://localhost:7071/)
+// --BotName: Override the auto-generated bot name
+
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.AddServiceDefaults();
@@ -16,7 +22,7 @@ builder.Logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
 builder.Logging.AddFilter("Polly", LogLevel.Warning);
 
 // Add file logging with unique filename based on bot name or instance
-string logFileName = "logs/bot.log";
+string logFileName = "../logs/bot.log";
 
 // Try to get bot name from configuration first
 var botName = builder.Configuration["BotName"];
@@ -24,7 +30,7 @@ if (!string.IsNullOrEmpty(botName))
 {
     // Sanitize bot name for filename
     var safeBotName = botName.Replace(" ", "_").Replace(":", "").Replace("/", "").Replace("\\", "");
-    logFileName = $"logs/bot-{safeBotName}.log";
+    logFileName = $"../logs/bot-{safeBotName}.log";
 }
 else
 {
@@ -32,7 +38,7 @@ else
     var aspireInstanceId = Environment.GetEnvironmentVariable("ASPIRE_INSTANCE_ID");
     if (!string.IsNullOrEmpty(aspireInstanceId))
     {
-        logFileName = $"logs/bot-{aspireInstanceId}.log";
+        logFileName = $"../logs/bot-{aspireInstanceId}.log";
     }
     else
     {
@@ -40,7 +46,7 @@ else
         var replicaIndex = Environment.GetEnvironmentVariable("DOTNET_ASPIRE_REPLICA_INDEX");
         if (!string.IsNullOrEmpty(replicaIndex))
         {
-            logFileName = $"logs/bot-{replicaIndex}.log";
+            logFileName = $"../logs/bot-{replicaIndex}.log";
         }
     }
 }
@@ -71,8 +77,14 @@ builder.Services.AddSingleton<ForkleansRpcGameClientService>(serviceProvider =>
 builder.Services.AddSingleton<BotService>();
 builder.Services.AddHostedService<BotService>(provider => provider.GetRequiredService<BotService>());
 
-// Configure from command line args
-builder.Configuration.AddCommandLine(args);
+// Configure from command line args with custom switch mappings
+var switchMappings = new Dictionary<string, string>()
+{
+    { "--test", "TestMode" },
+    { "-t", "TestMode" },
+    { "--transport", "RpcTransport" }
+};
+builder.Configuration.AddCommandLine(args, switchMappings);
 
 var app = builder.Build();
 

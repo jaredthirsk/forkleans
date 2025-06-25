@@ -13,7 +13,7 @@ builder.AddServiceDefaults();
 // Configure file logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-builder.Logging.AddProvider(new FileLoggerProvider("logs/silo.log"));
+builder.Logging.AddProvider(new FileLoggerProvider("../logs/silo.log"));
 
 // Add services
 builder.Services.AddControllers();

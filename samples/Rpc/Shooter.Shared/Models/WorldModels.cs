@@ -47,7 +47,8 @@ public record EntityState(
     [property: JsonPropertyName("rotation")] float Rotation,
     [property: JsonPropertyName("subType")] int SubType = 0,
     [property: JsonPropertyName("state")] EntityStateType State = EntityStateType.Active,
-    [property: JsonPropertyName("stateTimer")] float StateTimer = 0f);
+    [property: JsonPropertyName("stateTimer")] float StateTimer = 0f,
+    [property: JsonPropertyName("playerName")] string? PlayerName = null);
 
 [Forkleans.GenerateSerializer]
 [JsonConverter(typeof(JsonStringEnumConverter))]
