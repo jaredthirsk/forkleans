@@ -503,23 +503,28 @@ class GamePhaser {
             sprite.y = entity.position.y;
             sprite.rotation = entity.rotation;
 
+            // Check if entity is in a different zone than the player
+            const entityZone = this.getGridSquare(entity.position.x, entity.position.y);
+            const isInDifferentZone = this.playerZone && 
+                (entityZone.x !== this.playerZone.x || entityZone.y !== this.playerZone.y);
+
             // Parse entity state consistently (handle string/number)
             const entityState = typeof entity.state === 'string' ? this.parseEntityState(entity.state) : entity.state;
             
             // Update visibility based on state
             if (entityState === 2) { // Dying
-                sprite.alpha = 0.5;
+                sprite.alpha = isInDifferentZone ? 0.35 : 0.5; // 70% of 0.5
             } else if (entityState === 3) { // Dead
                 sprite.visible = false;
             } else if (entityState === 4) { // Respawning
-                sprite.alpha = 0.3;
+                sprite.alpha = isInDifferentZone ? 0.21 : 0.3; // 70% of 0.3
             } else if (entityState === 5) { // Alerting (Scout)
                 sprite.visible = true;
-                sprite.alpha = 1;
+                sprite.alpha = isInDifferentZone ? 0.7 : 1;
                 this.updateScoutAlertIndicator(sprite, entity);
             } else {
                 sprite.visible = true;
-                sprite.alpha = 1;
+                sprite.alpha = isInDifferentZone ? 0.7 : 1;
                 this.clearScoutAlertIndicator(sprite);
             }
 

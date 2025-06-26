@@ -45,12 +45,43 @@
     </div>
     
     <div class="zone-controls">
-        <button class="zone-btn remove-zone" @onclick="RemoveZone" title="Remove Zone" disabled="@_isProcessing">
-            <span class="btn-icon">-</span>
-        </button>
-        <button class="zone-btn add-zone" @onclick="AddZone" title="Add Zone" disabled="@_isProcessing">
-            <span class="btn-icon">+</span>
-        </button>
+        <div class="control-group">
+            <label>Zones:</label>
+            <div class="control-row">
+                <button class="zone-btn remove-zone" @onclick="RemoveZone" title="Remove Zone" disabled="@_isProcessing">
+                    <span class="btn-icon">-</span>
+                </button>
+                <div class="count-display">
+                    <div class="desired-count">@_desiredZoneCount</div>
+                    @if (_actualZoneCount != _desiredZoneCount)
+                    {
+                        <div class="actual-count">(@_actualZoneCount)</div>
+                    }
+                </div>
+                <button class="zone-btn add-zone" @onclick="AddZone" title="Add Zone" disabled="@_isProcessing">
+                    <span class="btn-icon">+</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Silos:</label>
+            <div class="control-row">
+                <button class="zone-btn remove-silo" @onclick="RemoveSilo" title="Remove Silo" disabled="@_isProcessing">
+                    <span class="btn-icon">-</span>
+                </button>
+                <div class="count-display">
+                    <div class="desired-count">@_desiredSiloCount</div>
+                    @if (_actualSiloCount != _desiredSiloCount)
+                    {
+                        <div class="actual-count">(@_actualSiloCount)</div>
+                    }
+                </div>
+                <button class="zone-btn add-silo" @onclick="AddSilo" title="Add Silo" disabled="@_isProcessing">
+                    <span class="btn-icon">+</span>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -140,10 +171,44 @@
     }
     
     .zone-controls {
-        display: flex;
-        gap: 10px;
         margin-top: 15px;
+    }
+    
+    .control-group {
+        margin-bottom: 10px;
+    }
+    
+    .control-group label {
+        display: block;
+        font-size: 12px;
+        color: #aaa;
+        margin-bottom: 5px;
+    }
+    
+    .control-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
         justify-content: center;
+    }
+    
+    .count-display {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 40px;
+    }
+    
+    .desired-count {
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+    }
+    
+    .actual-count {
+        font-size: 12px;
+        color: #aaa;
+        margin-top: 2px;
     }
     
     .zone-btn {
@@ -185,6 +250,26 @@
         transform: scale(1.05);
     }
     
+    .add-silo {
+        background-color: #4CAF50;
+        color: white;
+    }
+    
+    .add-silo:hover:not(:disabled) {
+        background-color: #45a049;
+        transform: scale(1.05);
+    }
+    
+    .remove-silo {
+        background-color: #f44336;
+        color: white;
+    }
+    
+    .remove-silo:hover:not(:disabled) {
+        background-color: #da190b;
+        transform: scale(1.05);
+    }
+    
     .btn-icon {
         line-height: 1;
     }
@@ -204,6 +289,10 @@
     private int _maxY = 2;
     private Timer? _updateTimer;
     private bool _isProcessing = false;
+    private int _desiredZoneCount = 4; // Default desired zone count
+    private int _actualZoneCount = 0;
+    private int _desiredSiloCount = 1; // Default desired silo count  
+    private int _actualSiloCount = 1;
     
     private class ZoneStats
     {
@@ -275,6 +364,7 @@
         if (_isProcessing) return;
         
         _isProcessing = true;
+        _desiredZoneCount++;
         try
         {
             Logger.LogInformation("Adding new zone...");
@@ -296,15 +386,18 @@
             {
                 var error = await response.Content.ReadAsStringAsync();
                 Logger.LogError("Failed to add zone: {Status} - {Error}", response.StatusCode, error);
+                _desiredZoneCount--; // Revert on failure
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error adding zone");
+            _desiredZoneCount--; // Revert on failure
         }
         finally
         {
             _isProcessing = false;
+            StateHasChanged();
         }
     }
     
@@ -359,6 +452,80 @@
         finally
         {
             _isProcessing = false;
+        }
+    }
+    
+    private async Task AddSilo()
+    {
+        if (_isProcessing) return;
+        
+        _isProcessing = true;
+        _desiredSiloCount++;
+        try
+        {
+            Logger.LogInformation("Adding new silo...");
+            
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await Http.PostAsync($"{siloUrl}api/world/silos/add", null);
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("Successfully added new silo");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogError("Failed to add silo: {Status} - {Error}", response.StatusCode, error);
+                _desiredSiloCount--; // Revert on failure
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error adding silo");
+            _desiredSiloCount--; // Revert on failure
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    
+    private async Task RemoveSilo()
+    {
+        if (_isProcessing) return;
+        
+        _isProcessing = true;
+        _desiredSiloCount--;
+        try
+        {
+            Logger.LogInformation("Removing silo...");
+            
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await Http.PostAsync($"{siloUrl}api/world/silos/remove", null);
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("Successfully removed silo");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogError("Failed to remove silo: {Status} - {Error}", response.StatusCode, error);
+                _desiredSiloCount++; // Revert on failure
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error removing silo");
+            _desiredSiloCount++; // Revert on failure
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
         }
     }
     

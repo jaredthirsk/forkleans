@@ -125,7 +125,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             };
             
             _entities[playerId] = entity;
-            _playerInputs[playerId] = new PlayerInput();
+            _playerInputs[playerId] = new PlayerInput { LastUpdated = DateTime.UtcNow };
             
             _logger.LogInformation("Player {PlayerId} ({PlayerName}) added to simulation at position {Position} in zone {Zone}", 
                 playerId, playerInfo.Name, entity.Position, _assignedSquare);
