@@ -1,0 +1,15 @@
+{
+  "configProperties": {
+    "System.Runtime.Loader.UseRidGraph": true
+  },
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "."
+    ],
+    "tfm": "net9.0",
+    "framework": {
+      "name": "Microsoft.AspNetCore.App",
+      "version": "9.0.0"
+    }
+  }
+}

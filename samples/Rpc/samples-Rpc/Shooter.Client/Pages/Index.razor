@@ -1,0 +1,52 @@
+﻿@page "/"
+
+<PageTitle>Space Shooter Demo</PageTitle>
+
+<div class="home-container">
+    <h1>Space Shooter</h1>
+    <p>A multiplayer space shooter demo using Granville RPC and Orleans</p>
+    
+    <div class="features">
+        <h3>Features:</h3>
+        <ul>
+            <li>Distributed game world with multiple action servers</li>
+            <li>Real-time physics simulation</li>
+            <li>UDP-based networking with Granville RPC</li>
+            <li>Orleans-based world management</li>
+        </ul>
+    </div>
+    
+    <a href="/game" class="play-button">Play Game</a>
+</div>
+
+<style>
+    .home-container {
+        max-width: 600px;
+        margin: 50px auto;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .features {
+        background-color: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 30px 0;
+        text-align: left;
+    }
+    
+    .play-button {
+        display: inline-block;
+        padding: 15px 30px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 18px;
+        transition: background-color 0.3s;
+    }
+    
+    .play-button:hover {
+        background-color: #45a049;
+    }
+</style>

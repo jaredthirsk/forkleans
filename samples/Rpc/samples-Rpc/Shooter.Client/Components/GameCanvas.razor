@@ -1,0 +1,337 @@
+﻿@namespace Shooter.Client.Components
+@using Shooter.Shared.Models
+@using Microsoft.JSInterop
+@implements IDisposable
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject ILogger<GameCanvas> Logger
+
+<div class="game-canvas-container">
+    <div class="canvas-wrapper">
+        <canvas @ref="canvasElementVisible" width="@Width" height="@Height" class="game-canvas"></canvas>
+        <canvas @ref="canvasElementBuffer" width="@Width" height="@Height" class="game-canvas" style="display: none;"></canvas>
+        <div class="game-info">
+            <div class="zone-info">Current Zone: @currentZone</div>
+            <div class="server-info">Server: @currentServer</div>
+            <div class="player-info">Player: @playerDebugInfo</div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .game-canvas-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #1a1a1a;
+        padding: 20px;
+        position: relative;
+    }
+    
+    .canvas-wrapper {
+        position: relative;
+        width: @(Width + 4)px;  /* Account for border */
+        height: @(Height + 4)px;  /* Account for border */
+    }
+    
+    .game-canvas {
+        border: 2px solid #444;
+        background-color: #000;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    
+    .game-info {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: #fff;
+        font-family: monospace;
+        font-size: 14px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 10;
+    }
+    
+    .zone-info {
+        color: #88ff88;
+        margin-bottom: 5px;
+    }
+    
+    .server-info {
+        color: #8888ff;
+    }
+</style>
+
+@code {
+    [Parameter] public int Width { get; set; } = 800;
+    [Parameter] public int Height { get; set; } = 600;
+    [Parameter] public WorldState? WorldState { get; set; }
+    [Parameter] public string? PlayerId { get; set; }
+    [Parameter] public string? ServerId { get; set; }
+    [Parameter] public List<GridSquare>? AvailableZones { get; set; }
+    [Parameter] public EventCallback<(float x, float y)> OnMouseClick { get; set; }
+    [Parameter] public EventCallback<(float x, float y)> OnMouseRightClick { get; set; }
+    [Parameter] public EventCallback OnMouseRelease { get; set; }
+    
+    private ElementReference canvasElementVisible;
+    private ElementReference canvasElementBuffer;
+    private IJSObjectReference? canvasContext;
+    private IJSObjectReference? animationLoop;
+    private DotNetObjectReference<GameCanvas>? _dotNetRef;
+    private string currentZone = "Unknown";
+    private string currentServer = "Unknown";
+    private string playerDebugInfo = "Not found";
+    private bool _disposed = false;
+    private CancellationTokenSource _cancellationTokenSource = new();
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _dotNetRef = DotNetObjectReference.Create(this);
+                canvasContext = await JS.InvokeAsync<IJSObjectReference>("initDoubleBufferedCanvas", 
+                    canvasElementVisible, canvasElementBuffer, _dotNetRef);
+                
+                // Start the animation loop using requestAnimationFrame
+                animationLoop = await JS.InvokeAsync<IJSObjectReference>("startCanvasAnimationLoop", 
+                    canvasContext, _dotNetRef);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to initialize game canvas");
+            }
+        }
+    }
+    
+    private async Task RenderFrame()
+    {
+        if (_disposed || canvasContext == null || WorldState == null)
+        {
+            return;
+        }
+        
+        try
+        {
+            // Find player position for camera centering
+            var player = WorldState.Entities.FirstOrDefault(e => e.EntityId == PlayerId);
+            var cameraPos = player?.Position ?? Vector2.Zero;
+            var cameraOffset = new { x = cameraPos.X - Width / 2, y = cameraPos.Y - Height / 2 };
+            
+            // Clear canvas with camera offset
+            await canvasContext.InvokeVoidAsync("clearCanvas", Width, Height, cameraOffset);
+            
+            // Draw zone boundaries with available zones
+            var availableZonesArray = AvailableZones?.Select(z => new { x = z.X, y = z.Y }).ToArray() ?? Array.Empty<object>();
+            await canvasContext.InvokeVoidAsync("drawZoneBoundaries", Width, Height, cameraOffset, availableZonesArray);
+            
+            // Sort entities for proper layering (bullets on top, explosions last)
+            var sortedEntities = WorldState.Entities
+                .OrderBy(e => e.Type == EntityType.Explosion ? 1 : 0)
+                .ThenBy(e => e.Type == EntityType.Bullet ? 1 : 0);
+            
+            foreach (var entity in sortedEntities)
+            {
+                var screenPos = WorldToScreen(entity.Position, cameraPos);
+                
+                // Skip entities outside screen
+                if (screenPos.X < -50 || screenPos.X > Width + 50 || 
+                    screenPos.Y < -50 || screenPos.Y > Height + 50)
+                    continue;
+                
+                var color = GetEntityColor(entity);
+                var size = GetEntitySize(entity);
+                
+                await canvasContext.InvokeVoidAsync("drawEntity", 
+                    screenPos.X, screenPos.Y, size, color, entity.Rotation,
+                    entity.Type.ToString(), entity.SubType, entity.State.ToString(), entity.StateTimer);
+                    
+                // Draw health bar for living entities
+                if (entity.Type != EntityType.Bullet && entity.Type != EntityType.Explosion && 
+                    entity.State == EntityStateType.Active && entity.Health > 0)
+                {
+                    var maxHealth = entity.Type == EntityType.Player ? 1000f : 
+                                   entity.Type == EntityType.Factory ? 1000f :
+                                   entity.SubType == (int)EnemySubType.Kamikaze ? 30f : 
+                                   entity.SubType == (int)EnemySubType.Scout ? 300f : 50f;
+                    await canvasContext.InvokeVoidAsync("drawHealthBar",
+                        screenPos.X, screenPos.Y - size - 10, size * 2, entity.Health / maxHealth);
+                }
+            }
+            
+            // Draw death message if player is dead
+            if (player != null && (player.State == EntityStateType.Dead || player.State == EntityStateType.Dying))
+            {
+                var respawnTimer = 5f - player.StateTimer;
+                if (respawnTimer > 0)
+                {
+                    await canvasContext.InvokeVoidAsync("drawDeathMessage", Width, Height, respawnTimer);
+                }
+            }
+            
+            // Note: Buffer flipping is now handled by the JavaScript animation loop
+            
+            // Update zone info
+            if (player != null)
+            {
+                var zone = GridSquare.FromPosition(player.Position);
+                currentZone = $"{zone.X}, {zone.Y}";
+                currentServer = ServerId ?? "Unknown";
+                playerDebugInfo = $"Pos: ({player.Position.X:F0}, {player.Position.Y:F0}) State: {player.State}";
+            }
+            else
+            {
+                // More detailed debug info when player not found
+                var playerCount = WorldState.Entities.Count(e => e.Type == EntityType.Player);
+                var totalEntities = WorldState.Entities.Count;
+                playerDebugInfo = $"Not found - PlayerId: {PlayerId ?? "null"}, Players: {playerCount}, Total: {totalEntities}";
+                
+                // Log for debugging
+                if (!string.IsNullOrEmpty(PlayerId))
+                {
+                    Logger.LogWarning("Player {PlayerId} not found in world state. Total entities: {Count}", PlayerId, totalEntities);
+                }
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (ObjectDisposedException)
+        {
+            // Component was disposed while rendering, ignore
+            Logger.LogDebug("GameCanvas disposed during render");
+        }
+        catch (JSException jsEx)
+        {
+            // JavaScript interop failed, component might be navigating away
+            Logger.LogDebug("JavaScript error during render: {Message}", jsEx.Message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error during game canvas render");
+        }
+    }
+    
+    private Vector2 WorldToScreen(Vector2 worldPos, Vector2 cameraPos)
+    {
+        return new Vector2(
+            Width / 2 + (worldPos.X - cameraPos.X),
+            Height / 2 + (worldPos.Y - cameraPos.Y)
+        );
+    }
+    
+    private string GetEntityColor(EntityState entity)
+    {
+        if (entity.Type == EntityType.Player)
+        {
+            return entity.EntityId == PlayerId ? "#00ff00" : "#00aa00";
+        }
+        
+        return entity.Type switch
+        {
+            EntityType.Enemy => entity.SubType switch
+            {
+                (int)EnemySubType.Kamikaze => "#ff4444",
+                (int)EnemySubType.Sniper => "#44ff44",
+                (int)EnemySubType.Strafing => "#ffaa44",
+                _ => "#ff0000"
+            },
+            EntityType.Bullet => "#ffff00",
+            EntityType.Explosion => "#ff8800",
+            _ => "#ffffff"
+        };
+    }
+    
+    private int GetEntitySize(EntityState entity) => entity.Type switch
+    {
+        EntityType.Player => 15,
+        EntityType.Enemy => entity.SubType == (int)EnemySubType.Kamikaze ? 10 : 12,
+        EntityType.Bullet => 3,
+        EntityType.Explosion => entity.SubType == 1 ? 15 : 25,
+        _ => 10
+    };
+    
+    [JSInvokable]
+    public async Task OnLeftClick(float x, float y)
+    {
+        Logger.LogDebug("Left click at {X}, {Y}", x, y);
+        await OnMouseClick.InvokeAsync((x, y));
+    }
+    
+    [JSInvokable]
+    public async Task OnRightClick(float x, float y)
+    {
+        Logger.LogDebug("Right click at {X}, {Y}", x, y);
+        await OnMouseRightClick.InvokeAsync((x, y));
+    }
+    
+    [JSInvokable]
+    public async Task OnLeftRelease()
+    {
+        Logger.LogDebug("Left button released");
+        await OnMouseRelease.InvokeAsync();
+    }
+    
+    [JSInvokable]
+    public async Task OnAnimationFrame()
+    {
+        if (!_disposed && canvasContext != null)
+        {
+            try
+            {
+                await RenderFrame();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Component was disposed
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error rendering frame");
+            }
+        }
+    }
+    
+    public void Dispose()
+    {
+        _disposed = true;
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource?.Dispose();
+    }
+    
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        _cancellationTokenSource?.Cancel();
+        
+        if (animationLoop != null)
+        {
+            try
+            {
+                await animationLoop.InvokeVoidAsync("stop");
+                await animationLoop.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // Circuit was disconnected, ignore
+            }
+        }
+        
+        if (canvasContext != null)
+        {
+            try
+            {
+                await canvasContext.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // Circuit was disconnected, ignore
+            }
+        }
+        
+        _dotNetRef?.Dispose();
+        _cancellationTokenSource?.Dispose();
+    }
+}

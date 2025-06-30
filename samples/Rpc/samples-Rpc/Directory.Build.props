@@ -1,0 +1,11 @@
+<Project>
+  <!-- Import parent Directory.Build.props for common settings -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  
+  <PropertyGroup>
+    <!-- Enable central package management for this sample -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- Override the version to not inherit from parent -->
+    <Version></Version>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,540 @@
+﻿@using Shooter.Shared.Models
+@using Shooter.Client.Common
+@implements IDisposable
+
+<div class="minimap">
+    <h4>World Map</h4>
+    <div class="minimap-grid">
+        @if (_zoneStats.Any())
+        {
+            @for (int y = 0; y <= _maxY; y++)
+            {
+                <div class="minimap-row">
+                    @for (int x = 0; x <= _maxX; x++)
+                    {
+                        var zoneKey = $"{x},{y}";
+                        var isCurrentZone = _currentZone?.X == x && _currentZone?.Y == y;
+                        var hasZone = _zoneStats.ContainsKey(zoneKey);
+                        var stats = hasZone ? _zoneStats[zoneKey] : null;
+                        
+                        <div class="minimap-cell @(isCurrentZone ? "current" : "") @(hasZone ? "active" : "inactive")">
+                            @if (hasZone && stats != null)
+                            {
+                                @if (stats.PlayerCount > 0)
+                                {
+                                    <div class="player-count">@stats.PlayerCount</div>
+                                }
+                                @if (stats.FactoryCount > 0)
+                                {
+                                    <div class="factory-count">@stats.FactoryCount</div>
+                                }
+                                @if (stats.EnemyCount > 0)
+                                {
+                                    <div class="enemy-count">@stats.EnemyCount</div>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <div class="loading">Loading map...</div>
+        }
+    </div>
+    
+    <div class="zone-controls">
+        <div class="control-group">
+            <label>Zones:</label>
+            <div class="control-row">
+                <button class="zone-btn remove-zone" @onclick="RemoveZone" title="Remove Zone" disabled="@_isProcessing">
+                    <span class="btn-icon">-</span>
+                </button>
+                <div class="count-display">
+                    <div class="desired-count">@_desiredZoneCount</div>
+                    @if (_actualZoneCount != _desiredZoneCount)
+                    {
+                        <div class="actual-count">(@_actualZoneCount)</div>
+                    }
+                </div>
+                <button class="zone-btn add-zone" @onclick="AddZone" title="Add Zone" disabled="@_isProcessing">
+                    <span class="btn-icon">+</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Silos:</label>
+            <div class="control-row">
+                <button class="zone-btn remove-silo" @onclick="RemoveSilo" title="Remove Silo" disabled="@_isProcessing">
+                    <span class="btn-icon">-</span>
+                </button>
+                <div class="count-display">
+                    <div class="desired-count">@_desiredSiloCount</div>
+                    @if (_actualSiloCount != _desiredSiloCount)
+                    {
+                        <div class="actual-count">(@_actualSiloCount)</div>
+                    }
+                </div>
+                <button class="zone-btn add-silo" @onclick="AddSilo" title="Add Silo" disabled="@_isProcessing">
+                    <span class="btn-icon">+</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .minimap {
+        background-color: #2a2a2a;
+        padding: 20px;
+        border-radius: 8px;
+        color: white;
+        margin-bottom: 20px;
+    }
+    
+    .minimap h4 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #888;
+        font-size: 18px;
+    }
+    
+    .minimap-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        background-color: #1a1a1a;
+        padding: 10px;
+        border-radius: 4px;
+    }
+    
+    .minimap-row {
+        display: flex;
+        gap: 2px;
+    }
+    
+    .minimap-cell {
+        width: 40px;
+        height: 40px;
+        background-color: #333;
+        border: 1px solid #444;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-family: monospace;
+    }
+    
+    .minimap-cell.active {
+        background-color: #3a3a3a;
+        border-color: #555;
+    }
+    
+    .minimap-cell.inactive {
+        background-color: #222;
+        border-color: #333;
+    }
+    
+    .minimap-cell.current {
+        background-color: #4a4a4a;
+        border: 2px solid #00ff00;
+    }
+    
+    .player-count {
+        color: #00ff00;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 1;
+    }
+    
+    .factory-count {
+        color: #8B4513;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 1;
+    }
+    
+    .enemy-count {
+        color: #ff6666;
+        font-size: 10px;
+        line-height: 1;
+    }
+    
+    .loading {
+        padding: 20px;
+        text-align: center;
+        color: #666;
+    }
+    
+    .zone-controls {
+        margin-top: 15px;
+    }
+    
+    .control-group {
+        margin-bottom: 10px;
+    }
+    
+    .control-group label {
+        display: block;
+        font-size: 12px;
+        color: #aaa;
+        margin-bottom: 5px;
+    }
+    
+    .control-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    .count-display {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 40px;
+    }
+    
+    .desired-count {
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+    }
+    
+    .actual-count {
+        font-size: 12px;
+        color: #aaa;
+        margin-top: 2px;
+    }
+    
+    .zone-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 24px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    
+    .zone-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .add-zone {
+        background-color: #4CAF50;
+        color: white;
+    }
+    
+    .add-zone:hover:not(:disabled) {
+        background-color: #45a049;
+        transform: scale(1.05);
+    }
+    
+    .remove-zone {
+        background-color: #f44336;
+        color: white;
+    }
+    
+    .remove-zone:hover:not(:disabled) {
+        background-color: #da190b;
+        transform: scale(1.05);
+    }
+    
+    .add-silo {
+        background-color: #4CAF50;
+        color: white;
+    }
+    
+    .add-silo:hover:not(:disabled) {
+        background-color: #45a049;
+        transform: scale(1.05);
+    }
+    
+    .remove-silo {
+        background-color: #f44336;
+        color: white;
+    }
+    
+    .remove-silo:hover:not(:disabled) {
+        background-color: #da190b;
+        transform: scale(1.05);
+    }
+    
+    .btn-icon {
+        line-height: 1;
+    }
+</style>
+
+@code {
+    [Parameter] public WorldState? WorldState { get; set; }
+    [Parameter] public List<GridSquare>? AvailableZones { get; set; }
+    [Inject] private GranvilleRpcGameClientService RpcGameClient { get; set; } = default!;
+    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IConfiguration Configuration { get; set; } = default!;
+    [Inject] private ILogger<Minimap> Logger { get; set; } = default!;
+    
+    private Dictionary<string, ZoneStats> _zoneStats = new();
+    private GridSquare? _currentZone;
+    private int _maxX = 2;
+    private int _maxY = 2;
+    private Timer? _updateTimer;
+    private bool _isProcessing = false;
+    private int _desiredZoneCount = 4; // Default desired zone count
+    private int _actualZoneCount = 0;
+    private int _desiredSiloCount = 1; // Default desired silo count  
+    private int _actualSiloCount = 1;
+    
+    private class ZoneStats
+    {
+        public int PlayerCount { get; set; }
+        public int FactoryCount { get; set; }
+        public int EnemyCount { get; set; }
+    }
+    
+    protected override void OnInitialized()
+    {
+        // Update zone stats every second
+        _updateTimer = new Timer(async _ => await UpdateZoneStats(), null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+    }
+    
+    protected override void OnParametersSet()
+    {
+        // Update current zone from world state
+        if (WorldState?.Entities != null)
+        {
+            var player = WorldState.Entities.FirstOrDefault(e => e.EntityId == RpcGameClient.PlayerId);
+            if (player != null)
+            {
+                _currentZone = GridSquare.FromPosition(player.Position);
+            }
+        }
+        
+        // Update grid size from available zones
+        if (AvailableZones?.Any() == true)
+        {
+            _maxX = AvailableZones.Max(z => z.X);
+            _maxY = AvailableZones.Max(z => z.Y);
+        }
+    }
+    
+    private async Task UpdateZoneStats()
+    {
+        try
+        {
+            // Get all zone stats from the silo
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await Http.GetFromJsonAsync<List<WorldZoneStats>>($"{siloUrl}api/world/zone-stats");
+            if (response != null)
+            {
+                _zoneStats.Clear();
+                foreach (var stat in response)
+                {
+                    var key = $"{stat.Zone.X},{stat.Zone.Y}";
+                    _zoneStats[key] = new ZoneStats 
+                    { 
+                        PlayerCount = stat.PlayerCount,
+                        FactoryCount = stat.FactoryCount,
+                        EnemyCount = stat.EnemyCount
+                    };
+                }
+                
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to update zone stats");
+        }
+    }
+    
+    private async Task AddZone()
+    {
+        if (_isProcessing) return;
+        
+        _isProcessing = true;
+        _desiredZoneCount++;
+        try
+        {
+            Logger.LogInformation("Adding new zone...");
+            
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await Http.PostAsync($"{siloUrl}api/world/action-servers/add", null);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<ActionServerInfo>();
+                Logger.LogInformation("Successfully added new zone at ({X}, {Y})", 
+                    result?.AssignedSquare.X, result?.AssignedSquare.Y);
+                
+                // Force refresh of zone stats
+                await UpdateZoneStats();
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogError("Failed to add zone: {Status} - {Error}", response.StatusCode, error);
+                _desiredZoneCount--; // Revert on failure
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error adding zone");
+            _desiredZoneCount--; // Revert on failure
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    
+    private async Task RemoveZone()
+    {
+        if (_isProcessing) return;
+        
+        _isProcessing = true;
+        try
+        {
+            // Get the last server (highest zone)
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var serversResponse = await Http.GetFromJsonAsync<List<ActionServerInfo>>($"{siloUrl}api/world/action-servers");
+            if (serversResponse != null && serversResponse.Any())
+            {
+                // Sort by zone coordinates to get the "last" zone
+                var lastServer = serversResponse
+                    .OrderByDescending(s => s.AssignedSquare.Y)
+                    .ThenByDescending(s => s.AssignedSquare.X)
+                    .First();
+                
+                Logger.LogInformation("Removing zone at ({X}, {Y})...", 
+                    lastServer.AssignedSquare.X, lastServer.AssignedSquare.Y);
+                
+                var response = await Http.PostAsync(
+                    $"{siloUrl}api/world/action-servers/{lastServer.ServerId}/remove", null);
+                    
+                if (response.IsSuccessStatusCode)
+                {
+                    Logger.LogInformation("Successfully removed zone");
+                    
+                    // Force refresh of zone stats
+                    await UpdateZoneStats();
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    Logger.LogError("Failed to remove zone: {Status} - {Error}", response.StatusCode, error);
+                }
+            }
+            else
+            {
+                Logger.LogWarning("No zones available to remove");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error removing zone");
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+    
+    private async Task AddSilo()
+    {
+        if (_isProcessing) return;
+        
+        _isProcessing = true;
+        _desiredSiloCount++;
+        try
+        {
+            Logger.LogInformation("Adding new silo...");
+            
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await Http.PostAsync($"{siloUrl}api/world/silos/add", null);
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("Successfully added new silo");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogError("Failed to add silo: {Status} - {Error}", response.StatusCode, error);
+                _desiredSiloCount--; // Revert on failure
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error adding silo");
+            _desiredSiloCount--; // Revert on failure
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    
+    private async Task RemoveSilo()
+    {
+        if (_isProcessing) return;
+        
+        _isProcessing = true;
+        _desiredSiloCount--;
+        try
+        {
+            Logger.LogInformation("Removing silo...");
+            
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await Http.PostAsync($"{siloUrl}api/world/silos/remove", null);
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("Successfully removed silo");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogError("Failed to remove silo: {Status} - {Error}", response.StatusCode, error);
+                _desiredSiloCount++; // Revert on failure
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error removing silo");
+            _desiredSiloCount++; // Revert on failure
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    
+    public void Dispose()
+    {
+        _updateTimer?.Dispose();
+    }
+    
+    // DTOs for zone management
+    private record WorldZoneStats(GridSquare Zone, int PlayerCount, int FactoryCount, int EnemyCount);
+    private record ActionServerInfo(string ServerId, GridSquare AssignedSquare, string HttpEndpoint);
+}

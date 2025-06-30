@@ -51,7 +51,7 @@
   <!-- Versioning properties -->
   <PropertyGroup>
     <AssemblyVersion>9.0.0.0</AssemblyVersion>
-    <VersionPrefix Condition=" '$(VersionPrefix)'=='' ">9.1.0</VersionPrefix>
+    <VersionPrefix Condition=" '$(VersionPrefix)'=='' ">9.1.2</VersionPrefix>
   </PropertyGroup>
 
   <!-- For Debug builds generated a date/time dependent version suffix -->
@@ -103,4 +103,11 @@
       </PropertyGroup>
     </Otherwise>
   </Choose>
+
+  <!-- Fork-specific properties for Granville RPC -->
+  <PropertyGroup>
+    <PackageIdPrefix>Granville.</PackageIdPrefix>
+    <Version>9.1.2.50</Version>
+    <PackageProjectUrl>https://github.com/jaredthirsk/orleans</PackageProjectUrl>
+  </PropertyGroup>
 </Project>

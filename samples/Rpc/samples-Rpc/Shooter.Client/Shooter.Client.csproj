@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Granville.Rpc.Client" />
+    <PackageReference Include="Granville.Rpc.Transport.LiteNetLib" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Shooter.ServiceDefaults\Shooter.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Shooter.Shared\Shooter.Shared.csproj" />
+    <ProjectReference Include="..\Shooter.Client.Common\Shooter.Client.Common.csproj" />
+  </ItemGroup>
+
+</Project>

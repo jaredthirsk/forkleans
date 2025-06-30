@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Granville.Rpc.Tests</AssemblyName>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>Granville.Rpc.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Orleans.Sdk\Orleans.Sdk.csproj" />
+    <ProjectReference Include="..\..\..\src\Rpc\Orleans.Rpc.Abstractions\Orleans.Rpc.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\src\Rpc\Orleans.Rpc.Server\Orleans.Rpc.Server.csproj" />
+    <ProjectReference Include="..\..\..\src\Rpc\Orleans.Rpc.Client\Orleans.Rpc.Client.csproj" />
+    <ProjectReference Include="..\..\..\src\Rpc\Orleans.Rpc.Transport.LiteNetLib\Orleans.Rpc.Transport.LiteNetLib.csproj" />
+    <ProjectReference Include="..\Orleans.Rpc.TestGrainInterfaces\Orleans.Rpc.TestGrainInterfaces.csproj" />
+    <ProjectReference Include="..\Orleans.Rpc.TestGrains\Orleans.Rpc.TestGrains.csproj" />
+  </ItemGroup>
+
+</Project>

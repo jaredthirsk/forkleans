@@ -13,5 +13,9 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("TestInternalGrains")]
 [assembly: InternalsVisibleTo("Benchmarks")]
 
+// Granville RPC assemblies
+[assembly: InternalsVisibleTo("Granville.Rpc.Server")]
+[assembly: InternalsVisibleTo("Granville.Rpc.Client")]
+
 // Mocking libraries
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

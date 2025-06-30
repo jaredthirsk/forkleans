@@ -1,0 +1,26 @@
+@using Microsoft.AspNetCore.Components.Web
+@namespace Shooter.Client.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shooter Game</title>
+    <base href="~/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="Shooter.Client.styles.css" rel="stylesheet" />
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+</head>
+<body>
+    @RenderBody()
+
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+    <script src="_framework/blazor.server.js"></script>
+    <script src="js/gameInterop.js?v=@DateTime.Now.Ticks"></script>
+    <script src="js/gameCanvas.js?v=@DateTime.Now.Ticks"></script>
+    <script src="js/gamePhaser.js?v=@DateTime.Now.Ticks"></script>
+</body>
+</html>

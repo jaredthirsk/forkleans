@@ -1,0 +1,916 @@
+﻿@using Microsoft.JSInterop
+@using Shooter.Client.Common
+@using Shooter.Shared.Models
+@using Shooter.Shared.Movement
+@inject IJSRuntime JS
+@inject GranvilleRpcGameClientService RpcGameClient
+@inject NavigationManager Navigation
+@inject ILogger<GamePhaser> Logger
+@inject HttpClient Http
+@inject IConfiguration Configuration
+@implements IDisposable
+
+<div class="game-container">
+    <div id="phaser-container" style="width: 800px; height: 600px; margin: 0 auto;"></div>
+    
+    <div class="chat-container mt-3" style="width: 800px; margin: 0 auto;">
+        <div class="chat-history" style="height: 200px; overflow-y: auto; border: 1px solid #444; padding: 10px; background-color: #1a1a1a; color: #e0e0e0;">
+            @foreach (var message in _chatMessages)
+            {
+                <div class="chat-message" style="color: @message.Color">
+                    <span class="timestamp" style="color: #888;">[(@message.Timestamp.ToString("HH:mm:ss"))]</span>
+                    <span class="sender">@message.Sender:</span>
+                    <span class="text">@message.Text</span>
+                </div>
+            }
+            <div @ref="_chatScrollAnchor"></div>
+        </div>
+        <div class="chat-input mt-2">
+            <form @onsubmit="SendChatMessage" @onsubmit:preventDefault="true">
+                <div class="input-group">
+                    <input type="text" class="form-control" @bind="_chatInput" @bind:event="oninput" 
+                           placeholder="Type a message..." maxlength="200" 
+                           style="background-color: #2a2a2a; border-color: #444; color: #e0e0e0;" />
+                    <button class="btn btn-primary" type="submit" disabled="@(string.IsNullOrWhiteSpace(_chatInput))">
+                        Send
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="compact-controls mt-2" style="display: flex; align-items: center; gap: 20px;">
+            <div class="control-item" style="display: flex; align-items: center; gap: 5px;">
+                <span style="color: #888; font-size: 14px;">Bots:</span>
+                <button class="compact-btn remove-btn" @onclick="RemoveBot" disabled="@_isProcessing" 
+                        style="background: transparent; border: none; color: #888; font-size: 18px; width: 24px; height: 24px; padding: 0; cursor: pointer; border-radius: 4px; transition: all 0.2s ease; @(_isProcessing ? "opacity: 0.5; cursor: not-allowed;" : "")"
+                        onmouseover="this.style.backgroundColor='#f44336'; this.style.color='white';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#888';">
+                    −
+                </button>
+                <span class="count-display" style="min-width: 40px; text-align: center; font-size: 14px; color: #e0e0e0;">
+                    @_desiredBotCount
+                    @if (_actualBotCount != _desiredBotCount)
+                    {
+                        <span style="color: #aaa;">(@_actualBotCount)</span>
+                    }
+                </span>
+                <button class="compact-btn add-btn" @onclick="AddBot" disabled="@_isProcessing"
+                        style="background: transparent; border: none; color: #888; font-size: 18px; width: 24px; height: 24px; padding: 0; cursor: pointer; border-radius: 4px; transition: all 0.2s ease; @(_isProcessing ? "opacity: 0.5; cursor: not-allowed;" : "")"
+                        onmouseover="this.style.backgroundColor='#4CAF50'; this.style.color='white';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#888';">
+                    +
+                </button>
+            </div>
+            
+            <div class="control-item" style="display: flex; align-items: center; gap: 5px;">
+                <span style="color: #888; font-size: 14px;">Zones:</span>
+                <button class="compact-btn remove-btn" @onclick="RemoveZone" disabled="@_isProcessing"
+                        style="background: transparent; border: none; color: #888; font-size: 18px; width: 24px; height: 24px; padding: 0; cursor: pointer; border-radius: 4px; transition: all 0.2s ease; @(_isProcessing ? "opacity: 0.5; cursor: not-allowed;" : "")"
+                        onmouseover="this.style.backgroundColor='#f44336'; this.style.color='white';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#888';">
+                    −
+                </button>
+                <span class="count-display" style="min-width: 40px; text-align: center; font-size: 14px; color: #e0e0e0;">
+                    @_desiredZoneCount
+                    @if (_actualZoneCount != _desiredZoneCount)
+                    {
+                        <span style="color: #aaa;">(@_actualZoneCount)</span>
+                    }
+                </span>
+                <button class="compact-btn add-btn" @onclick="AddZone" disabled="@_isProcessing"
+                        style="background: transparent; border: none; color: #888; font-size: 18px; width: 24px; height: 24px; padding: 0; cursor: pointer; border-radius: 4px; transition: all 0.2s ease; @(_isProcessing ? "opacity: 0.5; cursor: not-allowed;" : "")"
+                        onmouseover="this.style.backgroundColor='#4CAF50'; this.style.color='white';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#888';">
+                    +
+                </button>
+            </div>
+            
+            <div class="control-item" style="display: flex; align-items: center; gap: 5px;">
+                <span style="color: #888; font-size: 14px;">Silos:</span>
+                <button class="compact-btn remove-btn" @onclick="RemoveSilo" disabled="@_isProcessing"
+                        style="background: transparent; border: none; color: #888; font-size: 18px; width: 24px; height: 24px; padding: 0; cursor: pointer; border-radius: 4px; transition: all 0.2s ease; @(_isProcessing ? "opacity: 0.5; cursor: not-allowed;" : "")"
+                        onmouseover="this.style.backgroundColor='#f44336'; this.style.color='white';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#888';">
+                    −
+                </button>
+                <span class="count-display" style="min-width: 40px; text-align: center; font-size: 14px; color: #e0e0e0;">
+                    @_desiredSiloCount
+                    @if (_actualSiloCount != _desiredSiloCount)
+                    {
+                        <span style="color: #aaa;">(@_actualSiloCount)</span>
+                    }
+                </span>
+                <button class="compact-btn add-btn" @onclick="AddSilo" disabled="@_isProcessing"
+                        style="background: transparent; border: none; color: #888; font-size: 18px; width: 24px; height: 24px; padding: 0; cursor: pointer; border-radius: 4px; transition: all 0.2s ease; @(_isProcessing ? "opacity: 0.5; cursor: not-allowed;" : "")"
+                        onmouseover="this.style.backgroundColor='#4CAF50'; this.style.color='white';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#888';">
+                    +
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="game-info mt-3" style="width: 800px; margin: 0 auto;">
+        <div class="d-flex align-items-center">
+            <span style="color: #888;">Controls</span>
+            <span class="ms-2" style="cursor: help;" title="Movement: WASD + Numbers 0-9 for speed&#10;Right Click: Set heading direction&#10;Left Click: Shoot&#10;V: Toggle automove&#10;T: Toggle test mode&#10;Space: Auto shoot (when enabled)">
+                <svg width="16" height="16" fill="currentColor" style="color: #888;">
+                    <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1" fill="none"/>
+                    <text x="8" y="12" text-anchor="middle" font-size="12" font-weight="bold">i</text>
+                </svg>
+            </span>
+            <span class="ms-4" style="color: #888;">
+                <span @onclick="ToggleAutoMove" style="cursor: pointer; user-select: none;">
+                    Automove: <strong>@(_isAutoMoveEnabled ? "ON" : "OFF")</strong>
+                </span>
+                <span class="ms-3">|</span>
+                <span class="ms-3" @onclick="ToggleAutoShoot" style="cursor: pointer; user-select: none;">
+                    Auto shoot: <strong>@(_isAutoShootEnabled ? "ON" : "OFF")</strong>
+                </span>
+                <span class="ms-3">|</span>
+                <span class="ms-3" @onclick="ToggleTestMode" style="cursor: pointer; user-select: none;" 
+                      title="In test mode, bots move slowly and predictably for easier testing">
+                    Test mode: <strong>@(_isTestMode ? "ON" : "OFF")</strong>
+                </span>
+            </span>
+        </div>
+        @if (!string.IsNullOrEmpty(_error))
+        {
+            <div class="alert alert-danger mt-2">@_error</div>
+        }
+    </div>
+</div>
+
+@code {
+    private DotNetObjectReference<GamePhaser>? _dotNetRef;
+    private string? _error;
+    private bool _isInitialized = false;
+    private System.Timers.Timer? _updateTimer;
+    private Dictionary<string, GridSquare> _serverZoneMap = new();
+    private AutoMoveController? _autoMoveController;
+    private bool _isAutoMoveEnabled = false;
+    private bool _isAutoShootEnabled = false;
+    private bool _isTestMode = false;
+    private System.Timers.Timer? _autoMoveTimer;
+    private System.Timers.Timer? _statsUpdateTimer;
+    private WorldState? _lastWorldState;
+    private List<GridSquare> _availableZones = new();
+    private bool _isProcessing = false;
+    
+    // Control counts
+    private int _desiredBotCount = 0;
+    private int _actualBotCount = 0;
+    private int _desiredZoneCount = 4;
+    private int _actualZoneCount = 0;
+    private int _desiredSiloCount = 1;
+    private int _actualSiloCount = 1;
+    
+    // Chat related fields
+    private List<ChatMessage> _chatMessages = new();
+    private string _chatInput = "";
+    private ElementReference _chatScrollAnchor;
+    
+    private class ChatMessage
+    {
+        public DateTime Timestamp { get; set; } = DateTime.Now;
+        public string Sender { get; set; } = "";
+        public string Text { get; set; } = "";
+        public string Color { get; set; } = "#000000";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Get player ID from RPC client
+                var playerId = RpcGameClient.PlayerId;
+                if (string.IsNullOrEmpty(playerId))
+                {
+                    Logger.LogError("No player ID available from RPC client");
+                    Navigation.NavigateTo("/");
+                    return;
+                }
+
+                // Create DotNet reference
+                _dotNetRef = DotNetObjectReference.Create(this);
+
+                // Initialize Phaser
+                await JS.InvokeVoidAsync("gamePhaser.init", _dotNetRef, "phaser-container", playerId);
+                
+                // Subscribe to game events
+                RpcGameClient.WorldStateUpdated += OnWorldStateUpdated;
+                RpcGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
+                RpcGameClient.PreEstablishedConnectionsUpdated += OnPreEstablishedConnectionsUpdated;
+                RpcGameClient.GameOverReceived += OnGameOverReceived;
+                RpcGameClient.GameRestartedReceived += OnGameRestartedReceived;
+                
+                // Add initial system message
+                AddSystemMessage("Connected to game server");
+                
+                // Create automove controller
+                _autoMoveController = new AutoMoveController(Logger, playerId, _isTestMode);
+                
+                // Start auto features timer (automove and autoshoot)
+                _autoMoveTimer = new System.Timers.Timer(100); // 100ms update rate
+                _autoMoveTimer.Elapsed += async (sender, e) => await UpdateAutoFeatures();
+                _autoMoveTimer.Start();
+                
+                _isInitialized = true;
+                
+                // Fetch server zone mappings
+                await FetchServerZoneMappings();
+                
+                // Start update timer for server info
+                _updateTimer = new System.Timers.Timer(1000);
+                _updateTimer.Elapsed += async (sender, e) => await UpdateServerInfo();
+                _updateTimer.Start();
+                
+                // Start stats update timer
+                _statsUpdateTimer = new System.Timers.Timer(2000); // Update every 2 seconds
+                _statsUpdateTimer.Elapsed += async (sender, e) => await UpdateStats();
+                _statsUpdateTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                _error = $"Failed to initialize game: {ex.Message}";
+                Logger.LogError(ex, "Failed to initialize Phaser game");
+            }
+        }
+    }
+
+    private void OnWorldStateUpdated(WorldState worldState)
+    {
+        _lastWorldState = worldState;
+        
+        if (_isInitialized)
+        {
+            _ = InvokeAsync(async () =>
+            {
+                try
+                {
+                    await JS.InvokeVoidAsync("gamePhaser.updateWorldState", worldState);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to update world state");
+                }
+            });
+        }
+    }
+
+    private void OnAvailableZonesUpdated(List<GridSquare> zones)
+    {
+        _availableZones = zones;
+        
+        if (_isInitialized)
+        {
+            _ = InvokeAsync(async () =>
+            {
+                try
+                {
+                    await JS.InvokeVoidAsync("gamePhaser.updateZoneInfo", zones);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to update zone info");
+                }
+            });
+        }
+    }
+
+    private void OnPreEstablishedConnectionsUpdated(Dictionary<string, (bool isConnected, bool isNeighbor, bool isConnecting)> connections)
+    {
+        if (_isInitialized)
+        {
+            _ = InvokeAsync(async () =>
+            {
+                try
+                {
+                    // Convert to a format that can be serialized to JavaScript
+                    var jsConnections = connections.ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => new { 
+                            isConnected = kvp.Value.isConnected, 
+                            isNeighbor = kvp.Value.isNeighbor,
+                            isConnecting = kvp.Value.isConnecting
+                        }
+                    );
+                    await JS.InvokeVoidAsync("gamePhaser.updatePreEstablishedConnections", jsConnections);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to update pre-established connections");
+                }
+            });
+        }
+    }
+
+    private async Task UpdateServerInfo()
+    {
+        if (_isInitialized)
+        {
+            await InvokeAsync(async () =>
+            {
+                try
+                {
+                    // Get server zone from parent component if available
+                    var serverZone = GetServerZone();
+                    await JS.InvokeVoidAsync("gamePhaser.updateServerInfo", RpcGameClient.CurrentServerId, serverZone);
+                }
+                catch { }
+            });
+        }
+    }
+    
+    private async Task UpdateStats()
+    {
+        if (!_isInitialized) return;
+        
+        try
+        {
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            // Update zone count
+            var zonesResponse = await Http.GetFromJsonAsync<List<WorldZoneStats>>($"{siloUrl}api/world/zone-stats");
+            if (zonesResponse != null)
+            {
+                _actualZoneCount = zonesResponse.Count;
+            }
+            
+            // Update bot count by counting bot entities in all zones
+            if (zonesResponse != null)
+            {
+                _actualBotCount = zonesResponse.Sum(z => z.PlayerCount); // This includes bots
+                // TODO: We need a better way to distinguish bots from players
+            }
+            
+            // Update silo count - for now just use 1 since we don't have an endpoint yet
+            _actualSiloCount = 1;
+            
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to update stats");
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnMovementInput(float x, float y)
+    {
+        try
+        {
+            var moveDir = new Vector2(x, y).Length() > 0 ? new Vector2(x, y) : (Vector2?)null;
+            await RpcGameClient.SendPlayerInputEx(moveDir, null);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to send movement input");
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnShootInput(float x, float y)
+    {
+        try
+        {
+            await RpcGameClient.SendPlayerInputEx(null, new Vector2(x, y));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to send shoot input");
+        }
+    }
+    
+    [JSInvokable]
+    public void OnZoneMismatch(float playerX, float playerY, int playerZoneX, int playerZoneY, int serverZoneX, int serverZoneY)
+    {
+        Logger.LogWarning("[ZONE_MISMATCH] Player at position ({PlayerX:F1}, {PlayerY:F1}) is in zone ({PlayerZoneX}, {PlayerZoneY}) but server thinks they should be in zone ({ServerZoneX}, {ServerZoneY})",
+            playerX, playerY, playerZoneX, playerZoneY, serverZoneX, serverZoneY);
+    }
+    
+    [JSInvokable]
+    public void OnKeyPress(string key)
+    {
+        switch (key.ToLower())
+        {
+            case "v":
+                _isAutoMoveEnabled = !_isAutoMoveEnabled;
+                Logger.LogInformation("Automove {State}", _isAutoMoveEnabled ? "enabled" : "disabled");
+                StateHasChanged();
+                break;
+            case "t":
+                _isTestMode = !_isTestMode;
+                if (_autoMoveController != null)
+                {
+                    // Recreate controller with new test mode setting
+                    var playerId = RpcGameClient.PlayerId;
+                    if (!string.IsNullOrEmpty(playerId))
+                    {
+                        _autoMoveController = new AutoMoveController(Logger, playerId, _isTestMode);
+                    }
+                }
+                Logger.LogInformation("Test mode {State}", _isTestMode ? "enabled" : "disabled");
+                StateHasChanged();
+                break;
+        }
+    }
+    
+    private void ToggleAutoMove()
+    {
+        _isAutoMoveEnabled = !_isAutoMoveEnabled;
+        Logger.LogInformation("Automove {State}", _isAutoMoveEnabled ? "enabled" : "disabled");
+        StateHasChanged();
+    }
+    
+    private void ToggleAutoShoot()
+    {
+        _isAutoShootEnabled = !_isAutoShootEnabled;
+        Logger.LogInformation("Auto shoot {State}", _isAutoShootEnabled ? "enabled" : "disabled");
+        StateHasChanged();
+    }
+    
+    private void ToggleTestMode()
+    {
+        _isTestMode = !_isTestMode;
+        if (_autoMoveController != null)
+        {
+            // Recreate controller with new test mode setting
+            var playerId = RpcGameClient.PlayerId;
+            if (!string.IsNullOrEmpty(playerId))
+            {
+                _autoMoveController = new AutoMoveController(Logger, playerId, _isTestMode);
+            }
+        }
+        Logger.LogInformation("Test mode {State}", _isTestMode ? "enabled" : "disabled");
+        StateHasChanged();
+    }
+
+    private async Task UpdateAutoFeatures()
+    {
+        if (_lastWorldState == null || !RpcGameClient.IsConnected)
+        {
+            return;
+        }
+        
+        var playerId = RpcGameClient.PlayerId;
+        if (string.IsNullOrEmpty(playerId)) return;
+        
+        var player = _lastWorldState.Entities?.FirstOrDefault(e => e.EntityId == playerId);
+        if (player == null) return;
+        
+        try
+        {
+            Vector2? moveDirection = null;
+            Vector2? shootDirection = null;
+            
+            // Get movement decision from automove controller if enabled
+            if (_isAutoMoveEnabled && _autoMoveController != null)
+            {
+                (moveDirection, shootDirection) = _autoMoveController.Update(
+                    _lastWorldState,
+                    _availableZones,
+                    player.Position);
+            }
+            
+            // Include auto shoot if enabled and not already shooting
+            if (_isAutoShootEnabled && shootDirection == null)
+            {
+                // Find nearest enemy to shoot at
+                var enemies = _lastWorldState.Entities?.Where(e => 
+                    e.Type == EntityType.Enemy && e.State == EntityStateType.Active).ToList();
+                    
+                if (enemies?.Any() == true)
+                {
+                    var nearestEnemy = enemies.OrderBy(e => (player.Position - e.Position).Length()).First();
+                    shootDirection = (nearestEnemy.Position - player.Position).Normalized();
+                }
+            }
+            
+            // Only send input if we have something to send
+            if (moveDirection.HasValue || shootDirection.HasValue)
+            {
+                await RpcGameClient.SendPlayerInputEx(moveDirection, shootDirection);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to update auto features");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _updateTimer?.Dispose();
+        _autoMoveTimer?.Dispose();
+        _statsUpdateTimer?.Dispose();
+        
+        if (_isInitialized)
+        {
+            RpcGameClient.WorldStateUpdated -= OnWorldStateUpdated;
+            RpcGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
+            RpcGameClient.PreEstablishedConnectionsUpdated -= OnPreEstablishedConnectionsUpdated;
+            
+            try
+            {
+                await JS.InvokeVoidAsync("gamePhaser.destroy");
+            }
+            catch { }
+        }
+        
+        _dotNetRef?.Dispose();
+    }
+
+    private GridSquare? GetServerZone()
+    {
+        var serverId = RpcGameClient.CurrentServerId;
+        if (serverId != null && _serverZoneMap.TryGetValue(serverId, out var zone))
+        {
+            return zone;
+        }
+        return null;
+    }
+    
+    private async Task FetchServerZoneMappings()
+    {
+        try
+        {
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            var response = await Http.GetFromJsonAsync<List<Shooter.Shared.Models.ActionServerInfo>>($"{siloUrl}api/world/action-servers");
+            if (response != null)
+            {
+                _serverZoneMap.Clear();
+                foreach (var server in response)
+                {
+                    _serverZoneMap[server.ServerId] = server.AssignedSquare;
+                }
+                Logger.LogInformation("Fetched {Count} server zone mappings", _serverZoneMap.Count);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to fetch server zone mappings");
+        }
+    }
+    
+    private void AddChatMessage(string sender, string text, string color = "#000000")
+    {
+        _chatMessages.Add(new ChatMessage
+        {
+            Sender = sender,
+            Text = text,
+            Color = color
+        });
+        
+        // Keep only last 100 messages
+        if (_chatMessages.Count > 100)
+        {
+            _chatMessages.RemoveAt(0);
+        }
+        
+        InvokeAsync(async () =>
+        {
+            StateHasChanged();
+            await Task.Delay(50); // Small delay to ensure render
+            await _chatScrollAnchor.FocusAsync();
+        });
+    }
+    
+    private async Task AddBot()
+    {
+        if (_isProcessing) return;
+        
+        _isProcessing = true;
+        _desiredBotCount++;
+        try
+        {
+            Logger.LogInformation("Adding new bot...");
+            
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await Http.PostAsync($"{siloUrl}api/world/bots/add", null);
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("Successfully added new bot");
+                AddSystemMessage("Bot added successfully");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogError("Failed to add bot: {Status} - {Error}", response.StatusCode, error);
+                AddSystemMessage($"Failed to add bot: {response.StatusCode}");
+                _desiredBotCount--; // Revert on failure
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error adding bot");
+            AddSystemMessage("Error adding bot");
+            _desiredBotCount--; // Revert on failure
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    
+    private async Task RemoveBot()
+    {
+        if (_isProcessing || _desiredBotCount <= 0) return;
+        
+        _isProcessing = true;
+        _desiredBotCount--;
+        try
+        {
+            Logger.LogInformation("Removing bot...");
+            
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await Http.PostAsync($"{siloUrl}api/world/bots/remove", null);
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("Successfully removed bot");
+                AddSystemMessage("Bot removed successfully");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogError("Failed to remove bot: {Status} - {Error}", response.StatusCode, error);
+                AddSystemMessage($"Failed to remove bot: {response.StatusCode}");
+                _desiredBotCount++; // Revert on failure
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error removing bot");
+            AddSystemMessage("Error removing bot");
+            _desiredBotCount++; // Revert on failure
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    
+    private async Task AddZone()
+    {
+        if (_isProcessing) return;
+        
+        _isProcessing = true;
+        _desiredZoneCount++;
+        try
+        {
+            Logger.LogInformation("Adding new zone...");
+            
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await Http.PostAsync($"{siloUrl}api/world/action-servers/add", null);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<Shooter.Shared.Models.ActionServerInfo>();
+                Logger.LogInformation("Successfully added new zone at ({X}, {Y})", 
+                    result?.AssignedSquare.X, result?.AssignedSquare.Y);
+                AddSystemMessage($"Zone added at ({result?.AssignedSquare.X}, {result?.AssignedSquare.Y})");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogError("Failed to add zone: {Status} - {Error}", response.StatusCode, error);
+                AddSystemMessage($"Failed to add zone: {response.StatusCode}");
+                _desiredZoneCount--; // Revert on failure
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error adding zone");
+            AddSystemMessage("Error adding zone");
+            _desiredZoneCount--; // Revert on failure
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    
+    private async Task RemoveZone()
+    {
+        if (_isProcessing || _desiredZoneCount <= 1) return; // Keep at least one zone
+        
+        _isProcessing = true;
+        _desiredZoneCount--;
+        try
+        {
+            // Get the last server (highest zone)
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var serversResponse = await Http.GetFromJsonAsync<List<Shooter.Shared.Models.ActionServerInfo>>($"{siloUrl}api/world/action-servers");
+            if (serversResponse != null && serversResponse.Any())
+            {
+                // Sort by zone coordinates to get the "last" zone
+                var lastServer = serversResponse
+                    .OrderByDescending(s => s.AssignedSquare.Y)
+                    .ThenByDescending(s => s.AssignedSquare.X)
+                    .First();
+                
+                Logger.LogInformation("Removing zone at ({X}, {Y})...", 
+                    lastServer.AssignedSquare.X, lastServer.AssignedSquare.Y);
+                
+                var response = await Http.PostAsync(
+                    $"{siloUrl}api/world/action-servers/{lastServer.ServerId}/remove", null);
+                    
+                if (response.IsSuccessStatusCode)
+                {
+                    Logger.LogInformation("Successfully removed zone");
+                    AddSystemMessage($"Zone removed at ({lastServer.AssignedSquare.X}, {lastServer.AssignedSquare.Y})");
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    Logger.LogError("Failed to remove zone: {Status} - {Error}", response.StatusCode, error);
+                    AddSystemMessage($"Failed to remove zone: {response.StatusCode}");
+                    _desiredZoneCount++; // Revert on failure
+                }
+            }
+            else
+            {
+                Logger.LogWarning("No zones available to remove");
+                AddSystemMessage("No zones available to remove");
+                _desiredZoneCount++; // Revert if no zones to remove
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error removing zone");
+            AddSystemMessage("Error removing zone");
+            _desiredZoneCount++; // Revert on failure
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    
+    private async Task AddSilo()
+    {
+        if (_isProcessing) return;
+        
+        _isProcessing = true;
+        _desiredSiloCount++;
+        try
+        {
+            Logger.LogInformation("Adding new silo...");
+            
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await Http.PostAsync($"{siloUrl}api/world/silos/add", null);
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("Successfully added new silo");
+                AddSystemMessage("Silo added successfully");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogError("Failed to add silo: {Status} - {Error}", response.StatusCode, error);
+                AddSystemMessage($"Failed to add silo: {response.StatusCode}");
+                _desiredSiloCount--; // Revert on failure
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error adding silo");
+            AddSystemMessage("Error adding silo");
+            _desiredSiloCount--; // Revert on failure
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    
+    private async Task RemoveSilo()
+    {
+        if (_isProcessing || _desiredSiloCount <= 1) return; // Keep at least one silo
+        
+        _isProcessing = true;
+        _desiredSiloCount--;
+        try
+        {
+            Logger.LogInformation("Removing silo...");
+            
+            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await Http.PostAsync($"{siloUrl}api/world/silos/remove", null);
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("Successfully removed silo");
+                AddSystemMessage("Silo removed successfully");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Logger.LogError("Failed to remove silo: {Status} - {Error}", response.StatusCode, error);
+                AddSystemMessage($"Failed to remove silo: {response.StatusCode}");
+                _desiredSiloCount++; // Revert on failure
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error removing silo");
+            AddSystemMessage("Error removing silo");
+            _desiredSiloCount++; // Revert on failure
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    
+    private void AddSystemMessage(string text)
+    {
+        AddChatMessage("System", text, "#0066cc");
+    }
+    
+    private async Task SendChatMessage()
+    {
+        if (string.IsNullOrWhiteSpace(_chatInput)) return;
+        
+        var playerName = RpcGameClient.PlayerName ?? "Player";
+        AddChatMessage(playerName, _chatInput);
+        
+        // TODO: Send chat message to server
+        _chatInput = "";
+        await Task.CompletedTask;
+    }
+    
+    private void OnGameOverReceived(GameOverMessage gameOverMessage)
+    {
+        _ = InvokeAsync(() =>
+        {
+            AddSystemMessage("=== GAME OVER ===");
+            AddSystemMessage($"All enemies destroyed! Restarting in {gameOverMessage.RestartDelaySeconds} seconds...");
+            AddSystemMessage("Final Scores (deaths):");
+            
+            foreach (var score in gameOverMessage.PlayerScores.OrderBy(s => s.RespawnCount))
+            {
+                var color = score.PlayerId == RpcGameClient.PlayerId ? "#ff6600" : "#333333";
+                AddChatMessage("Score", $"{score.PlayerName}: {score.RespawnCount} deaths", color);
+            }
+            
+            AddSystemMessage("================");
+        });
+    }
+    
+    private void OnGameRestartedReceived()
+    {
+        _ = InvokeAsync(() =>
+        {
+            AddSystemMessage("=== NEW GAME STARTED ===");
+            AddSystemMessage("Good luck!");
+        });
+    }
+    
+    public void Dispose()
+    {
+        _updateTimer?.Dispose();
+        _autoMoveTimer?.Dispose();
+        _statsUpdateTimer?.Dispose();
+        _dotNetRef?.Dispose();
+        
+        // Unsubscribe from events
+        RpcGameClient.WorldStateUpdated -= OnWorldStateUpdated;
+        RpcGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
+        RpcGameClient.PreEstablishedConnectionsUpdated -= OnPreEstablishedConnectionsUpdated;
+        RpcGameClient.GameOverReceived -= OnGameOverReceived;
+        RpcGameClient.GameRestartedReceived -= OnGameRestartedReceived;
+        
+        // Destroy Phaser game
+        if (_isInitialized)
+        {
+            try
+            {
+                _ = JS.InvokeVoidAsync("gamePhaser.destroy");
+            }
+            catch { }
+        }
+    }
+    
+    // DTOs for zone stats
+    private record WorldZoneStats(GridSquare Zone, int PlayerCount, int FactoryCount, int EnemyCount);
+}

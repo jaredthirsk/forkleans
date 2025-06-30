@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- Disable central package management for this sample -->
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <!-- Prevent inheritance from parent directories -->
+    <ImportDirectoryBuildTargets>false</ImportDirectoryBuildTargets>
+    <ImportDirectoryBuildProps>false</ImportDirectoryBuildProps>
+  </PropertyGroup>
+</Project>
