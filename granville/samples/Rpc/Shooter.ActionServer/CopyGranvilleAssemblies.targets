@@ -1,0 +1,21 @@
+<Project>
+  <!-- Copy Granville Orleans assemblies to output directory for RPC compatibility -->
+  <Target Name="CopyGranvilleAssemblies" AfterTargets="Build">
+    <ItemGroup>
+      <GranvilleAssemblies Include="../../../src/Orleans.Core/bin/Release/net8.0/Granville.Orleans.Core.dll" />
+      <GranvilleAssemblies Include="../../../src/Orleans.Core.Abstractions/bin/Release/net8.0/Granville.Orleans.Core.Abstractions.dll" />
+      <GranvilleAssemblies Include="../../../src/Orleans.Serialization/bin/Release/net8.0/Granville.Orleans.Serialization.dll" />
+      <GranvilleAssemblies Include="../../../src/Orleans.Serialization.Abstractions/bin/Release/net8.0/Granville.Orleans.Serialization.Abstractions.dll" />
+      <GranvilleAssemblies Include="../../../src/Orleans.Runtime/bin/Release/net8.0/Granville.Orleans.Runtime.dll" />
+    </ItemGroup>
+    
+    <Copy SourceFiles="@(GranvilleAssemblies)" 
+          DestinationFolder="$(OutputPath)" 
+          SkipUnchangedFiles="true"
+          Condition="Exists('%(Identity)')" />
+    
+    <Message Text="Copied Granville Orleans assemblies to output directory for RPC compatibility." 
+             Importance="high"
+             Condition="@(GranvilleAssemblies->Count()) > 0" />
+  </Target>
+</Project>

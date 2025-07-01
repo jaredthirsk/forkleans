@@ -18,6 +18,7 @@ projects=(
     "src/Orleans.Core/Orleans.Core.csproj"
     "src/Orleans.CodeGenerator/Orleans.CodeGenerator.csproj"
     "src/Orleans.Analyzers/Orleans.Analyzers.csproj"
+    "src/Orleans.Runtime/Orleans.Runtime.csproj"
 )
 
 # Function to create compatibility copies

@@ -19,6 +19,36 @@ using Granville.Rpc.Transport.Ruffles;
 using Orleans.Hosting;
 using Orleans.Serialization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using System.Runtime.Loader;
+
+// Assembly redirect for Granville Orleans compatibility
+AssemblyLoadContext.Default.Resolving += (context, assemblyName) =>
+{
+    if (assemblyName.Name?.StartsWith("Microsoft.Orleans") == true)
+    {
+        var granvilleName = assemblyName.Name.Replace("Microsoft.Orleans", "Granville.Orleans");
+        try
+        {
+            Console.WriteLine($"[Assembly Redirect] {assemblyName.Name} -> {granvilleName}");
+            
+            // Try to load from the current directory first
+            var assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{granvilleName}.dll");
+            if (File.Exists(assemblyPath))
+            {
+                Console.WriteLine($"[Assembly Redirect] Loading from: {assemblyPath}");
+                return context.LoadFromAssemblyPath(assemblyPath);
+            }
+            
+            // Fallback to loading by name
+            return context.LoadFromAssemblyName(new AssemblyName(granvilleName));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Assembly Redirect] Failed to redirect {assemblyName.Name}: {ex.Message}");
+        }
+    }
+    return null;
+};
 
 // Parse command line arguments
 var transportType = args.FirstOrDefault(arg => arg.StartsWith("--transport="))?.Replace("--transport=", "") ?? "litenetlib";

@@ -65,10 +65,11 @@ The complete Granville RPC implementation. This remains in `/src/` (not under `/
 ## Key Files for Understanding the Fork
 
 1. **`/granville/fork-maintenance/MODIFICATIONS-TO-UPSTREAM.md`** - Lists all upstream modifications
-2. **`/granville/scripts/build-granville.ps1`** - Main build script for Granville assemblies
-3. **`/CLAUDE.md`** - Instructions for AI assistance with this codebase
-4. **`/src/Rpc/docs/`** - RPC-specific documentation
-5. **`/granville/compatibility-tools/README.md`** - Compatibility strategies documentation
+2. **`/granville/docs/BUILDING.md`** - Comprehensive build instructions
+3. **`/granville/scripts/build-all.ps1/.sh`** - Meta scripts to build everything
+4. **`/CLAUDE.md`** - Instructions for AI assistance with this codebase
+5. **`/src/Rpc/docs/`** - RPC-specific documentation
+6. **`/granville/compatibility-tools/README.md`** - Compatibility strategies documentation
 
 ## Syncing with Upstream
 
