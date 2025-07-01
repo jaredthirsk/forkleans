@@ -27,7 +27,7 @@
     - Essential: Minimal packages needed for RPC functionality
     - RpcTypical: Common packages for Granville RPC (default)
     - All: All available packages
-    Default: All
+    Default: RpcTypical
 
 .PARAMETER NoCleanLocalPackages
     Skip cleaning old NuGet packages from ./local-packages/*.nupkg
@@ -79,7 +79,7 @@ param(
     [string]$Configuration = "Release",
 
     [ValidateSet("Essential", "RpcTypical", "All")]
-    [string]$Mode = "All",
+    [string]$Mode = "RpcTypical",
 
     [switch]$NoCleanLocalPackages = $false,
 

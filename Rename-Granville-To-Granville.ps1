@@ -216,7 +216,7 @@ Write-Host "`nRenaming files..." -ForegroundColor Yellow
 
 $filesToRename = @(
     @{ Old = "Create-ForkleansPackages.ps1"; New = "Create-GranvillePackages.ps1" },
-    @{ Old = "Granville-version-bump.ps1"; New = "granville-version-bump.ps1" },
+    @{ Old = "Granville-version-bump.ps1"; New = "bump-granville-version.ps1" },
     @{ Old = "Granville-version-bump-guide.md"; New = "granville-version-bump-guide.md" }
 )
 

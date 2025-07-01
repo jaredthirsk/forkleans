@@ -107,7 +107,7 @@
   <!-- Fork-specific properties for Granville RPC -->
   <PropertyGroup>
     <PackageIdPrefix>Granville.</PackageIdPrefix>
-    <Version>9.1.2.50</Version>
+    <Version>9.1.2</Version>
     <PackageProjectUrl>https://github.com/jaredthirsk/orleans</PackageProjectUrl>
   </PropertyGroup>
 </Project>
