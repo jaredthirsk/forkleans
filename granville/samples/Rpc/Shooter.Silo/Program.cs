@@ -149,9 +149,10 @@ var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
-// Map health checks
-app.MapHealthChecks("/health");
-app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+// Map health checks with specific routes
+// Note: MapDefaultEndpoints() may already map /health, so we'll use different paths
+app.MapHealthChecks("/healthz");
+app.MapHealthChecks("/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains("ready")
 });
