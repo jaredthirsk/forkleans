@@ -1,26 +1,36 @@
 <Project>
-  <!-- Set InformationVersion here, since $(Version) is already set at this point. -->
-  <PropertyGroup>
-    <InformationalVersion>$(Version). Commit Hash: $(GitHeadSha)</InformationalVersion>
+  <!-- Granville RPC Fork: Build all assemblies as Granville.Orleans.* -->
+  
+  <!-- Handle projects that already have Microsoft.Orleans PackageId set -->
+  <PropertyGroup Condition="'$(PackageId)' != '' and $([System.String]::Copy('$(PackageId)').StartsWith('Microsoft.Orleans'))">
+    <!-- Store original for reference -->
+    <OriginalPackageId>$(PackageId)</OriginalPackageId>
+    
+    <!-- Override both PackageId and AssemblyName to use Granville prefix -->
+    <PackageId>$([System.String]::Copy('$(PackageId)').Replace('Microsoft.Orleans', 'Granville.Orleans'))</PackageId>
+    <AssemblyName>$([System.String]::Copy('$(OriginalPackageId)').Replace('Microsoft.Orleans', 'Granville.Orleans'))</AssemblyName>
+    <TargetName>$([System.String]::Copy('$(OriginalPackageId)').Replace('Microsoft.Orleans', 'Granville.Orleans'))</TargetName>
+    
+    <!-- Add version suffix -->
+    <VersionSuffix>granville</VersionSuffix>
   </PropertyGroup>
 
-  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Orleans.CodeGenerator/build/Microsoft.Orleans.CodeGenerator.props" />
-  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Orleans.Sdk/build/Microsoft.Orleans.Sdk.targets" />
-  <ItemGroup>
-    <!-- Enable code generator -->
-    <ProjectReference
-      Include="$(SourceRoot)src/Orleans.CodeGenerator/Orleans.CodeGenerator.csproj"
-      OutputItemType="Analyzer"
-      PrivateAssets="None"
-      Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' "/>
-    <ProjectReference
-      Include="$(SourceRoot)src/Orleans.Analyzers/Orleans.Analyzers.csproj"
-      AssetTargetFallback="netstandard2.0"
-      UndefineProperties="TargetFramework"
-      SkipGetTargetFrameworkProperties="true"
-      OutputItemType="Analyzer"
-      PrivateAssets="None"
-      Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' "/>
-  </ItemGroup>
+  <!-- Handle Orleans.* project files (e.g., Orleans.Core.csproj) -->
+  <PropertyGroup Condition="$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.'))">
+    <!-- Set both assembly and package names to Granville.Orleans.* -->
+    <AssemblyName>Granville.$(MSBuildProjectName)</AssemblyName>
+    <TargetName>Granville.$(MSBuildProjectName)</TargetName>
+    <PackageId>Granville.$(MSBuildProjectName)</PackageId>
+    
+    <!-- Add version suffix -->
+    <VersionSuffix>granville</VersionSuffix>
+  </PropertyGroup>
+
+  <!-- Update package metadata for Granville -->
+  <PropertyGroup>
+    <Authors>Granville RPC Contributors</Authors>
+    <PackageProjectUrl>https://github.com/jaredthirsk/orleans</PackageProjectUrl>
+    <PackageDescription>$(PackageDescription) - Granville RPC Fork with InternalsVisibleTo support</PackageDescription>
+  </PropertyGroup>
 
 </Project>
