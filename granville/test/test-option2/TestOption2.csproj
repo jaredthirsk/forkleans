@@ -6,13 +6,23 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Remove="MockGranvilleOrleans\**" />
+  </ItemGroup>
 
   <ItemGroup>
-    <!-- Reference official Microsoft Orleans packages -->
-    <PackageReference Include="Microsoft.Orleans.Core" Version="8.2.0" />
     <!-- UFX SignalR backplane that expects Microsoft.Orleans -->
     <PackageReference Include="UFX.Orleans.SignalRBackplane" Version="8.2.2" />
   </ItemGroup>
+
+  <!-- Copy mock Granville assembly to output -->
+  <Target Name="CopyGranvilleAssembly" AfterTargets="Build">
+    <Copy SourceFiles="Granville.Orleans.Core.dll"
+          DestinationFolder="$(OutputPath)" 
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Reference Microsoft.Orleans.Server which UFX expects -->
+    <PackageReference Include="Microsoft.Orleans.Server" Version="8.2.0" />
+    <PackageReference Include="UFX.Orleans.SignalRBackplane" Version="8.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
+  </ItemGroup>
+
+  <!-- Copy Granville Orleans assemblies to output -->
+  <Target Name="CopyGranvilleAssemblies" AfterTargets="Build">
+    <ItemGroup>
+      <GranvilleAssemblies Include="../../../src/Orleans.Core/bin/Release/net8.0/Granville.Orleans.Core.dll" />
+      <GranvilleAssemblies Include="../../../src/Orleans.Core.Abstractions/bin/Release/net8.0/Granville.Orleans.Core.Abstractions.dll" />
+      <GranvilleAssemblies Include="../../../src/Orleans.Serialization/bin/Release/net8.0/Granville.Orleans.Serialization.dll" />
+      <GranvilleAssemblies Include="../../../src/Orleans.Serialization.Abstractions/bin/Release/net8.0/Granville.Orleans.Serialization.Abstractions.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(GranvilleAssemblies)" DestinationFolder="$(OutputPath)" />
+  </Target>
+
+</Project>

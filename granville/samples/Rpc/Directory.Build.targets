@@ -1,0 +1,4 @@
+<Project>
+  <!-- Override parent Directory.Build.targets for sample projects -->
+  <!-- We don't want to rename NuGet package references in samples -->
+</Project>

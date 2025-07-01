@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Reference our locally built Granville Orleans assemblies -->
+    <GranvilleOrleansPath>$(MSBuildThisFileDirectory)../../../src</GranvilleOrleansPath>
+  </PropertyGroup>
+</Project>

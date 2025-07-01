@@ -33,4 +33,43 @@
     <PackageDescription>$(PackageDescription) - Granville RPC Fork with InternalsVisibleTo support</PackageDescription>
   </PropertyGroup>
 
+  <!-- Fix project references to use Granville names -->
+  <Target Name="UpdateReferenceCopyLocalPaths" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <!-- For each ReferenceCopyLocalPaths that starts with Orleans., update to Granville.Orleans. -->
+      <ReferenceCopyLocalPaths Condition="$([System.String]::Copy('%(ReferenceCopyLocalPaths.Filename)').StartsWith('Orleans.'))">
+        <DestinationSubDirectory Condition="'%(ReferenceCopyLocalPaths.DestinationSubDirectory)' != ''">%(ReferenceCopyLocalPaths.DestinationSubDirectory)</DestinationSubDirectory>
+        <OriginalItemSpec>%(ReferenceCopyLocalPaths.FullPath)</OriginalItemSpec>
+      </ReferenceCopyLocalPaths>
+    </ItemGroup>
+  </Target>
+
+  <!-- Alternative approach: Map reference assembly names -->
+  <Target Name="MapReferenceAssemblies" AfterTargets="ResolveProjectReferences">
+    <ItemGroup>
+      <!-- Create new mapped references -->
+      <_MappedReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths)" 
+                                      Condition="$([System.String]::Copy('%(Filename)').StartsWith('Orleans.'))">
+        <OriginalFilename>%(Filename)</OriginalFilename>
+        <MappedFilename>Granville.%(Filename)</MappedFilename>
+      </_MappedReferenceCopyLocalPaths>
+      
+      <!-- Update the paths for Orleans assemblies -->
+      <ReferenceCopyLocalPaths Remove="@(_MappedReferenceCopyLocalPaths)" />
+      <ReferenceCopyLocalPaths Include="@(_MappedReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(MappedFilename)%(Extension)')" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Ensure assembly resolution works with Granville names -->
+  <Target Name="UpdateAssemblySearchPaths" BeforeTargets="ResolveAssemblyReferences">
+    <PropertyGroup>
+      <AssemblySearchPaths>
+        $(AssemblySearchPaths);
+        {HintPathFromItem};
+        {TargetFrameworkDirectory};
+        {RawFileName};
+      </AssemblySearchPaths>
+    </PropertyGroup>
+  </Target>
+
 </Project>

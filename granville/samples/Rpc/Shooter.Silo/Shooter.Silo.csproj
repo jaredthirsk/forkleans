@@ -19,4 +19,7 @@
     <ProjectReference Include="..\Shooter.Shared\Shooter.Shared.csproj" />
   </ItemGroup>
 
+  <!-- Import targets to copy Granville assemblies -->
+  <Import Project="CopyGranvilleAssemblies.targets" />
+
 </Project>

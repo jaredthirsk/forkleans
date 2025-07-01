@@ -1,0 +1,20 @@
+<Project>
+  <!-- Copy Granville Orleans assemblies to output directory for assembly redirection -->
+  <Target Name="CopyGranvilleAssemblies" AfterTargets="Build">
+    <ItemGroup>
+      <GranvilleAssemblies Include="../../../src/Orleans.Core/bin/Release/net8.0/Granville.Orleans.Core.dll" />
+      <GranvilleAssemblies Include="../../../src/Orleans.Core.Abstractions/bin/Release/net8.0/Granville.Orleans.Core.Abstractions.dll" />
+      <GranvilleAssemblies Include="../../../src/Orleans.Serialization/bin/Release/net8.0/Granville.Orleans.Serialization.dll" />
+      <GranvilleAssemblies Include="../../../src/Orleans.Serialization.Abstractions/bin/Release/net8.0/Granville.Orleans.Serialization.Abstractions.dll" />
+    </ItemGroup>
+    
+    <Copy SourceFiles="@(GranvilleAssemblies)" 
+          DestinationFolder="$(OutputPath)" 
+          SkipUnchangedFiles="true"
+          Condition="Exists('%(Identity)')" />
+    
+    <Message Text="Copied Granville Orleans assemblies to output directory for assembly redirection." 
+             Importance="high"
+             Condition="@(GranvilleAssemblies->Count()) > 0" />
+  </Target>
+</Project>

@@ -20,12 +20,22 @@ AssemblyLoadContext.Default.Resolving += (context, assemblyName) =>
         var granvilleName = assemblyName.Name.Replace("Microsoft.Orleans", "Granville.Orleans");
         try
         {
-            Console.WriteLine($"Redirecting {assemblyName.Name} to {granvilleName}");
+            Console.WriteLine($"[Assembly Redirect] {assemblyName.Name} -> {granvilleName}");
+            
+            // Try to load from the current directory first
+            var assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{granvilleName}.dll");
+            if (File.Exists(assemblyPath))
+            {
+                Console.WriteLine($"[Assembly Redirect] Loading from: {assemblyPath}");
+                return context.LoadFromAssemblyPath(assemblyPath);
+            }
+            
+            // Fallback to loading by name
             return context.LoadFromAssemblyName(new AssemblyName(granvilleName));
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to redirect {assemblyName.Name}: {ex.Message}");
+            Console.WriteLine($"[Assembly Redirect] Failed to redirect {assemblyName.Name}: {ex.Message}");
         }
     }
     return null;
@@ -101,7 +111,9 @@ builder.Host.UseOrleans(siloBuilder =>
         .AddMemoryGrainStorage("worldStore")
         .AddMemoryGrainStorage("playerStore")
         .AddMemoryGrainStorage("statsStore")  // Fix Issue 3: Add missing statsStore
-        .UseSignalRBackplane();  // Enable SignalR backplane for multi-silo support
+        .AddMemoryGrainStorage(UFX.Orleans.SignalRBackplane.Constants.StorageName)
+        .UseInMemoryReminderService()
+        .AddSignalRBackplane();  // Enable SignalR backplane for multi-silo support
 });
 
 // TODO: Configure RPC client so Silo can communicate with ActionServers

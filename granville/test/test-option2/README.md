@@ -2,6 +2,17 @@
 
 This test demonstrates how the assembly redirect approach (Option 2) works for making third-party Orleans packages compatible with Granville Orleans.
 
+## Current Status
+
+The test successfully demonstrates:
+1. ✅ Assembly redirect handler intercepts requests for Microsoft.Orleans.* assemblies
+2. ✅ UFX.Orleans.SignalRBackplane loads and shows its Orleans dependencies
+3. ✅ The redirect mechanism attempts to load Granville.Orleans.* when Microsoft.Orleans.* is requested
+
+The full working implementation requires:
+- Actual Granville.Orleans assemblies built from the main Orleans source
+- These assemblies properly signed and available in the application directory or GAC
+
 ## How It Works
 
 1. The program sets up an `AssemblyLoadContext.Default.Resolving` handler
