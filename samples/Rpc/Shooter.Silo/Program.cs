@@ -7,10 +7,29 @@ using Shooter.Silo.Configuration;
 using Shooter.Silo.Controllers;
 using Shooter.ServiceDefaults;
 using System.Net;
+using System.Reflection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-// using UFX.Orleans.SignalRBackplane; // TODO: Add back when multi-silo support is needed
+using System.Runtime.Loader;
+using UFX.Orleans.SignalRBackplane;
 
-// Assembly redirects not needed without UFX SignalR backplane
+// Assembly redirect for Granville Orleans compatibility (Option 2)
+AssemblyLoadContext.Default.Resolving += (context, assemblyName) =>
+{
+    if (assemblyName.Name?.StartsWith("Microsoft.Orleans") == true)
+    {
+        var granvilleName = assemblyName.Name.Replace("Microsoft.Orleans", "Granville.Orleans");
+        try
+        {
+            Console.WriteLine($"Redirecting {assemblyName.Name} to {granvilleName}");
+            return context.LoadFromAssemblyName(new AssemblyName(granvilleName));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to redirect {assemblyName.Name}: {ex.Message}");
+        }
+    }
+    return null;
+};
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,8 +100,8 @@ builder.Host.UseOrleans(siloBuilder =>
         })
         .AddMemoryGrainStorage("worldStore")
         .AddMemoryGrainStorage("playerStore")
-        .AddMemoryGrainStorage("statsStore");  // Fix Issue 3: Add missing statsStore
-        // .UseSignalRBackplane();  // TODO: Enable SignalR backplane for multi-silo support when package is added
+        .AddMemoryGrainStorage("statsStore")  // Fix Issue 3: Add missing statsStore
+        .UseSignalRBackplane();  // Enable SignalR backplane for multi-silo support
 });
 
 // TODO: Configure RPC client so Silo can communicate with ActionServers

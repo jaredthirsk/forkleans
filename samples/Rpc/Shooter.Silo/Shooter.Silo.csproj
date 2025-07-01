@@ -11,9 +11,7 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
     <PackageReference Include="Microsoft.Orleans.Server" />
-    <!-- TODO: Add back when multi-silo support is needed
     <PackageReference Include="UFX.Orleans.SignalRBackplane" />
-    -->
   </ItemGroup>
 
   <ItemGroup>
