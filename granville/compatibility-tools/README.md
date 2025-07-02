@@ -1,90 +1,188 @@
 # Granville Orleans Compatibility Tools
 
-This directory contains tools to help third-party Orleans packages work with Granville Orleans assemblies.
+This directory contains tools for creating compatibility shims that allow third-party Orleans packages to work with Granville Orleans.
 
 ## Overview
 
-Since Granville Orleans builds assemblies with `Granville.Orleans.*` names (to avoid legal issues with the Microsoft prefix), we provide two approaches for compatibility with packages expecting `Microsoft.Orleans.*` assemblies:
+Granville Orleans renames assemblies from `Microsoft.Orleans.*` to `Granville.Orleans.*` to avoid NuGet namespace conflicts. However, third-party packages like `UFX.Orleans.SignalRBackplane` expect the original Microsoft.Orleans assemblies.
 
-1. **Type Forwarding Shims** - Generate thin Microsoft.Orleans.* assemblies that forward all types to Granville
-2. **Assembly Binding Redirects** - Configure your application to redirect Microsoft references to Granville
+We provide two compatibility approaches:
 
-## Tools Included
+1. **Assembly Redirects** (Runtime) - Documented in `ASSEMBLY-REDIRECT-GUIDE.md`
+2. **Type-Forwarding Shims** (Compile-time) - Implemented by the tools in this directory
 
-### GenerateTypeForwardingShims.csx
-A dotnet-script that generates a type forwarding shim for a single Granville assembly.
+## Type-Forwarding Shims
 
-**Usage:**
+Type-forwarding creates Microsoft.Orleans.* packages that contain no actual implementation, but instead forward all type requests to the corresponding Granville.Orleans.* assemblies at runtime.
+
+### Architecture
+
+```
+Third-party package
+    ↓ references
+Microsoft.Orleans.Core.Abstractions (shim)
+    ↓ forwards types to
+Granville.Orleans.Core.Abstractions (implementation)
+```
+
+This allows:
+- Compile-time: Third-party packages compile against familiar Microsoft.Orleans APIs
+- Runtime: Types resolve to Granville.Orleans implementations automatically
+- NuGet: No conflicts between Microsoft.Orleans and Granville.Orleans packages
+
+## Directory Structure
+
+```
+compatibility-tools/
+├── README.md                              # This file
+├── type-forwarding-generator/              # Type-forwarding generator tool
+│   ├── GenerateTypeForwardingAssemblies.cs # Main generator source
+│   ├── GenerateTypeForwardingAssemblies.csproj
+│   └── GenerateTypeForwardingAssemblies.exe # Compiled generator
+├── generate-individual-shims.ps1          # Script to generate shim assemblies
+├── package-shims-direct.ps1              # Script to package shims (outputs to Artifacts/Release)
+├── shims-proper/                          # Generated shim assemblies
+│   ├── Orleans.Core.dll
+│   ├── Orleans.Core.Abstractions.dll
+│   └── ...
+└── ASSEMBLY-REDIRECT-GUIDE.md            # Alternative approach documentation
+```
+
+## Usage
+
+### 1. Generate Type-Forwarding Shim Assemblies
+
+First, ensure Granville Orleans assemblies are built:
+
 ```bash
-dotnet-script GenerateTypeForwardingShims.csx <granville-assembly-path> [output-directory]
+# From repository root
+./granville/scripts/build-granville.ps1
 ```
 
-**Example:**
+Then generate the shim assemblies:
+
 ```bash
-dotnet-script GenerateTypeForwardingShims.csx ../src/Orleans.Core/bin/Release/net8.0/Granville.Orleans.Core.dll ./shims/
+cd granville/compatibility-tools
+./generate-individual-shims.ps1
 ```
 
-### GenerateAllShims.ps1
-PowerShell script that generates shims for all core Orleans assemblies.
+This creates Orleans.*.dll files in `shims-proper/` that forward types to Granville.Orleans.*.dll assemblies.
 
-**Usage:**
-```powershell
-./GenerateAllShims.ps1 [-Configuration Release] [-OutputPath shims]
+### 2. Package Shims as NuGet Packages
+
+```bash
+./package-shims-direct.ps1
 ```
 
-### assembly-redirects-template.config
-Template XML configuration for assembly binding redirects.
+This creates Microsoft.Orleans.*-granville-shim.nupkg files directly in `../../Artifacts/Release/`.
 
-**Usage:**
-1. Copy relevant sections to your app.config or web.config
-2. Adjust version numbers as needed
-3. See ASSEMBLY-REDIRECT-GUIDE.md for detailed instructions
+## Generated Packages
 
-### ASSEMBLY-REDIRECT-GUIDE.md
-Complete guide for using assembly redirects with different .NET versions and scenarios.
+The system generates these shim packages:
 
-## Quick Start
+- `Microsoft.Orleans.Core.Abstractions` → forwards to `Granville.Orleans.Core.Abstractions`
+- `Microsoft.Orleans.Core` → forwards to `Granville.Orleans.Core`
+- `Microsoft.Orleans.Serialization` → forwards to `Granville.Orleans.Serialization`
+- `Microsoft.Orleans.Serialization.Abstractions` → forwards to `Granville.Orleans.Serialization.Abstractions`
+- `Microsoft.Orleans.Runtime` → forwards to `Granville.Orleans.Runtime`
+- `Microsoft.Orleans.Server` → forwards to `Granville.Orleans.Server`
+- `Microsoft.Orleans.Client` → forwards to `Granville.Orleans.Client`
+- `Microsoft.Orleans.Sdk` → forwards to `Granville.Orleans.Sdk`
+- `Microsoft.Orleans.Reminders` → forwards to `Granville.Orleans.Reminders`
+- `Microsoft.Orleans.Persistence.Memory` → forwards to `Granville.Orleans.Persistence.Memory`
+- `Microsoft.Orleans.CodeGenerator` → forwards to `Granville.Orleans.CodeGenerator`
+- `Microsoft.Orleans.Analyzers` → forwards to `Granville.Orleans.Analyzers`
+- `Microsoft.Orleans.Serialization.SystemTextJson` → forwards to `Granville.Orleans.Serialization.SystemTextJson`
 
-### Option 1: Using Type Forwarding Shims
+## Type-Forwarding Generator
 
-1. Build the Granville Orleans solution
-2. Generate shims:
-   ```powershell
-   ./GenerateAllShims.ps1
+The generator tool (`type-forwarding-generator/GenerateTypeForwardingAssemblies.exe`) automatically:
+
+1. **Loads** the Granville.Orleans assembly using reflection
+2. **Extracts** all public types, interfaces, classes, structs, enums
+3. **Handles** generic types, nested types, and complex type signatures
+4. **Generates** C# source code with `[assembly: TypeForwardedTo(...)]` attributes
+5. **Compiles** the source into a shim assembly with Orleans.* naming
+
+### Example Generated Code
+
+```csharp
+using System.Runtime.CompilerServices;
+
+[assembly: TypeForwardedTo(typeof(Orleans.IGrain))]
+[assembly: TypeForwardedTo(typeof(Orleans.IGrainFactory))]
+[assembly: TypeForwardedTo(typeof(Orleans.IGrainWithStringKey))]
+[assembly: TypeForwardedTo(typeof(Orleans.GrainId))]
+// ... 184 type forwards for Core.Abstractions
+```
+
+### Advanced Features
+
+- **Dependency Resolution**: Automatically loads and resolves assembly dependencies
+- **Generic Type Handling**: Correctly forwards generic types like `IStorage<T>`
+- **Nested Type Support**: Handles nested classes and complex type hierarchies
+- **Error Recovery**: Continues processing when individual types fail to load
+- **Detailed Logging**: Reports exactly how many types were forwarded
+
+## Testing the Shims
+
+To verify the shims work correctly:
+
+1. **Check Package Resolution**:
+   ```bash
+   cd granville/samples/Rpc
+   dotnet restore Shooter.Shared/Shooter.Shared.csproj
    ```
-3. Deploy both Granville assemblies and generated shims to your application
 
-### Option 2: Using Assembly Redirects
+2. **Verify Type Forwarding**:
+   ```bash
+   # Should show type forwards
+   ildasm shims-proper/Orleans.Core.Abstractions.dll
+   ```
 
-1. Build the Granville Orleans solution
-2. Copy assembly redirect configuration from template
-3. Add to your application's config file
-4. Deploy only Granville assemblies
-
-## When to Use Each Approach
-
-**Use Type Forwarding Shims when:**
-- You want a drop-in replacement with no configuration
-- You're comfortable deploying extra assemblies
-- You need maximum compatibility
-
-**Use Assembly Redirects when:**
-- You want to avoid any Microsoft-named assemblies
-- You have control over application configuration
-- You're using .NET Framework with app.config support
+3. **Test with Third-party Package**:
+   ```xml
+   <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.51-granville-shim" />
+   <PackageReference Include="UFX.Orleans.SignalRBackplane" Version="8.2.2" />
+   ```
 
 ## Troubleshooting
 
-### Shim generation fails
-- Ensure dotnet-script is installed: `dotnet tool install -g dotnet-script`
-- Check that Granville assemblies are built first
-- Verify paths are correct
+### Empty Shim Assemblies
+- **Cause**: Granville assemblies not built or not found
+- **Solution**: Run `./granville/scripts/build-granville.ps1` first
 
-### Assembly redirects not working
-- For .NET Core/5+, use the custom resolver approach (see guide)
-- Enable fusion logging to debug assembly resolution
-- Ensure redirect versions match your Granville assembly versions
+### Generator Errors
+- **Cause**: Assembly loading conflicts or missing dependencies
+- **Solution**: Check that all Granville.Orleans.* assemblies exist and are valid
 
-## Legal Note
+### Package Restore Failures
+- **Cause**: Version mismatches or missing dependencies
+- **Solution**: Clear NuGet cache: `dotnet nuget locals all --clear`
 
-These tools help you use Granville Orleans (which avoids Microsoft naming) with packages expecting Microsoft Orleans. The shims are generated locally and not distributed by the Granville project, avoiding any trademark concerns.
+### Runtime Type Load Errors
+- **Cause**: Both Microsoft.Orleans and Granville.Orleans assemblies loaded
+- **Solution**: Ensure only one set of assemblies is referenced
+
+## Implementation Notes
+
+### Why Type-Forwarding?
+
+1. **Compile-time Compatibility**: Third-party packages can compile against familiar APIs
+2. **Runtime Efficiency**: No wrapper overhead, types resolve directly to implementations  
+3. **NuGet Compatibility**: Packages can coexist without conflicts
+4. **Automatic Resolution**: No manual configuration required
+
+### Limitations
+
+1. **Build Dependency**: Must build Granville assemblies before generating shims
+2. **Version Coupling**: Shim versions must match Granville assembly versions
+3. **Internal Types**: Cannot forward internal or private types
+4. **Generic Constraints**: Complex generic constraints may not forward perfectly
+
+### Future Improvements
+
+- Automated CI integration for shim generation
+- Version synchronization tools
+- Enhanced error reporting and recovery
+- Support for custom type mappings

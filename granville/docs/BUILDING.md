@@ -64,17 +64,29 @@ This builds:
 
 ### 3. Build and Package Everything
 
-To create NuGet packages:
+To create all NuGet packages (Orleans, RPC, and compatibility shims):
 
 ```bash
-# Build Orleans packages
-./granville/scripts/build-orleans-packages.ps1
+# 1. Build and package Granville Orleans assemblies
+./granville/scripts/build-granville.ps1
+./granville/scripts/pack-granville-orleans-packages.ps1
 
-# Build RPC packages
+# 2. Build and package Granville RPC
 ./granville/scripts/build-granville-rpc-packages.ps1
+
+# 3. Generate type-forwarding compatibility shims
+cd granville/compatibility-tools
+./generate-individual-shims.ps1
+./package-shims-direct.ps1
+cd ../..
 ```
 
-Packages are output to: `Artifacts/Release/`
+All packages are output to: `Artifacts/Release/`
+
+This creates:
+- **Granville.Orleans.*** - Core Orleans implementation packages
+- **Granville.Rpc.*** - RPC functionality packages  
+- **Microsoft.Orleans.***-granville-shim** - Type-forwarding compatibility packages
 
 ### 4. Build the Shooter Sample
 
@@ -127,14 +139,52 @@ cd granville/samples/Rpc/Shooter.Client
 dotnet run
 ```
 
-## Assembly Compatibility
+## Assembly Compatibility and Type-Forwarding Shims
 
-Granville Orleans assemblies can work with packages expecting Microsoft.Orleans via:
+Granville Orleans provides two approaches for compatibility with packages expecting Microsoft.Orleans:
 
-1. **Assembly Redirects** - Runtime redirection (implemented in Shooter.Silo)
-2. **Type Forwarding Shims** - Compile-time forwarding (see `/granville/compatibility-tools/`)
+### 1. Assembly Redirects (Runtime)
+Runtime redirection of assembly loads (implemented in Shooter.Silo). See `/granville/compatibility-tools/ASSEMBLY-REDIRECT-GUIDE.md`.
 
-The Shooter sample uses assembly redirects to work with `UFX.Orleans.SignalRBackplane`.
+### 2. Type-Forwarding Shims (Compile-time)
+Create Microsoft.Orleans.* packages that forward types to Granville.Orleans assemblies. This enables third-party packages to compile against Microsoft.Orleans interfaces while using Granville.Orleans implementations at runtime.
+
+#### Building Type-Forwarding Shim Packages
+
+1. **Build Granville Orleans assemblies first:**
+```bash
+./granville/scripts/build-granville.ps1
+```
+
+2. **Package Granville Orleans assemblies:**
+```bash
+./granville/scripts/pack-granville-orleans-packages.ps1
+```
+
+3. **Generate type-forwarding shim assemblies:**
+```bash
+cd granville/compatibility-tools
+./generate-individual-shims.ps1
+```
+
+4. **Package the shim assemblies:**
+```bash
+./package-shims-direct.ps1
+```
+
+#### Output
+All packages are created in `Artifacts/Release/`:
+- **Granville.Orleans.* packages**: Implementation assemblies (from step 2)
+- **Microsoft.Orleans.* packages**: Type-forwarding shim packages (from step 4)
+
+#### Usage
+Third-party packages reference Microsoft.Orleans.* shims, which forward types to Granville.Orleans implementations:
+```xml
+<PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.51-granville-shim" />
+<PackageReference Include="UFX.Orleans.SignalRBackplane" Version="8.2.2" />
+```
+
+At runtime, types resolve to Granville.Orleans assemblies automatically.
 
 ## Local NuGet Feed
 
@@ -165,6 +215,14 @@ The `Directory.Build.targets` automatically renames assemblies. If you get refer
 - **Port conflicts**: Check ports 7071-7073, 5000, 11111, 30000
 - **Health check errors**: Fixed in latest version (uses `/healthz` instead of `/health`)
 - **Aspire not starting services**: Ensure all projects are built first
+
+### Type-Forwarding Shim Issues
+
+- **Empty shim assemblies**: Ensure Granville Orleans assemblies are built first
+- **Missing dependencies**: Build packages in correct order (Orleans → RPC → Shims)
+- **Type not found errors**: Verify both Microsoft.Orleans.* shims and Granville.Orleans.* packages are available
+- **Generator errors**: The type-forwarding generator is in `/granville/compatibility-tools/type-forwarding-generator/`
+- **Package restore failures**: Clear NuGet cache with `dotnet nuget locals all --clear`
 
 ## Version Management
 

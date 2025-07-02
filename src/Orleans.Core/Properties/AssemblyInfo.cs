@@ -7,6 +7,14 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("Orleans.Streaming")]
 [assembly: InternalsVisibleTo("Orleans.TestingHost")]
 
+// Granville versions
+[assembly: InternalsVisibleTo("Granville.Orleans.BroadcastChannel")]
+[assembly: InternalsVisibleTo("Granville.Orleans.CodeGeneration")]
+[assembly: InternalsVisibleTo("Granville.Orleans.CodeGeneration.Build")]
+[assembly: InternalsVisibleTo("Granville.Orleans.Runtime")]
+[assembly: InternalsVisibleTo("Granville.Orleans.Streaming")]
+[assembly: InternalsVisibleTo("Granville.Orleans.TestingHost")]
+
 [assembly: InternalsVisibleTo("AWSUtils.Tests")]
 [assembly: InternalsVisibleTo("DefaultCluster.Tests")]
 [assembly: InternalsVisibleTo("GoogleUtils.Tests")]
@@ -25,6 +33,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("CodeGenerator.Tests")]
 
 [assembly: InternalsVisibleTo("Orleans.Reminders")]
+[assembly: InternalsVisibleTo("Granville.Orleans.Reminders")]
 
 // Mocking libraries
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

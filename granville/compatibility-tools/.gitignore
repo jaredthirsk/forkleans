@@ -1,0 +1,47 @@
+# Build artifacts
+bin/
+obj/
+*.deps.json
+*.runtimeconfig.json
+*.dll
+*.pdb
+*.exe
+
+# Localization directories from Microsoft.CodeAnalysis
+cs/
+de/
+es/
+fr/
+it/
+ja/
+ko/
+pl/
+pt-BR/
+ru/
+tr/
+zh-Hans/
+zh-Hant/
+
+# Temporary files
+*.bak
+*.tmp
+temp-*/
+
+# NuGet artifacts
+nuget.exe
+*.nupkg.backup
+
+# Generated directories (keep structure but ignore contents)
+shims-proper/*.dll
+shims-proper/*.cs
+
+# Keep source and compiled generator, but ignore intermediate build outputs
+!type-forwarding-generator/GenerateTypeForwardingAssemblies.cs
+!type-forwarding-generator/GenerateTypeForwardingAssemblies.csproj
+!type-forwarding-generator/GenerateTypeForwardingAssemblies.exe
+type-forwarding-generator/bin/
+type-forwarding-generator/obj/
+type-forwarding-generator/*.deps.json
+type-forwarding-generator/*.runtimeconfig.json
+type-forwarding-generator/*.dll
+type-forwarding-generator/*.pdb

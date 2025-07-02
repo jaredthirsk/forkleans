@@ -15,7 +15,12 @@ $assemblies = @(
     "Granville.Orleans.Serialization",
     "Granville.Orleans.Serialization.Abstractions",
     "Granville.Orleans.CodeGenerator",
-    "Granville.Orleans.Analyzers"
+    "Granville.Orleans.Analyzers",
+    "Granville.Orleans.Reminders",
+    "Granville.Orleans.Persistence.Memory",
+    "Granville.Orleans.Server",
+    "Granville.Orleans.Client",
+    "Granville.Orleans.Sdk"
 )
 
 # Create output directory
@@ -25,9 +30,9 @@ Write-Host "Generating type forwarding shims..." -ForegroundColor Green
 
 foreach ($assembly in $assemblies) {
     $searchPaths = @(
-        "src/*/bin/$Configuration/net8.0/$assembly.dll",
-        "src/*/bin/$Configuration/netstandard2.0/$assembly.dll",
-        "src/*/bin/$Configuration/netstandard2.1/$assembly.dll"
+        "../../src/*/bin/$Configuration/net8.0/$assembly.dll",
+        "../../src/*/bin/$Configuration/netstandard2.0/$assembly.dll",
+        "../../src/*/bin/$Configuration/netstandard2.1/$assembly.dll"
     )
     
     $found = $false

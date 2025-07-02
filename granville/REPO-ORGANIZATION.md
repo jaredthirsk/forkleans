@@ -62,6 +62,12 @@ The complete Granville RPC implementation. This remains in `/src/` (not under `/
 - `Directory.Build.targets` - Renames assemblies from Microsoft.Orleans.* to Granville.Orleans.*
 - Individual projects can override with local Directory.Build.targets
 
+### Build Output
+- **NuGet Packages**: All built NuGet packages (.nupkg files) are output to `/Artifacts/Release/`
+  - This includes both Granville.Orleans.* and Granville.Rpc.* packages
+  - The `/Artifacts/Release/` directory serves as a local NuGet feed for testing
+  - Configure NuGet.config to include this as a package source
+
 ## Key Files for Understanding the Fork
 
 1. **`/granville/fork-maintenance/MODIFICATIONS-TO-UPSTREAM.md`** - Lists all upstream modifications

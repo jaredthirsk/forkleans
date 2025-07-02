@@ -8,8 +8,12 @@
 
 
   <ItemGroup>
+    <!-- Microsoft.Orleans shim packages that forward to Granville.Orleans -->
     <PackageReference Include="Microsoft.Orleans.Core.Abstractions" />
-    <PackageReference Include="Microsoft.Orleans.Sdk" />
+    <PackageReference Include="Microsoft.Orleans.Serialization" />
+    <PackageReference Include="Microsoft.Orleans.Serialization.Abstractions" />
+    
+    <!-- Granville RPC packages -->
     <PackageReference Include="Granville.Rpc.Sdk" />
     <PackageReference Include="Granville.Rpc.Abstractions" />
   </ItemGroup>
