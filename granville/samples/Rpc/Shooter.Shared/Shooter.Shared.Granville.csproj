@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Option 3: Alternate project file using only Granville packages -->
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Use only Granville packages - no code generator conflicts -->
+    <PackageReference Include="Granville.Orleans.Core.Abstractions" />
+    <PackageReference Include="Granville.Orleans.Serialization" />
+    <PackageReference Include="Granville.Orleans.Serialization.Abstractions" />
+    <PackageReference Include="Granville.Orleans.CodeGenerator" />
+    <PackageReference Include="Granville.Orleans.Sdk" />
+    
+    <!-- Granville RPC packages -->
+    <PackageReference Include="Granville.Rpc.Sdk" />
+    <PackageReference Include="Granville.Rpc.Abstractions" />
+  </ItemGroup>
+</Project>

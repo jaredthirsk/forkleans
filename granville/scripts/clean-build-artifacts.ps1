@@ -23,8 +23,8 @@ $ErrorActionPreference = "Stop"
 
 Write-Host "Cleaning build artifacts..." -ForegroundColor Cyan
 
-# Get the script directory (repository root)
-$repoRoot = $PSScriptRoot
+# Get the repository root (two directories up from the script location)
+$repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
 # Find all bin and obj folders
 $foldersToDelete = @()

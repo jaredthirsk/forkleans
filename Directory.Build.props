@@ -52,6 +52,9 @@
   <PropertyGroup>
     <AssemblyVersion>9.0.0.0</AssemblyVersion>
     <VersionPrefix Condition=" '$(VersionPrefix)'=='' ">9.1.2</VersionPrefix>
+    <!-- Granville revision number for 4-part versioning -->
+    <GranvilleRevision Condition=" '$(GranvilleRevision)'=='' ">51</GranvilleRevision>
+    <PackageVersion Condition=" '$(PackageVersion)'=='' ">$(VersionPrefix).$(GranvilleRevision)</PackageVersion>
   </PropertyGroup>
 
   <!-- For Debug builds generated a date/time dependent version suffix -->

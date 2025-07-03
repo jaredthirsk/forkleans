@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 # PowerShell script to build Granville Orleans assemblies in correct order
 param(
     [string]$Configuration = "Release"
@@ -25,14 +26,14 @@ $projects = @(
 # Function to create compatibility symlinks
 function Create-CompatibilityLinks {
     param($ProjectDir, $Configuration)
-    
+
     $binPath = Join-Path $ProjectDir "bin\$Configuration"
-    
+
     Get-ChildItem -Path $binPath -Filter "Granville.Orleans.*.dll" -Recurse | ForEach-Object {
         $granvilleName = $_.Name
         $orleansName = $granvilleName -replace "^Granville\.", ""
         $targetPath = Join-Path $_.DirectoryName $orleansName
-        
+
         # Create a copy with the old name for compatibility
         if (-not (Test-Path $targetPath)) {
             Copy-Item $_.FullName $targetPath
@@ -44,28 +45,28 @@ function Create-CompatibilityLinks {
 # Build each project
 foreach ($project in $projects) {
     Write-Host "`nBuilding $project..." -ForegroundColor Cyan
-    
+
     try {
         & dotnet build $project -c $Configuration --no-dependencies
-        
+
         if ($LASTEXITCODE -ne 0) {
             throw "Build failed for $project"
         }
-        
+
         # Create compatibility links after successful build
         $projectDir = Split-Path $project -Parent
         Create-CompatibilityLinks -ProjectDir $projectDir -Configuration $Configuration
-        
+
         Write-Host "✓ Successfully built $project" -ForegroundColor Green
     }
     catch {
         Write-Host "✗ Failed to build $project" -ForegroundColor Red
         Write-Host $_.Exception.Message -ForegroundColor Red
-        
+
         # Try alternative approach: build with dependencies
         Write-Host "  Retrying with dependencies..." -ForegroundColor Yellow
         & dotnet build $project -c $Configuration
-        
+
         if ($LASTEXITCODE -eq 0) {
             Create-CompatibilityLinks -ProjectDir $projectDir -Configuration $Configuration
             Write-Host "✓ Successfully built $project (with dependencies)" -ForegroundColor Green

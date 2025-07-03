@@ -2,6 +2,7 @@
   <!-- Copy Granville Orleans assemblies to output directory for RPC compatibility -->
   <Target Name="CopyGranvilleAssemblies" AfterTargets="Build">
     <ItemGroup>
+      <!-- Copy both Granville.* and Orleans.* versions from net8.0 (Orleans build output) -->
       <GranvilleAssemblies Include="../../../src/Orleans.Core/bin/Release/net8.0/Granville.Orleans.Core.dll" />
       <GranvilleAssemblies Include="../../../src/Orleans.Core.Abstractions/bin/Release/net8.0/Granville.Orleans.Core.Abstractions.dll" />
       <GranvilleAssemblies Include="../../../src/Orleans.Serialization/bin/Release/net8.0/Granville.Orleans.Serialization.dll" />
@@ -11,7 +12,7 @@
     
     <Copy SourceFiles="@(GranvilleAssemblies)" 
           DestinationFolder="$(OutputPath)" 
-          SkipUnchangedFiles="true"
+          SkipUnchangedFiles="false"
           Condition="Exists('%(Identity)')" />
     
     <Message Text="Copied Granville Orleans assemblies to output directory for RPC compatibility." 

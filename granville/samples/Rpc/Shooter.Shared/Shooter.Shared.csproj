@@ -1,21 +1,23 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- Disable Orleans code generation to avoid duplicate errors -->
+    <OrleansGenerateCodeOnBuild>false</OrleansGenerateCodeOnBuild>
+
+  <Orleans_AttachDebugger>true</Orleans_AttachDebugger>
   </PropertyGroup>
 
-
   <ItemGroup>
-    <!-- Microsoft.Orleans shim packages that forward to Granville.Orleans -->
-    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" />
-    <PackageReference Include="Microsoft.Orleans.Serialization" />
-    <PackageReference Include="Microsoft.Orleans.Serialization.Abstractions" />
+    <!-- Use Microsoft.Orleans packages without SDK (no code generation) -->
+    <PackageReference Include="Granville.Orleans.Serialization" />
+    <PackageReference Include="Granville.Orleans.Serialization.Abstractions" />
     
-    <!-- Granville RPC packages -->
-    <PackageReference Include="Granville.Rpc.Sdk" />
+    <!-- Granville RPC packages without code generation -->
     <PackageReference Include="Granville.Rpc.Abstractions" />
+    <PackageReference Include="Granville.Rpc.Sdk" />
   </ItemGroup>
 
 </Project>

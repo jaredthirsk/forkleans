@@ -10,7 +10,13 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
+    
+    <!-- Microsoft.Orleans packages -->
     <PackageReference Include="Microsoft.Orleans.Server" />
+    <PackageReference Include="Microsoft.Orleans.Reminders" />
+    <PackageReference Include="Microsoft.Orleans.Serialization.SystemTextJson" />
+    
+    <!-- UFX.Orleans.SignalRBackplane -->
     <PackageReference Include="UFX.Orleans.SignalRBackplane" />
   </ItemGroup>
 
@@ -19,7 +25,5 @@
     <ProjectReference Include="..\Shooter.Shared\Shooter.Shared.csproj" />
   </ItemGroup>
 
-  <!-- Import targets to copy Granville assemblies -->
-  <Import Project="CopyGranvilleAssemblies.targets" />
 
 </Project>

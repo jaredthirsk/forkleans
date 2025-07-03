@@ -1,4 +1,26 @@
 <Project>
   <!-- Override parent Directory.Build.targets for sample projects -->
   <!-- We don't want to rename NuGet package references in samples -->
+  
+  <!-- Handle Orleans/Granville.Orleans conflicts for Option 2 (Assembly Redirects) -->
+  <!-- DISABLED TEMPORARILY - causes duplicate code generation -->
+  
+  <!-- First, we need to handle compilation references -->
+  <!--
+  <Target Name="RemoveOrleansReferencesForCompilation" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <ReferencePath Remove="@(ReferencePath)" 
+                     Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Orleans.'))" />
+      
+      <Message Text="Removed Microsoft.Orleans references to use Granville.Orleans instead" Importance="high" />
+    </ItemGroup>
+  </Target>
+  
+  <Target Name="RemoveOrleansFromCopyLocal" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" 
+                               Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Orleans.'))" />
+    </ItemGroup>
+  </Target>
+  -->
 </Project>

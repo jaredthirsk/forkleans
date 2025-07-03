@@ -22,19 +22,23 @@
     <PackageVersion Include="Granville.Server" Version="9.1.2" />
     <PackageVersion Include="Granville.Persistence.Memory" Version="9.1.2" />
 
-    <!-- Microsoft.Orleans shim packages (type-forwarding to Granville.Orleans) -->
-    <PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2.51-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.51-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Sdk" Version="9.1.2.51-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.CodeGenerator" Version="9.1.2.51-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Serialization" Version="9.1.2.51-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Serialization.Abstractions" Version="9.1.2.51-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Runtime" Version="9.1.2.51-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Server" Version="9.1.2.51-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Client" Version="9.1.2.51-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Persistence.Memory" Version="9.1.2.51-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Reminders" Version="9.1.2.51-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Serialization.SystemTextJson" Version="9.1.2.51-granville-shim" />
+    <!-- Hybrid Package Approach -->
+    <!-- Official Microsoft packages from nuget.org (unmodified assemblies) -->
+    <PackageVersion Include="Microsoft.Orleans.Server" Version="9.1.2" />
+    <PackageVersion Include="Microsoft.Orleans.Client" Version="9.1.2" />
+    <PackageVersion Include="Microsoft.Orleans.Persistence.Memory" Version="9.1.2" />
+    <PackageVersion Include="Microsoft.Orleans.Reminders" Version="9.1.2" />
+    <PackageVersion Include="Microsoft.Orleans.Serialization.SystemTextJson" Version="9.1.2" />
+    
+    <!-- Use official Microsoft packages for code generation compatibility -->
+    <PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2" />
+    <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2" />
+    <PackageVersion Include="Microsoft.Orleans.Sdk" Version="9.1.2" />
+    <PackageVersion Include="Microsoft.Orleans.CodeGenerator" Version="9.1.2" />
+    <PackageVersion Include="Microsoft.Orleans.Serialization" Version="9.1.2" />
+    <PackageVersion Include="Microsoft.Orleans.Serialization.Abstractions" Version="9.1.2" />
+    <PackageVersion Include="Microsoft.Orleans.Runtime" Version="9.1.2" />
+    <PackageVersion Include="Microsoft.Orleans.Analyzers" Version="9.1.2" />
     
     <!-- Orleans packages from local build -->
     <PackageVersion Include="Orleans.Core" Version="9.2.0.50-preview3" />
@@ -48,7 +52,8 @@
     <PackageVersion Include="Orleans.Client" Version="9.2.0.50-preview3" />
     <PackageVersion Include="Orleans.Persistence.Memory" Version="9.2.0.50-preview3" />
 
-    <!-- Granville Orleans packages from local build - REQUIRED for shims to work -->
+    <!-- Granville Orleans packages - REQUIRED for shims to work -->
+    <!-- These provide the actual implementation that shims forward to -->
     <PackageVersion Include="Granville.Orleans.Core" Version="9.1.2.51" />
     <PackageVersion Include="Granville.Orleans.Core.Abstractions" Version="9.1.2.51" />
     <PackageVersion Include="Granville.Orleans.Sdk" Version="9.1.2.51" />
@@ -56,10 +61,7 @@
     <PackageVersion Include="Granville.Orleans.Serialization" Version="9.1.2.51" />
     <PackageVersion Include="Granville.Orleans.Serialization.Abstractions" Version="9.1.2.51" />
     <PackageVersion Include="Granville.Orleans.Runtime" Version="9.1.2.51" />
-    <PackageVersion Include="Granville.Orleans.Server" Version="9.1.2.51" />
-    <PackageVersion Include="Granville.Orleans.Client" Version="9.1.2.51" />
-    <PackageVersion Include="Granville.Orleans.Persistence.Memory" Version="9.1.2.51" />
-    <PackageVersion Include="Granville.Orleans.Reminders" Version="9.1.2.51" />
+    <PackageVersion Include="Granville.Orleans.Analyzers" Version="9.1.2.51" />
     <PackageVersion Include="Granville.Orleans.Serialization.SystemTextJson" Version="9.1.2.51" />
     
     <!-- Microsoft packages -->

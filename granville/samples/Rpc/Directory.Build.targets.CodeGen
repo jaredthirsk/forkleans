@@ -1,0 +1,23 @@
+<Project>
+  <!-- Option 2: Control code generator inclusion via MSBuild properties -->
+  <PropertyGroup>
+    <!-- Set this to true to disable Microsoft.Orleans code generators -->
+    <DisableMicrosoftOrleansCodeGen Condition="'$(DisableMicrosoftOrleansCodeGen)' == ''">false</DisableMicrosoftOrleansCodeGen>
+    
+    <!-- Set this to true to disable Granville code generators -->
+    <DisableGranvilleCodeGen Condition="'$(DisableGranvilleCodeGen)' == ''">false</DisableGranvilleCodeGen>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(DisableMicrosoftOrleansCodeGen)' == 'true'">
+    <!-- Remove Microsoft.Orleans code generators from compilation -->
+    <PackageReference Update="Microsoft.Orleans.CodeGenerator" ExcludeAssets="analyzers" />
+    <PackageReference Update="Microsoft.Orleans.Sdk" ExcludeAssets="analyzers" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(DisableGranvilleCodeGen)' == 'true'">
+    <!-- Remove Granville code generators from compilation -->
+    <PackageReference Update="Granville.Orleans.CodeGenerator" ExcludeAssets="analyzers" />
+    <PackageReference Update="Granville.Orleans.Sdk" ExcludeAssets="analyzers" />
+    <PackageReference Update="Granville.Rpc.Sdk" ExcludeAssets="analyzers" />
+  </ItemGroup>
+</Project>

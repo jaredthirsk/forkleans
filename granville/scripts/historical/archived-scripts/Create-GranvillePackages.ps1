@@ -4,7 +4,7 @@
 
 param(
     [Parameter(Mandatory=$false)]
-    [string]$LocalFeedPath = "$PSScriptRoot/local-packages",
+    [string]$LocalFeedPath = "$PSScriptRoot/../../../Artifacts/Release",
 
     [Parameter()]
     [string]$Configuration = "Release",

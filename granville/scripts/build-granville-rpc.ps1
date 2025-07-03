@@ -13,7 +13,7 @@
 
 .PARAMETER OutputPath
     Output directory for NuGet packages
-    Default: ./Artifacts/Granville.Rpc
+    Default: ./Artifacts/Release
 
 .PARAMETER SkipBuild
     Skip building and only create packages
@@ -33,7 +33,7 @@
 #>
 param(
     [string]$Configuration = "Release",
-    [string]$OutputPath = "./Artifacts/Granville.Rpc",
+    [string]$OutputPath = "./Artifacts/Release",
     [switch]$SkipBuild = $false,
     [string]$Version = ""
 )

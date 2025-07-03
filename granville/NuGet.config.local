@@ -3,7 +3,7 @@
   <packageSources>
     <clear />
     <!-- Local Granville feed -->
-    <add key="LocalGranville" value="/mnt/g/forks/orleans/local-packages" />
+    <add key="LocalGranville" value="/mnt/g/forks/orleans/Artifacts/Release" />
     <!-- Default NuGet feed -->
     <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
   </packageSources>

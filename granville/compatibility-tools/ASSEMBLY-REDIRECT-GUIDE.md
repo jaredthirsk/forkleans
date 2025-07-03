@@ -125,3 +125,100 @@ If assembly redirects don't work for your scenario, you can use the type forward
 2. Deploy both the shim assemblies (Microsoft.Orleans.*) and Granville assemblies together
 
 3. The shims will forward all types to the Granville assemblies automatically
+
+## Hybrid Package Approach (Recommended)
+
+For the best balance of compatibility and maintainability, use the hybrid package approach that combines official Microsoft packages with shims and Granville packages.
+
+### Understanding the Hybrid Strategy
+
+The Granville fork only modifies specific Orleans assemblies to add InternalsVisibleTo attributes. Since InternalsVisibleTo doesn't change binary compatibility, we can use official Microsoft packages for unmodified assemblies.
+
+**Modified assemblies (require Granville versions):**
+- Orleans.Core
+- Orleans.Core.Abstractions
+- Orleans.Runtime
+- Orleans.Serialization
+- Orleans.Serialization.Abstractions
+
+**Unmodified assemblies (use official Microsoft packages):**
+- Orleans.Client
+- Orleans.Server
+- Orleans.Reminders
+- Orleans.Serialization.SystemTextJson
+- All other Orleans extensions
+
+### Configuring the Hybrid Approach
+
+1. **Set up Directory.Packages.props:**
+   ```xml
+   <Project>
+     <ItemGroup>
+       <!-- Official Microsoft packages for unmodified assemblies -->
+       <PackageVersion Include="Microsoft.Orleans.Client" Version="9.1.2" />
+       <PackageVersion Include="Microsoft.Orleans.Server" Version="9.1.2" />
+       <PackageVersion Include="Microsoft.Orleans.Reminders" Version="9.1.2" />
+       <PackageVersion Include="Microsoft.Orleans.Serialization.SystemTextJson" Version="9.1.2" />
+       
+       <!-- Shim packages for modified assemblies -->
+       <PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2.51-granville-shim" />
+       <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.51-granville-shim" />
+       <PackageVersion Include="Microsoft.Orleans.Runtime" Version="9.1.2.51-granville-shim" />
+       <PackageVersion Include="Microsoft.Orleans.Serialization" Version="9.1.2.51-granville-shim" />
+       <PackageVersion Include="Microsoft.Orleans.Serialization.Abstractions" Version="9.1.2.51-granville-shim" />
+       
+       <!-- Granville packages -->
+       <PackageVersion Include="Granville.Rpc.Server" Version="9.1.2.51" />
+     </ItemGroup>
+   </Project>
+   ```
+
+2. **Configure NuGet sources:**
+   ```xml
+   <configuration>
+     <packageSources>
+       <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+       <add key="local" value="./Artifacts/Release" />
+     </packageSources>
+   </configuration>
+   ```
+
+3. **Install required packages in your local feed:**
+   - Shim packages: Microsoft.Orleans.*-granville-shim
+   - Granville packages: Granville.Orleans.* (only for modified assemblies)
+
+### How the Hybrid Approach Works
+
+```
+Microsoft.Orleans.Reminders.dll (official from nuget.org)
+    ↓ depends on
+Microsoft.Orleans.Runtime.dll (shim from local feed)
+    ↓ type forwards to
+Granville.Orleans.Runtime.dll (actual implementation)
+```
+
+### Benefits of the Hybrid Approach
+
+1. **Minimal maintenance**: Only maintain packages for modified assemblies
+2. **Maximum compatibility**: Third-party packages work seamlessly
+3. **Automatic updates**: Benefit from official package updates
+4. **Clear separation**: Easy to see which assemblies are modified
+
+### Troubleshooting Hybrid Setup
+
+1. **Verify package resolution:**
+   ```bash
+   dotnet list package --include-transitive
+   ```
+
+2. **Check assembly versions in bin folder:**
+   - Should see Microsoft.Orleans.*.dll for unmodified assemblies
+   - Should see Granville.Orleans.*.dll for modified assemblies
+   - Shim Microsoft.Orleans.*.dll files should be very small (~10KB)
+
+3. **Common issues:**
+   - Missing local feed configuration
+   - Version conflicts between official and shim packages
+   - Incorrect package source priority
+
+For more details on the hybrid package strategy, see `/granville/docs/hybrid-package-strategy.md`.

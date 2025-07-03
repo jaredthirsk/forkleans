@@ -9,11 +9,16 @@
 
   <ItemGroup>
     <PackageReference Include="LiteNetLib" />
+    <!-- Granville RPC packages -->
     <PackageReference Include="Granville.Rpc.Server" />
     <PackageReference Include="Granville.Rpc.Client" />
     <PackageReference Include="Granville.Rpc.Transport.LiteNetLib" />
     <PackageReference Include="Granville.Rpc.Transport.Ruffles" />
+    
+    <!-- Microsoft.Orleans Client -->
     <PackageReference Include="Microsoft.Orleans.Client" />
+    
+    <!-- Microsoft packages -->
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Http" />
   </ItemGroup>
@@ -23,7 +28,5 @@
     <ProjectReference Include="..\Shooter.Shared\Shooter.Shared.csproj" />
   </ItemGroup>
 
-  <!-- Import targets to copy Granville assemblies -->
-  <Import Project="CopyGranvilleAssemblies.targets" />
 
 </Project>

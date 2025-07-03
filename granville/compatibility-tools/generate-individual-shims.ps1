@@ -40,6 +40,36 @@ $assemblies = @(
         ShimName = "Orleans.Reminders"
         GranvilleName = "Granville.Orleans.Reminders"
         TargetFramework = "net8.0"
+    },
+    @{
+        ShimName = "Orleans.Core"
+        GranvilleName = "Granville.Orleans.Core"
+        TargetFramework = "net8.0"
+    },
+    @{
+        ShimName = "Orleans.Serialization.SystemTextJson"
+        GranvilleName = "Granville.Orleans.Serialization.SystemTextJson"
+        TargetFramework = "net8.0"
+    },
+    @{
+        ShimName = "Orleans.Runtime"
+        GranvilleName = "Granville.Orleans.Runtime"
+        TargetFramework = "net8.0"
+    },
+    @{
+        ShimName = "Orleans.Sdk"
+        GranvilleName = "Granville.Orleans.Sdk"
+        TargetFramework = "net8.0"
+    },
+    @{
+        ShimName = "Orleans.Server"
+        GranvilleName = "Granville.Orleans.Server"
+        TargetFramework = "net8.0"
+    },
+    @{
+        ShimName = "Orleans.Persistence.Memory"
+        GranvilleName = "Granville.Orleans.Persistence.Memory"
+        TargetFramework = "net8.0"
     }
 )
 
@@ -62,7 +92,7 @@ foreach ($asm in $assemblies) {
     Write-Host "  Target: $shimPath"
     
     # Run the generator
-    & .\type-forwarding-generator\GenerateTypeForwardingAssemblies.exe $granvillePath $shimPath
+    & dotnet type-forwarding-generator/bin/Release/net8.0/GenerateTypeForwardingAssemblies.dll $granvillePath $shimPath
     
     if ($LASTEXITCODE -eq 0 -and (Test-Path $shimPath)) {
         Write-Host "  Success! Generated $shimPath" -ForegroundColor Green

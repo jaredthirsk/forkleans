@@ -6,6 +6,25 @@ using Shooter.Bot;
 using Shooter.Bot.Services;
 using Shooter.Client.Common;
 using Shooter.ServiceDefaults;
+using System.Runtime.Loader;
+using System.Reflection;
+
+// Assembly redirect for Granville.Orleans.* to Orleans.*
+// This allows Granville.Rpc (built against Granville.Orleans) to work with Microsoft.Orleans
+AssemblyLoadContext.Default.Resolving += (context, assemblyName) =>
+{
+    if (assemblyName.Name?.StartsWith("Granville.Orleans") == true)
+    {
+        var orleansName = assemblyName.Name.Replace("Granville.Orleans", "Orleans");
+        try
+        {
+            // Try to load Orleans assembly
+            return context.LoadFromAssemblyName(new AssemblyName(orleansName));
+        }
+        catch { }
+    }
+    return null;
+};
 
 // Command line options:
 // --test or -t: Enable test mode (default: true)

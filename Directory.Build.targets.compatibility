@@ -1,0 +1,36 @@
+<Project>
+  <!-- Create Orleans.* copies from Granville.Orleans.* assemblies -->
+  <!-- We now build as Granville.Orleans.* and create Orleans.* copies for build compatibility -->
+  
+  <Target Name="CreateOrleansCopies" AfterTargets="CoreBuild" Condition="$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.')) and !$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.Rpc.'))">
+    <PropertyGroup>
+      <OrleansAssemblyName>$(MSBuildProjectName)</OrleansAssemblyName>
+      <SourcePath>$(TargetDir)$(AssemblyName).dll</SourcePath>
+      <OrleansPath>$(TargetDir)$(OrleansAssemblyName).dll</OrleansPath>
+    </PropertyGroup>
+    
+    <!-- Create Orleans copy -->
+    <Copy SourceFiles="$(SourcePath)"
+          DestinationFiles="$(OrleansPath)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(SourcePath)')" />
+          
+    <!-- Also copy PDB if it exists -->
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).pdb"
+          DestinationFiles="$(TargetDir)$(OrleansAssemblyName).pdb"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(TargetDir)$(AssemblyName).pdb')" />
+          
+    <Message Text="Created Orleans copy: $(OrleansPath)" Importance="normal" />
+  </Target>
+  
+  <!-- For projects referencing Orleans assemblies, also look for Granville versions -->
+  <Target Name="PreferGranvilleAssemblies" BeforeTargets="_CopyFilesMarkedCopyLocal">
+    <ItemGroup>
+      <!-- If a Granville version exists, prefer it -->
+      <ReferenceCopyLocalPaths>
+        <SourcePath Condition="$([System.String]::Copy('%(Filename)').StartsWith('Orleans.')) and Exists('%(RootDir)%(Directory)Granville.%(Filename)%(Extension)')">%(RootDir)%(Directory)Granville.%(Filename)%(Extension)</SourcePath>
+      </ReferenceCopyLocalPaths>
+    </ItemGroup>
+  </Target>
+</Project>

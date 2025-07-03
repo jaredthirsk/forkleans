@@ -1,9 +1,10 @@
-# Setup local NuGet feed for Granville.Rpc packages
+# Setup local NuGet feed for Granville packages
 param(
-    [string]$FeedPath = "$HOME\.nuget\local-feed\Granville.Rpc"
+    [string]$FeedPath = "$HOME\.nuget\local-feed\Granville",
+    [string]$SourcePath = ".\Artifacts\Release"
 )
 
-Write-Host "Setting up local NuGet feed for Granville.Rpc packages..." -ForegroundColor Green
+Write-Host "Setting up local NuGet feed for Granville packages..." -ForegroundColor Green
 
 # Create feed directory
 if (!(Test-Path $FeedPath)) {
@@ -11,7 +12,7 @@ if (!(Test-Path $FeedPath)) {
 }
 
 # Copy packages
-$packages = Get-ChildItem "Artifacts\Granville.Rpc\*.nupkg"
+$packages = Get-ChildItem "$SourcePath\*.nupkg"
 foreach ($package in $packages) {
     Write-Host "Copying $($package.Name)..." -ForegroundColor Cyan
     Copy-Item $package.FullName -Destination $FeedPath -Force

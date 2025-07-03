@@ -8,7 +8,7 @@ namespace Shooter.Tests.Infrastructure;
 /// </summary>
 public static class ManualTestRunner
 {
-    public static async Task<string> RunManualTest()
+    public static Task<string> RunManualTest()
     {
         var logDir = Path.Combine(Directory.GetCurrentDirectory(), "test-logs");
         Directory.CreateDirectory(logDir);
@@ -40,10 +40,10 @@ public static class ManualTestRunner
         result += "- Chat messages will be broadcast\n";
         result += "- All bots will receive the messages\n";
         
-        return result;
+        return Task.FromResult(result);
     }
     
-    public static async Task<bool> CheckPrerequisites()
+    public static Task<bool> CheckPrerequisites()
     {
         // Check if we can find the project directories
         var currentDir = Directory.GetCurrentDirectory();
@@ -56,7 +56,7 @@ public static class ManualTestRunner
         
         if (string.IsNullOrEmpty(rpcDir))
         {
-            return false;
+            return Task.FromResult(false);
         }
         
         var requiredProjects = new[] { "Shooter.Silo", "Shooter.ActionServer", "Shooter.Bot" };
@@ -66,10 +66,10 @@ public static class ManualTestRunner
             if (!Directory.Exists(projectPath))
             {
                 Console.WriteLine($"Missing required project: {projectPath}");
-                return false;
+                return Task.FromResult(false);
             }
         }
         
-        return true;
+        return Task.FromResult(true);
     }
 }

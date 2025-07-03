@@ -1,0 +1,31 @@
+<Project>
+  <!-- Option 4: Build configuration to control package selection -->
+  <PropertyGroup>
+    <!-- Define which Orleans implementation to use -->
+    <!-- Values: Microsoft, Granville, or Hybrid -->
+    <OrleansImplementation Condition="'$(OrleansImplementation)' == ''">Granville</OrleansImplementation>
+  </PropertyGroup>
+
+  <!-- Microsoft Orleans configuration -->
+  <ItemGroup Condition="'$(OrleansImplementation)' == 'Microsoft'">
+    <GlobalPackageReference Include="Microsoft.Orleans.Core.Abstractions" />
+    <GlobalPackageReference Include="Microsoft.Orleans.Sdk" />
+    <GlobalPackageReference Include="Microsoft.Orleans.CodeGenerator" />
+  </ItemGroup>
+
+  <!-- Granville Orleans configuration -->
+  <ItemGroup Condition="'$(OrleansImplementation)' == 'Granville'">
+    <GlobalPackageReference Include="Granville.Orleans.Core.Abstractions" />
+    <GlobalPackageReference Include="Granville.Orleans.Sdk" />
+    <GlobalPackageReference Include="Granville.Orleans.CodeGenerator" />
+  </ItemGroup>
+
+  <!-- Hybrid configuration (requires assembly redirects) -->
+  <ItemGroup Condition="'$(OrleansImplementation)' == 'Hybrid'">
+    <!-- Use Microsoft packages but exclude code generators -->
+    <GlobalPackageReference Include="Microsoft.Orleans.Core.Abstractions" />
+    <GlobalPackageReference Include="Microsoft.Orleans.Sdk" ExcludeAssets="analyzers" />
+    <!-- Use Granville code generator only -->
+    <GlobalPackageReference Include="Granville.Orleans.CodeGenerator" />
+  </ItemGroup>
+</Project>

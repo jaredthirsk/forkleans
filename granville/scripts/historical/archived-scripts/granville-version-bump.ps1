@@ -30,7 +30,7 @@
     Default: RpcTypical
 
 .PARAMETER NoCleanLocalPackages
-    Skip cleaning old NuGet packages from ./local-packages/*.nupkg
+    Skip cleaning old NuGet packages from ./Artifacts/Release/*.nupkg
     Default: false (packages are cleaned)
 
 .PARAMETER NoCleanArtifacts
@@ -221,18 +221,18 @@ if (-not $SkipPackage) {
     # Clean local packages
     if (-not $NoCleanLocalPackages) {
         Write-Header "Cleaning local packages"
-        $localPackagesPath = Join-Path $scriptDir "local-packages"
+        $localPackagesPath = Join-Path $scriptDir "../../../Artifacts/Release"
         if (Test-Path $localPackagesPath) {
             $oldPackages = Get-ChildItem -Path $localPackagesPath -Filter "*.nupkg" -ErrorAction SilentlyContinue
             if ($oldPackages) {
-                Write-Info "Removing $($oldPackages.Count) old package(s) from local-packages"
+                Write-Info "Removing $($oldPackages.Count) old package(s) from Artifacts/Release"
                 Remove-Item -Path (Join-Path $localPackagesPath "*.nupkg") -Force
                 Write-Success "Cleaned local packages"
             } else {
-                Write-Info "No packages to clean in local-packages"
+                Write-Info "No packages to clean in Artifacts/Release"
             }
         } else {
-            Write-Info "local-packages directory does not exist"
+            Write-Info "Artifacts/Release directory does not exist"
         }
     }
 
@@ -286,7 +286,7 @@ if (-not $SkipBuild) {
 
 if (-not $SkipPackage) {
     Write-Success "Packages created successfully"
-    Write-Info "Packages are available in: $(Join-Path $scriptDir 'local-packages') and $(Join-Path $scriptDir "Artifacts/$Configuration")"
+    Write-Info "Packages are available in: $(Join-Path $scriptDir "../../../Artifacts/$Configuration")"
 }
 
 # Provide next steps

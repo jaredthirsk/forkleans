@@ -30,10 +30,9 @@ create_compatibility_copies() {
         orleans_name=$(basename "$granville_dll" | sed 's/^Granville\.//')
         orleans_path=$(dirname "$granville_dll")/"$orleans_name"
         
-        if [ ! -f "$orleans_path" ]; then
-            cp "$granville_dll" "$orleans_path"
-            echo "  Created compatibility copy: $orleans_name"
-        fi
+        # Always create/update the compatibility copy
+        cp -f "$granville_dll" "$orleans_path"
+        echo "  Created compatibility copy: $orleans_name"
     done
 }
 

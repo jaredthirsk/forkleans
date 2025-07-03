@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Project file that uses pre-built assemblies to avoid code generation issues -->
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Skip Orleans code generation -->
+    <DisableCodeGeneration>true</DisableCodeGeneration>
+    <OrleansGenerateCodeOnBuild>false</OrleansGenerateCodeOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Reference pre-built Orleans assemblies directly -->
+    <Reference Include="Orleans.Core">
+      <HintPath>../Shooter.Silo/bin/Release/net9.0/Orleans.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Orleans.Core.Abstractions">
+      <HintPath>../Shooter.Silo/bin/Release/net9.0/Orleans.Core.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Orleans.Serialization">
+      <HintPath>../Shooter.Silo/bin/Release/net9.0/Orleans.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="Orleans.Serialization.Abstractions">
+      <HintPath>../Shooter.Silo/bin/Release/net9.0/Orleans.Serialization.Abstractions.dll</HintPath>
+    </Reference>
+    
+    <!-- Granville RPC packages -->
+    <PackageReference Include="Granville.Rpc.Sdk" />
+    <PackageReference Include="Granville.Rpc.Abstractions" />
+  </ItemGroup>
+</Project>

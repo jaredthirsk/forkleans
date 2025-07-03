@@ -10,36 +10,12 @@ using System.Net;
 using System.Reflection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Runtime.Loader;
-using UFX.Orleans.SignalRBackplane;
+using UFX.Orleans.SignalRBackplane; // Re-enabled with assembly redirects
+using Shooter.Shared; // For AssemblyRedirectHelper
 
-// Assembly redirect for Granville Orleans compatibility (Option 2)
-AssemblyLoadContext.Default.Resolving += (context, assemblyName) =>
-{
-    if (assemblyName.Name?.StartsWith("Microsoft.Orleans") == true)
-    {
-        var granvilleName = assemblyName.Name.Replace("Microsoft.Orleans", "Granville.Orleans");
-        try
-        {
-            Console.WriteLine($"[Assembly Redirect] {assemblyName.Name} -> {granvilleName}");
-            
-            // Try to load from the current directory first
-            var assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{granvilleName}.dll");
-            if (File.Exists(assemblyPath))
-            {
-                Console.WriteLine($"[Assembly Redirect] Loading from: {assemblyPath}");
-                return context.LoadFromAssemblyPath(assemblyPath);
-            }
-            
-            // Fallback to loading by name
-            return context.LoadFromAssemblyName(new AssemblyName(granvilleName));
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[Assembly Redirect] Failed to redirect {assemblyName.Name}: {ex.Message}");
-        }
-    }
-    return null;
-};
+// Initialize assembly redirect handler to support UFX.Orleans.SignalRBackplane
+AssemblyRedirectHelper.Initialize();
+AssemblyRedirectHelper.PreloadGranvilleAssemblies();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -111,7 +87,7 @@ builder.Host.UseOrleans(siloBuilder =>
         .AddMemoryGrainStorage("worldStore")
         .AddMemoryGrainStorage("playerStore")
         .AddMemoryGrainStorage("statsStore")  // Fix Issue 3: Add missing statsStore
-        .AddMemoryGrainStorage(UFX.Orleans.SignalRBackplane.Constants.StorageName)
+        .AddMemoryGrainStorage(UFX.Orleans.SignalRBackplane.Constants.StorageName) // UFX re-enabled
         .UseInMemoryReminderService()
         .AddSignalRBackplane();  // Enable SignalR backplane for multi-silo support
 });

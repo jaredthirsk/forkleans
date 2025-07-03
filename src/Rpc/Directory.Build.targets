@@ -1,0 +1,29 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
+  
+  <!-- For RPC projects, ensure they reference Granville assemblies -->
+  <Target Name="UpdateRpcReferencesToGranville" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <!-- Update ProjectReference items to look for Granville assemblies -->
+      <_ProjectReferenceWithConfiguration>
+        <OutputItemType Condition="'%(OutputItemType)' == '' and '%(ReferenceOutputAssembly)' != 'false'">_ResolvedProjectReferencePaths</OutputItemType>
+      </_ProjectReferenceWithConfiguration>
+    </ItemGroup>
+  </Target>
+  
+  <!-- After resolving references, replace Orleans.* references with Granville.* -->
+  <Target Name="ReplaceOrleansWithGranvilleReferences" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <!-- For each Orleans reference, check if a Granville version exists and use it -->
+      <Reference Remove="@(Reference)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('Orleans.')) and !$([System.String]::Copy('%(Filename)').StartsWith('Orleans.Rpc.'))" />
+      <Reference Include="@(Reference->'%(RootDir)%(Directory)Granville.%(Filename)%(Extension)')" Condition="$([System.String]::Copy('%(Filename)').StartsWith('Orleans.')) and !$([System.String]::Copy('%(Filename)').StartsWith('Orleans.Rpc.')) and Exists('%(RootDir)%(Directory)Granville.%(Filename)%(Extension)')" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <!-- Update ReferencePath to use Granville assemblies -->
+      <ReferencePath>
+        <HintPath Condition="$([System.String]::Copy('%(Filename)').StartsWith('Orleans.')) and !$([System.String]::Copy('%(Filename)').StartsWith('Orleans.Rpc.')) and Exists('%(RootDir)%(Directory)Granville.%(Filename)%(Extension)')">%(RootDir)%(Directory)Granville.%(Filename)%(Extension)</HintPath>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
+</Project>

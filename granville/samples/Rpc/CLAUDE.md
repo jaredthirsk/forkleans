@@ -28,12 +28,21 @@ This is a distributed multiplayer space shooter game demonstrating Granville RPC
 
 ## Running the Sample
 
+### Known Issue with Orleans 9.1.2
+The Shooter sample currently has build issues with Orleans 9.1.2 due to duplicate code generation. See `KNOWN-ISSUES.md` for details and workarounds.
+
 ### Using .NET Aspire (Recommended)
 ```bash
 cd Shooter.AppHost
 dotnet run
 ```
 This starts all components with proper orchestration.
+
+### Build Workaround
+If you encounter code generation errors:
+```bash
+pwsh ./build-shooter-workaround.ps1
+```
 
 ### Manual Startup
 1. Start the Silo:

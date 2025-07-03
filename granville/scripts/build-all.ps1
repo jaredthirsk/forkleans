@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 # Build-all.ps1 - Meta script to build all Granville Orleans components
 
 param(
@@ -34,11 +35,11 @@ try {
     # Step 4: Create NuGet packages (unless skipped)
     if (-not $SkipPackaging) {
         Write-Host "`n=== Step 4: Creating NuGet packages ===" -ForegroundColor Yellow
-        
+
         Write-Host "Building Orleans packages..." -ForegroundColor Cyan
         & "$PSScriptRoot/build-orleans-packages.ps1"
         if ($LASTEXITCODE -ne 0) { throw "Orleans packaging failed" }
-        
+
         Write-Host "Building RPC packages..." -ForegroundColor Cyan
         & "$PSScriptRoot/build-granville-rpc-packages.ps1"
         if ($LASTEXITCODE -ne 0) { throw "RPC packaging failed" }
@@ -50,10 +51,10 @@ try {
     # Step 5: Build samples (unless skipped)
     if (-not $SkipSamples) {
         Write-Host "`n=== Step 5: Building Shooter sample ===" -ForegroundColor Yellow
-        
+
         $samplesPath = Join-Path $rootDir "granville/samples/Rpc"
         Push-Location $samplesPath
-        
+
         try {
             Write-Host "Building GranvilleSamples.sln..." -ForegroundColor Cyan
             & dotnet build GranvilleSamples.sln -c $Configuration
@@ -72,19 +73,19 @@ try {
     Write-Host "Built components:" -ForegroundColor Cyan
     Write-Host "  ✓ Granville Orleans core assemblies" -ForegroundColor Gray
     Write-Host "  ✓ Granville RPC libraries" -ForegroundColor Gray
-    
+
     if (-not $SkipPackaging) {
         Write-Host "  ✓ NuGet packages (in Artifacts/Release/)" -ForegroundColor Gray
     }
-    
+
     if (-not $SkipSamples) {
         Write-Host "  ✓ Shooter sample application" -ForegroundColor Gray
     }
-    
+
     Write-Host "`nNext steps:" -ForegroundColor Yellow
     Write-Host "  - To run the sample: cd granville/samples/Rpc/Shooter.AppHost && dotnet run" -ForegroundColor Gray
     Write-Host "  - To use packages: Setup local feed with ./granville/scripts/setup-local-feed.ps1" -ForegroundColor Gray
-    
+
     exit 0
 }
 catch {

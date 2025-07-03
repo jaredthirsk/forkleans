@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- Disable all Orleans code generation -->
+    <OrleansGenerateCodeOnBuild>false</OrleansGenerateCodeOnBuild>
+    <DisableOrleansCodegen>true</DisableOrleansCodegen>
+    <ExcludeOrleansCodeGenerator>true</ExcludeOrleansCodeGenerator>
+  </PropertyGroup>
+</Project>

@@ -57,7 +57,7 @@ These scripts have been archived to `archived-scripts/` directory.
 - Current version: 9.1.2.51
 
 ## Package Output
-Packages are created in: `./Artifacts/Granville.Rpc/`
+Packages are created in: `./Artifacts/Release/`
 - Granville.Rpc.Abstractions
 - Granville.Rpc.Client
 - Granville.Rpc.Server

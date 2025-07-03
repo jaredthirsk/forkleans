@@ -6,21 +6,22 @@
     <!-- Store original for reference -->
     <OriginalPackageId>$(PackageId)</OriginalPackageId>
     
-    <!-- Override both PackageId and AssemblyName to use Granville prefix -->
+    <!-- Override both PackageId and AssemblyName to use Granville.Orleans.* -->
     <PackageId>$([System.String]::Copy('$(PackageId)').Replace('Microsoft.Orleans', 'Granville.Orleans'))</PackageId>
     <AssemblyName>$([System.String]::Copy('$(OriginalPackageId)').Replace('Microsoft.Orleans', 'Granville.Orleans'))</AssemblyName>
-    <TargetName>$([System.String]::Copy('$(OriginalPackageId)').Replace('Microsoft.Orleans', 'Granville.Orleans'))</TargetName>
+    <TargetName>$(AssemblyName)</TargetName>
     
     <!-- Add version suffix -->
     <VersionSuffix>granville</VersionSuffix>
   </PropertyGroup>
 
   <!-- Handle Orleans.* project files (e.g., Orleans.Core.csproj) -->
-  <PropertyGroup Condition="$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.'))">
-    <!-- Set both assembly and package names to Granville.Orleans.* -->
-    <AssemblyName>Granville.$(MSBuildProjectName)</AssemblyName>
-    <TargetName>Granville.$(MSBuildProjectName)</TargetName>
+  <!-- Exclude Orleans.Rpc.* projects as they have their own AssemblyName settings -->
+  <PropertyGroup Condition="$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.')) and !$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.Rpc.'))">
+    <!-- Change both PackageId and AssemblyName to use Granville.Orleans.* -->
     <PackageId>Granville.$(MSBuildProjectName)</PackageId>
+    <AssemblyName>Granville.$(MSBuildProjectName)</AssemblyName>
+    <TargetName>$(AssemblyName)</TargetName>
     
     <!-- Add version suffix -->
     <VersionSuffix>granville</VersionSuffix>
@@ -71,5 +72,11 @@
       </AssemblySearchPaths>
     </PropertyGroup>
   </Target>
+
+  <!-- Import compatibility targets - DISABLED: Using type-forwarding shims instead -->
+  <!-- <Import Project="$(MSBuildThisFileDirectory)Directory.Build.targets.compatibility" /> -->
+  
+  <!-- Import pack targets to ensure Granville assemblies are packed correctly -->
+  <Import Project="$(MSBuildThisFileDirectory)Directory.Build.targets.pack" />
 
 </Project>

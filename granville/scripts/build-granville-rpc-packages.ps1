@@ -1,7 +1,8 @@
+#!/usr/bin/env pwsh
 # Build and package Granville.Rpc packages
 param(
     [string]$Configuration = "Release",
-    [string]$OutputPath = ".\Artifacts\Granville.Rpc"
+    [string]$OutputPath = ".\Artifacts\Release"
 )
 
 Write-Host "Building Granville.Rpc packages..." -ForegroundColor Green
@@ -27,14 +28,14 @@ $rpcProjects = @(
 # Build and pack each project
 foreach ($project in $rpcProjects) {
     Write-Host "`nBuilding and packing $project..." -ForegroundColor Cyan
-    
+
     # Build the project
     dotnet build $project -c $Configuration
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Build failed for $project"
         exit 1
     }
-    
+
     # Pack the project
     dotnet pack $project -c $Configuration -o $OutputPath --no-build
     if ($LASTEXITCODE -ne 0) {
