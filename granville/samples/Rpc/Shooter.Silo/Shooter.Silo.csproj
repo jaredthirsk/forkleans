@@ -10,18 +10,25 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
-    
-    <!-- Microsoft Orleans shim packages that forward to Granville implementations -->
+
+    <!-- Microsoft Orleans shim packages for the 5 modified assemblies plus dependencies-->
+    <PackageReference Include="Microsoft.Orleans.Core" />
+    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" />
+    <PackageReference Include="Microsoft.Orleans.Serialization" />
+    <PackageReference Include="Microsoft.Orleans.Serialization.Abstractions" />
+    <PackageReference Include="Microsoft.Orleans.Runtime" />
+
+    <!-- Official Microsoft Orleans packages for unmodified assemblies -->
     <PackageReference Include="Microsoft.Orleans.Server" />
     <PackageReference Include="Microsoft.Orleans.Reminders" />
     <PackageReference Include="Microsoft.Orleans.Serialization.SystemTextJson" />
-    
-    <!-- Explicit transitive Granville Orleans packages to ensure shim versions are used -->
+    <PackageReference Include="Microsoft.Orleans.Persistence.Memory" />
+
+    <!-- Granville Orleans packages (only for the 5 modified assemblies) -->
     <PackageReference Include="Granville.Orleans.Core" />
-    <PackageReference Include="Granville.Orleans.Server" />
-    <PackageReference Include="Granville.Orleans.Reminders" />
-    <PackageReference Include="Granville.Orleans.Serialization.SystemTextJson" />
-    
+    <PackageReference Include="Granville.Orleans.Runtime" />
+    <PackageReference Include="Granville.Orleans.Serialization" />
+
     <!-- UFX.Orleans.SignalRBackplane -->
     <PackageReference Include="UFX.Orleans.SignalRBackplane" />
   </ItemGroup>

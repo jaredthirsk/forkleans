@@ -1,3 +1,4 @@
+#if false // Using the Shooter.Shared one instead
 using System.Reflection;
 using System.Runtime.Loader;
 
@@ -10,7 +11,7 @@ public static class AssemblyRedirectHelper
         ["Orleans.Core.Abstractions"] = "Orleans.Core.Abstractions",
         ["Orleans.Core"] = "Orleans.Core",
         ["Orleans.Runtime"] = "Orleans.Runtime",
-        ["Orleans.Serialization"] = "Orleans.Serialization",
+        ["Orleans.Serialization"] = "Granville.Orleans.Serialization",
         ["Orleans.Serialization.Abstractions"] = "Orleans.Serialization.Abstractions",
         ["Orleans.Server"] = "Orleans.Server",
         ["Orleans.Sdk"] = "Orleans.Sdk",
@@ -31,7 +32,7 @@ public static class AssemblyRedirectHelper
         if (assemblyName.Name != null && AssemblyRedirects.TryGetValue(assemblyName.Name, out var redirectTo))
         {
             Console.WriteLine($"Redirecting assembly {assemblyName.Name} to {redirectTo}");
-            
+
             try
             {
                 // Try to load the Orleans assembly
@@ -39,7 +40,7 @@ public static class AssemblyRedirectHelper
                 {
                     Version = assemblyName.Version ?? new Version(9, 2, 0, 43)
                 };
-                
+
                 return context.LoadFromAssemblyName(orleansAssemblyName);
             }
             catch (Exception ex)
@@ -51,3 +52,4 @@ public static class AssemblyRedirectHelper
         return null;
     }
 }
+#endif

@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Runtime.Loader;
 using UFX.Orleans.SignalRBackplane;
 
-// Initialize assembly redirect helper to redirect Orleans.* to Granville.Orleans.*
+// Enable assembly redirect to handle runtime type loading from Orleans.* assemblies
 Shooter.Shared.AssemblyRedirectHelper.Initialize();
 Shooter.Shared.AssemblyRedirectHelper.PreloadGranvilleAssemblies();
 
