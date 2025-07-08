@@ -22,13 +22,13 @@ namespace Shooter.Shared
             lock (_lock)
             {
                 if (_isInitialized) return;
-                
+
                 Console.WriteLine("[AssemblyRedirect] Initializing assembly redirect handler...");
-                
+
                 // Hook into the assembly resolution process
                 AssemblyLoadContext.Default.Resolving += OnAssemblyResolving;
                 AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
-                
+
                 _isInitialized = true;
                 Console.WriteLine("[AssemblyRedirect] Assembly redirect handler initialized.");
             }
@@ -48,14 +48,14 @@ namespace Shooter.Shared
         private static Assembly? TryLoadRedirectedAssembly(AssemblyName assemblyName)
         {
             // Check if this is an Orleans assembly request (redirect to Granville.Orleans)
-            if (assemblyName.Name?.StartsWith("Orleans.") == true && 
+            if (assemblyName.Name?.StartsWith("Orleans.") == true &&
                 !assemblyName.Name.StartsWith("Orleans.Rpc.")) // Don't redirect Granville RPC assemblies
             {
                 // Create the Granville assembly name
                 var granvilleAssemblyName = $"Granville.{assemblyName.Name}";
-                
+
                 Console.WriteLine($"[AssemblyRedirect] Redirecting {assemblyName.Name} -> {granvilleAssemblyName}");
-                
+
                 try
                 {
                     // Try to load the Granville.Orleans assembly
@@ -65,7 +65,7 @@ namespace Shooter.Shared
                         CultureInfo = assemblyName.CultureInfo,
                         ProcessorArchitecture = assemblyName.ProcessorArchitecture
                     };
-                    
+
                     // First try to load from the default context
                     var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(targetAssemblyName);
                     if (assembly != null)
@@ -84,7 +84,7 @@ namespace Shooter.Shared
                         Path.Combine(appDir, "bin", $"{granvilleAssemblyName}.dll"),
                         Path.Combine(appDir, "..", $"{granvilleAssemblyName}.dll")
                     };
-                    
+
                     foreach (var path in possiblePaths)
                     {
                         if (File.Exists(path))
@@ -93,7 +93,7 @@ namespace Shooter.Shared
                             return AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
                         }
                     }
-                    
+
                     Console.WriteLine($"[AssemblyRedirect] Could not find {granvilleAssemblyName} in any search paths");
                 }
                 catch (Exception ex)
@@ -101,7 +101,10 @@ namespace Shooter.Shared
                     Console.WriteLine($"[AssemblyRedirect] Error loading {granvilleAssemblyName}: {ex.Message}");
                 }
             }
-            
+            else
+            {
+                Console.WriteLine($"[AssemblyRedirect] Ignoring {assemblyName.Name}");
+            }
             return null;
         }
 
@@ -118,7 +121,7 @@ namespace Shooter.Shared
                 "Granville.Orleans.Serialization",
                 "Granville.Orleans.Serialization.Abstractions"
             };
-            
+
             foreach (var assemblyName in assembliesToPreload)
             {
                 try

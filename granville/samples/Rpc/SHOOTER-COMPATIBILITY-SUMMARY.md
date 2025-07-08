@@ -1,66 +1,47 @@
 # Shooter Sample Compatibility Summary
 
-## Current Situation
+## Changes Made (2025-01-07)
 
-The Shooter sample is attempting to use both:
-- **Granville RPC packages** for UDP-based game communication
-- **Microsoft Orleans packages** for compatibility with UFX.Orleans.SignalRBackplane
+### 1. Clarified Package Approach
 
-## Issues Encountered
+Based on the discovery that only 5 Orleans assemblies were modified in the Granville fork, we updated the Shooter sample to use a hybrid package approach:
 
-### 1. Type Forwarding Shims
-- The shim packages (Microsoft.Orleans.* that forward to Granville.Orleans.*) work at runtime but not at compile time
-- Orleans source generator can't find types through type forwarding
-- Results in "Cannot find type with metadata name Orleans.ApplicationPartAttribute" errors
+- **Shim packages** only for the 5 modified assemblies (Core, Core.Abstractions, Runtime, Serialization, Serialization.Abstractions)
+- **Official Microsoft.Orleans packages** for all other unmodified assemblies
+- **Granville packages** only for the actual implementations of the 5 modified assemblies
 
-### 2. Package Conflicts
-- Granville.Rpc.Sdk has transitive dependencies on Granville.Orleans packages
-- This creates conflicts when trying to use Microsoft.Orleans packages directly
-- Both code generators attempt to run, causing duplicate type definitions
+### 2. Updated Directory.Packages.props
 
-### 3. Missing RPC Attributes
-- RpcMethod, RpcDeliveryMode, and other RPC attributes are not found
-- This suggests Granville.Rpc.Sdk is not being properly included
+Changed from using shim packages for all Orleans assemblies to:
+- Shim packages only for the 5 modified assemblies
+- Official Microsoft.Orleans packages (version 9.1.2) for Server, Client, Persistence.Memory, Reminders, etc.
+- Removed unnecessary Granville package versions for unmodified assemblies
 
-## Solutions Attempted
+### 3. Updated Project Files
 
-1. **Orleans_DesignTimeBuild property** - Works to prevent duplicate generation by disabling official Orleans source generator
-2. **Type-forwarding shims** - Don't work with source generators
-3. **Mixed package approach** - Creates too many conflicts
+- **Shooter.Silo.csproj**: Removed unnecessary Granville package references for Server, Reminders, etc.
+- **Shooter.ActionServer.csproj**: Updated to use official Microsoft.Orleans.Client package
+- **Shooter.Silo/Program.cs**: Disabled AssemblyRedirectHelper (no longer needed with shim packages)
 
-## Recommendations
+### 4. Created Documentation
 
-### Short Term
-Use Microsoft.Orleans packages exclusively for the Shooter sample until Granville RPC packages can be decoupled from Granville Orleans dependencies.
+- **HYBRID-PACKAGE-APPROACH.md**: Explains the correct package approach
+- **SHOOTER-COMPATIBILITY-SUMMARY.md**: This file, documenting the changes
 
-### Long Term
-1. Create Granville.Rpc packages that don't depend on Orleans at all
-2. Or create a compatibility layer that properly isolates the two stacks
-3. Or fully commit to using Granville Orleans throughout with proper assembly redirects for third-party packages
+## Key Insight
 
-## Current Status
-The Shooter sample cannot build successfully with the current hybrid approach. A decision needs to be made on which direction to take.
+The AssemblyRedirectHelper was failing because it was trying to redirect assemblies that don't need redirection. Only 5 Orleans assemblies were modified, so only those 5 need special handling via shim packages.
 
-## Update: Build Issues Resolved (2025-07-08)
+## Benefits
 
-The build issues have been resolved by:
-1. Creating a PowerShell script (`fix-granville-dependencies.ps1`) that fixes NuGet package dependencies post-build
-2. Ensuring all Granville.Orleans.* packages depend on Microsoft.Orleans.*-granville-shim versions
-3. Clearing the NuGet cache to remove stale packages
+1. **Smaller footprint**: Only 5 shim packages instead of all Orleans packages
+2. **Better compatibility**: Official packages work as expected for unmodified assemblies
+3. **Cleaner solution**: No runtime assembly redirects needed
+4. **Clear separation**: Easy to see which assemblies were modified vs unmodified
 
-The Shooter sample now builds and starts successfully with .NET Aspire.
+## Next Steps
 
-## Known Runtime Issues
-
-When running the Shooter sample, you may encounter:
-
-1. **Serialization Generator Warning**: `CS8785: Generator 'OrleansSerializationSourceGenerator' failed to generate source`
-   - The generator cannot find `Orleans.Serialization.Configuration.TypeManifestProviderBase`
-   - This may cause serialization issues at runtime
-
-2. **Assembly Redirect Warnings**: `SYSLIB0037` warnings about obsolete AssemblyName properties
-   - These are from the AssemblyRedirectHelper and can be safely ignored
-
-3. **Other Runtime Errors**: Specific runtime errors are being investigated
-
-Despite these warnings, the application starts and runs with .NET Aspire orchestration.
+1. Test the updated configuration with a clean build
+2. Update build-shims.ps1 to only create shims for the 5 modified assemblies
+3. Consider updating other samples to use this approach
+4. Update the main compatibility documentation to clarify this approach

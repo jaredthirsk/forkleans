@@ -1,28 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Use Microsoft Orleans shim packages that forward to Granville implementations -->
+    <!-- Microsoft Orleans shim packages for the 5 modified assemblies plus dependencies-->
+    <PackageReference Include="Microsoft.Orleans.Core" />
     <PackageReference Include="Microsoft.Orleans.Core.Abstractions" />
     <PackageReference Include="Microsoft.Orleans.Serialization" />
     <PackageReference Include="Microsoft.Orleans.Serialization.Abstractions" />
+    <PackageReference Include="Microsoft.Orleans.Runtime" />
+
+    <!-- Official Microsoft Orleans packages for SDK and CodeGenerator -->
     <PackageReference Include="Microsoft.Orleans.CodeGenerator" />
     <PackageReference Include="Microsoft.Orleans.Sdk" />
-    
-    <!-- Granville RPC packages (still reference directly) -->
+
+    <!-- Granville RPC packages -->
     <PackageReference Include="Granville.Rpc.Abstractions" />
     <PackageReference Include="Granville.Rpc.Sdk" />
-    
-    <!-- Explicit transitive Granville Orleans packages to ensure shim versions are used -->
+
+    <!-- Granville Orleans packages ONLY for the 5 modified assemblies -->
+    <PackageReference Include="Granville.Orleans.Core" />
     <PackageReference Include="Granville.Orleans.Core.Abstractions" />
+    <PackageReference Include="Granville.Orleans.Serialization" />
     <PackageReference Include="Granville.Orleans.Serialization.Abstractions" />
-    <PackageReference Include="Granville.Orleans.CodeGenerator" />
-    <PackageReference Include="Granville.Orleans.Sdk" />
   </ItemGroup>
 
 </Project>

@@ -12,9 +12,9 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Runtime.Loader;
 using UFX.Orleans.SignalRBackplane;
 
-// Enable assembly redirect to handle runtime type loading from Orleans.* assemblies
-Shooter.Shared.AssemblyRedirectHelper.Initialize();
-Shooter.Shared.AssemblyRedirectHelper.PreloadGranvilleAssemblies();
+// Assembly redirect system disabled - relying on proper shim compilation instead
+// Shooter.Shared.AssemblyRedirectHelper.Initialize();
+// Shooter.Shared.AssemblyRedirectHelper.PreloadGranvilleAssemblies();
 
 var builder = WebApplication.CreateBuilder(args);
 

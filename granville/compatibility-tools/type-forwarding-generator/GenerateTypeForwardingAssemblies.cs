@@ -25,19 +25,19 @@ namespace GenerateTypeForwardingAssemblies
 
             var assembliesMap = new Dictionary<string, string>
             {
-                ["Orleans.Core"] = Path.Combine(baseDir, "Orleans.Core/bin/Release/net8.0/Granville.Orleans.Core.dll"),
-                ["Orleans.Core.Abstractions"] = Path.Combine(baseDir, "Orleans.Core.Abstractions/bin/Release/net8.0/Granville.Orleans.Core.Abstractions.dll"),
-                ["Orleans.Runtime"] = Path.Combine(baseDir, "Orleans.Runtime/bin/Release/net8.0/Granville.Orleans.Runtime.dll"),
-                ["Orleans.Serialization"] = Path.Combine(baseDir, "Orleans.Serialization/bin/Release/net8.0/Granville.Orleans.Serialization.dll"),
-                ["Orleans.Serialization.Abstractions"] = Path.Combine(baseDir, "Orleans.Serialization.Abstractions/bin/Release/net8.0/Granville.Orleans.Serialization.Abstractions.dll"),
-                ["Orleans.Reminders"] = Path.Combine(baseDir, "Orleans.Reminders/bin/Release/net8.0/Granville.Orleans.Reminders.dll"),
-                ["Orleans.Persistence.Memory"] = Path.Combine(baseDir, "Orleans.Persistence.Memory/bin/Release/net8.0/Granville.Orleans.Persistence.Memory.dll"),
-                ["Orleans.Server"] = Path.Combine(baseDir, "Orleans.Server/bin/Release/net8.0/Granville.Orleans.Server.dll"),
-                ["Orleans.Serialization.SystemTextJson"] = Path.Combine(baseDir, "Orleans.Serialization.SystemTextJson/bin/Release/net8.0/Granville.Orleans.Serialization.SystemTextJson.dll"),
-                ["Orleans.Sdk"] = Path.Combine(baseDir, "Orleans.Sdk/bin/Release/net8.0/Granville.Orleans.Sdk.dll"),
-                ["Orleans.Client"] = Path.Combine(baseDir, "Orleans.Client/bin/Release/net8.0/Granville.Orleans.Client.dll"),
-                ["Orleans.CodeGenerator"] = Path.Combine(baseDir, "Orleans.CodeGenerator/bin/Release/netstandard2.0/Granville.Orleans.CodeGenerator.dll"),
-                ["Orleans.Analyzers"] = Path.Combine(baseDir, "Orleans.Analyzers/bin/Release/netstandard2.0/Granville.Orleans.Analyzers.dll"),
+                ["Orleans.Core"] = Path.Combine(baseDir, "Orleans.Core", "bin", "Release", "net8.0", "Granville.Orleans.Core.dll"),
+                ["Orleans.Core.Abstractions"] = Path.Combine(baseDir, "Orleans.Core.Abstractions", "bin", "Release", "net8.0", "Granville.Orleans.Core.Abstractions.dll"),
+                ["Orleans.Runtime"] = Path.Combine(baseDir, "Orleans.Runtime", "bin", "Release", "net8.0", "Granville.Orleans.Runtime.dll"),
+                ["Orleans.Serialization"] = Path.Combine(baseDir, "Orleans.Serialization", "bin", "Release", "net8.0", "Granville.Orleans.Serialization.dll"),
+                ["Orleans.Serialization.Abstractions"] = Path.Combine(baseDir, "Orleans.Serialization.Abstractions", "bin", "Release", "netstandard2.0", "Granville.Orleans.Serialization.Abstractions.dll"),
+                ["Orleans.Reminders"] = Path.Combine(baseDir, "Orleans.Reminders", "bin", "Release", "net8.0", "Granville.Orleans.Reminders.dll"),
+                ["Orleans.Persistence.Memory"] = Path.Combine(baseDir, "Orleans.Persistence.Memory", "bin", "Release", "net8.0", "Granville.Orleans.Persistence.Memory.dll"),
+                ["Orleans.Server"] = Path.Combine(baseDir, "Orleans.Server", "bin", "Release", "net8.0", "Granville.Orleans.Server.dll"),
+                ["Orleans.Serialization.SystemTextJson"] = Path.Combine(baseDir, "Orleans.Serialization.SystemTextJson", "bin", "Release", "net8.0", "Granville.Orleans.Serialization.SystemTextJson.dll"),
+                ["Orleans.Sdk"] = Path.Combine(baseDir, "Orleans.Sdk", "bin", "Release", "net8.0", "Granville.Orleans.Sdk.dll"),
+                ["Orleans.Client"] = Path.Combine(baseDir, "Orleans.Client", "bin", "Release", "net8.0", "Granville.Orleans.Client.dll"),
+                ["Orleans.CodeGenerator"] = Path.Combine(baseDir, "Orleans.CodeGenerator", "bin", "Release", "netstandard2.0", "Granville.Orleans.CodeGenerator.dll"),
+                ["Orleans.Analyzers"] = Path.Combine(baseDir, "Orleans.Analyzers", "bin", "Release", "netstandard2.0", "Granville.Orleans.Analyzers.dll"),
             };
 
             // If args[0] is a specific Granville assembly path and args[1] is a specific output file, 
@@ -165,8 +165,20 @@ namespace GenerateTypeForwardingAssemblies
                 catch { }
             }
 
-            // Get all public types
-            var publicTypes = new List<Type>();
+            // Check if the Granville assembly has InternalsVisibleTo for the shim assembly
+            var granvilleAttributes = granvilleAssembly.GetCustomAttributes<InternalsVisibleToAttribute>();
+            var hasInternalsVisibleTo = granvilleAttributes.Any(attr => 
+                attr.AssemblyName == orleansAssemblyName || 
+                attr.AssemblyName.StartsWith(orleansAssemblyName + ","));
+            
+            if (hasInternalsVisibleTo)
+            {
+                Console.WriteLine($"  ✓ Found InternalsVisibleTo for {orleansAssemblyName}, will include internal types");
+            }
+
+            // Get all types to forward
+            var typesToForward = new List<Type>();
+            var skippedTypes = new List<(string name, string reason)>();
             try
             {
                 // Use GetTypes() instead of GetExportedTypes() for better control
@@ -175,28 +187,155 @@ namespace GenerateTypeForwardingAssemblies
                 {
                     try
                     {
-                        // Include public types that are not compiler-generated
-                        if (type.IsPublic && 
-                            !type.Name.Contains("<") && 
-                            !type.Name.Contains(">") &&
-                            !type.IsSpecialName &&
-                            type.IsVisible)
+                        // Skip compiler-generated types
+                        if (type.Name.Contains("<") || type.Name.Contains(">"))
                         {
-                            publicTypes.Add(type);
+                            if (type.FullName?.Contains("TypeManifest") == true)
+                                skippedTypes.Add((type.FullName, "compiler-generated"));
+                            continue;
+                        }
+                        
+                        // Skip special name types
+                        if (type.IsSpecialName)
+                        {
+                            if (type.FullName?.Contains("TypeManifest") == true)
+                                skippedTypes.Add((type.FullName, "special name"));
+                            continue;
+                        }
+                        
+                        // Skip nested types - TypeForwardedTo cannot forward nested types
+                        if (type.IsNested)
+                        {
+                            if (type.FullName?.Contains("AsyncTimer") == true || type.FullName?.Contains("TestAccessor") == true)
+                                skippedTypes.Add((type.FullName, "nested type (cannot be forwarded)"));
+                            continue;
+                        }
+                        
+                        // Skip certain system types that may conflict
+                        if (type.FullName == "System.Runtime.CompilerServices.IsExternalInit")
+                        {
+                            skippedTypes.Add((type.FullName, "system type that may conflict"));
+                            continue;
+                        }
+                        
+                        // Check visibility
+                        bool shouldInclude = false;
+                        if (type.IsPublic && type.IsVisible)
+                        {
+                            shouldInclude = true;
+                        }
+                        else if (hasInternalsVisibleTo)
+                        {
+                            // Include internal types when we have InternalsVisibleTo
+                            var isInternalType = type.IsNotPublic;
+                            if (isInternalType)
+                            {
+                                shouldInclude = true;
+                            }
+                        }
+                        
+                        if (shouldInclude)
+                        {
+                            typesToForward.Add(type);
+                        }
+                        else if (!type.IsPublic)
+                        {
+                            if (type.FullName?.Contains("TypeManifest") == true || type.FullName?.Contains("AsyncTimer") == true)
+                                skippedTypes.Add((type.FullName, "not public/internal (no InternalsVisibleTo)"));
                         }
                     }
                     catch { }
+                }
+                
+                if (skippedTypes.Count > 0)
+                {
+                    Console.WriteLine($"  Skipped {skippedTypes.Count} TypeManifest-related types:");
+                    foreach (var (name, reason) in skippedTypes)
+                    {
+                        Console.WriteLine($"    - {name}: {reason}");
+                    }
                 }
             }
             catch (ReflectionTypeLoadException ex)
             {
                 Console.WriteLine($"  Warning: ReflectionTypeLoadException - {ex.LoaderExceptions?.Length ?? 0} loader exceptions");
-                // Try to get the types that loaded successfully
-                foreach (var type in ex.Types ?? Array.Empty<Type>())
+                
+                // Log detailed information about loader exceptions
+                if (ex.LoaderExceptions != null)
                 {
-                    if (type != null && type.IsPublic && !type.Name.Contains("<") && !type.Name.Contains(">") && type.IsVisible)
+                    var loaderErrors = new Dictionary<string, List<Exception>>();
+                    foreach (var loaderEx in ex.LoaderExceptions)
                     {
-                        publicTypes.Add(type);
+                        if (loaderEx != null)
+                        {
+                            var key = loaderEx.GetType().Name;
+                            if (!loaderErrors.ContainsKey(key))
+                                loaderErrors[key] = new List<Exception>();
+                            loaderErrors[key].Add(loaderEx);
+                        }
+                    }
+                    
+                    foreach (var errorGroup in loaderErrors)
+                    {
+                        Console.WriteLine($"    {errorGroup.Key} ({errorGroup.Value.Count} occurrences):");
+                        // Show first few examples
+                        foreach (var err in errorGroup.Value.Take(3))
+                        {
+                            Console.WriteLine($"      - {err.Message}");
+                        }
+                        if (errorGroup.Value.Count > 3)
+                        {
+                            Console.WriteLine($"      ... and {errorGroup.Value.Count - 3} more");
+                        }
+                    }
+                }
+                
+                // Try to get the types that loaded successfully
+                var loadedTypeCount = 0;
+                var failedTypeManifestTypes = new List<string>();
+                for (int i = 0; i < ex.Types.Length; i++)
+                {
+                    var type = ex.Types[i];
+                    if (type != null && !type.Name.Contains("<") && !type.Name.Contains(">") && !type.IsNested)
+                    {
+                        bool shouldInclude = false;
+                        if (type.IsPublic && type.IsVisible)
+                        {
+                            shouldInclude = true;
+                        }
+                        else if (hasInternalsVisibleTo)
+                        {
+                            var isInternalType = type.IsNotPublic;
+                            if (isInternalType)
+                            {
+                                shouldInclude = true;
+                            }
+                        }
+                        
+                        if (shouldInclude)
+                        {
+                            typesToForward.Add(type);
+                            loadedTypeCount++;
+                        }
+                    }
+                    else if (type == null && ex.LoaderExceptions != null && i < ex.LoaderExceptions.Length)
+                    {
+                        // Log which type failed to load
+                        var loaderEx = ex.LoaderExceptions[i];
+                        if (loaderEx?.Message.Contains("TypeManifest") == true)
+                        {
+                            failedTypeManifestTypes.Add(loaderEx.Message);
+                        }
+                    }
+                }
+                
+                Console.WriteLine($"    Loaded {loadedTypeCount} types successfully");
+                if (failedTypeManifestTypes.Count > 0)
+                {
+                    Console.WriteLine($"    Types related to TypeManifest that failed to load:");
+                    foreach (var failed in failedTypeManifestTypes.Take(5))
+                    {
+                        Console.WriteLine($"      - {failed}");
                     }
                 }
             }
@@ -205,10 +344,35 @@ namespace GenerateTypeForwardingAssemblies
                 Console.WriteLine($"  Warning: Could not get types: {ex.Message}");
             }
 
-            Console.WriteLine($"  Found {publicTypes.Count} types to forward");
+            Console.WriteLine($"  Found {typesToForward.Count} types to forward (including {typesToForward.Count(t => !t.IsPublic)} internal types)");
+            
+            // Check for specific important types
+            var importantTypes = new[] { "TypeManifestProviderBase", "IAsyncTimerFactory", "DefaultStorageProviderSerializerOptionsConfigurator" };
+            foreach (var typeName in importantTypes)
+            {
+                var hasType = typesToForward.Any(t => t.Name == typeName || t.Name.StartsWith(typeName + "`"));
+                if (!hasType)
+                {
+                    // Check if it exists but wasn't included
+                    try
+                    {
+                        var allTypesDebug = granvilleAssembly.GetTypes();
+                        var matchingTypes = allTypesDebug.Where(t => t.Name == typeName || t.Name.StartsWith(typeName + "`")).ToList();
+                        if (matchingTypes.Any())
+                        {
+                            Console.WriteLine($"  WARNING: {typeName} exists but is NOT in the types to forward!");
+                            foreach (var t in matchingTypes)
+                            {
+                                Console.WriteLine($"    - {t.FullName} (IsPublic: {t.IsPublic}, IsVisible: {t.IsVisible}, IsNotPublic: {t.IsNotPublic})");
+                            }
+                        }
+                    }
+                    catch { }
+                }
+            }
 
             // Generate C# source code
-            var source = GenerateSourceCode(orleansAssemblyName, granvilleName, version, publicTypes);
+            var source = GenerateSourceCode(orleansAssemblyName, granvilleName, version, typesToForward, hasInternalsVisibleTo);
 
             // Debug: write source to file for inspection
             var debugSourcePath = Path.Combine(outputDir, orleansAssemblyName + ".cs");
@@ -218,7 +382,7 @@ namespace GenerateTypeForwardingAssemblies
             CompileAssembly(orleansAssemblyName, source, granvilleAssemblyPath, outputDir);
         }
 
-        static string GenerateSourceCode(string assemblyName, string targetAssemblyName, Version version, List<Type> typesToForward)
+        static string GenerateSourceCode(string assemblyName, string targetAssemblyName, Version version, List<Type> typesToForward, bool hasInternalsVisibleTo)
         {
             var sb = new StringBuilder();
 
@@ -240,6 +404,10 @@ namespace GenerateTypeForwardingAssemblies
 
             // Type forwards - deduplicate by full type name
             sb.AppendLine("// Type forwards to " + targetAssemblyName);
+            if (hasInternalsVisibleTo)
+            {
+                sb.AppendLine("// Note: InternalsVisibleTo in " + targetAssemblyName + " allows us to forward internal types");
+            }
             var processedTypes = new HashSet<string>();
             foreach (var type in typesToForward)
             {
@@ -248,7 +416,10 @@ namespace GenerateTypeForwardingAssemblies
                 {
                     // For generic types, we need to use the backtick syntax for TypeForwardedTo
                     var typeForwardName = GetTypeForwardName(type);
-                    sb.AppendLine($"[assembly: TypeForwardedTo(typeof({typeForwardName}))]");
+                    if (typeForwardName != null)
+                    {
+                        sb.AppendLine($"[assembly: TypeForwardedTo(typeof({typeForwardName}))]");
+                    }
                 }
             }
 
@@ -269,12 +440,42 @@ namespace GenerateTypeForwardingAssemblies
                 return "System.Object";
             }
 
-            // For nested types, we need to use the plus sign
+            // Skip compiler-generated types that have no proper FullName
+            if (type.FullName == null || type.FullName.Contains("<"))
+            {
+                return null;
+            }
+
+            // For nested types, we need to use the fully qualified name with +
             if (type.IsNested)
             {
-                var declaringType = type.DeclaringType;
-                var declaringTypeName = GetTypeForwardName(declaringType);
-                return $"{declaringTypeName}+{type.Name}";
+                // For nested types in TypeForwardedTo, we need to replace + with .
+                var fullName = type.FullName.Replace('+', '.');
+                
+                // For generic nested types, handle the syntax properly
+                if (type.IsGenericType && type.IsGenericTypeDefinition)
+                {
+                    // Replace the backtick notation with angle brackets
+                    var genericParams = type.GetGenericArguments();
+                    var placeholders = new string(',', genericParams.Length - 1);
+                    
+                    // Find the last backtick (for the nested type, not its parent)
+                    var lastBacktick = fullName.LastIndexOf('`');
+                    if (lastBacktick > 0)
+                    {
+                        // Extract the number after the backtick
+                        var numStart = lastBacktick + 1;
+                        var numEnd = numStart;
+                        while (numEnd < fullName.Length && char.IsDigit(fullName[numEnd]))
+                            numEnd++;
+                        
+                        // Remove the backtick and number
+                        fullName = fullName.Substring(0, lastBacktick) + fullName.Substring(numEnd);
+                        return $"{fullName}<{placeholders}>";
+                    }
+                }
+                
+                return fullName;
             }
 
             // For generic types, use angle bracket syntax

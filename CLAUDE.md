@@ -1,13 +1,36 @@
 # CLAUDE.md - Granville Orleans Fork
 
-This file provides guidance to Claude Code when working with the Granville Orleans fork.
-
 ## Overview
 
 This is a fork of Microsoft Orleans that:
-1. Renames all assemblies from `Microsoft.Orleans.*` to `Granville.Orleans.*` to avoid NuGet namespace conflicts
-2. Adds Granville RPC functionality for high-performance UDP-based communication
+1. Adds Granville RPC functionality for high-performance UDP-based communication
+2. Renames all assemblies from `Microsoft.Orleans.*` to `Granville.Orleans.*` to avoid NuGet namespace conflicts
 3. Maintains compatibility with third-party packages expecting Microsoft.Orleans assemblies
+
+### Naming conventions
+
+We want to avoid impersonating official Microsoft packages.  Here is our naming strategy:
+
+- Official Orleans (from Microsoft via nuget, and in the upstream repo)
+  - Package prefix: `Microsoft.Orleans`
+  - DLL prefix: `Orleans`
+  - C# Namespace prefix: `Orleans`
+- Granville Shim
+  - Package prefix: `Microsoft.Orleans`
+  - Package version suffix: `-granville-shim` (to make it obvious we are a shim and not the official Microsoft package)
+  - DLL prefix: `Orleans`
+  - C# Namespace prefix: `Orleans`
+- Granville
+  - Package prefix: `Granville`
+  - DLL prefix: `Granville`
+  - Granville's original RPC features:
+    - Package prefix: `Granville.Rpc`
+    - DLL prefix: `Granville.Rpc`
+    - C# Namespace prefix: `Granville.Rpc`
+  - Granville's forked Orleans DLLs:  (only around 5 of them, for InternalsVisibleTo)
+    - Package prefix: `Granville.Orleans`
+    - DLL prefix: `Granville.Orleans`
+    - C# Namespace prefix: `Orleans`
 
 ## Repository Organization
 
@@ -20,6 +43,7 @@ Key principles:
 
 ## Key Directories
 
+- `/Artifacts/Release/` - local nuget feed, and nupkg pack output
 - `/granville/` - All Granville-specific content:
   - `/granville/scripts/` - Build and maintenance scripts
   - `/granville/docs/` - Granville-specific documentation
@@ -31,15 +55,7 @@ Key principles:
 
 ## Building Granville Orleans
 
-To build Granville Orleans assemblies:
-```bash
-./granville/scripts/build-granville.sh
-```
-
-Or on Windows:
-```powershell
-./granville/scripts/build-granville.ps1
-```
+See `/granville/docs/BUILDING.md` for build approaches.
 
 ## Working with the Fork
 
@@ -91,16 +107,3 @@ See `/granville/compatibility-tools/README.md` for details.
 - prefer powershell scipts (.ps1) instead of bash scripts (.sh), unless something can only be practically done by a bash script
 - when creating powershell scripts, put this in the first line: `#!/usr/bin/env pwsh` 
 
-# Naming conventions
-
-- Official Orleans, and Granville Shim
-  - Package prefix: `Microsoft.Orleans`
-  - DLL prefix: `Orleans`
-  - C# Namespace prefix: `Orleans`
-- Granville
-  - Package prefix: `Granville`
-  - DLL prefix: `Granville`
-  - Granville's original RPC features:
-    - Package prefix: `Granville.Rpc`
-    - DLL prefix: `Granville.Rpc`
-    - C# Namespace prefix: `Granville.Rpc`

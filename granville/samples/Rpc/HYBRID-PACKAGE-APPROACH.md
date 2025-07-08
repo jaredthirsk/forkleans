@@ -1,49 +1,89 @@
 # Hybrid Package Approach for Shooter Sample
 
-## Current Issue
+## Summary
 
-The Shooter sample is attempting to use a hybrid approach:
-- **Granville RPC packages** for UDP game communication
-- **Microsoft Orleans packages** for compatibility with third-party extensions (UFX.Orleans.SignalRBackplane)
+The Shooter sample uses a **hybrid package approach** that combines:
+- **Microsoft Orleans shim packages** for the 5 modified assemblies only
+- **Official Microsoft Orleans packages** for all other unmodified assemblies
+- **Granville Orleans packages** for the actual implementations of the 5 modified assemblies
 
-However, this creates conflicts because:
-1. Granville.Rpc.Sdk has transitive dependencies on Granville.Orleans packages
-2. Both Microsoft.Orleans.CodeGenerator and Granville.Orleans.CodeGenerator attempt to generate code
-3. Type conflicts occur between Granville.Orleans and Microsoft.Orleans assemblies
+## Why This Approach?
 
-## Solutions
+Only 5 Orleans assemblies were modified in the Granville fork (with InternalsVisibleTo attributes):
+1. Orleans.Core.Abstractions
+2. Orleans.Core
+3. Orleans.Runtime
+4. Orleans.Serialization.Abstractions
+5. Orleans.Serialization
 
-### Option 1: Use Orleans_DesignTimeBuild (Partial Solution)
+All other Orleans assemblies (Server, Client, Persistence.Memory, etc.) were NOT modified and can use official Microsoft packages.
 
-Add to your .csproj files:
+## Package Configuration
+
+### Directory.Packages.props Setup
+
 ```xml
-<PropertyGroup>
-  <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
-</PropertyGroup>
+<!-- Microsoft Orleans shim packages ONLY for the 5 modified assemblies -->
+<PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2.53-granville-shim" />
+<PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.53-granville-shim" />
+<PackageVersion Include="Microsoft.Orleans.Runtime" Version="9.1.2.53-granville-shim" />
+<PackageVersion Include="Microsoft.Orleans.Serialization" Version="9.1.2.53-granville-shim" />
+<PackageVersion Include="Microsoft.Orleans.Serialization.Abstractions" Version="9.1.2.53-granville-shim" />
+
+<!-- Official Microsoft Orleans packages for unmodified assemblies -->
+<PackageVersion Include="Microsoft.Orleans.Server" Version="9.1.2" />
+<PackageVersion Include="Microsoft.Orleans.Client" Version="9.1.2" />
+<PackageVersion Include="Microsoft.Orleans.Persistence.Memory" Version="9.1.2" />
+<PackageVersion Include="Microsoft.Orleans.Reminders" Version="9.1.2" />
+<PackageVersion Include="Microsoft.Orleans.Serialization.SystemTextJson" Version="9.1.2" />
+<PackageVersion Include="Microsoft.Orleans.Sdk" Version="9.1.2" />
+<PackageVersion Include="Microsoft.Orleans.CodeGenerator" Version="9.1.2" />
+<PackageVersion Include="Microsoft.Orleans.Analyzers" Version="9.1.2" />
+
+<!-- Granville Orleans packages ONLY for the 5 modified assemblies -->
+<PackageVersion Include="Granville.Orleans.Core" Version="9.1.2.53" />
+<PackageVersion Include="Granville.Orleans.Core.Abstractions" Version="9.1.2.53" />
+<PackageVersion Include="Granville.Orleans.Runtime" Version="9.1.2.53" />
+<PackageVersion Include="Granville.Orleans.Serialization" Version="9.1.2.53" />
+<PackageVersion Include="Granville.Orleans.Serialization.Abstractions" Version="9.1.2.53" />
 ```
 
-This disables the official Orleans source generator to prevent duplicate code generation but doesn't resolve type conflicts.
+### Project File References
 
-### Option 2: Full Granville Stack (Recommended)
+In your .csproj files:
 
-Use Granville Orleans packages throughout and implement assembly redirects for third-party compatibility:
-- Use Granville.Orleans.* packages everywhere
-- Implement AssemblyRedirectHelper for third-party packages
-- See `/granville/compatibility-tools/ASSEMBLY-REDIRECT-GUIDE.md`
+```xml
+<!-- Reference official Microsoft Orleans packages normally -->
+<PackageReference Include="Microsoft.Orleans.Server" />
+<PackageReference Include="Microsoft.Orleans.Persistence.Memory" />
 
-### Option 3: Separate Projects
+<!-- The shim packages will be used automatically for the 5 modified assemblies -->
+<!-- due to Directory.Packages.props configuration -->
 
-Create separate projects that don't share types:
-- Orleans-only projects using Microsoft.Orleans packages
-- RPC-only projects using Granville.Rpc packages
-- Shared interfaces in a neutral project
+<!-- Explicitly reference Granville packages for the modified assemblies -->
+<PackageReference Include="Granville.Orleans.Core" />
+<PackageReference Include="Granville.Orleans.Runtime" />
+<PackageReference Include="Granville.Orleans.Serialization" />
+```
 
-## Current Status
+## How It Works
 
-The Shooter sample is experiencing build failures due to these conflicts. A refactoring is needed to implement one of the above solutions consistently.
+1. **Official packages** like Microsoft.Orleans.Server reference Microsoft.Orleans.Core
+2. **Shim packages** intercept those references and forward types to Granville.Orleans.Core
+3. **Granville packages** provide the actual implementation
+4. **No assembly redirects needed** - type forwarding handles everything at compile time
 
-## Future Work
+## Benefits
 
-1. Create Granville.Rpc packages that don't depend on Granville.Orleans
-2. Implement proper package isolation to support hybrid scenarios
-3. Provide clear examples of each approach
+- Cleaner solution without runtime assembly redirects
+- Smaller footprint - only 5 shim packages needed instead of all Orleans packages
+- Better compatibility with third-party packages
+- Clear separation between modified and unmodified Orleans assemblies
+
+## Troubleshooting
+
+If you see "assembly redirect" errors:
+1. Remove any AssemblyRedirectHelper initialization code
+2. Ensure Directory.Packages.props has the correct versions
+3. Clean and rebuild the solution
+4. Check that shim packages are in your local NuGet feed (/Artifacts/Release/)

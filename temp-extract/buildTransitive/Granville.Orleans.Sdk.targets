@@ -1,3 +1,0 @@
-<Project>
-  <Import Project="..\build\Granville.Orleans.Sdk.targets" />
-</Project>

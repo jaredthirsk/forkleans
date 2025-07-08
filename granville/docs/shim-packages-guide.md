@@ -2,12 +2,32 @@
 
 This guide explains how the Microsoft.Orleans.* shim packages work and how to use them in the Granville Orleans ecosystem.
 
+> **IMPORTANT**: Only 5 Orleans assemblies were modified and need shims. However, Microsoft.Orleans.CodeGenerator also requires a shim because it needs compile-time type resolution. See the guidance below.
+
+## Which Assemblies Need Shims?
+
+**Only 5 Orleans assemblies were modified** in the Granville fork (with InternalsVisibleTo attributes):
+
+1. **Orleans.Core.Abstractions**
+2. **Orleans.Core**
+3. **Orleans.Runtime**
+4. **Orleans.Serialization.Abstractions**
+5. **Orleans.Serialization**
+
+**Additionally, Microsoft.Orleans.CodeGenerator requires a shim** because:
+- Code generators need to resolve types at compile time
+- Type forwarding only works at runtime, not during compilation
+- The code generator must find types like `Orleans.ApplicationPartAttribute` to generate code
+
+**All other Orleans assemblies** (Server, Client, Persistence.Memory, Reminders, etc.) were NOT modified and should use official Microsoft.Orleans packages from NuGet.
+
 ## What Are Shim Packages?
 
-Shim packages are special NuGet packages with names like `Microsoft.Orleans.Core.9.1.2.51-granville-shim` that:
+Shim packages are special NuGet packages with names like `Microsoft.Orleans.Core.9.1.2.53-granville-shim` that:
 - Have the same package IDs as official Microsoft.Orleans packages
 - Contain assemblies that forward all types to corresponding Granville.Orleans assemblies
 - Allow third-party packages expecting Microsoft.Orleans to work with Granville.Orleans
+- **Should only be used for the 5 modified assemblies listed above**
 
 ## How Shims Work
 
@@ -32,28 +52,34 @@ At runtime, when code tries to use `Orleans.IGrain`, it's automatically redirect
 
 ## Using Shim Packages
 
-### Option 1: Reference Shims in Directory.Packages.props
-
-To use shim packages instead of official Microsoft.Orleans packages:
+### Correct Approach: Mix Shims and Official Packages
 
 ```xml
 <ItemGroup>
-  <!-- Shim packages that forward to Granville.Orleans -->
-  <PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2.51-granville-shim" />
-  <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.51-granville-shim" />
-  <PackageVersion Include="Microsoft.Orleans.Sdk" Version="9.1.2.51-granville-shim" />
-  <PackageVersion Include="Microsoft.Orleans.CodeGenerator" Version="9.1.2.51-granville-shim" />
-  <PackageVersion Include="Microsoft.Orleans.Serialization" Version="9.1.2.51-granville-shim" />
-  <PackageVersion Include="Microsoft.Orleans.Serialization.Abstractions" Version="9.1.2.51-granville-shim" />
-  <PackageVersion Include="Microsoft.Orleans.Runtime" Version="9.1.2.51-granville-shim" />
-  <PackageVersion Include="Microsoft.Orleans.Server" Version="9.1.2.51-granville-shim" />
-  <PackageVersion Include="Microsoft.Orleans.Reminders" Version="9.1.2.51-granville-shim" />
-  <PackageVersion Include="Microsoft.Orleans.Persistence.Memory" Version="9.1.2.51-granville-shim" />
+  <!-- Shim packages for the 5 modified assemblies + CodeGenerator -->
+  <PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2.53-granville-shim" />
+  <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.53-granville-shim" />
+  <PackageVersion Include="Microsoft.Orleans.Runtime" Version="9.1.2.53-granville-shim" />
+  <PackageVersion Include="Microsoft.Orleans.Serialization" Version="9.1.2.53-granville-shim" />
+  <PackageVersion Include="Microsoft.Orleans.Serialization.Abstractions" Version="9.1.2.53-granville-shim" />
+  <PackageVersion Include="Microsoft.Orleans.CodeGenerator" Version="9.1.2.53-granville-shim" />  <!-- Needs shim for compile-time type resolution -->
   
-  <!-- Granville Orleans packages (required by shims) -->
-  <PackageVersion Include="Granville.Orleans.Core" Version="9.1.2.51" />
-  <PackageVersion Include="Granville.Orleans.Core.Abstractions" Version="9.1.2.51" />
-  <!-- ... other Granville packages ... -->
+  <!-- Official Microsoft packages for ALL OTHER assemblies -->
+  <PackageVersion Include="Microsoft.Orleans.Server" Version="9.1.2" />
+  <PackageVersion Include="Microsoft.Orleans.Client" Version="9.1.2" />
+  <PackageVersion Include="Microsoft.Orleans.Persistence.Memory" Version="9.1.2" />
+  <PackageVersion Include="Microsoft.Orleans.Reminders" Version="9.1.2" />
+  <PackageVersion Include="Microsoft.Orleans.Serialization.SystemTextJson" Version="9.1.2" />
+  <PackageVersion Include="Microsoft.Orleans.Sdk" Version="9.1.2" />
+  <PackageVersion Include="Microsoft.Orleans.Analyzers" Version="9.1.2" />
+  
+  <!-- Granville Orleans packages (for modified assemblies + CodeGenerator) -->
+  <PackageVersion Include="Granville.Orleans.Core" Version="9.1.2.53" />
+  <PackageVersion Include="Granville.Orleans.Core.Abstractions" Version="9.1.2.53" />
+  <PackageVersion Include="Granville.Orleans.Runtime" Version="9.1.2.53" />
+  <PackageVersion Include="Granville.Orleans.Serialization" Version="9.1.2.53" />
+  <PackageVersion Include="Granville.Orleans.Serialization.Abstractions" Version="9.1.2.53" />
+  <PackageVersion Include="Granville.Orleans.CodeGenerator" Version="9.1.2.53" />
 </ItemGroup>
 ```
 
@@ -89,20 +115,29 @@ For third-party packages, you might need to use shims selectively:
    dotnet build -c Release
    ```
 
-### Generate Shim Assemblies
+### Generate Shim Assemblies (Minimal Approach - Recommended)
 ```bash
 cd granville/compatibility-tools
-./generate-individual-shims.ps1
+./generate-minimal-shims.ps1
 ```
 
-This creates Orleans.*.dll files in `shims-proper/` that forward to Granville.Orleans.*.dll.
+This creates Orleans.*.dll files in `shims-proper/` for ONLY the 5 modified assemblies.
 
-### Package Shims
+### Package Shims (Minimal Approach - Recommended)
 ```bash
+./package-minimal-shims.ps1
+```
+
+This creates Microsoft.Orleans.*-granville-shim.nupkg files for ONLY the 5 modified assemblies.
+
+### Legacy Full Shim Approach
+If you need shims for all Orleans assemblies (not recommended):
+```bash
+./generate-individual-shims.ps1
 ./package-shims-direct.ps1
 ```
 
-This creates Microsoft.Orleans.*-granville-shim.nupkg files in `/Artifacts/Release/`.
+See [MINIMAL-SHIMS-APPROACH.md](/granville/compatibility-tools/MINIMAL-SHIMS-APPROACH.md) for why the minimal approach is preferred.
 
 ## Package Output Location
 
