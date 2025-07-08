@@ -11,10 +11,16 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
     
-    <!-- Microsoft.Orleans packages -->
+    <!-- Microsoft Orleans shim packages that forward to Granville implementations -->
     <PackageReference Include="Microsoft.Orleans.Server" />
     <PackageReference Include="Microsoft.Orleans.Reminders" />
     <PackageReference Include="Microsoft.Orleans.Serialization.SystemTextJson" />
+    
+    <!-- Explicit transitive Granville Orleans packages to ensure shim versions are used -->
+    <PackageReference Include="Granville.Orleans.Core" />
+    <PackageReference Include="Granville.Orleans.Server" />
+    <PackageReference Include="Granville.Orleans.Reminders" />
+    <PackageReference Include="Granville.Orleans.Serialization.SystemTextJson" />
     
     <!-- UFX.Orleans.SignalRBackplane -->
     <PackageReference Include="UFX.Orleans.SignalRBackplane" />

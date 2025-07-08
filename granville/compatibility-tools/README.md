@@ -2,6 +2,8 @@
 
 This directory contains tools for creating compatibility shims that allow third-party Orleans packages to work with Granville Orleans.
 
+> **Important**: After building packages, run the dependency fixing script. See `/granville/docs/PACKAGE-DEPENDENCY-FIXING.md` for details.
+
 ## Overview
 
 Granville Orleans renames assemblies from `Microsoft.Orleans.*` to `Granville.Orleans.*` to avoid NuGet namespace conflicts. However, third-party packages like `UFX.Orleans.SignalRBackplane` expect the original Microsoft.Orleans assemblies.

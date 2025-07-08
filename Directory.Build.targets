@@ -1,8 +1,9 @@
 <Project>
-  <!-- Granville RPC Fork: Build all assemblies as Granville.Orleans.* -->
+  <!-- Granville RPC Fork: Conditionally build assemblies as Granville.Orleans.* -->
+  <!-- Default behavior: Build as original Orleans (BuildAsGranville defaults to false) -->
   
   <!-- Handle projects that already have Microsoft.Orleans PackageId set -->
-  <PropertyGroup Condition="'$(PackageId)' != '' and $([System.String]::Copy('$(PackageId)').StartsWith('Microsoft.Orleans'))">
+  <PropertyGroup Condition="'$(BuildAsGranville)' == 'true' and '$(PackageId)' != '' and $([System.String]::Copy('$(PackageId)').StartsWith('Microsoft.Orleans'))">
     <!-- Store original for reference -->
     <OriginalPackageId>$(PackageId)</OriginalPackageId>
     
@@ -17,7 +18,7 @@
 
   <!-- Handle Orleans.* project files (e.g., Orleans.Core.csproj) -->
   <!-- Exclude Orleans.Rpc.* projects as they have their own AssemblyName settings -->
-  <PropertyGroup Condition="$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.')) and !$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.Rpc.'))">
+  <PropertyGroup Condition="'$(BuildAsGranville)' == 'true' and $([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.')) and !$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.Rpc.'))">
     <!-- Change both PackageId and AssemblyName to use Granville.Orleans.* -->
     <PackageId>Granville.$(MSBuildProjectName)</PackageId>
     <AssemblyName>Granville.$(MSBuildProjectName)</AssemblyName>
@@ -28,49 +29,35 @@
   </PropertyGroup>
 
   <!-- Update package metadata for Granville -->
-  <PropertyGroup>
+  <PropertyGroup Condition="'$(BuildAsGranville)' == 'true'">
     <Authors>Granville RPC Contributors</Authors>
     <PackageProjectUrl>https://github.com/jaredthirsk/orleans</PackageProjectUrl>
     <PackageDescription>$(PackageDescription) - Granville RPC Fork with InternalsVisibleTo support</PackageDescription>
   </PropertyGroup>
 
-  <!-- Fix project references to use Granville names -->
-  <Target Name="UpdateReferenceCopyLocalPaths" BeforeTargets="ResolveAssemblyReferences">
+  <!-- Create compatibility copies after build -->
+  <Target Name="CreateCompatibilityCopies" AfterTargets="AfterBuild" Condition="'$(BuildAsGranville)' == 'true'">
     <ItemGroup>
-      <!-- For each ReferenceCopyLocalPaths that starts with Orleans., update to Granville.Orleans. -->
-      <ReferenceCopyLocalPaths Condition="$([System.String]::Copy('%(ReferenceCopyLocalPaths.Filename)').StartsWith('Orleans.'))">
-        <DestinationSubDirectory Condition="'%(ReferenceCopyLocalPaths.DestinationSubDirectory)' != ''">%(ReferenceCopyLocalPaths.DestinationSubDirectory)</DestinationSubDirectory>
-        <OriginalItemSpec>%(ReferenceCopyLocalPaths.FullPath)</OriginalItemSpec>
-      </ReferenceCopyLocalPaths>
+      <!-- Find all Granville.Orleans.* assemblies in output -->
+      <GranvilleAssemblies Include="$(OutputPath)Granville.Orleans.*.dll" />
     </ItemGroup>
-  </Target>
-
-  <!-- Alternative approach: Map reference assembly names -->
-  <Target Name="MapReferenceAssemblies" AfterTargets="ResolveProjectReferences">
+    
+    <Message Text="Creating compatibility copies for project references..." Importance="normal" />
+    
+    <!-- Create Orleans.* copies alongside Granville.Orleans.* assemblies -->
+    <Copy SourceFiles="@(GranvilleAssemblies)" 
+          DestinationFiles="@(GranvilleAssemblies->'$(OutputPath)%(Filename).dll'->Replace('Granville.Orleans.', 'Orleans.'))" 
+          SkipUnchangedFiles="true" />
+          
+    <!-- Also copy PDB files if they exist -->
     <ItemGroup>
-      <!-- Create new mapped references -->
-      <_MappedReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths)" 
-                                      Condition="$([System.String]::Copy('%(Filename)').StartsWith('Orleans.'))">
-        <OriginalFilename>%(Filename)</OriginalFilename>
-        <MappedFilename>Granville.%(Filename)</MappedFilename>
-      </_MappedReferenceCopyLocalPaths>
-      
-      <!-- Update the paths for Orleans assemblies -->
-      <ReferenceCopyLocalPaths Remove="@(_MappedReferenceCopyLocalPaths)" />
-      <ReferenceCopyLocalPaths Include="@(_MappedReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(MappedFilename)%(Extension)')" />
+      <GranvillePdbs Include="$(OutputPath)Granville.Orleans.*.pdb" />
     </ItemGroup>
-  </Target>
-
-  <!-- Ensure assembly resolution works with Granville names -->
-  <Target Name="UpdateAssemblySearchPaths" BeforeTargets="ResolveAssemblyReferences">
-    <PropertyGroup>
-      <AssemblySearchPaths>
-        $(AssemblySearchPaths);
-        {HintPathFromItem};
-        {TargetFrameworkDirectory};
-        {RawFileName};
-      </AssemblySearchPaths>
-    </PropertyGroup>
+    
+    <Copy SourceFiles="@(GranvillePdbs)" 
+          DestinationFiles="@(GranvillePdbs->'$(OutputPath)%(Filename).pdb'->Replace('Granville.Orleans.', 'Orleans.'))" 
+          SkipUnchangedFiles="true" 
+          Condition="'@(GranvillePdbs)' != ''" />
   </Target>
 
   <!-- Import compatibility targets - DISABLED: Using type-forwarding shims instead -->
@@ -78,5 +65,48 @@
   
   <!-- Import pack targets to ensure Granville assemblies are packed correctly -->
   <Import Project="$(MSBuildThisFileDirectory)Directory.Build.targets.pack" />
+
+  <!-- Rewrite NuGet dependencies for Granville packages to use -granville-shim versions -->
+  <Target Name="RewriteGranvillePackageDependencies" 
+          BeforeTargets="GenerateNuspec;_GetPackageFiles"
+          Condition="'$(BuildAsGranville)' == 'true' and '$(IsPackable)' == 'true'">
+    
+    <Message Text="RewriteGranvillePackageDependencies executing for $(PackageId)" Importance="high" />
+    
+    <!-- Process ProjectReference items to modify their metadata -->
+    <ItemGroup>
+      <!-- For ProjectReferences that will become Microsoft.Orleans.* packages, add version suffix -->
+      <ProjectReference Condition="$([System.String]::Copy('%(Filename)').StartsWith('Orleans.')) and !$([System.String]::Copy('%(Filename)').StartsWith('Orleans.Rpc.'))">
+        <VersionSuffix>granville-shim</VersionSuffix>
+        <PackageVersion>$(Version)-granville-shim</PackageVersion>
+      </ProjectReference>
+    </ItemGroup>
+  </Target>
+  
+  <!-- Alternative approach: Use custom nuspec generation -->
+  <Target Name="CustomGranvilleNuspecGeneration"
+          AfterTargets="GenerateNuspec"
+          Condition="'$(BuildAsGranville)' == 'true' and '$(IsPackable)' == 'true' and Exists('$(NuspecFile)')">
+    
+    <Message Text="Modifying nuspec file: $(NuspecFile)" Importance="high" />
+    
+    <!-- Read the nuspec file -->
+    <ReadLinesFromFile File="$(NuspecFile)">
+      <Output TaskParameter="Lines" ItemName="NuspecLines" />
+    </ReadLinesFromFile>
+    
+    <!-- Process each line to modify Microsoft.Orleans.* dependencies -->
+    <ItemGroup>
+      <ModifiedNuspecLines Include="@(NuspecLines)">
+        <Text Condition="$([System.String]::Copy('%(Identity)').Contains('&lt;dependency id=&quot;Microsoft.Orleans.')) and $([System.String]::Copy('%(Identity)').Contains('version=&quot;')) and !$([System.String]::Copy('%(Identity)').Contains('-granville-shim'))">$([System.Text.RegularExpressions.Regex]::Replace('%(Identity)', 'version=&quot;([^&quot;]+)&quot;', 'version=&quot;$1-granville-shim&quot;'))</Text>
+        <Text Condition="!($([System.String]::Copy('%(Identity)').Contains('&lt;dependency id=&quot;Microsoft.Orleans.')) and $([System.String]::Copy('%(Identity)').Contains('version=&quot;')) and !$([System.String]::Copy('%(Identity)').Contains('-granville-shim')))">%(Identity)</Text>
+      </ModifiedNuspecLines>
+    </ItemGroup>
+    
+    <!-- Write the modified nuspec back -->
+    <WriteLinesToFile File="$(NuspecFile)" Lines="@(ModifiedNuspecLines->'%(Text)')" Overwrite="true" />
+    
+    <Message Text="Modified nuspec dependencies to use -granville-shim versions" Importance="high" />
+  </Target>
 
 </Project>

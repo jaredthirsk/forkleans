@@ -1,7 +1,7 @@
 <Project>
 
   <ItemGroup>
-    <CompilerVisibleProperty Include="Orleans_DesignTimeBuild" />
+    <CompilerVisibleProperty Include="Granville_DesignTimeBuild" />
     <CompilerVisibleProperty Include="Orleans_AttachDebugger" />
     <CompilerVisibleProperty Include="Orleans_GenerateFieldIds" />
     <CompilerVisibleProperty Include="Orleans_ImmutableAttributes" />
@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <Orleans_DesignTimeBuild>$(DesignTimeBuild)</Orleans_DesignTimeBuild>
+    <Granville_DesignTimeBuild>$(DesignTimeBuild)</Granville_DesignTimeBuild>
     <Orleans_GenerateFieldIds>$(OrleansGenerateFieldIds)</Orleans_GenerateFieldIds>
     <Orleans_ImmutableAttributes>$(OrleansImmutableAttributes)</Orleans_ImmutableAttributes>
     <Orleans_IdAttributes>$(OrleansIdAttributes)</Orleans_IdAttributes>

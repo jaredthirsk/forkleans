@@ -36,7 +36,7 @@ foreach ($project in $projects) {
     $projectName = [System.IO.Path]::GetFileNameWithoutExtension($project)
     Write-Host "`nPacking $projectName..." -ForegroundColor Cyan
     
-    & dotnet-win pack $project -c $Configuration -p:PackageVersion=$Version -o $OutputPath --no-build -p:TreatWarningsAsErrors=false
+    & dotnet-win pack $project -c $Configuration -p:PackageVersion=$Version -p:BuildAsGranville=true -o $OutputPath --no-build -p:TreatWarningsAsErrors=false
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host "  ✓ Successfully created Granville.$projectName.$Version.nupkg" -ForegroundColor Green

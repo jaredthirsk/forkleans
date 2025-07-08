@@ -24,7 +24,7 @@ $projects = @(
 
 # First build all dependencies
 Write-Host "Building Orleans.sln to ensure all dependencies are built..." -ForegroundColor Yellow
-dotnet build Orleans.sln -c $Configuration -p:AssemblyName=Granville.Orleans -p:RootNamespace=Orleans
+dotnet build Orleans.sln -c $Configuration -p:BuildAsGranville=true
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Failed to build Orleans.sln"
     exit 1
@@ -37,8 +37,7 @@ foreach ($project in $projects) {
     
     # Pack with Granville naming
     dotnet pack $project -c $Configuration -o Artifacts/Release --no-build `
-        -p:PackageId="Granville.$projectName" `
-        -p:AssemblyName="Granville.$projectName" `
+        -p:BuildAsGranville=true `
         -p:Version="9.1.2.51"
         
     if ($LASTEXITCODE -ne 0) {

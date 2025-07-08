@@ -44,6 +44,10 @@
       <PackagePath>%(Identity)</PackagePath>
       <Visible>true</Visible>
     </Content>
+    <Content Include="build\Granville.Orleans.CodeGenerator.props">
+      <Pack>true</Pack>
+      <PackagePath>build\</PackagePath>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

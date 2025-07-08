@@ -1,0 +1,12 @@
+<Project>
+  <!-- 
+    Automatically disable official Orleans code generation when using Granville.Orleans packages.
+    This prevents duplicate code generation errors when both Microsoft.Orleans and Granville.Orleans
+    packages are present in the same project.
+    
+    To re-enable official Orleans code generation, set Orleans_DesignTimeBuild to false in your project file.
+  -->
+  <PropertyGroup Condition="'$(Orleans_DesignTimeBuild)' == ''">
+    <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
+  </PropertyGroup>
+</Project>

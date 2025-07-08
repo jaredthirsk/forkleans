@@ -21,11 +21,10 @@ using Orleans.Serialization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Runtime.Loader;
 using System.Reflection;
-using Shooter.Shared; // For AssemblyRedirectHelper
 
-// Initialize assembly redirect handler to support UFX.Orleans.SignalRBackplane
-AssemblyRedirectHelper.Initialize();
-AssemblyRedirectHelper.PreloadGranvilleAssemblies();
+// Initialize assembly redirect helper to redirect Orleans.* to Granville.Orleans.*
+Shooter.Shared.AssemblyRedirectHelper.Initialize();
+Shooter.Shared.AssemblyRedirectHelper.PreloadGranvilleAssemblies();
 
 // Parse command line arguments
 var transportType = args.FirstOrDefault(arg => arg.StartsWith("--transport="))?.Replace("--transport=", "") ?? "litenetlib";

@@ -15,6 +15,11 @@
     <PackageReference Include="Granville.Rpc.Client" />
     <PackageReference Include="Granville.Rpc.Transport.LiteNetLib" />
     <PackageReference Include="Granville.Rpc.Transport.Ruffles" />
+    <!-- Microsoft Orleans shim packages that forward to Granville implementations -->
+    <PackageReference Include="Microsoft.Orleans.Core" />
+    
+    <!-- Explicit transitive Granville Orleans packages to ensure shim versions are used -->
+    <PackageReference Include="Granville.Orleans.Core" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Http" />

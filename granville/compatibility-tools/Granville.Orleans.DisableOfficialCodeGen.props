@@ -1,0 +1,6 @@
+<Project>
+  <!-- Automatically disable official Orleans code generation when using Granville packages -->
+  <PropertyGroup Condition="'$(Orleans_DesignTimeBuild)' == ''">
+    <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
+  </PropertyGroup>
+</Project>

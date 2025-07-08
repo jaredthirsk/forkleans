@@ -9,33 +9,51 @@ This guide covers how to build all components of the Granville Orleans fork, inc
 - Windows, Linux, or macOS
 - Git
 
+## Build Organization
+
+The Granville Orleans fork supports multiple build scenarios:
+
+1. **Upstream Verification** - Builds official Orleans without modifications
+2. **Granville Minimal** - Builds only required Orleans assemblies as Granville.Orleans.*
+3. **Type-Forwarding Shims** - Builds Microsoft.Orleans.* packages that forward to Granville
+4. **Shooter Sample** - Builds the sample application using Granville packages
+
 ## Quick Start
 
 To build everything with a single command:
 
 ```bash
 # From repository root
-./granville/scripts/build-all.sh
+./granville/scripts/build-all-granville.ps1
 
-# Or on Windows
-./granville/scripts/build-all.ps1
+# This runs all build steps in order:
+# 1. Builds Granville Orleans assemblies
+# 2. Builds type-forwarding shims
+# 3. Sets up local NuGet feed
+# 4. Builds Shooter sample
 ```
 
-## Building Components Individually
+## Build Scenarios
 
-### 1. Build Granville Orleans Core Assemblies
+### 1. Verify Upstream Orleans (No Modifications)
 
-The core Orleans assemblies are renamed from `Microsoft.Orleans.*` to `Granville.Orleans.*`:
+To verify the upstream Orleans builds correctly:
 
 ```bash
-# From repository root
-./granville/scripts/build-granville.sh
-
-# Or on Windows
-./granville/scripts/build-granville.ps1
+./granville/scripts/build-upstream-verification.ps1
 ```
 
-This builds:
+This builds `Orleans.sln` with default settings (BuildAsGranville=false), producing Orleans.* assemblies.
+
+### 2. Build Granville Orleans Core Assemblies
+
+To build the minimal set of Orleans assemblies renamed to Granville.Orleans.*:
+
+```bash
+./granville/scripts/build-granville-minimal.ps1
+```
+
+This builds `Granville.Minimal.sln` with BuildAsGranville=true, producing:
 - `Granville.Orleans.Core`
 - `Granville.Orleans.Core.Abstractions`
 - `Granville.Orleans.Serialization`
@@ -43,68 +61,50 @@ This builds:
 - `Granville.Orleans.CodeGenerator`
 - `Granville.Orleans.Analyzers`
 - `Granville.Orleans.Runtime`
+- `Granville.Orleans.Sdk`
 
-Output: `src/Orleans.*/bin/Release/net8.0/Granville.Orleans.*.dll`
+Output: `Artifacts/Release/Granville.Orleans.*.nupkg`
 
-### 2. Build Granville RPC
+### 3. Build Type-Forwarding Shims
 
-The RPC implementation adds high-performance UDP communication:
+To build Microsoft.Orleans.* packages that forward types to Granville:
 
 ```bash
-# From repository root
-./granville/scripts/build-granville-rpc.ps1
+./granville/scripts/build-shims.ps1
 ```
 
-This builds:
-- `Granville.Rpc.Abstractions`
-- `Granville.Rpc.Client`
-- `Granville.Rpc.Server`
-- `Granville.Rpc.Sdk`
-- Transport implementations (LiteNetLib, Ruffles)
+This generates shim assemblies that enable third-party packages to compile against Microsoft.Orleans while using Granville.Orleans at runtime.
 
-### 3. Build and Package Everything
+Output: `Artifacts/Release/Microsoft.Orleans.*-granville-shim.nupkg`
 
-To create all NuGet packages (Orleans, RPC, and compatibility shims):
+### 4. Build Shooter Sample
+
+To build the sample application:
 
 ```bash
-# 1. Build and package Granville Orleans assemblies
-./granville/scripts/build-granville.ps1
-./granville/scripts/pack-granville-orleans-packages.ps1
+./granville/scripts/build-shooter-sample.ps1
 
-# 2. Build and package Granville RPC
-./granville/scripts/build-granville-rpc-packages.ps1
-
-# 3. Generate type-forwarding compatibility shims
-cd granville/compatibility-tools
-./generate-individual-shims.ps1
-./package-shims-direct.ps1
-cd ../..
+# Or to build and run immediately:
+./granville/scripts/build-shooter-sample.ps1 -RunAfterBuild
 ```
 
-All packages are output to: `Artifacts/Release/`
+This builds all Shooter components using packages from the local NuGet feed.
 
-This creates:
-- **Granville.Orleans.*** - Core Orleans implementation packages
-- **Granville.Rpc.*** - RPC functionality packages  
-- **Microsoft.Orleans.***-granville-shim** - Type-forwarding compatibility packages
+## BuildAsGranville Property
 
-### 4. Build the Shooter Sample
+The build system uses the `BuildAsGranville` MSBuild property to control assembly naming:
 
-The Shooter sample demonstrates Orleans + RPC + Aspire:
+- **BuildAsGranville=false** (default) - Builds as Orleans.* assemblies
+- **BuildAsGranville=true** - Builds as Granville.Orleans.* assemblies
 
-```bash
-cd granville/samples/Rpc
-dotnet build GranvilleSamples.sln
-```
-
-Or build individual components:
+This property is set automatically by the build scripts but can be overridden:
 
 ```bash
-cd granville/samples/Rpc
-dotnet build Shooter.Silo
-dotnet build Shooter.ActionServer
-dotnet build Shooter.Client
-dotnet build Shooter.AppHost
+# Build specific project as Granville
+dotnet build src/Orleans.Core/Orleans.Core.csproj -p:BuildAsGranville=true
+
+# Build as original Orleans (default)
+dotnet build src/Orleans.Core/Orleans.Core.csproj
 ```
 
 ## Running the Shooter Sample
@@ -139,52 +139,25 @@ cd granville/samples/Rpc/Shooter.Client
 dotnet run
 ```
 
-## Assembly Compatibility and Type-Forwarding Shims
+## Assembly Compatibility
 
 Granville Orleans provides two approaches for compatibility with packages expecting Microsoft.Orleans:
 
 ### 1. Assembly Redirects (Runtime)
-Runtime redirection of assembly loads (implemented in Shooter.Silo). See `/granville/compatibility-tools/ASSEMBLY-REDIRECT-GUIDE.md`.
+Runtime redirection of assembly loads. See `/granville/compatibility-tools/ASSEMBLY-REDIRECT-GUIDE.md`.
 
-### 2. Type-Forwarding Shims (Compile-time)
-Create Microsoft.Orleans.* packages that forward types to Granville.Orleans assemblies. This enables third-party packages to compile against Microsoft.Orleans interfaces while using Granville.Orleans implementations at runtime.
+### 2. Type-Forwarding Shims (Compile-time) 
+Microsoft.Orleans.* packages that forward types to Granville.Orleans assemblies. Build using:
 
-#### Building Type-Forwarding Shim Packages
-
-1. **Build Granville Orleans assemblies first:**
 ```bash
-./granville/scripts/build-granville.ps1
+./granville/scripts/build-shims.ps1
 ```
 
-2. **Package Granville Orleans assemblies:**
-```bash
-./granville/scripts/pack-granville-orleans-packages.ps1
-```
-
-3. **Generate type-forwarding shim assemblies:**
-```bash
-cd granville/compatibility-tools
-./generate-individual-shims.ps1
-```
-
-4. **Package the shim assemblies:**
-```bash
-./package-shims-direct.ps1
-```
-
-#### Output
-All packages are created in `Artifacts/Release/`:
-- **Granville.Orleans.* packages**: Implementation assemblies (from step 2)
-- **Microsoft.Orleans.* packages**: Type-forwarding shim packages (from step 4)
-
-#### Usage
-Third-party packages reference Microsoft.Orleans.* shims, which forward types to Granville.Orleans implementations:
+Third-party packages can then reference the shim packages:
 ```xml
-<PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.51-granville-shim" />
+<PackageReference Include="Microsoft.Orleans.Core" Version="9.1.2.51-granville-shim" />
 <PackageReference Include="UFX.Orleans.SignalRBackplane" Version="8.2.2" />
 ```
-
-At runtime, types resolve to Granville.Orleans assemblies automatically.
 
 ## Local NuGet Feed
 
@@ -200,15 +173,17 @@ This creates a local feed at `~/local-nuget-feed/`.
 
 ### Build Failures
 
-1. **Missing dependencies**: Run the build script which handles dependency order
-2. **MSBuild errors**: Ensure you have the correct .NET SDK versions
-3. **Permission errors**: On Linux/Mac, make scripts executable: `chmod +x *.sh`
+1. **Missing dependencies**: Use the build scripts which handle dependency order
+2. **MSBuild errors**: Ensure you have the correct .NET SDK versions  
+3. **Permission errors**: On Linux/Mac, make scripts executable: `chmod +x *.ps1`
+4. **Wrong assembly names**: Ensure BuildAsGranville property is set correctly
 
 ### Assembly Reference Issues
 
-The `Directory.Build.targets` automatically renames assemblies. If you get reference errors:
-1. Check that compatibility copies are being created (Orleans.*.dll alongside Granville.Orleans.*.dll)
-2. Verify the build order - some assemblies depend on others
+The `Directory.Build.targets` conditionally renames assemblies based on BuildAsGranville:
+1. Default builds (BuildAsGranville=false) produce Orleans.* assemblies
+2. Granville builds (BuildAsGranville=true) produce Granville.Orleans.* assemblies
+3. Use the appropriate build script for your scenario
 
 ### Shooter Sample Issues
 
@@ -224,7 +199,9 @@ The `Directory.Build.targets` automatically renames assemblies. If you get refer
 - **Generator errors**: The type-forwarding generator is in `/granville/compatibility-tools/type-forwarding-generator/`
 - **Package restore failures**: Clear NuGet cache with `dotnet nuget locals all --clear`
 
-## Version Management
+## Advanced Usage
+
+### Version Management
 
 To update version numbers:
 
@@ -232,12 +209,30 @@ To update version numbers:
 ./granville/scripts/bump-granville-version.ps1 -NewVersion "9.1.3-granville"
 ```
 
-## Clean Build
+### Clean Build
 
 To clean all build artifacts:
 
 ```bash
 ./granville/scripts/clean-build-artifacts.ps1
+```
+
+### Individual Build Scripts
+
+For more control, use individual build scripts:
+
+```bash
+# Build only minimal Orleans assemblies
+./granville/scripts/build-granville-minimal.ps1
+
+# Build only shims
+./granville/scripts/build-shims.ps1
+
+# Build only sample
+./granville/scripts/build-shooter-sample.ps1
+
+# Verify upstream builds
+./granville/scripts/build-upstream-verification.ps1
 ```
 
 ## Next Steps

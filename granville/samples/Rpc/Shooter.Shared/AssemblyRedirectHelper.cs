@@ -6,9 +6,8 @@ using System.Runtime.Loader;
 namespace Shooter.Shared
 {
     /// <summary>
-    /// Helper class to ensure Orleans assemblies from Granville packages are loaded
-    /// when third-party packages like UFX.Orleans.SignalRBackplane request Microsoft.Orleans assemblies.
-    /// Note: Granville packages contain assemblies named Orleans.* (not Granville.Orleans.*).
+    /// Helper class to redirect Orleans.* assembly requests to Granville.Orleans.* assemblies
+    /// when third-party packages like UFX.Orleans.SignalRBackplane request Orleans assemblies.
     /// </summary>
     public static class AssemblyRedirectHelper
     {
@@ -48,18 +47,19 @@ namespace Shooter.Shared
 
         private static Assembly? TryLoadRedirectedAssembly(AssemblyName assemblyName)
         {
-            // Check if this is a Microsoft.Orleans assembly request
-            if (assemblyName.Name?.StartsWith("Microsoft.Orleans.") == true)
+            // Check if this is an Orleans assembly request (redirect to Granville.Orleans)
+            if (assemblyName.Name?.StartsWith("Orleans.") == true && 
+                !assemblyName.Name.StartsWith("Orleans.Rpc.")) // Don't redirect Granville RPC assemblies
             {
-                // Extract the actual Orleans assembly name (remove Microsoft. prefix)
-                var orleansAssemblyName = assemblyName.Name.Replace("Microsoft.", "");
+                // Create the Granville assembly name
+                var granvilleAssemblyName = $"Granville.{assemblyName.Name}";
                 
-                Console.WriteLine($"[AssemblyRedirect] Redirecting {assemblyName.Name} -> {orleansAssemblyName}");
+                Console.WriteLine($"[AssemblyRedirect] Redirecting {assemblyName.Name} -> {granvilleAssemblyName}");
                 
                 try
                 {
-                    // Try to load the Orleans assembly (from Granville packages)
-                    var targetAssemblyName = new AssemblyName(orleansAssemblyName)
+                    // Try to load the Granville.Orleans assembly
+                    var targetAssemblyName = new AssemblyName(granvilleAssemblyName)
                     {
                         Version = assemblyName.Version,
                         CultureInfo = assemblyName.CultureInfo,
@@ -70,7 +70,7 @@ namespace Shooter.Shared
                     var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(targetAssemblyName);
                     if (assembly != null)
                     {
-                        Console.WriteLine($"[AssemblyRedirect] Successfully loaded {orleansAssemblyName}");
+                        Console.WriteLine($"[AssemblyRedirect] Successfully loaded {granvilleAssemblyName}");
                         return assembly;
                     }
                 }
@@ -80,9 +80,9 @@ namespace Shooter.Shared
                     var appDir = AppDomain.CurrentDomain.BaseDirectory;
                     var possiblePaths = new[]
                     {
-                        Path.Combine(appDir, $"{orleansAssemblyName}.dll"),
-                        Path.Combine(appDir, "bin", $"{orleansAssemblyName}.dll"),
-                        Path.Combine(appDir, "..", $"{orleansAssemblyName}.dll")
+                        Path.Combine(appDir, $"{granvilleAssemblyName}.dll"),
+                        Path.Combine(appDir, "bin", $"{granvilleAssemblyName}.dll"),
+                        Path.Combine(appDir, "..", $"{granvilleAssemblyName}.dll")
                     };
                     
                     foreach (var path in possiblePaths)
@@ -94,11 +94,11 @@ namespace Shooter.Shared
                         }
                     }
                     
-                    Console.WriteLine($"[AssemblyRedirect] Could not find {orleansAssemblyName} in any search paths");
+                    Console.WriteLine($"[AssemblyRedirect] Could not find {granvilleAssemblyName} in any search paths");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[AssemblyRedirect] Error loading {orleansAssemblyName}: {ex.Message}");
+                    Console.WriteLine($"[AssemblyRedirect] Error loading {granvilleAssemblyName}: {ex.Message}");
                 }
             }
             
@@ -106,17 +106,17 @@ namespace Shooter.Shared
         }
 
         /// <summary>
-        /// Preload Orleans assemblies from Granville packages to ensure they're available for redirection
+        /// Preload Granville.Orleans assemblies to ensure they're available for redirection
         /// </summary>
         public static void PreloadGranvilleAssemblies()
         {
             var assembliesToPreload = new[]
             {
-                "Orleans.Core",
-                "Orleans.Core.Abstractions",
-                "Orleans.Runtime",
-                "Orleans.Serialization",
-                "Orleans.Serialization.Abstractions"
+                "Granville.Orleans.Core",
+                "Granville.Orleans.Core.Abstractions",
+                "Granville.Orleans.Runtime",
+                "Granville.Orleans.Serialization",
+                "Granville.Orleans.Serialization.Abstractions"
             };
             
             foreach (var assemblyName in assembliesToPreload)

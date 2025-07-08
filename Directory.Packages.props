@@ -48,6 +48,15 @@
     <PackageVersion Include="Microsoft.Extensions.Http" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    
+    <!-- Microsoft Orleans shim packages for Granville.Rpc -->
+    <PackageVersion Include="Microsoft.Orleans.CodeGenerator" Version="9.1.2.53-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.53-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2.53-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Runtime" Version="9.1.2.53-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Sdk" Version="9.1.2.53-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Serialization.Abstractions" Version="9.1.2.53-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Serialization" Version="9.1.2.53-granville-shim" />
     <PackageVersion Include="Azure.Data.Tables" Version="12.9.1" />
     <PackageVersion Include="Azure.Core" Version="1.44.1" />
     <PackageVersion Include="Azure.Messaging.EventHubs" Version="5.11.5" />

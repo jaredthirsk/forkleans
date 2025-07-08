@@ -1,10 +1,29 @@
 #!/usr/bin/env pwsh
 # Direct packaging script for Microsoft.Orleans.* shim assemblies
 
-$Version = "9.1.2.51-granville-shim"
-$GranvilleVersion = "9.1.2.51"
+# Dynamically detect the current Granville Orleans version from built packages
+$granvilleCorePackages = Get-ChildItem "../../Artifacts/Release/Granville.Orleans.Core.*.nupkg" | Where-Object { $_.Name -match "^Granville\.Orleans\.Core\.\d+\.\d+\.\d+(\.\d+)?\.nupkg$" }
+if ($granvilleCorePackages) {
+    $granvilleCorePackage = $granvilleCorePackages | Sort-Object Name | Select-Object -Last 1
+    # Extract version from filename like "Granville.Orleans.Core.9.1.2.53.nupkg"
+    if ($granvilleCorePackage.Name -match "Granville\.Orleans\.Core\.(\d+\.\d+\.\d+(?:\.\d+)?)\.nupkg") {
+        $GranvilleVersion = $matches[1]
+        Write-Host "Detected Granville Orleans version: $GranvilleVersion" -ForegroundColor Cyan
+    } else {
+        Write-Error "Could not parse version from package name: $($granvilleCorePackage.Name)"
+        exit 1
+    }
+} else {
+    Write-Error "Could not find Granville.Orleans.Core package to determine version"
+    exit 1
+}
+
+$Version = "$GranvilleVersion-granville-shim"
+$StableVersion = "$GranvilleVersion"
 
 Write-Host "Creating Microsoft.Orleans.* shim NuGet packages..." -ForegroundColor Green
+Write-Host "  Stable version: $StableVersion" -ForegroundColor Cyan  
+Write-Host "  Prerelease version: $Version" -ForegroundColor Cyan
 
 # Ensure output directory exists
 New-Item -ItemType Directory -Force -Path "../../Artifacts/Release" | Out-Null

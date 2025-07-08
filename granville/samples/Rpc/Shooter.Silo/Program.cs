@@ -10,12 +10,11 @@ using System.Net;
 using System.Reflection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Runtime.Loader;
-using UFX.Orleans.SignalRBackplane; // Re-enabled with assembly redirects
-using Shooter.Shared; // For AssemblyRedirectHelper
+using UFX.Orleans.SignalRBackplane;
 
-// Initialize assembly redirect handler to support UFX.Orleans.SignalRBackplane
-AssemblyRedirectHelper.Initialize();
-AssemblyRedirectHelper.PreloadGranvilleAssemblies();
+// Initialize assembly redirect helper to redirect Orleans.* to Granville.Orleans.*
+Shooter.Shared.AssemblyRedirectHelper.Initialize();
+Shooter.Shared.AssemblyRedirectHelper.PreloadGranvilleAssemblies();
 
 var builder = WebApplication.CreateBuilder(args);
 

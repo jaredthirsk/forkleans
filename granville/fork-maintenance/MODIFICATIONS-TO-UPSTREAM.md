@@ -36,6 +36,11 @@ These files are completely new and do not exist in upstream Orleans:
 ### Root Directory Files (Added)
 - `CLAUDE.md` - Guidance for Claude Code when working with this fork
 
+### Build Files Added to Source Projects
+- `src/Orleans.Core/build/Granville.Orleans.Core.props` - Auto-disables official Orleans code generator
+- `src/Orleans.Sdk/build/Granville.Orleans.Sdk.props` - Auto-disables official Orleans code generator  
+- `src/Orleans.CodeGenerator/build/Granville.Orleans.CodeGenerator.props` - Auto-disables official Orleans code generator
+
 ### Root Directory Files (Modified)
 - `.gitignore` - Added entries for Granville-specific build artifacts
 - `Directory.Build.props` - Minor changes for Granville configuration
@@ -47,9 +52,14 @@ Note: All other Granville-specific files are located under `/granville/` directo
 
 ## Modified Upstream Files
 
-**IMPORTANT**: According to our automated assessment, there are NO modified upstream Orleans files in the src/ folder (excluding src/Rpc). All Orleans source files remain untouched.
+### Source Files Modified
+1. `src/Orleans.CodeGenerator/OrleansSourceGenerator.cs` - Changed to check `granville_designtimebuild` instead of `orleans_designtimebuild`
+2. `src/Orleans.CodeGenerator/build/Microsoft.Orleans.CodeGenerator.props` - Changed to use `Granville_DesignTimeBuild` property
+3. `src/Orleans.Core/Orleans.Core.csproj` - Added packaging of Granville.Orleans.Core.props
+4. `src/Orleans.Sdk/Orleans.Sdk.csproj` - Added packaging of Granville.Orleans.Sdk.props
+5. `src/Orleans.CodeGenerator/Orleans.CodeGenerator.csproj` - Added packaging of Granville.Orleans.CodeGenerator.props
 
-The only modifications are in root-level configuration files:
+### Root-Level Configuration Files Modified
 1. `.gitignore` - Added entries for Granville-specific patterns
 2. `Directory.Build.props` - Minor adjustments for build configuration
 3. `Directory.Build.targets` - Assembly renaming logic from Microsoft.Orleans.* to Granville.Orleans.*

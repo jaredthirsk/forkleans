@@ -47,7 +47,7 @@ foreach ($project in $projects) {
     Write-Host "`nBuilding $project..." -ForegroundColor Cyan
 
     try {
-        & dotnet build $project -c $Configuration --no-dependencies
+        & dotnet build $project -c $Configuration -p:BuildAsGranville=true --no-dependencies
 
         if ($LASTEXITCODE -ne 0) {
             throw "Build failed for $project"
@@ -65,7 +65,7 @@ foreach ($project in $projects) {
 
         # Try alternative approach: build with dependencies
         Write-Host "  Retrying with dependencies..." -ForegroundColor Yellow
-        & dotnet build $project -c $Configuration
+        & dotnet build $project -c $Configuration -p:BuildAsGranville=true
 
         if ($LASTEXITCODE -eq 0) {
             Create-CompatibilityLinks -ProjectDir $projectDir -Configuration $Configuration
@@ -81,6 +81,18 @@ foreach ($project in $projects) {
 Write-Host "`n=== Build Summary ===" -ForegroundColor Green
 Write-Host "All Granville Orleans assemblies have been built successfully!" -ForegroundColor Green
 Write-Host "Assemblies are named Granville.Orleans.* with compatibility copies as Orleans.*" -ForegroundColor Cyan
+
+# Fix package dependencies
+Write-Host "`n=== Fixing Package Dependencies ===" -ForegroundColor Cyan
+$fixDepsScript = Join-Path $PSScriptRoot "fix-granville-dependencies.ps1"
+if (Test-Path $fixDepsScript) {
+    & $fixDepsScript -PackageDirectory "./Artifacts/Release"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Warning: Failed to fix package dependencies" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "Warning: fix-granville-dependencies.ps1 not found" -ForegroundColor Yellow
+}
 
 # List all built assemblies
 Write-Host "`nBuilt assemblies:" -ForegroundColor Yellow
