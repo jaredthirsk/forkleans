@@ -62,8 +62,7 @@ namespace Shooter.Shared
                     var targetAssemblyName = new AssemblyName(granvilleAssemblyName)
                     {
                         Version = assemblyName.Version,
-                        CultureInfo = assemblyName.CultureInfo,
-                        ProcessorArchitecture = assemblyName.ProcessorArchitecture
+                        CultureInfo = assemblyName.CultureInfo
                     };
 
                     // First try to load from the default context

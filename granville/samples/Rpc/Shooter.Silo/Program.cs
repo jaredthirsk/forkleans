@@ -100,6 +100,8 @@ builder.Services.AddSerializer(serializerBuilder =>
 {
     serializerBuilder.AddAssembly(typeof(Shooter.Silo.Grains.WorldManagerGrain).Assembly);
     serializerBuilder.AddAssembly(typeof(Shooter.Shared.GrainInterfaces.IWorldManagerGrain).Assembly);
+    // Add Orleans.Serialization assembly to get ImmutableArray codec
+    serializerBuilder.AddAssembly(typeof(Orleans.Serialization.Codecs.ImmutableArrayCodec<>).Assembly);
     // TODO: Add RPC interfaces when RPC client is properly configured
     // serializerBuilder.AddAssembly(typeof(Shooter.Shared.RpcInterfaces.IGameRpcGrain).Assembly);
 });
