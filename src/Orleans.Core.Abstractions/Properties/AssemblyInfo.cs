@@ -7,6 +7,9 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("Orleans.Streaming.Abstractions")]
 [assembly: InternalsVisibleTo("Orleans.Reminders")]
 
+// Shim assemblies for type forwarding  
+[assembly: InternalsVisibleTo("Orleans.Core.Abstractions")]
+
 [assembly: InternalsVisibleTo("DefaultCluster.Tests")]
 [assembly: InternalsVisibleTo("NonSilo.Tests")]
 [assembly: InternalsVisibleTo("Tester.AzureUtils")]

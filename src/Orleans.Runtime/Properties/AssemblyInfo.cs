@@ -16,5 +16,8 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("TestInternalGrains")]
 [assembly: InternalsVisibleTo("Benchmarks")]
 
+// Shim assembly for type forwarding
+[assembly: InternalsVisibleTo("Orleans.Runtime")]
+
 // Mocking libraries
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

@@ -45,11 +45,11 @@
     <!-- Using Granville Orleans packages directly - no Microsoft.Orleans references -->
     
     <!-- Microsoft Orleans shims for compatibility -->
-    <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.65-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2.65-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Runtime" Version="9.1.2.65-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Serialization" Version="9.1.2.65-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Serialization.Abstractions" Version="9.1.2.65-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.66-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2.66-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Runtime" Version="9.1.2.66-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Serialization" Version="9.1.2.66-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Serialization.Abstractions" Version="9.1.2.66-granville-shim" />
 
     <!-- Microsoft packages -->
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.4" />

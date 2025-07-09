@@ -35,5 +35,8 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("Orleans.Reminders")]
 [assembly: InternalsVisibleTo("Granville.Orleans.Reminders")]
 
+// Shim assemblies for type forwarding
+[assembly: InternalsVisibleTo("Orleans.Core")]
+
 // Mocking libraries
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

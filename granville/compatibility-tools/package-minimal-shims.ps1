@@ -1,12 +1,12 @@
 #!/usr/bin/env pwsh
 
 # Script to create Microsoft.Orleans shim packages with proper dependencies on Granville.Orleans packages
-# Version: 9.1.2.65-granville-shim
+# Version: 9.1.2.66-granville-shim
 
 $ErrorActionPreference = "Stop"
 
-$version = "9.1.2.65-granville-shim"
-$granvilleVersion = "9.1.2.60"
+$version = "9.1.2.66-granville-shim"
+$granvilleVersion = "9.1.2.65"
 $outputDir = "$PSScriptRoot/../../Artifacts/Release"
 $shimDir = "$PSScriptRoot/shims-proper"
 $tempDir = "$PSScriptRoot/temp-shim-packaging"
