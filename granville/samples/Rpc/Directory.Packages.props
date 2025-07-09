@@ -13,76 +13,67 @@
     <PackageVersion Include="Granville.Serialization.Abstractions" Version="9.1.2" />
     <PackageVersion Include="Granville.CodeGenerator" Version="9.1.2" />
     <PackageVersion Include="Granville.Analyzers" Version="9.1.2" />
-    <PackageVersion Include="Granville.Rpc.Client" Version="9.1.2.53" />
-    <PackageVersion Include="Granville.Rpc.Sdk" Version="9.1.2.53" />
-    <PackageVersion Include="Granville.Rpc.Server" Version="9.1.2.53" />
-    <PackageVersion Include="Granville.Rpc.Transport.LiteNetLib" Version="9.1.2.53" />
-    <PackageVersion Include="Granville.Rpc.Transport.Ruffles" Version="9.1.2.53" />
-    <PackageVersion Include="Granville.Rpc.Abstractions" Version="9.1.2.53" />
+    <PackageVersion Include="Granville.Rpc.Client" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Rpc.Sdk" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Rpc.Server" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Rpc.Transport.LiteNetLib" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Rpc.Transport.Ruffles" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Rpc.Abstractions" Version="9.1.2.65" />
     <PackageVersion Include="Granville.Server" Version="9.1.2" />
     <PackageVersion Include="Granville.Persistence.Memory" Version="9.1.2" />
 
-    <!-- Only these need shims -->
-    <PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2.61-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.60-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Runtime" Version="9.1.2.53-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Serialization" Version="9.1.2.60-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Serialization.Abstractions" Version="9.1.2.60-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.CodeGenerator" Version="9.1.2.53-granville-shim" />
-
-    <!-- Everything else uses official -->
-    <PackageVersion Include="Microsoft.Orleans.Server" Version="9.1.2" />
-    <PackageVersion Include="Microsoft.Orleans.Client" Version="9.1.2" />
-    <PackageVersion Include="Microsoft.Orleans.Persistence.Memory" Version="9.1.2" />
-    <PackageVersion Include="Microsoft.Orleans.Reminders" Version="9.1.2" />
-    <PackageVersion Include="Microsoft.Orleans.Serialization.SystemTextJson" Version="9.1.2" />
-    <PackageVersion Include="Microsoft.Orleans.Sdk" Version="9.1.2.53-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Analyzers" Version="9.1.2" />
+    <!-- Remove Microsoft Orleans shim references - use Granville Orleans directly -->
 
 
-    <!-- Orleans packages from local build -->
-    <PackageVersion Include="Orleans.Core" Version="9.2.0.50-preview3" />
-    <PackageVersion Include="Orleans.Core.Abstractions" Version="9.2.0.50-preview3" />
-    <PackageVersion Include="Orleans.Sdk" Version="9.2.0.50-preview3" />
-    <PackageVersion Include="Orleans.CodeGenerator" Version="9.2.0.50-preview3" />
-    <PackageVersion Include="Orleans.Serialization" Version="9.2.0.50-preview3" />
-    <PackageVersion Include="Orleans.Serialization.Abstractions" Version="9.2.0.50-preview3" />
-    <PackageVersion Include="Orleans.Runtime" Version="9.2.0.50-preview3" />
-    <PackageVersion Include="Orleans.Server" Version="9.2.0.50-preview3" />
-    <PackageVersion Include="Orleans.Client" Version="9.2.0.50-preview3" />
-    <PackageVersion Include="Orleans.Persistence.Memory" Version="9.2.0.50-preview3" />
 
-    <!-- Granville Orleans packages - for modified assemblies and their dependents -->
-    <!-- These provide the actual implementation that shims forward to -->
-    <PackageVersion Include="Granville.Orleans.Core" Version="9.1.2.53" />
-    <PackageVersion Include="Granville.Orleans.Core.Abstractions" Version="9.1.2.53" />
-    <PackageVersion Include="Granville.Orleans.Runtime" Version="9.1.2.53" />
-    <PackageVersion Include="Granville.Orleans.Serialization" Version="9.1.2.53" />
-    <PackageVersion Include="Granville.Orleans.Serialization.Abstractions" Version="9.1.2.53" />
-    <PackageVersion Include="Granville.Orleans.CodeGenerator" Version="9.1.2.53" />  <!-- Required for code generation to work with Granville types -->
+
+    <!-- Granville Orleans packages -->
+    <PackageVersion Include="Granville.Orleans.Core" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Orleans.Core.Abstractions" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Orleans.Runtime" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Orleans.Serialization" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Orleans.Serialization.Abstractions" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Orleans.CodeGenerator" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Orleans.Sdk" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Orleans.Server" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Orleans.Client" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Orleans.Persistence.Memory" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Orleans.Reminders" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Orleans.Serialization.SystemTextJson" Version="9.1.2.65" />
+    <PackageVersion Include="Granville.Orleans.Analyzers" Version="9.1.2.65" />
+    
+    <!-- Using Granville Orleans packages directly - no Microsoft.Orleans references -->
+    
+    <!-- Microsoft Orleans shims for compatibility -->
+    <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.65-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2.65-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Runtime" Version="9.1.2.65-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Serialization" Version="9.1.2.65-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Serialization.Abstractions" Version="9.1.2.65-granville-shim" />
 
     <!-- Microsoft packages -->
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.Http" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.CommandLine" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
 
     <!-- Aspire packages -->
-    <PackageVersion Include="Aspire.Hosting.AppHost" Version="8.0.0" />
-    <PackageVersion Include="Aspire.Microsoft.Extensions.ServiceDiscovery" Version="8.0.0" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.3.1" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.3.1" />
 
     <!-- Other packages -->
     <PackageVersion Include="LiteNetLib" Version="1.3.1" />
     <PackageVersion Include="Phaser" Version="0.6.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />
-    <PackageVersion Include="UFX.Orleans.SignalRBackplane" Version="8.2.2" />
+    <!-- Temporarily removed UFX.Orleans.SignalRBackplane - depends on Microsoft.Orleans 8.2.0 -->
+    <!-- <PackageVersion Include="UFX.Orleans.SignalRBackplane" Version="8.2.2" /> -->
     <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0" />
 
     <!-- OpenTelemetry packages -->
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="8.0.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.10.0" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.10.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.10.1" />

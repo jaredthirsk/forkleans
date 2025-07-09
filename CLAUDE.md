@@ -39,6 +39,7 @@ We want to avoid impersonating official Microsoft packages.  Here is our naming 
 Key principles:
 - Orleans upstream files are kept as untouched as possible
 - All Granville-specific additions are under `/granville/`
+  - Exception: our extension in `/src/Rpc/` could be considered for upstream adoption by Orleans
 - Modifications to upstream files are documented in `/granville/fork-maintenance/MODIFICATIONS-TO-UPSTREAM.md`
 
 ## Key Directories
@@ -83,7 +84,7 @@ See `/granville/compatibility-tools/README.md` for details.
 2. `/granville/fork-maintenance/MODIFICATIONS-TO-UPSTREAM.md` - All upstream changes
 3. `/Directory.Build.targets` - MSBuild customizations for assembly renaming
 4. `/granville/scripts/build-granville.ps1` - Main build script
-
+5. `/Directory.Build.props` - contains the current revision part of the version like this: "<GranvilleRevision Condition=" '$(GranvilleRevision)'=='' ">99</GranvilleRevision>"
 
 # Goals
 

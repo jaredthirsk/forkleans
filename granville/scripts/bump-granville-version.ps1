@@ -38,7 +38,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$buildPropsPath = Join-Path $PSScriptRoot "Directory.Build.props"
+$buildPropsPath = Join-Path $PSScriptRoot "../../Directory.Build.props"
 
 if (-not (Test-Path $buildPropsPath)) {
     Write-Error "Directory.Build.props not found at: $buildPropsPath"
@@ -81,19 +81,28 @@ if ($DryRun) {
 }
 
 # Update Directory.Build.props
-$newContent = $content -replace '<Version>[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+</Version>', "<Version>$newVersionString</Version>"
+if ($VersionPart -eq "Full") {
+    # Parse the new version
+    $newVersionParts = $newVersionString.Split('.')
+    $newPrefix = $newVersionParts[0..2] -join '.'
+    $newRevision = $newVersionParts[3]
+    
+    # Update both VersionPrefix and GranvilleRevision
+    $newContent = $content -replace '<VersionPrefix[^>]*>[0-9]+\.[0-9]+\.[0-9]+</VersionPrefix>', "<VersionPrefix Condition=`" '`$(VersionPrefix)'=='' `">$newPrefix</VersionPrefix>"
+    $newContent = $newContent -replace '<GranvilleRevision[^>]*>[0-9]+</GranvilleRevision>', "<GranvilleRevision Condition=`" '`$(GranvilleRevision)'=='' `">$newRevision</GranvilleRevision>"
+} else {
+    # Just update the revision
+    $newRevision = $versionParts[3]
+    $newContent = $content -replace '<GranvilleRevision[^>]*>[0-9]+</GranvilleRevision>', "<GranvilleRevision Condition=`" '`$(GranvilleRevision)'=='' `">$newRevision</GranvilleRevision>"
+}
 Set-Content -Path $buildPropsPath -Value $newContent -NoNewline
 
 Write-Host "Updated Directory.Build.props" -ForegroundColor Green
 
-# Also update VersionPrefix if present
-if ($newContent -match '<VersionPrefix[^>]*>[0-9]+\.[0-9]+\.[0-9]+</VersionPrefix>') {
-    $versionParts = $newVersionString.Split('.')
-    $versionPrefix = $versionParts[0..2] -join '.'
-    $newContent = $newContent -replace '<VersionPrefix([^>]*)>[0-9]+\.[0-9]+\.[0-9]+</VersionPrefix>', "<VersionPrefix`$1>$versionPrefix</VersionPrefix>"
-    Set-Content -Path $buildPropsPath -Value $newContent -NoNewline
-    Write-Host "Updated VersionPrefix to: $versionPrefix" -ForegroundColor Green
-}
+# Update current-revision.txt
+$revisionFilePath = Join-Path $PSScriptRoot "../current-revision.txt"
+Set-Content -Path $revisionFilePath -Value $newRevision -NoNewline
+Write-Host "Updated current-revision.txt to: $newRevision" -ForegroundColor Green
 
 Write-Host "`nVersion bump complete!" -ForegroundColor Green
 Write-Host "Next steps:" -ForegroundColor Yellow

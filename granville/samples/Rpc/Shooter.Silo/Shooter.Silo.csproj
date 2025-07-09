@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -11,26 +11,26 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
 
-    <!-- Microsoft Orleans shim packages for the 5 modified assemblies plus dependencies-->
-    <PackageReference Include="Microsoft.Orleans.Core" />
-    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" />
-    <PackageReference Include="Microsoft.Orleans.Serialization" />
-    <PackageReference Include="Microsoft.Orleans.Serialization.Abstractions" />
-    <PackageReference Include="Microsoft.Orleans.Runtime" />
-
-    <!-- Official Microsoft Orleans packages for unmodified assemblies -->
-    <PackageReference Include="Microsoft.Orleans.Server" />
-    <PackageReference Include="Microsoft.Orleans.Reminders" />
-    <PackageReference Include="Microsoft.Orleans.Serialization.SystemTextJson" />
-    <PackageReference Include="Microsoft.Orleans.Persistence.Memory" />
-
-    <!-- Granville Orleans packages (only for the 5 modified assemblies) -->
+    <!-- Granville Orleans packages -->
     <PackageReference Include="Granville.Orleans.Core" />
+    <PackageReference Include="Granville.Orleans.Core.Abstractions" />
     <PackageReference Include="Granville.Orleans.Runtime" />
     <PackageReference Include="Granville.Orleans.Serialization" />
+    <PackageReference Include="Granville.Orleans.Serialization.Abstractions" />
+    <PackageReference Include="Granville.Orleans.Server" />
+    <PackageReference Include="Granville.Orleans.Reminders" />
+    <PackageReference Include="Granville.Orleans.Serialization.SystemTextJson" />
+    <PackageReference Include="Granville.Orleans.Persistence.Memory" />
+    
+    <!-- Microsoft Orleans shims for compatibility -->
+    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" />
+    <PackageReference Include="Microsoft.Orleans.Core" />
+    <PackageReference Include="Microsoft.Orleans.Runtime" />
+    <PackageReference Include="Microsoft.Orleans.Serialization" />
+    <PackageReference Include="Microsoft.Orleans.Serialization.Abstractions" />
 
-    <!-- UFX.Orleans.SignalRBackplane -->
-    <PackageReference Include="UFX.Orleans.SignalRBackplane" />
+    <!-- UFX.Orleans.SignalRBackplane - temporarily removed, depends on Microsoft.Orleans 8.2.0 -->
+    <!-- <PackageReference Include="UFX.Orleans.SignalRBackplane" /> -->
   </ItemGroup>
 
   <ItemGroup>

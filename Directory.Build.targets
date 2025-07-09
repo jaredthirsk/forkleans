@@ -2,8 +2,36 @@
   <!-- Granville RPC Fork: Conditionally build assemblies as Granville.Orleans.* -->
   <!-- Default behavior: Build as original Orleans (BuildAsGranville defaults to false) -->
   
+  <!-- Set InformationVersion here, since $(Version) is already set at this point. -->
+  <PropertyGroup>
+    <InformationalVersion>$(Version). Commit Hash: $(GitHeadSha)</InformationalVersion>
+  </PropertyGroup>
+
+  <!-- Enable Orleans code generation when OrleansBuildTimeCodeGen is true -->
+  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Orleans.CodeGenerator/build/Microsoft.Orleans.CodeGenerator.props" />
+  <Import Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' " Project="$(MSBuildThisFileDirectory)src/Orleans.Sdk/build/Microsoft.Orleans.Sdk.targets" />
+  <ItemGroup>
+    <!-- Enable code generator - exclude analyzer projects themselves to avoid circular dependencies -->
+    <ProjectReference
+      Include="$(SourceRoot)src/Orleans.CodeGenerator/Orleans.CodeGenerator.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+      PrivateAssets="None"
+      Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' and '$(IsRoslynComponent)' != 'true' and '$(IsOrleansFrameworkPart)' != 'false' "/>
+    <ProjectReference
+      Include="$(SourceRoot)src/Orleans.Analyzers/Orleans.Analyzers.csproj"
+      AssetTargetFallback="netstandard2.0"
+      UndefineProperties="TargetFramework"
+      SkipGetTargetFrameworkProperties="true"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+      PrivateAssets="None"
+      Condition=" '$(OrleansBuildTimeCodeGen)' == 'true' and '$(IsRoslynComponent)' != 'true' and '$(IsOrleansFrameworkPart)' != 'false' "/>
+  </ItemGroup>
+  
   <!-- Handle projects that already have Microsoft.Orleans PackageId set -->
-  <PropertyGroup Condition="'$(BuildAsGranville)' == 'true' and '$(PackageId)' != '' and $([System.String]::Copy('$(PackageId)').StartsWith('Microsoft.Orleans'))">
+  <!-- Exclude analyzer projects -->
+  <PropertyGroup Condition="'$(BuildAsGranville)' == 'true' and '$(PackageId)' != '' and $([System.String]::Copy('$(PackageId)').StartsWith('Microsoft.Orleans')) and '$(IsRoslynComponent)' != 'true' and '$(MSBuildProjectName)' != 'Orleans.Analyzers' and '$(MSBuildProjectName)' != 'Orleans.CodeGenerator'">
     <!-- Store original for reference -->
     <OriginalPackageId>$(PackageId)</OriginalPackageId>
     
@@ -15,10 +43,11 @@
     <!-- Add version suffix -->
     <VersionSuffix>granville</VersionSuffix>
   </PropertyGroup>
+  
 
   <!-- Handle Orleans.* project files (e.g., Orleans.Core.csproj) -->
-  <!-- Exclude Orleans.Rpc.* projects as they have their own AssemblyName settings -->
-  <PropertyGroup Condition="'$(BuildAsGranville)' == 'true' and $([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.')) and !$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.Rpc.'))">
+  <!-- Exclude Orleans.Rpc.* projects and analyzer projects -->
+  <PropertyGroup Condition="'$(BuildAsGranville)' == 'true' and $([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.')) and !$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.Rpc.')) and '$(IsRoslynComponent)' != 'true' and '$(MSBuildProjectName)' != 'Orleans.Analyzers' and '$(MSBuildProjectName)' != 'Orleans.CodeGenerator'">
     <!-- Change both PackageId and AssemblyName to use Granville.Orleans.* -->
     <PackageId>Granville.$(MSBuildProjectName)</PackageId>
     <AssemblyName>Granville.$(MSBuildProjectName)</AssemblyName>
@@ -108,5 +137,8 @@
     
     <Message Text="Modified nuspec dependencies to use -granville-shim versions" Importance="high" />
   </Target>
+
+  <!-- Import Granville-specific build properties -->
+  <Import Project="Directory.Build.Granville.props" Condition="Exists('Directory.Build.Granville.props')" />
 
 </Project>

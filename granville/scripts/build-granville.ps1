@@ -47,7 +47,7 @@ foreach ($project in $projects) {
     Write-Host "`nBuilding $project..." -ForegroundColor Cyan
 
     try {
-        & dotnet build $project -c $Configuration -p:BuildAsGranville=true --no-dependencies
+        & dotnet build $project -c $Configuration -p:BuildAsGranville=true -p:EnableGranvilleCodeGen=true -p:Orleans_DesignTimeBuild=false --no-dependencies
 
         if ($LASTEXITCODE -ne 0) {
             throw "Build failed for $project"

@@ -4,10 +4,10 @@
   
   <PropertyGroup>
     <!-- Override versions for transitive dependencies -->
-    <PackageVersion_Microsoft_Orleans_Core>9.1.2.53-granville-shim</PackageVersion_Microsoft_Orleans_Core>
-    <PackageVersion_Microsoft_Orleans_Core_Abstractions>9.1.2.53-granville-shim</PackageVersion_Microsoft_Orleans_Core_Abstractions>
-    <PackageVersion_Microsoft_Orleans_Runtime>9.1.2.53-granville-shim</PackageVersion_Microsoft_Orleans_Runtime>
-    <PackageVersion_Microsoft_Orleans_Serialization>9.1.2.53-granville-shim</PackageVersion_Microsoft_Orleans_Serialization>
-    <PackageVersion_Microsoft_Orleans_Serialization_Abstractions>9.1.2.53-granville-shim</PackageVersion_Microsoft_Orleans_Serialization_Abstractions>
+    <PackageVersion_Microsoft_Orleans_Core>9.1.2.65-granville-shim</PackageVersion_Microsoft_Orleans_Core>
+    <PackageVersion_Microsoft_Orleans_Core_Abstractions>9.1.2.65-granville-shim</PackageVersion_Microsoft_Orleans_Core_Abstractions>
+    <PackageVersion_Microsoft_Orleans_Runtime>9.1.2.65-granville-shim</PackageVersion_Microsoft_Orleans_Runtime>
+    <PackageVersion_Microsoft_Orleans_Serialization>9.1.2.65-granville-shim</PackageVersion_Microsoft_Orleans_Serialization>
+    <PackageVersion_Microsoft_Orleans_Serialization_Abstractions>9.1.2.65-granville-shim</PackageVersion_Microsoft_Orleans_Serialization_Abstractions>
   </PropertyGroup>
 </Project>

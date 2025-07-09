@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>Granville.Orleans.Core.Abstractions</AssemblyName>
+    <RootNamespace>Orleans</RootNamespace>
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <Orleans_DesignTimeBuild>false</Orleans_DesignTimeBuild>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Include="../../src/Orleans.Core.Abstractions/**/*.cs" />
+    <Compile Remove="../../src/Orleans.Core.Abstractions/obj/**" />
+    <Compile Remove="../../src/Orleans.Core.Abstractions/bin/**" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="../../src/Orleans.Serialization/Orleans.Serialization.csproj" />
+  </ItemGroup>
+</Project>

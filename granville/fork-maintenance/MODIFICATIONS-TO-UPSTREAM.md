@@ -58,6 +58,8 @@ Note: All other Granville-specific files are located under `/granville/` directo
 3. `src/Orleans.Core/Orleans.Core.csproj` - Added packaging of Granville.Orleans.Core.props
 4. `src/Orleans.Sdk/Orleans.Sdk.csproj` - Added packaging of Granville.Orleans.Sdk.props
 5. `src/Orleans.CodeGenerator/Orleans.CodeGenerator.csproj` - Added packaging of Granville.Orleans.CodeGenerator.props
+6. `src/Orleans.Runtime/Properties/AssemblyInfo.cs` - Added InternalsVisibleTo for Granville.Orleans.Streaming and Granville.Orleans.TestingHost
+7. `src/Orleans.Transactions/Properties/AssemblyInfo.cs` - Added InternalsVisibleTo for Granville.Orleans.Transactions.TestKit.Base
 
 ### Root-Level Configuration Files Modified
 1. `.gitignore` - Added entries for Granville-specific patterns

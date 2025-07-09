@@ -1,10 +1,14 @@
 #!/usr/bin/env pwsh
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$VersionSuffix
+)
 
 $ErrorActionPreference = "Stop"
 
 Write-Host "Creating Orleans.Serialization NuGet package..." -ForegroundColor Cyan
 
-$version = "9.1.2.60-granville-shim"
+$version = "9.1.2.$VersionSuffix-granville-shim"
 $packageId = "Microsoft.Orleans.Serialization"
 
 # Create package directory structure

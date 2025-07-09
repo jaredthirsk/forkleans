@@ -1,0 +1,6 @@
+<Project>
+  <!-- Disable central package management for this directory -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+</Project>

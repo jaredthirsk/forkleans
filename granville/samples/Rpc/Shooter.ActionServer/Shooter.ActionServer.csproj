@@ -15,8 +15,9 @@
     <PackageReference Include="Granville.Rpc.Transport.LiteNetLib" />
     <PackageReference Include="Granville.Rpc.Transport.Ruffles" />
     
-    <!-- Official Microsoft Orleans packages for unmodified assemblies -->
-    <PackageReference Include="Microsoft.Orleans.Client" />
+    <!-- Granville Orleans packages -->
+    <PackageReference Include="Granville.Orleans.Client" />
+    <PackageReference Include="Granville.Orleans.Core.Abstractions" />
     
     <!-- Granville Orleans packages (only for the 5 modified assemblies) -->
     <PackageReference Include="Granville.Orleans.Core" />

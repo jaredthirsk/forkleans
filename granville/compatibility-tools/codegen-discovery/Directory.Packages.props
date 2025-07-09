@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageVersion Include="Granville.Orleans.Sdk" Version="9.1.2.53" />
+    <PackageVersion Include="Granville.Orleans.Core" Version="9.1.2.53" />
+    <PackageVersion Include="Granville.Orleans.Core.Abstractions" Version="9.1.2.53" />
+    <PackageVersion Include="Granville.Orleans.Serialization" Version="9.1.2.53" />
+    <PackageVersion Include="Granville.Orleans.Serialization.Abstractions" Version="9.1.2.53" />
+  </ItemGroup>
+</Project>

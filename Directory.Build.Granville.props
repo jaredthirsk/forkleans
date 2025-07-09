@@ -1,0 +1,9 @@
+<Project>
+  <!-- Special properties for building Granville Orleans with code generation -->
+  <PropertyGroup Condition="'$(BuildAsGranville)' == 'true' and '$(EnableGranvilleCodeGen)' == 'true'">
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <!-- These properties are needed to override the defaults in Orleans.CodeGenerator.props -->
+    <Orleans_DesignTimeBuild>false</Orleans_DesignTimeBuild>
+    <Granville_DesignTimeBuild>false</Granville_DesignTimeBuild>
+  </PropertyGroup>
+</Project>

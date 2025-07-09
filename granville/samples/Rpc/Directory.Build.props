@@ -9,5 +9,7 @@
     <Version></Version>
     <!-- Disable compatibility copy mechanism for Shooter sample -->
     <DisableCompatibilityCopies>true</DisableCompatibilityCopies>
+    <!-- Disable Orleans code generation to prevent duplicates with Granville -->
+    <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
   </PropertyGroup>
 </Project>

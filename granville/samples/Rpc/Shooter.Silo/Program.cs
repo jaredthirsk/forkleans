@@ -10,7 +10,7 @@ using System.Net;
 using System.Reflection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Runtime.Loader;
-using UFX.Orleans.SignalRBackplane;
+// using UFX.Orleans.SignalRBackplane; // Temporarily disabled - depends on Microsoft.Orleans 8.2.0
 
 // Assembly redirect system disabled - relying on proper shim compilation instead
 // Shooter.Shared.AssemblyRedirectHelper.Initialize();
@@ -86,9 +86,9 @@ builder.Host.UseOrleans(siloBuilder =>
         .AddMemoryGrainStorage("worldStore")
         .AddMemoryGrainStorage("playerStore")
         .AddMemoryGrainStorage("statsStore")  // Fix Issue 3: Add missing statsStore
-        .AddMemoryGrainStorage(UFX.Orleans.SignalRBackplane.Constants.StorageName) // UFX re-enabled
-        .UseInMemoryReminderService()
-        .AddSignalRBackplane();  // Enable SignalR backplane for multi-silo support
+        // .AddMemoryGrainStorage(UFX.Orleans.SignalRBackplane.Constants.StorageName) // UFX temporarily disabled
+        .UseInMemoryReminderService();
+        // .AddSignalRBackplane();  // UFX temporarily disabled - Enable SignalR backplane for multi-silo support
 });
 
 // TODO: Configure RPC client so Silo can communicate with ActionServers

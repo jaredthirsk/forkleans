@@ -10,53 +10,53 @@ $assemblies = @(
         "Name" = "Orleans.Core.Abstractions"
         "TargetFramework" = "net8.0"
         "References" = @(
-            "../../src/Orleans.Core.Abstractions/bin/Release/net8.0/Granville.Orleans.Core.Abstractions.dll"
+            "../../../src/Orleans.Core.Abstractions/bin/Release/net8.0/Granville.Orleans.Core.Abstractions.dll"
         )
     },
     @{
         "Name" = "Orleans.Core"
         "TargetFramework" = "net8.0"
         "References" = @(
-            "../../src/Orleans.Core/bin/Release/net8.0/Granville.Orleans.Core.dll",
-            "../../src/Orleans.Core.Abstractions/bin/Release/net8.0/Granville.Orleans.Core.Abstractions.dll"
+            "../../../src/Orleans.Core/bin/Release/net8.0/Granville.Orleans.Core.dll",
+            "../../../src/Orleans.Core.Abstractions/bin/Release/net8.0/Granville.Orleans.Core.Abstractions.dll"
         )
     },
     @{
         "Name" = "Orleans.Runtime"
         "TargetFramework" = "net8.0"
         "References" = @(
-            "../../src/Orleans.Runtime/bin/Release/net8.0/Granville.Orleans.Runtime.dll",
-            "../../src/Orleans.Core/bin/Release/net8.0/Granville.Orleans.Core.dll",
-            "../../src/Orleans.Core.Abstractions/bin/Release/net8.0/Granville.Orleans.Core.Abstractions.dll"
+            "../../../src/Orleans.Runtime/bin/Release/net8.0/Granville.Orleans.Runtime.dll",
+            "../../../src/Orleans.Core/bin/Release/net8.0/Granville.Orleans.Core.dll",
+            "../../../src/Orleans.Core.Abstractions/bin/Release/net8.0/Granville.Orleans.Core.Abstractions.dll"
         )
     },
     @{
         "Name" = "Orleans.Serialization.Abstractions"
         "TargetFramework" = "netstandard2.0"
         "References" = @(
-            "../../src/Orleans.Serialization.Abstractions/bin/Release/netstandard2.0/Granville.Orleans.Serialization.Abstractions.dll"
+            "../../../src/Orleans.Serialization.Abstractions/bin/Release/netstandard2.0/Granville.Orleans.Serialization.Abstractions.dll"
         )
     },
     @{
         "Name" = "Orleans.Serialization"
         "TargetFramework" = "net8.0"
         "References" = @(
-            "../../src/Orleans.Serialization/bin/Release/net8.0/Granville.Orleans.Serialization.dll",
-            "../../src/Orleans.Serialization.Abstractions/bin/Release/netstandard2.0/Granville.Orleans.Serialization.Abstractions.dll"
+            "../../../src/Orleans.Serialization/bin/Release/net8.0/Granville.Orleans.Serialization.dll",
+            "../../../src/Orleans.Serialization.Abstractions/bin/Release/netstandard2.0/Granville.Orleans.Serialization.Abstractions.dll"
         )
     },
     @{
         "Name" = "Orleans.CodeGenerator"
         "TargetFramework" = "netstandard2.0"
         "References" = @(
-            "../../src/Orleans.CodeGenerator/bin/Release/netstandard2.0/Granville.Orleans.CodeGenerator.dll"
+            "../../../src/Orleans.CodeGenerator/bin/Release/netstandard2.0/Granville.Orleans.CodeGenerator.dll"
         )
     },
     @{
         "Name" = "Orleans.Analyzers"
         "TargetFramework" = "netstandard2.0"
         "References" = @(
-            "../../src/Orleans.Analyzers/bin/Release/netstandard2.0/Granville.Orleans.Analyzers.dll"
+            "../../../src/Orleans.Analyzers/bin/Release/netstandard2.0/Granville.Orleans.Analyzers.dll"
         )
     }
 )
