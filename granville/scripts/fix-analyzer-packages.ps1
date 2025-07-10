@@ -1,10 +1,28 @@
 #!/usr/bin/env pwsh
 # Fix the Granville.Orleans.CodeGenerator and Analyzers packages to have correct structure
 
+param(
+    [string]$Version
+)
+
+# Read version from Directory.Build.props if not provided
+if (!$Version) {
+    $directoryBuildProps = Join-Path $PSScriptRoot "../../Directory.Build.props"
+    if (Test-Path $directoryBuildProps) {
+        $xml = [xml](Get-Content $directoryBuildProps)
+        $versionPrefix = $xml.SelectSingleNode("//VersionPrefix").InnerText
+        $granvilleRevision = $xml.SelectSingleNode("//GranvilleRevision").InnerText
+        $Version = "$versionPrefix.$granvilleRevision"
+    } else {
+        Write-Error "Version parameter is required or Directory.Build.props must exist with VersionPrefix and GranvilleRevision"
+        exit 1
+    }
+}
+
 Write-Host "Fixing Granville.Orleans analyzer packages..." -ForegroundColor Green
 
 # Fix CodeGenerator package
-$codegenPackage = "Artifacts/Release/Granville.Orleans.CodeGenerator.9.1.2.51.nupkg"
+$codegenPackage = "Artifacts/Release/Granville.Orleans.CodeGenerator.$Version.nupkg"
 if (Test-Path $codegenPackage) {
     Write-Host "`nFixing CodeGenerator package..." -ForegroundColor Cyan
     $tempDir = New-Item -ItemType Directory -Force -Path "temp-codegen-fix"
@@ -43,7 +61,7 @@ if (Test-Path $codegenPackage) {
 }
 
 # Fix Analyzers package
-$analyzersPackage = "Artifacts/Release/Granville.Orleans.Analyzers.9.1.2.51.nupkg"
+$analyzersPackage = "Artifacts/Release/Granville.Orleans.Analyzers.$Version.nupkg"
 if (Test-Path $analyzersPackage) {
     Write-Host "`nFixing Analyzers package..." -ForegroundColor Cyan
     $tempDir = New-Item -ItemType Directory -Force -Path "temp-analyzers-fix"

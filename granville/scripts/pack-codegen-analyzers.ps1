@@ -2,8 +2,24 @@
 # Manually package CodeGenerator and Analyzers which have issues with Directory.Build.targets.pack
 
 param(
-    [string]$Configuration = "Release"
+    [string]$Configuration = "Release",
+    [string]$Version
 )
+
+# Read version from Directory.Build.props if not provided
+if (!$Version) {
+    $directoryBuildProps = Join-Path $PSScriptRoot "../../Directory.Build.props"
+    if (Test-Path $directoryBuildProps) {
+        $xml = [xml](Get-Content $directoryBuildProps)
+        $versionPrefix = $xml.SelectSingleNode("//VersionPrefix").InnerText
+        $granvilleRevision = $xml.SelectSingleNode("//GranvilleRevision").InnerText
+        $Version = "$versionPrefix.$granvilleRevision"
+        Write-Host "Using version from Directory.Build.props: $Version" -ForegroundColor Yellow
+    } else {
+        Write-Error "Version parameter is required or Directory.Build.props must exist with VersionPrefix and GranvilleRevision"
+        exit 1
+    }
+}
 
 Write-Host "Manually packaging CodeGenerator and Analyzers..." -ForegroundColor Green
 
@@ -31,7 +47,7 @@ $codegenNuspec = @"
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Granville.Orleans.CodeGenerator</id>
-    <version>9.1.2.51</version>
+    <version>$Version</version>
     <authors>Granville RPC Contributors</authors>
     <description>Code generator for Granville Orleans</description>
     <dependencies>
@@ -65,7 +81,7 @@ $analyzersNuspec = @"
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Granville.Orleans.Analyzers</id>
-    <version>9.1.2.51</version>
+    <version>$Version</version>
     <authors>Granville RPC Contributors</authors>
     <description>Analyzers for Granville Orleans</description>
     <dependencies>

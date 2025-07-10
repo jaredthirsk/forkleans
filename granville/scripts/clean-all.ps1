@@ -3,13 +3,22 @@
 # Comprehensive cleaning script for Granville Orleans
 Write-Host "Cleaning Granville Orleans build artifacts..." -ForegroundColor Cyan
 
+# Determine if we're running in WSL2
+$isWSL = $false
+if (Test-Path "/proc/version") {
+    $procVersion = Get-Content "/proc/version" -ErrorAction SilentlyContinue
+    if ($procVersion -match "(WSL|Microsoft)") {
+        $isWSL = $true
+    }
+}
+
+# Choose appropriate dotnet command
+$dotnetCmd = if ($isWSL) { "dotnet-win" } else { "dotnet" }
+
 # Clean NuGet caches
 Write-Host "`nClearing NuGet caches..." -ForegroundColor Yellow
-if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
-    & dotnet-win nuget locals all --clear
-} else {
-    & dotnet nuget locals all --clear
-}
+Write-Host "Using: $dotnetCmd" -ForegroundColor Gray
+& $dotnetCmd nuget locals all --clear
 
 # Clean all bin and obj directories
 Write-Host "`nCleaning bin and obj directories..." -ForegroundColor Yellow

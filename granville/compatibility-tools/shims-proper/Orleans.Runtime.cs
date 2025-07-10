@@ -170,7 +170,7 @@ using System.Runtime.CompilerServices;
 [assembly: TypeForwardedTo(typeof(OrleansCodeGen.Orleans.Runtime.Development.Proxy_IDevelopmentLeaseProviderGrain))]
 [assembly: TypeForwardedTo(typeof(OrleansCodeGen.Orleans.Runtime.Development.Codec_Invokable_IDevelopmentLeaseProviderGrain_GrainReference_847FCE12))]
 [assembly: TypeForwardedTo(typeof(OrleansCodeGen.Orleans.Runtime.Development.Copier_Invokable_IDevelopmentLeaseProviderGrain_GrainReference_847FCE12))]
-// [assembly: TypeForwardedTo(typeof(System.Runtime.CompilerServices.IsExternalInit))] // Already forwarded in Core.Abstractions
+[assembly: TypeForwardedTo(typeof(System.Runtime.CompilerServices.IsExternalInit))]
 [assembly: TypeForwardedTo(typeof(Microsoft.Extensions.Hosting.OrleansSiloGenericHostExtensions))]
 [assembly: TypeForwardedTo(typeof(Orleans.IFacetMetadata))]
 [assembly: TypeForwardedTo(typeof(Orleans.PersistentStateAttributeMapper))]
@@ -460,10 +460,6 @@ using System.Runtime.CompilerServices;
 [assembly: TypeForwardedTo(typeof(Orleans.Runtime.ConsistentRing.IRingRangeListener))]
 [assembly: TypeForwardedTo(typeof(Orleans.Runtime.ConsistentRing.VirtualBucketsRingProvider))]
 [assembly: TypeForwardedTo(typeof(Orleans.Runtime.Configuration.SiloClusteringValidator))]
-
-// Type forwards to Granville.Orleans.Runtime - internal types
-// Note: InternalsVisibleTo in Granville.Orleans.Runtime allows us to forward internal types
-// CancellationSourcesExtension is already forwarded above as public type on line 237
 
 namespace Orleans_Runtime
 {

@@ -11,5 +11,7 @@
     <DisableCompatibilityCopies>true</DisableCompatibilityCopies>
     <!-- Disable Orleans code generation to prevent duplicates with Granville -->
     <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
+    <!-- Also disable Granville code generation when building the sample -->
+    <Granville_DesignTimeBuild>true</Granville_DesignTimeBuild>
   </PropertyGroup>
 </Project>

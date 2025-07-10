@@ -9,6 +9,32 @@ if (!(Test-Path "shims-proper")) {
     New-Item -ItemType Directory -Path "shims-proper" | Out-Null
 }
 
+# Determine if we're running in WSL2
+$isWSL = $false
+if (Test-Path "/proc/version") {
+    $procVersion = Get-Content "/proc/version" -ErrorAction SilentlyContinue
+    if ($procVersion -match "(WSL|Microsoft)") {
+        $isWSL = $true
+    }
+}
+
+# Choose appropriate dotnet command
+$dotnetCmd = if ($isWSL) { "dotnet-win" } else { "dotnet" }
+
+# Build the type-forwarding-generator tool if needed
+if (!(Test-Path "type-forwarding-generator/bin/Release/net8.0/GenerateTypeForwardingAssemblies.dll")) {
+    Write-Host "Building type-forwarding-generator tool..." -ForegroundColor Yellow
+    Push-Location type-forwarding-generator
+    & $dotnetCmd build -c Release
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to build type-forwarding-generator"
+        Pop-Location
+        exit 1
+    }
+    Pop-Location
+    Write-Host "✓ Type-forwarding-generator built successfully" -ForegroundColor Green
+}
+
 # Define the assemblies we need to create shims for
 $assemblies = @(
     @{
@@ -92,7 +118,7 @@ foreach ($asm in $assemblies) {
     Write-Host "  Target: $shimPath"
     
     # Run the generator
-    & dotnet type-forwarding-generator/bin/Release/net8.0/GenerateTypeForwardingAssemblies.dll $granvillePath $shimPath
+    & $dotnetCmd type-forwarding-generator/bin/Release/net8.0/GenerateTypeForwardingAssemblies.dll $granvillePath $shimPath
     
     if ($LASTEXITCODE -eq 0 -and (Test-Path $shimPath)) {
         Write-Host "  Success! Generated $shimPath" -ForegroundColor Green

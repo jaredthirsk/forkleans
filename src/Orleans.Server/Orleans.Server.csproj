@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Orleans.Persistence.Memory\Orleans.Persistence.Memory.csproj" />
+    <!-- Removed Orleans.Persistence.Memory - consumers should reference Microsoft.Orleans.Persistence.Memory directly -->
     <ProjectReference Include="..\Orleans.Runtime\Orleans.Runtime.csproj" />
     <ProjectReference Include="..\Orleans.Sdk\Orleans.Sdk.csproj" />
   </ItemGroup>

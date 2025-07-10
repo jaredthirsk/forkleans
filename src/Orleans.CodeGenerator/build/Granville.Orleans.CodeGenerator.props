@@ -1,12 +1,33 @@
 <Project>
   <!-- 
-    Automatically disable official Orleans code generation when using Granville.Orleans packages.
-    This prevents duplicate code generation errors when both Microsoft.Orleans and Granville.Orleans
-    packages are present in the same project.
-    
-    To re-enable official Orleans code generation, set Orleans_DesignTimeBuild to false in your project file.
+    Granville.Orleans.CodeGenerator props file
+    This file is used when the Granville.Orleans.CodeGenerator package is referenced.
+    It respects the Granville_DesignTimeBuild property to control code generation.
   -->
-  <PropertyGroup Condition="'$(Orleans_DesignTimeBuild)' == ''">
-    <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
+  
+  <ItemGroup>
+    <!-- Make Granville_DesignTimeBuild visible to the code generator -->
+    <CompilerVisibleProperty Include="Granville_DesignTimeBuild" />
+    <CompilerVisibleProperty Include="Orleans_AttachDebugger" />
+    <CompilerVisibleProperty Include="Orleans_GenerateFieldIds" />
+    <CompilerVisibleProperty Include="Orleans_ImmutableAttributes" />
+    <CompilerVisibleProperty Include="Orleans_IdAttributes" />
+    <CompilerVisibleProperty Include="Orleans_AliasAttributes" />
+    <CompilerVisibleProperty Include="Orleans_GenerateSerializerAttributes" />
+    <CompilerVisibleProperty Include="Orleans_ConstructorAttributes" />
+    <CompilerVisibleProperty Include="OrleansGenerateCompatibilityInvokers" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Use Granville_DesignTimeBuild to control code generation -->
+    <Granville_DesignTimeBuild Condition="'$(Granville_DesignTimeBuild)' == ''">$(DesignTimeBuild)</Granville_DesignTimeBuild>
+    
+    <!-- Pass through other Orleans properties -->
+    <Orleans_GenerateFieldIds>$(OrleansGenerateFieldIds)</Orleans_GenerateFieldIds>
+    <Orleans_ImmutableAttributes>$(OrleansImmutableAttributes)</Orleans_ImmutableAttributes>
+    <Orleans_IdAttributes>$(OrleansIdAttributes)</Orleans_IdAttributes>
+    <Orleans_AliasAttributes>$(OrleansAliasAttributes)</Orleans_AliasAttributes>
+    <Orleans_GenerateSerializerAttributes>$(OrleansGenerateSerializerAttributes)</Orleans_GenerateSerializerAttributes>
+    <Orleans_ConstructorAttributes>$(OrleansConstructorAttributes)</Orleans_ConstructorAttributes>
   </PropertyGroup>
 </Project>

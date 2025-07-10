@@ -8,7 +8,7 @@ This guide documents the repeatable build process for creating Orleans compatibi
 
 ### 1. Prerequisites
 
-- Granville Orleans assemblies must be built first (using `/granville/scripts/build-granville.ps1`)
+- Granville Orleans assemblies must be built first (using `/granville/scripts/build-granville-orleans.ps1`)
 - All assemblies are renamed from `Microsoft.Orleans.*` to `Granville.Orleans.*`
 
 ### 2. Core Build Scripts

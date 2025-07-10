@@ -12,7 +12,7 @@ We strive to keep Orleans upstream C# and other source files as untouched as pos
 All Granville-specific additions that are not part of upstream Orleans are organized under the `/granville/` directory:
 
 - **`/granville/scripts/`** - Build and maintenance scripts
-  - `build-granville.ps1/.sh` - Builds Granville Orleans assemblies
+  - `build-granville-orleans.ps1` - Builds Granville Orleans assemblies
   - `bump-granville-version.ps1` - Version management
   - `Fix-*.ps1` - Various fork maintenance scripts
   - `/historical/` - Archived/obsolete scripts kept for reference

@@ -19,7 +19,7 @@ We use a post-build PowerShell script to fix package dependencies after they're 
    - Modifies the nuspec file to append `-granville-shim` to Microsoft.Orleans.* dependencies
    - Repackages the modified contents
 
-2. **`build-granville.ps1`** - Main build script that automatically runs the dependency fixer
+2. **`build-granville-orleans.ps1`** - Main build script that automatically runs the dependency fixer
 
 ### How It Works
 

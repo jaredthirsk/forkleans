@@ -108,7 +108,7 @@ To build Granville Orleans assemblies:
 
 Or on Windows:
 ```powershell
-./granville/scripts/build-granville.ps1
+./granville/scripts/build-granville-orleans.ps1
 ```
 
 This will build all Orleans assemblies with the Granville.Orleans.* prefix while maintaining compatibility with code expecting Microsoft.Orleans.* assemblies.

@@ -106,7 +106,7 @@ For third-party packages, you might need to use shims selectively:
 ### Prerequisites
 1. Build Granville Orleans assemblies first:
    ```bash
-   ./granville/scripts/build-granville.ps1
+   ./granville/scripts/build-granville-orleans.ps1
    ```
 
 2. Build the type-forwarding generator:
@@ -142,7 +142,7 @@ See [MINIMAL-SHIMS-APPROACH.md](/granville/compatibility-tools/MINIMAL-SHIMS-APP
 ## Package Output Location
 
 All NuGet packages are output to `/Artifacts/Release/`:
-- Granville.Orleans.* packages (from build-granville.ps1)
+- Granville.Orleans.* packages (from build-granville-orleans.ps1)
 - Granville.Rpc.* packages (from build-granville-rpc-packages.ps1)
 - Microsoft.Orleans.*-granville-shim packages (from package-shims-direct.ps1)
 

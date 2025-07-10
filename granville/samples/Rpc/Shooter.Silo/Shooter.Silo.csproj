@@ -11,23 +11,18 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
 
-    <!-- Granville Orleans packages -->
+    <!-- Granville Orleans packages (modified for InternalsVisibleTo) -->
     <PackageReference Include="Granville.Orleans.Core" />
     <PackageReference Include="Granville.Orleans.Core.Abstractions" />
     <PackageReference Include="Granville.Orleans.Runtime" />
     <PackageReference Include="Granville.Orleans.Serialization" />
     <PackageReference Include="Granville.Orleans.Serialization.Abstractions" />
     <PackageReference Include="Granville.Orleans.Server" />
-    <PackageReference Include="Granville.Orleans.Reminders" />
-    <PackageReference Include="Granville.Orleans.Serialization.SystemTextJson" />
-    <PackageReference Include="Granville.Orleans.Persistence.Memory" />
     
-    <!-- Microsoft Orleans shims for compatibility -->
-    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" />
-    <PackageReference Include="Microsoft.Orleans.Core" />
-    <PackageReference Include="Microsoft.Orleans.Runtime" />
-    <PackageReference Include="Microsoft.Orleans.Serialization" />
-    <PackageReference Include="Microsoft.Orleans.Serialization.Abstractions" />
+    <!-- Microsoft Orleans packages (unmodified, demonstrating compatibility) -->
+    <PackageReference Include="Microsoft.Orleans.Reminders" />
+    <PackageReference Include="Microsoft.Orleans.Serialization.SystemTextJson" />
+    <PackageReference Include="Microsoft.Orleans.Persistence.Memory" />
 
     <!-- UFX.Orleans.SignalRBackplane - temporarily removed, depends on Microsoft.Orleans 8.2.0 -->
     <!-- <PackageReference Include="UFX.Orleans.SignalRBackplane" /> -->

@@ -1,7 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.CodeGenerator</PackageId>
+    <PackageId Condition="'$(BuildAsGranville)' != 'true'">Microsoft.Orleans.CodeGenerator</PackageId>
+    <PackageId Condition="'$(BuildAsGranville)' == 'true'">Granville.Orleans.CodeGenerator</PackageId>
+    <!-- Always keep the assembly name as Orleans.CodeGenerator for compatibility -->
+    <AssemblyName>Orleans.CodeGenerator</AssemblyName>
+    <TargetName>Orleans.CodeGenerator</TargetName>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageDescription>Code generation library for Orleans.Serialization</PackageDescription>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -28,7 +32,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(BuildAsGranville)' != 'true'">
     <Content Include="buildTransitive\Microsoft.Orleans.CodeGenerator.props">
       <PackagePath>%(Identity)</PackagePath>
       <Visible>true</Visible>
@@ -44,9 +48,23 @@
       <PackagePath>%(Identity)</PackagePath>
       <Visible>true</Visible>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(BuildAsGranville)' == 'true'">
     <Content Include="build\Granville.Orleans.CodeGenerator.props">
       <Pack>true</Pack>
-      <PackagePath>build\</PackagePath>
+      <PackagePath>build\Granville.Orleans.CodeGenerator.props</PackagePath>
+      <Visible>true</Visible>
+    </Content>
+    <Content Include="build\Granville.Orleans.CodeGenerator.props">
+      <Pack>true</Pack>
+      <PackagePath>buildTransitive\Granville.Orleans.CodeGenerator.props</PackagePath>
+      <Visible>true</Visible>
+    </Content>
+    <Content Include="build\Granville.Orleans.CodeGenerator.props">
+      <Pack>true</Pack>
+      <PackagePath>buildMultiTargeting\Granville.Orleans.CodeGenerator.props</PackagePath>
+      <Visible>true</Visible>
     </Content>
   </ItemGroup>
 

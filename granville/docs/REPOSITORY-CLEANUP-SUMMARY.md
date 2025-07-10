@@ -8,7 +8,7 @@ This document summarizes the repository reorganization performed to keep the Orl
 
 ### Scripts (`/granville/scripts/`)
 - **Build Scripts**:
-  - `build-granville.ps1`, `build-granville.sh` - Main Granville build scripts
+  - `build-granville-orleans.ps1`, `build-granville-orleans.sh` - Main Granville Orleans build scripts
   - `bump-granville-version.ps1` - Version management
   - `build-granville-rpc*.ps1` - RPC build scripts
   - `build-orleans-packages.ps1` - Package building

@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Analyzers</PackageId>
+    <PackageId Condition="'$(BuildAsGranville)' != 'true'">Microsoft.Orleans.Analyzers</PackageId>
+    <PackageId Condition="'$(BuildAsGranville)' == 'true'">Granville.Orleans.Analyzers</PackageId>
+    <!-- Always keep the assembly name as Orleans.Analyzers for compatibility -->
+    <AssemblyName>Orleans.Analyzers</AssemblyName>
+    <TargetName>Orleans.Analyzers</TargetName>
     <Title>Microsoft Orleans Analyzers</Title>
     <Description>C# Analyzers for Microsoft Orleans.</Description>
     <TargetFramework>netstandard2.0</TargetFramework>

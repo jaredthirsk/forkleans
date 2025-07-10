@@ -2,8 +2,28 @@
 # Fix the Granville.Orleans.Sdk package to have correct target file names
 
 param(
-    [string]$PackagePath = "Artifacts/Release/Granville.Orleans.Sdk.9.1.2.51.nupkg"
+    [string]$PackagePath,
+    [string]$Version
 )
+
+# Read version from Directory.Build.props if not provided
+if (!$Version) {
+    $directoryBuildProps = Join-Path $PSScriptRoot "../../Directory.Build.props"
+    if (Test-Path $directoryBuildProps) {
+        $xml = [xml](Get-Content $directoryBuildProps)
+        $versionPrefix = $xml.SelectSingleNode("//VersionPrefix").InnerText
+        $granvilleRevision = $xml.SelectSingleNode("//GranvilleRevision").InnerText
+        $Version = "$versionPrefix.$granvilleRevision"
+    } else {
+        Write-Error "Version parameter is required or Directory.Build.props must exist with VersionPrefix and GranvilleRevision"
+        exit 1
+    }
+}
+
+# Set default package path if not provided
+if (!$PackagePath) {
+    $PackagePath = "Artifacts/Release/Granville.Orleans.Sdk.$Version.nupkg"
+}
 
 Write-Host "Fixing Granville.Orleans.Sdk package..." -ForegroundColor Green
 

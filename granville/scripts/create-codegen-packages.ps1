@@ -2,8 +2,24 @@
 # Create minimal packages for CodeGenerator and Analyzers
 
 param(
-    [string]$Configuration = "Release"
+    [string]$Configuration = "Release",
+    [string]$Version
 )
+
+# Read version from Directory.Build.props if not provided
+if (!$Version) {
+    $directoryBuildProps = Join-Path $PSScriptRoot "../../Directory.Build.props"
+    if (Test-Path $directoryBuildProps) {
+        $xml = [xml](Get-Content $directoryBuildProps)
+        $versionPrefix = $xml.SelectSingleNode("//VersionPrefix").InnerText
+        $granvilleRevision = $xml.SelectSingleNode("//GranvilleRevision").InnerText
+        $Version = "$versionPrefix.$granvilleRevision"
+        Write-Host "Using version from Directory.Build.props: $Version" -ForegroundColor Yellow
+    } else {
+        Write-Error "Version parameter is required or Directory.Build.props must exist with VersionPrefix and GranvilleRevision"
+        exit 1
+    }
+}
 
 Write-Host "Creating CodeGenerator and Analyzers packages..." -ForegroundColor Green
 
@@ -29,7 +45,7 @@ $codegenProj = @"
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>Granville.Orleans.CodeGenerator</PackageId>
-    <Version>9.1.2.51</Version>
+    <Version>$Version</Version>
     <Authors>Granville RPC Contributors</Authors>
     <Description>Code generator for Granville Orleans</Description>
     <DevelopmentDependency>true</DevelopmentDependency>
@@ -64,7 +80,7 @@ $analyzersProj = @"
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>Granville.Orleans.Analyzers</PackageId>
-    <Version>9.1.2.51</Version>
+    <Version>$Version</Version>
     <Authors>Granville RPC Contributors</Authors>
     <Description>Analyzers for Granville Orleans</Description>
     <DevelopmentDependency>true</DevelopmentDependency>

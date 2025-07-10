@@ -83,7 +83,7 @@ See `/granville/compatibility-tools/README.md` for details.
 1. `/granville/REPO-ORGANIZATION.md` - Repository structure guide
 2. `/granville/fork-maintenance/MODIFICATIONS-TO-UPSTREAM.md` - All upstream changes
 3. `/Directory.Build.targets` - MSBuild customizations for assembly renaming
-4. `/granville/scripts/build-granville.ps1` - Main build script
+4. `/granville/scripts/build-granville-orleans.ps1` - Main build script for Orleans assemblies
 5. `/Directory.Build.props` - contains the current revision part of the version like this: "<GranvilleRevision Condition=" '$(GranvilleRevision)'=='' ">99</GranvilleRevision>"
 
 # Goals

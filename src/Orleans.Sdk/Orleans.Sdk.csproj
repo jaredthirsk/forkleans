@@ -1,8 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Microsoft.Orleans.Sdk</PackageId>
-    <Description>Microsoft Orleans meta package to bring in the base Orleans packages for all project types.</Description>
+    <PackageId Condition="'$(BuildAsGranville)' != 'true'">Microsoft.Orleans.Sdk</PackageId>
+    <PackageId Condition="'$(BuildAsGranville)' == 'true'">Granville.Orleans.Sdk</PackageId>
+    <Description Condition="'$(BuildAsGranville)' != 'true'">Microsoft Orleans meta package to bring in the base Orleans packages for all project types.</Description>
+    <Description Condition="'$(BuildAsGranville)' == 'true'">Granville Orleans meta package to bring in the base Orleans packages for all project types.</Description>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <NoPackageAnalysis>true</NoPackageAnalysis>
@@ -12,7 +14,7 @@
     <NoWarn>MSB3277</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(BuildAsGranville)' != 'true'">
     <Content Include="buildTransitive\Microsoft.Orleans.Sdk.targets">
       <PackagePath>%(Identity)</PackagePath>
       <Visible>true</Visible>
@@ -26,6 +28,24 @@
     <Content Include="buildMultiTargeting\Microsoft.Orleans.Sdk.targets">
       <Pack>true</Pack>
       <PackagePath>%(Identity)</PackagePath>
+      <Visible>true</Visible>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(BuildAsGranville)' == 'true'">
+    <Content Include="build\Granville.Orleans.Sdk.targets">
+      <Pack>true</Pack>
+      <PackagePath>build\Granville.Orleans.Sdk.targets</PackagePath>
+      <Visible>true</Visible>
+    </Content>
+    <Content Include="build\Granville.Orleans.Sdk.targets">
+      <Pack>true</Pack>
+      <PackagePath>buildTransitive\Granville.Orleans.Sdk.targets</PackagePath>
+      <Visible>true</Visible>
+    </Content>
+    <Content Include="build\Granville.Orleans.Sdk.targets">
+      <Pack>true</Pack>
+      <PackagePath>buildMultiTargeting\Granville.Orleans.Sdk.targets</PackagePath>
       <Visible>true</Visible>
     </Content>
   </ItemGroup>

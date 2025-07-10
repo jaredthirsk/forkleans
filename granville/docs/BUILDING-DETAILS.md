@@ -9,6 +9,9 @@ This document provides detailed information about the Granville Orleans fork bui
 4. [Build Types and Code Generation](#build-types-and-code-generation)
 5. [Package Reference Requirements](#package-reference-requirements)
 6. [Shooter Sample Build Strategy](#shooter-sample-build-strategy)
+7. [Build Process Details](#build-process-details)
+8. [Post-Pack Manipulations](#post-pack-manipulations)
+9. [File Copying Operations](#file-copying-operations)
 
 ## Package Categories
 
@@ -31,11 +34,11 @@ These are built because they depend on our modified packages and need to referen
 
 ### 3. Type-Forwarding Shim Packages
 These packages forward types from Orleans.* to Granville.Orleans.*:
-- **Microsoft.Orleans.Core.Abstractions** (9.1.2.65-granville-shim)
-- **Microsoft.Orleans.Core** (9.1.2.65-granville-shim)
-- **Microsoft.Orleans.Runtime** (9.1.2.65-granville-shim)
-- **Microsoft.Orleans.Serialization.Abstractions** (9.1.2.65-granville-shim)
-- **Microsoft.Orleans.Serialization** (9.1.2.65-granville-shim)
+- **Microsoft.Orleans.Core.Abstractions** (*-granville-shim)
+- **Microsoft.Orleans.Core** (*-granville-shim)
+- **Microsoft.Orleans.Runtime** (*-granville-shim)
+- **Microsoft.Orleans.Serialization.Abstractions** (*-granville-shim)
+- **Microsoft.Orleans.Serialization** (*-granville-shim)
 
 ### 4. Code Generation Packages
 - **Granville.Orleans.CodeGenerator** - Roslyn source generator for Orleans types (renamed from Orleans.CodeGenerator)
@@ -43,16 +46,16 @@ These packages forward types from Orleans.* to Granville.Orleans.*:
 
 **Important:** These packages are built as Orleans.* first, then repackaged as Granville.Orleans.* to ensure proper metadata and dependencies.
 
-### 5. Convenience Packages (Not Modified)
-These are built for convenience but not modified:
-- **Granville.Orleans.Persistence.Memory** - In-memory storage provider
-- **Granville.Orleans.Reminders** - Reminder service
-- **Granville.Orleans.Serialization.SystemTextJson** - JSON serialization
+### 5. Convenience Packages (Use Microsoft.Orleans Versions)
+Certain Orleans packages are not built as Granville versions. Instead, applications should reference the official Microsoft.Orleans packages:
+- **Microsoft.Orleans.Persistence.Memory** - In-memory storage provider
+- **Microsoft.Orleans.Reminders** - Reminder service
+- **Microsoft.Orleans.Serialization.SystemTextJson** - JSON serialization
 
-**Why build unmodified packages?** 
-- Ensures version consistency across the stack
-- Prevents mixing Granville and Microsoft assemblies
-- Simplifies dependency management for consumers
+**Rationale:** 
+- These packages don't require InternalsVisibleTo modifications
+- Using Microsoft versions demonstrates compatibility
+- Reduces maintenance burden while maintaining full functionality
 
 ## Shimmed Packages and Their Dependencies
 
@@ -138,40 +141,51 @@ When using third-party packages that depend on Microsoft.Orleans:
 
 ## Build Types and Code Generation
 
-### 1. Standard Orleans Build
+### 1. Upstream Verification Build
 ```bash
-dotnet build Orleans.sln
+./granville/scripts/build-upstream-verification.ps1
 ```
 - **Code Generator**: Orleans.CodeGenerator (original)
 - **Assembly Names**: Orleans.*.dll
 - **Package Names**: Microsoft.Orleans.*
-- **When to use**: Testing Orleans compatibility
+- **When to use**: Validating Orleans compatibility without modifications
 
 ### 2. Granville Orleans Build
 ```bash
-dotnet build Orleans.sln -p:BuildAsGranville=true
+./granville/scripts/build-granville-orleans.ps1
+./granville/scripts/pack-granville-orleans-packages.ps1
 ```
 - **Code Generator**: Granville.Orleans.CodeGenerator
 - **Assembly Names**: Granville.Orleans.*.dll
 - **Package Names**: Granville.Orleans.*
-- **When to use**: Building Granville packages
+- **When to use**: Building core Granville Orleans packages
 
-### 3. Granville RPC Build
+### 3. Type-Forwarding Shims Build
 ```bash
-dotnet build Granville.Rpc.sln
+./granville/scripts/build-shims.ps1
+```
+- **Code Generator**: None (shims only forward types)
+- **Assembly Names**: Orleans.*.dll (minimal forwarding assemblies)
+- **Package Names**: Microsoft.Orleans.*-granville-shim
+- **When to use**: Creating compatibility packages for third-party libraries
+
+### 4. Granville RPC Build
+```bash
+./granville/scripts/build-granville-rpc.ps1
 ```
 - **Code Generator**: Granville.Orleans.CodeGenerator (via package reference)
+- **Assembly Names**: Granville.Rpc.*.dll
+- **Package Names**: Granville.Rpc.*
 - **References**: Granville.Orleans.* packages
 - **When to use**: Building RPC functionality
 
-### 4. Shooter Sample Build
+### 5. Sample Applications Build
 ```bash
-cd granville/samples/Rpc
-dotnet build
+./granville/scripts/build-shooter-sample.ps1
 ```
 - **Code Generator**: Granville.Orleans.CodeGenerator (via Granville.Orleans.Sdk)
 - **References**: Granville.Orleans.* and Granville.Rpc.* packages
-- **When to use**: Building sample applications
+- **When to use**: Building and testing sample applications
 
 ## Package Reference Requirements
 
@@ -195,13 +209,13 @@ When NuGet resolves to wrong versions (e.g., Microsoft.Orleans 9.2.0-preview1):
 
 ```xml
 <!-- Option 1: Explicit version -->
-<PackageReference Include="Granville.Orleans.Core" Version="9.1.2.65" />
+<PackageReference Include="Granville.Orleans.Core" Version="9.1.2.*" />
 
 <!-- Option 2: Exclude transitive Microsoft packages -->
 <PackageReference Include="Microsoft.Orleans.Core" ExcludeAssets="All" />
 
 <!-- Option 3: Use PackageReference Update -->
-<PackageReference Update="Microsoft.Orleans.*" VersionOverride="9.1.2.65-granville-shim" />
+<PackageReference Update="Microsoft.Orleans.*" VersionOverride="9.1.2.*-granville-shim" />
 ```
 
 ## Shooter Sample Build Strategy
@@ -283,49 +297,201 @@ Due to the code generator emitting assembly-qualified type names, you may need M
 
 5. **FileNotFoundException for Orleans.*.dll at runtime**
    - Cause: Missing shim packages
-   - Solution: Add Microsoft.Orleans.* shim packages (version 9.1.2.XX-granville-shim)
+   - Solution: Add Microsoft.Orleans.* shim packages (version *-granville-shim)
 
 6. **CS0101 Duplicate definitions (code generation)**
    - Cause: Both Microsoft.Orleans.CodeGenerator and Granville.Orleans.CodeGenerator running
    - Solution: Set `Orleans_DesignTimeBuild=true` in Directory.Build.props
 
+## Build Process Details
+
+### Build Order and Dependencies
+
+The build process follows a specific order to handle dependencies correctly:
+
+1. **Core Assemblies** (built first with `build-granville-orleans.ps1`):
+   - Orleans.Serialization.Abstractions
+   - Orleans.Serialization
+   - Orleans.Core.Abstractions
+   - Orleans.Core
+   - Orleans.CodeGenerator
+   - Orleans.Analyzers
+   - Orleans.Runtime
+
+2. **Dependent Packages** (built via pack scripts):
+   - Orleans.Server
+   - Orleans.Client
+   - Orleans.Sdk
+   - Orleans.Streaming
+   - Orleans.TestingHost
+
+3. **Type-Forwarding Shims** (built with `package-minimal-shims.ps1`):
+   - Microsoft.Orleans.* packages with -granville-shim suffix
+
+4. **Granville RPC** (built separately):
+   - Granville.Rpc.* packages
+
+### Compatibility Copies Creation
+
+During the build process, compatibility copies are created to support scenarios where both Orleans.dll and Granville.Orleans.dll names might be expected:
+
+```powershell
+# From build-granville-orleans.ps1 Create-CompatibilityLinks function
+# After building Granville.Orleans.Core.dll, it creates:
+Granville.Orleans.Core.dll → Orleans.Core.dll (copy)
+```
+
+**Purpose:** These compatibility copies ensure that code expecting Orleans.dll names can still find the assemblies during the build process. This is particularly important for:
+- Code generation tools that might look for specific assembly names
+- Build tools that have hardcoded references to Orleans.dll
+- Transitional scenarios during the build process
+
+**Note:** These copies are created in the bin directories during build but are NOT included in the final NuGet packages.
+
+## Post-Pack Manipulations
+
+Several scripts modify NuGet packages after they are created to ensure proper dependencies and naming:
+
+### 1. Dependency Fixing for Granville.Orleans Packages
+
+**Script:** `fix-granville-dependencies.ps1`
+
+**Operations:**
+1. Extracts each Granville.Orleans.*.nupkg
+2. Modifies the .nuspec file to:
+   - Replace `Microsoft.Orleans.Analyzers` → `Granville.Orleans.Analyzers`
+   - Replace `Microsoft.Orleans.CodeGenerator` → `Granville.Orleans.CodeGenerator`
+   - Add `-granville-shim` suffix to shimmed Microsoft.Orleans dependencies
+3. Repackages the .nupkg file
+
+**Example transformation:**
+```xml
+<!-- Before -->
+<dependency id="Microsoft.Orleans.CodeGenerator" version="9.1.2.X" />
+<dependency id="Microsoft.Orleans.Core" version="9.1.2.X" />
+
+<!-- After -->
+<dependency id="Granville.Orleans.CodeGenerator" version="9.1.2.X" />
+<dependency id="Microsoft.Orleans.Core" version="9.1.2.X-granville-shim" />
+```
+
+### 2. SDK Package Target File Renaming
+
+**Script:** `fix-sdk-package.ps1`
+
+**Operations:**
+1. Extracts Granville.Orleans.Sdk.nupkg
+2. Renames MSBuild target files:
+   - `Microsoft.Orleans.Sdk.targets` → `Granville.Orleans.Sdk.targets`
+3. Updates references within the targets files:
+   - `Microsoft.Orleans.Sdk` → `Granville.Orleans.Sdk`
+   - `Microsoft.Orleans.CodeGenerator` → `Granville.Orleans.CodeGenerator`
+   - `Microsoft.Orleans.Analyzers` → `Granville.Orleans.Analyzers`
+4. Updates the .nuspec to reference the renamed files
+5. Repackages the .nupkg
+
+### 3. Analyzer Package Fixing
+
+**Script:** `fix-analyzer-packages.ps1`
+
+**Operations:**
+1. Processes both CodeGenerator and Analyzers packages
+2. Renames any Microsoft.Orleans.* files to Granville.Orleans.*
+3. Updates internal references
+4. Repackages with corrected metadata
+
+### 4. RPC Package Dependency Fixing
+
+**Script:** `fix-rpc-package-dependencies.ps1`
+
+**Operations:**
+1. Ensures all Granville.Rpc packages reference Granville.Orleans (not Microsoft.Orleans)
+2. Updates version references to match current Granville version
+
+## File Copying Operations
+
+The build process involves several file copying operations:
+
+### 1. Compatibility Copies During Build
+
+**Location:** `build-granville-orleans.ps1`
+
+**What:** Creates Orleans.dll copies of Granville.Orleans.dll files
+
+**When:** After each project builds successfully
+
+**Example:**
+```
+bin/Release/net8.0/
+├── Granville.Orleans.Core.dll (original)
+└── Orleans.Core.dll (compatibility copy)
+```
+
+### 2. Shim DLL Compilation
+
+**Location:** `compile-all-shims.ps1`
+
+**What:** Compiles type-forwarding shim assemblies from generated C# source
+
+**Process:**
+1. Type-forwarding generator creates C# source files
+2. Scripts compile these into minimal DLLs that forward to Granville assemblies
+3. DLLs are packaged into Microsoft.Orleans.* NuGet packages
+
+### 3. Analyzer DLL Handling
+
+**Location:** Various analyzer packaging scripts
+
+**What:** Copies analyzer DLLs into correct package structure
+
+**Structure:**
+```
+analyzers/dotnet/cs/
+├── Granville.Orleans.CodeGenerator.dll
+└── Granville.Orleans.Analyzers.dll
+```
+
 ## Build Scripts and Automation
 
 ### Key Build Scripts
 
-1. **build-granville-orleans-packages.ps1**
-   - Builds all Granville.Orleans packages
-   - Reads version from `granville/current-revision.txt`
-   - Cleans up any Microsoft.Orleans packages without -granville-shim suffix
+1. **build-granville-orleans.ps1**
+   - Main build orchestrator for Orleans assemblies
+   - Creates compatibility copies
+   - Builds in dependency order
 
-2. **package-minimal-shims.ps1**
+2. **pack-granville-orleans-packages.ps1**
+   - Packs Granville.Orleans packages
+   - Reads version from Directory.Build.props
+   - No hardcoded version defaults
+
+3. **package-minimal-shims.ps1**
    - Creates Microsoft.Orleans shim packages with type forwarding
    - Adds -granville-shim suffix to version
 
-3. **fix-granville-dependencies.ps1**
-   - Fixes dependencies in Granville.Orleans packages
-   - Replaces Microsoft.Orleans.Analyzers/CodeGenerator with Granville versions
-   - Only fixes dependencies for packages we have shims for
+4. **fix-granville-dependencies.ps1**
+   - Post-pack manipulation of Granville.Orleans packages
+   - Fixes analyzer/codegen dependencies
+   - Adds -granville-shim suffix to Microsoft.Orleans dependencies
 
-4. **fix-rpc-package-dependencies.ps1**
-   - Fixes dependencies in Granville.Rpc packages
-   - Ensures they reference Granville.Orleans instead of Microsoft.Orleans
+5. **fix-sdk-package.ps1**
+   - Post-pack manipulation of SDK package
+   - Renames target files from Microsoft.Orleans to Granville.Orleans
 
-5. **repackage-analyzer-packages.ps1**
-   - Creates Granville versions of analyzer packages
-   - Fixes metadata and dependencies
+6. **fix-rpc-package-dependencies.ps1**
+   - Post-pack manipulation of Granville.Rpc packages
+   - Ensures Granville.Orleans dependencies
 
 ### Version Management
 
-**Current Revision Tracking:**
-- Primary: `granville/current-revision.txt` (e.g., contains "65")
-- Fallback: `Directory.Build.props` `<GranvilleRevision>` property
-- Full version: 9.1.2.{revision} (e.g., 9.1.2.65)
+**Version Source:**
+- Primary: `Directory.Build.props` contains `<GranvilleRevision>` property
+- Scripts read version dynamically - no hardcoded defaults
+- Full version format: {VersionPrefix}.{GranvilleRevision}
 
 **Shim Package Versions:**
 - Microsoft.Orleans shim packages use version suffix: -granville-shim
-- Example: Microsoft.Orleans.Core 9.1.2.65-granville-shim
-- Directory.Build.targets in samples must be updated when revision changes
+- Example: Microsoft.Orleans.Core {version}-granville-shim
 
 **Important:** Always clear NuGet caches when changing versions:
 ```bash
@@ -336,11 +502,18 @@ dotnet nuget locals all --clear
 
 The Granville Orleans fork maintains compatibility while adding InternalsVisibleTo support for Granville.Rpc. The build system:
 
-1. **Modifies only necessary packages** - 6 core packages with InternalsVisibleTo
-2. **Builds dependent packages** - To maintain version consistency
-3. **Provides shims** - For compatibility with third-party packages and generated code
-4. **Uses Granville code generator** - For all Granville-based projects
-5. **Supports multiple build scenarios** - From Orleans testing to production Granville apps
-6. **Handles analyzer packages specially** - Repackaged as Granville versions to avoid Microsoft package creation
+1. **Modifies only necessary packages** - Core packages with InternalsVisibleTo modifications
+2. **Creates compatibility copies** - Orleans.dll copies during build for tooling compatibility
+3. **Performs post-pack manipulations** - Fixes dependencies, renames files, updates metadata
+4. **Provides type-forwarding shims** - For compatibility with third-party packages
+5. **Uses Granville code generator** - For all Granville-based projects
+6. **Supports multiple build scenarios** - From Orleans verification to production Granville apps
 
-For the Shooter sample and other Granville applications, always use Granville.Orleans packages with the Granville.Orleans.CodeGenerator for consistent behavior and proper RPC integration. Include Microsoft.Orleans shim packages when encountering assembly reference issues from generated code.
+The build process is fully automated through PowerShell scripts that handle:
+- Dependency ordering
+- Compatibility copy creation
+- Package manipulation
+- Version management
+- Shim generation
+
+For production use, always use the provided build scripts rather than manual builds to ensure all manipulations and fixes are applied correctly.

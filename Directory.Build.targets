@@ -30,8 +30,7 @@
   </ItemGroup>
   
   <!-- Handle projects that already have Microsoft.Orleans PackageId set -->
-  <!-- Exclude analyzer projects -->
-  <PropertyGroup Condition="'$(BuildAsGranville)' == 'true' and '$(PackageId)' != '' and $([System.String]::Copy('$(PackageId)').StartsWith('Microsoft.Orleans')) and '$(IsRoslynComponent)' != 'true' and '$(MSBuildProjectName)' != 'Orleans.Analyzers' and '$(MSBuildProjectName)' != 'Orleans.CodeGenerator'">
+  <PropertyGroup Condition="'$(BuildAsGranville)' == 'true' and '$(PackageId)' != '' and $([System.String]::Copy('$(PackageId)').StartsWith('Microsoft.Orleans'))">
     <!-- Store original for reference -->
     <OriginalPackageId>$(PackageId)</OriginalPackageId>
     
@@ -46,8 +45,8 @@
   
 
   <!-- Handle Orleans.* project files (e.g., Orleans.Core.csproj) -->
-  <!-- Exclude Orleans.Rpc.* projects and analyzer projects -->
-  <PropertyGroup Condition="'$(BuildAsGranville)' == 'true' and $([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.')) and !$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.Rpc.')) and '$(IsRoslynComponent)' != 'true' and '$(MSBuildProjectName)' != 'Orleans.Analyzers' and '$(MSBuildProjectName)' != 'Orleans.CodeGenerator'">
+  <!-- Exclude Orleans.Rpc.* projects and analyzer/codegen projects -->
+  <PropertyGroup Condition="'$(BuildAsGranville)' == 'true' and $([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.')) and !$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Orleans.Rpc.')) and '$(MSBuildProjectName)' != 'Orleans.Analyzers' and '$(MSBuildProjectName)' != 'Orleans.CodeGenerator'">
     <!-- Change both PackageId and AssemblyName to use Granville.Orleans.* -->
     <PackageId>Granville.$(MSBuildProjectName)</PackageId>
     <AssemblyName>Granville.$(MSBuildProjectName)</AssemblyName>

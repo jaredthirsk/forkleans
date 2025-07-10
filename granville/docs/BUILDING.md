@@ -13,10 +13,11 @@ This guide covers how to build all components of the Granville Orleans fork, inc
 
 The Granville Orleans fork supports multiple build scenarios:
 
-1. **Upstream Verification** - Builds official Orleans without modifications
-2. **Granville Minimal** - Builds only required Orleans assemblies as Granville.Orleans.*
-3. **Type-Forwarding Shims** - Builds Microsoft.Orleans.* packages that forward to Granville
-4. **Shooter Sample** - Builds the sample application using Granville packages
+1. **Upstream Verification** - Validates that official Orleans builds correctly without modifications
+2. **Granville Orleans** - Builds required Orleans assemblies as Granville.Orleans.* packages
+3. **Type-Forwarding Shims** - Creates Microsoft.Orleans.* packages that forward to Granville
+4. **Granville RPC** - Builds the RPC implementation as Granville.Rpc.* packages
+5. **Sample Applications** - Demonstrates usage with the Shooter game sample
 
 ## Quick Start
 
@@ -47,20 +48,18 @@ This builds `Orleans.sln` with default settings (BuildAsGranville=false), produc
 
 ### 2. Build Granville Orleans Core Assemblies
 
-To build the minimal set of Orleans assemblies renamed to Granville.Orleans.*:
+To build Orleans assemblies renamed to Granville.Orleans.*:
 
 ```bash
-./granville/scripts/build-granville-minimal.ps1
+./granville/scripts/build-granville-orleans.ps1
+./granville/scripts/pack-granville-orleans-packages.ps1
 ```
 
-This builds `Granville.Minimal.sln` with BuildAsGranville=true, producing:
-- `Granville.Orleans.Core`
-- `Granville.Orleans.Core.Abstractions`
-- `Granville.Orleans.Serialization`
-- `Granville.Orleans.Serialization.Abstractions`
-- `Granville.Orleans.CodeGenerator`
-- `Granville.Orleans.Analyzers`
-- `Granville.Orleans.Runtime`
+This produces the following packages:
+- `Granville.Orleans.Core` and `Core.Abstractions`
+- `Granville.Orleans.Serialization` and `Serialization.Abstractions`
+- `Granville.Orleans.CodeGenerator` and `Analyzers`
+- `Granville.Orleans.Runtime`, `Server`, `Client`
 - `Granville.Orleans.Sdk`
 
 Output: `Artifacts/Release/Granville.Orleans.*.nupkg`
@@ -77,9 +76,25 @@ This generates shim assemblies that enable third-party packages to compile again
 
 Output: `Artifacts/Release/Microsoft.Orleans.*-granville-shim.nupkg`
 
-### 4. Build Shooter Sample
+### 4. Build Granville RPC Packages
 
-To build the sample application:
+To build the RPC implementation:
+
+```bash
+./granville/scripts/build-granville-rpc.ps1
+```
+
+This produces:
+- `Granville.Rpc.Core` - Core RPC functionality
+- `Granville.Rpc.Client` - Client-side RPC implementation
+- `Granville.Rpc.Runtime` - Server-side RPC runtime
+- `Granville.Rpc.Sdk` - Meta-package for RPC development
+
+Output: `Artifacts/Release/Granville.Rpc.*.nupkg`
+
+### 5. Build Sample Applications
+
+To build the Shooter sample:
 
 ```bash
 ./granville/scripts/build-shooter-sample.ps1
@@ -155,19 +170,28 @@ Microsoft.Orleans.* packages that forward types to Granville.Orleans assemblies.
 
 Third-party packages can then reference the shim packages:
 ```xml
-<PackageReference Include="Microsoft.Orleans.Core" Version="9.1.2.51-granville-shim" />
+<PackageReference Include="Microsoft.Orleans.Core" Version="9.1.2.*-granville-shim" />
 <PackageReference Include="UFX.Orleans.SignalRBackplane" Version="8.2.2" />
 ```
 
 ## Local NuGet Feed
 
-To test packages locally:
+Packages are output to `Artifacts/Release/` which serves as the local NuGet feed.
 
-```bash
-./granville/scripts/setup-local-feed.ps1
+To use the local feed in your projects, add a `NuGet.config` file:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <clear />
+    <add key="local-granville" value="../../Artifacts/Release" />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+  </packageSources>
+</configuration>
 ```
 
-This creates a local feed at `~/local-nuget-feed/`.
+The Shooter sample already includes this configuration.
 
 ## Troubleshooting
 
@@ -203,10 +227,13 @@ The `Directory.Build.targets` conditionally renames assemblies based on BuildAsG
 
 ### Version Management
 
-To update version numbers:
+Version numbers are managed in `Directory.Build.props`:
+- `<VersionPrefix>` - Orleans version (e.g., 9.1.2)
+- `<GranvilleRevision>` - Fork revision number
 
+To update the revision:
 ```bash
-./granville/scripts/bump-granville-version.ps1 -NewVersion "9.1.3-granville"
+./granville/scripts/bump-granville-version.ps1
 ```
 
 ### Clean Build
@@ -217,26 +244,32 @@ To clean all build artifacts:
 ./granville/scripts/clean-build-artifacts.ps1
 ```
 
-### Individual Build Scripts
+### Build Script Reference
 
-For more control, use individual build scripts:
+Core build scripts:
 
 ```bash
-# Build only minimal Orleans assemblies
-./granville/scripts/build-granville-minimal.ps1
+# Build Granville Orleans assemblies
+./granville/scripts/build-granville-orleans.ps1
 
-# Build only shims
+# Pack Granville Orleans packages
+./granville/scripts/pack-granville-orleans-packages.ps1
+
+# Build type-forwarding shims
 ./granville/scripts/build-shims.ps1
 
-# Build only sample
-./granville/scripts/build-shooter-sample.ps1
+# Build Granville RPC packages
+./granville/scripts/build-granville-rpc.ps1
 
-# Verify upstream builds
-./granville/scripts/build-upstream-verification.ps1
+# Build sample applications
+./granville/scripts/build-shooter-sample.ps1
 ```
+
+For detailed build information, see `/granville/docs/BUILDING-DETAILS.md`.
 
 ## Next Steps
 
 - See `/granville/REPO-ORGANIZATION.md` for repository structure
+- See `/granville/docs/BUILDING-DETAILS.md` for detailed build process information
 - See `/granville/compatibility-tools/README.md` for compatibility strategies
-- See `/granville/samples/Rpc/CLAUDE.md` for sample-specific guidance
+- See `/granville/samples/Rpc/README.md` for sample application documentation

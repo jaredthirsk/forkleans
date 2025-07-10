@@ -5,10 +5,13 @@
 
 .DESCRIPTION
     This convenience script runs all build steps in the proper sequence:
+    -1. Bump Granville revision number (optional, disabled by default)
+    0. Clean build artifacts (optional, enabled by default)
     1. Build Granville Orleans assemblies (with BuildAsGranville=true)
     2. Build type-forwarding shims for compatibility
-    3. Setup local NuGet feed
-    4. Build Shooter sample application
+    3. Build Granville RPC packages
+    4. Setup local NuGet feed
+    5. Build Shooter sample application
 
 .PARAMETER Configuration
     Build configuration (Debug or Release)
@@ -26,39 +29,184 @@
     Run the Shooter AppHost after building
     Default: false
 
+.PARAMETER SkipClean
+    Skip the cleaning step before building
+    Default: false (cleaning is enabled by default)
+
+.PARAMETER CleanArtifacts
+    Also clean the Artifacts/Release directory
+    Default: false
+
+.PARAMETER BumpRevision
+    Bump the Granville revision number before building
+    Default: false
+
 .EXAMPLE
     ./build-all-granville.ps1
-    Builds everything in Release mode
+    Cleans and builds everything in Release mode
 
 .EXAMPLE
     ./build-all-granville.ps1 -RunSample
-    Builds everything and runs the Shooter sample
+    Cleans, builds everything and runs the Shooter sample
 
 .EXAMPLE
     ./build-all-granville.ps1 -SkipShims -SkipSample
-    Builds only Granville Orleans assemblies
+    Cleans and builds only Granville Orleans assemblies
+
+.EXAMPLE
+    ./build-all-granville.ps1 -SkipClean
+    Builds without cleaning first
+
+.EXAMPLE
+    ./build-all-granville.ps1 -CleanArtifacts
+    Cleans everything including Artifacts/Release before building
+
+.EXAMPLE
+    ./build-all-granville.ps1 -BumpRevision
+    Bumps the revision number and builds everything
 #>
 param(
     [string]$Configuration = "Release",
     [switch]$SkipShims = $false,
     [switch]$SkipSample = $false,
-    [switch]$RunSample = $false
+    [switch]$RunSample = $false,
+    [switch]$SkipClean = $false,
+    [switch]$CleanArtifacts = $false,
+    [switch]$BumpRevision = $false
 )
 
 $ErrorActionPreference = "Stop"
 
 Write-Host "=== Granville Complete Build ===" -ForegroundColor Green
 Write-Host "Configuration: $Configuration" -ForegroundColor Cyan
+Write-Host "Clean Before Build: $(-not $SkipClean)" -ForegroundColor Cyan
+Write-Host "Bump Revision: $BumpRevision" -ForegroundColor Cyan
 Write-Host "Build Shims: $(-not $SkipShims)" -ForegroundColor Cyan
 Write-Host "Build Sample: $(-not $SkipSample)" -ForegroundColor Cyan
 
 $startTime = Get-Date
 
-# Step 1: Build Granville Orleans minimal assemblies
+# Step -1: Bump revision if requested
+if ($BumpRevision) {
+    Write-Host "`n[-1/4] Bumping Granville revision number..." -ForegroundColor Yellow
+    
+    $bumpScript = Join-Path $PSScriptRoot "bump-granville-version.ps1"
+    if (Test-Path $bumpScript) {
+        & $bumpScript
+        # PowerShell scripts don't always set LASTEXITCODE properly
+        # Check if the version was actually updated by reading the file
+        # Directory.Build.props is in the repository root, two levels up from scripts folder
+        $buildPropsPath = Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) "Directory.Build.props"
+        $content = Get-Content $buildPropsPath -Raw
+        if ($content -match '<GranvilleRevision[^>]*>([^<]+)</GranvilleRevision>') {
+            $newRevision = $matches[1]
+            Write-Host "  ✓ Bumped to revision: $newRevision" -ForegroundColor Green
+        } else {
+            Write-Error "Failed to bump Granville revision"
+            exit 1
+        }
+    } else {
+        Write-Error "bump-granville-version.ps1 not found"
+        exit 1
+    }
+}
+else {
+    Write-Host "`n[-1/4] Skipping revision bump (BumpRevision=false)" -ForegroundColor Gray
+}
+
+# Step 0: Clean if not skipped
+if (-not $SkipClean) {
+    Write-Host "`n[0/4] Cleaning build artifacts..." -ForegroundColor Yellow
+    
+    # Determine if we're running in WSL2
+    $isWSL = $false
+    if (Test-Path "/proc/version") {
+        $procVersion = Get-Content "/proc/version" -ErrorAction SilentlyContinue
+        if ($procVersion -match "(WSL|Microsoft)") {
+            $isWSL = $true
+        }
+    }
+    
+    # Choose appropriate dotnet command
+    $dotnetCmd = if ($isWSL) { "dotnet-win" } else { "dotnet" }
+    
+    # Clean NuGet caches
+    Write-Host "  Clearing NuGet caches..." -ForegroundColor Gray
+    & $dotnetCmd nuget locals all --clear | Out-Null
+    
+    # Clean all bin and obj directories
+    Write-Host "  Cleaning bin and obj directories..." -ForegroundColor Gray
+    Get-ChildItem -Path . -Include bin,obj -Recurse -Directory | ForEach-Object {
+        Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    
+    # Clean temporary build directories
+    Write-Host "  Cleaning temporary directories..." -ForegroundColor Gray
+    $tempDirs = @(
+        "granville/compatibility-tools/temp-*",
+        "granville/scripts/temp-*",
+        "temp-*",
+        "TestResults"
+    )
+    
+    foreach ($pattern in $tempDirs) {
+        Get-ChildItem -Path . -Filter $pattern -Recurse -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+            Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+    
+    # Clean logs
+    Write-Host "  Cleaning log files..." -ForegroundColor Gray
+    $logPatterns = @(
+        "*.log",
+        "logs/*.log",
+        "granville/samples/Rpc/logs/*.log"
+    )
+    
+    foreach ($pattern in $logPatterns) {
+        Get-ChildItem -Path . -Filter $pattern -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
+            Remove-Item $_ -Force -ErrorAction SilentlyContinue
+        }
+    }
+    
+    # Clean Artifacts/Release if requested
+    if ($CleanArtifacts) {
+        Write-Host "  Cleaning Artifacts/Release..." -ForegroundColor Gray
+        Remove-Item -Path "Artifacts/Release/*" -Force -ErrorAction SilentlyContinue
+    }
+    
+    Write-Host "  ✓ Cleaning complete!" -ForegroundColor Green
+}
+else {
+    Write-Host "`n[0/4] Skipping clean step (SkipClean=true)" -ForegroundColor Gray
+}
+
+# Step 1: Build and Package Granville Orleans assemblies
 Write-Host "`n[1/4] Building Granville Orleans assemblies..." -ForegroundColor Yellow
-& "$PSScriptRoot/build-granville-minimal.ps1" -Configuration $Configuration
+
+# First build the assemblies
+$buildScript = if (Test-Path "$PSScriptRoot/build-granville-full.ps1") { 
+    "$PSScriptRoot/build-granville-full.ps1" 
+} else { 
+    "$PSScriptRoot/build-granville-minimal.ps1" 
+}
+& $buildScript -Configuration $Configuration
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Failed to build Granville Orleans assemblies"
+    exit 1
+}
+
+# Then package them
+Write-Host "`nPackaging Granville Orleans assemblies..." -ForegroundColor Yellow
+$packageScript = "$PSScriptRoot/build-granville-orleans-packages.ps1"
+if (Test-Path $packageScript) {
+    & $packageScript -Configuration $Configuration
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to package Granville Orleans assemblies"
+        exit 1
+    }
+} else {
+    Write-Error "build-granville-orleans-packages.ps1 not found"
     exit 1
 }
 
@@ -75,17 +223,31 @@ else {
     Write-Host "`n[2/4] Skipping type-forwarding shims (SkipShims=true)" -ForegroundColor Gray
 }
 
-# Step 3: Setup local NuGet feed
-Write-Host "`n[3/4] Setting up local NuGet feed..." -ForegroundColor Yellow
+# Step 3: Build Granville RPC packages
+Write-Host "`n[3/5] Building Granville RPC packages..." -ForegroundColor Yellow
+$rpcScript = "$PSScriptRoot/build-granville-rpc-packages.ps1"
+if (Test-Path $rpcScript) {
+    & $rpcScript -Configuration $Configuration
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to build Granville RPC packages"
+        exit 1
+    }
+} else {
+    Write-Error "build-granville-rpc-packages.ps1 not found"
+    exit 1
+}
+
+# Step 4: Setup local NuGet feed
+Write-Host "`n[4/5] Setting up local NuGet feed..." -ForegroundColor Yellow
 & "$PSScriptRoot/setup-local-feed.ps1"
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Failed to setup local NuGet feed"
     exit 1
 }
 
-# Step 4: Build Shooter sample
+# Step 5: Build Shooter sample
 if (-not $SkipSample) {
-    Write-Host "`n[4/4] Building Shooter sample..." -ForegroundColor Yellow
+    Write-Host "`n[5/5] Building Shooter sample..." -ForegroundColor Yellow
     & "$PSScriptRoot/build-shooter-sample.ps1" -Configuration $Configuration -SetupLocalFeed $false -RunAfterBuild:$RunSample
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Failed to build Shooter sample"
@@ -93,7 +255,7 @@ if (-not $SkipSample) {
     }
 }
 else {
-    Write-Host "`n[4/4] Skipping Shooter sample (SkipSample=true)" -ForegroundColor Gray
+    Write-Host "`n[5/5] Skipping Shooter sample (SkipSample=true)" -ForegroundColor Gray
 }
 
 # Summary

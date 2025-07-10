@@ -16,7 +16,7 @@ Write-Host "Package directory: $PackageDirectory"
 # Find all Granville.Orleans.* packages
 $granvillePackages = Get-ChildItem -Path $PackageDirectory -Filter "Granville.Orleans.*.nupkg" | Where-Object { $_.Name -notmatch "symbols\.nupkg$" }
 
-if ($granvillePackages.Count -eq 0) {
+if (-not $granvillePackages -or @($granvillePackages).Count -eq 0) {
     Write-Host "No Granville.Orleans.* packages found in $PackageDirectory" -ForegroundColor Yellow
     exit 1
 }

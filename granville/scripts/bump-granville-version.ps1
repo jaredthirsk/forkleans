@@ -47,11 +47,21 @@ if (-not (Test-Path $buildPropsPath)) {
 
 # Read current version
 $content = Get-Content $buildPropsPath -Raw
-if ($content -match '<Version>([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)</Version>') {
-    $currentVersion = $matches[1]
+$versionPrefix = ""
+$granvilleRevision = ""
+
+if ($content -match '<VersionPrefix[^>]*>([0-9]+\.[0-9]+\.[0-9]+)</VersionPrefix>') {
+    $versionPrefix = $matches[1]
+}
+if ($content -match '<GranvilleRevision[^>]*>([0-9]+)</GranvilleRevision>') {
+    $granvilleRevision = $matches[1]
+}
+
+if ($versionPrefix -and $granvilleRevision) {
+    $currentVersion = "$versionPrefix.$granvilleRevision"
     Write-Host "Current version: $currentVersion" -ForegroundColor Cyan
 } else {
-    Write-Error "Could not find version in Directory.Build.props"
+    Write-Error "Could not find VersionPrefix and GranvilleRevision in Directory.Build.props"
     exit 1
 }
 

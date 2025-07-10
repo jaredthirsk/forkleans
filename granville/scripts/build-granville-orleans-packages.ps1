@@ -8,6 +8,18 @@ param(
 
 Write-Host "Building and packaging Granville.Orleans packages..." -ForegroundColor Green
 
+# Determine if we're running in WSL2
+$isWSL = $false
+if (Test-Path "/proc/version") {
+    $procVersion = Get-Content "/proc/version" -ErrorAction SilentlyContinue
+    if ($procVersion -match "(WSL|Microsoft)") {
+        $isWSL = $true
+    }
+}
+
+# Choose appropriate dotnet command
+$dotnetCmd = if ($isWSL) { "dotnet-win" } else { "dotnet" }
+
 # Get version dynamically if not provided
 if ([string]::IsNullOrEmpty($Version)) {
     # Try to read from current-revision.txt first
@@ -47,15 +59,12 @@ $projects = @(
     "src/Orleans.Sdk/Orleans.Sdk.csproj",
     "src/Orleans.Runtime/Orleans.Runtime.csproj",
     "src/Orleans.Server/Orleans.Server.csproj",
-    "src/Orleans.Client/Orleans.Client.csproj",
-    "src/Orleans.Persistence.Memory/Orleans.Persistence.Memory.csproj",
-    "src/Orleans.Reminders/Orleans.Reminders.csproj",
-    "src/Orleans.Serialization.SystemTextJson/Orleans.Serialization.SystemTextJson.csproj"
+    "src/Orleans.Client/Orleans.Client.csproj"
 )
 
 # First build all dependencies
 Write-Host "Building Orleans.sln to ensure all dependencies are built..." -ForegroundColor Yellow
-dotnet build Orleans.sln -c $Configuration -p:BuildAsGranville=true
+& $dotnetCmd build Orleans.sln -c $Configuration -p:BuildAsGranville=true
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Failed to build Orleans.sln"
     exit 1
@@ -67,7 +76,7 @@ foreach ($project in $projects) {
     Write-Host "`nPacking $projectName..." -ForegroundColor Cyan
     
     # Pack with Granville naming
-    dotnet pack $project -c $Configuration -o Artifacts/Release --no-build `
+    & $dotnetCmd pack $project -c $Configuration -o Artifacts/Release --no-build `
         -p:BuildAsGranville=true `
         -p:PackageVersion="$Version"
         

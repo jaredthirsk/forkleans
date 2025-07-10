@@ -12,9 +12,22 @@ Get-Process | Where-Object { $_.ProcessName -match "Shooter\.(Silo|ActionServer|
 # Clean logs
 Remove-Item ../logs/*.log -Force -ErrorAction SilentlyContinue
 
+# Determine if we're running in WSL2
+$isWSL = $false
+if (Test-Path "/proc/version") {
+    $procVersion = Get-Content "/proc/version" -ErrorAction SilentlyContinue
+    if ($procVersion -match "(WSL|Microsoft)") {
+        $isWSL = $true
+    }
+}
+
+# Choose appropriate dotnet command
+$dotnetCmd = if ($isWSL) { "dotnet-win" } else { "dotnet" }
+
 # Clean and run
 Write-Host "`nCleaning build..." -ForegroundColor Cyan
-dotnet clean
+& $dotnetCmd clean
 
 Write-Host "`nStarting AppHost..." -ForegroundColor Green
-dotnet run -c Release -- $args
+Write-Host "Using: $dotnetCmd" -ForegroundColor Gray
+& $dotnetCmd run -c Release -- $args

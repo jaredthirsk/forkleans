@@ -15,13 +15,6 @@
     <PackageReference Include="Granville.Orleans.Serialization.Abstractions" />
     <PackageReference Include="Granville.Orleans.Runtime" />
     <PackageReference Include="Granville.Orleans.Sdk" />
-    
-    <!-- Microsoft Orleans shims for compatibility -->
-    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" />
-    <PackageReference Include="Microsoft.Orleans.Core" />
-    <PackageReference Include="Microsoft.Orleans.Runtime" />
-    <PackageReference Include="Microsoft.Orleans.Serialization" />
-    <PackageReference Include="Microsoft.Orleans.Serialization.Abstractions" />
 
     <!-- Granville RPC packages -->
     <PackageReference Include="Granville.Rpc.Abstractions" />

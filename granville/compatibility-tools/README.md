@@ -58,7 +58,7 @@ First, ensure Granville Orleans assemblies are built:
 
 ```bash
 # From repository root
-./granville/scripts/build-granville.ps1
+./granville/scripts/build-granville-orleans.ps1
 ```
 
 Then generate the shim assemblies:
@@ -152,7 +152,7 @@ To verify the shims work correctly:
 
 ### Empty Shim Assemblies
 - **Cause**: Granville assemblies not built or not found
-- **Solution**: Run `./granville/scripts/build-granville.ps1` first
+- **Solution**: Run `./granville/scripts/build-granville-orleans.ps1` first
 
 ### Generator Errors
 - **Cause**: Assembly loading conflicts or missing dependencies

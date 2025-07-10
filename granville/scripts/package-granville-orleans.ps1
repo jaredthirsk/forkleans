@@ -1,7 +1,24 @@
 #!/usr/bin/env pwsh
 # Package already built Granville.Orleans assemblies
 
-$Version = "9.1.2.51"
+param(
+    [string]$Version
+)
+
+# Read version from Directory.Build.props if not provided
+if (!$Version) {
+    $directoryBuildProps = Join-Path $PSScriptRoot "../../Directory.Build.props"
+    if (Test-Path $directoryBuildProps) {
+        $xml = [xml](Get-Content $directoryBuildProps)
+        $versionPrefix = $xml.SelectSingleNode("//VersionPrefix").InnerText
+        $granvilleRevision = $xml.SelectSingleNode("//GranvilleRevision").InnerText
+        $Version = "$versionPrefix.$granvilleRevision"
+        Write-Host "Using version from Directory.Build.props: $Version" -ForegroundColor Yellow
+    } else {
+        Write-Error "Version parameter is required or Directory.Build.props must exist with VersionPrefix and GranvilleRevision"
+        exit 1
+    }
+}
 
 Write-Host "Creating Granville.Orleans NuGet packages..." -ForegroundColor Green
 
@@ -18,10 +35,7 @@ $assemblies = @(
     @{Name="Granville.Orleans.Analyzers"; Deps=@()},
     @{Name="Granville.Orleans.Runtime"; Deps=@("Granville.Orleans.Core")},
     @{Name="Granville.Orleans.Sdk"; Deps=@("Granville.Orleans.Core", "Granville.Orleans.CodeGenerator", "Granville.Orleans.Analyzers")},
-    @{Name="Granville.Orleans.Server"; Deps=@("Granville.Orleans.Runtime", "Granville.Orleans.Core")},
-    @{Name="Granville.Orleans.Persistence.Memory"; Deps=@("Granville.Orleans.Core")},
-    @{Name="Granville.Orleans.Reminders"; Deps=@("Granville.Orleans.Core")},
-    @{Name="Granville.Orleans.Serialization.SystemTextJson"; Deps=@("Granville.Orleans.Serialization")}
+    @{Name="Granville.Orleans.Server"; Deps=@("Granville.Orleans.Runtime", "Granville.Orleans.Core")}
 )
 
 foreach ($assembly in $assemblies) {
