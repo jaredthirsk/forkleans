@@ -84,6 +84,19 @@ builder.Services.AddHostedService<ConsoleRedirectorCleanupService>();
 Console.WriteLine($"ActionServer logging to: {logFileName}");
 Console.WriteLine($"Console output logging to: {consoleLogFileName}");
 
+// Set up unhandled exception handlers to ensure they're captured
+AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+{
+    var ex = args.ExceptionObject as Exception;
+    Console.Error.WriteLine($"Unhandled exception in AppDomain: {ex}");
+};
+
+TaskScheduler.UnobservedTaskException += (sender, args) =>
+{
+    Console.Error.WriteLine($"Unobserved task exception: {args.Exception}");
+    args.SetObserved(); // Prevent process termination
+};
+
 // Add services
 builder.Services.AddHealthChecks()
     .AddCheck<Shooter.ActionServer.HealthChecks.ActionServerHealthCheck>("actionserver", tags: new[] { "ready" });

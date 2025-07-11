@@ -47,6 +47,11 @@ public class ConsoleRedirector : TextWriter
             _originalWriter.WriteLine(value);
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
             _fileWriter.WriteLine($"{timestamp} [{_prefix}] {value ?? string.Empty}");
+            // Ensure error output is immediately written to disk
+            if (_prefix == "ERR")
+            {
+                _fileWriter.Flush();
+            }
         }
     }
 
