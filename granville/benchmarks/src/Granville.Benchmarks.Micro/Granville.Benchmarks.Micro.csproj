@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
+    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.12" Condition="'$(OS)' == 'Windows_NT'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Granville.Benchmarks.Core\Granville.Benchmarks.Core.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Rpc\Orleans.Rpc.Client\Orleans.Rpc.Client.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Rpc\Orleans.Rpc.Server\Orleans.Rpc.Server.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Rpc\Orleans.Rpc.Transport.LiteNetLib\Orleans.Rpc.Transport.LiteNetLib.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Rpc\Orleans.Rpc.Transport.Ruffles\Orleans.Rpc.Transport.Ruffles.csproj" />
+  </ItemGroup>
+
+</Project>

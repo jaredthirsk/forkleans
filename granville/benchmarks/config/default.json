@@ -1,0 +1,79 @@
+{
+  "benchmarkSettings": {
+    "warmupDuration": "00:00:10",
+    "testDuration": "00:01:00",
+    "cooldownDuration": "00:00:05",
+    "iterations": 3
+  },
+  "workloads": {
+    "fps": {
+      "clientCount": 100,
+      "messageSize": 256,
+      "messagesPerSecond": 60,
+      "useReliableTransport": false,
+      "description": "FPS-style game with high-frequency position updates"
+    },
+    "moba": {
+      "clientCount": 200,
+      "messageSize": 512,
+      "messagesPerSecond": 30,
+      "useReliableTransport": true,
+      "reliabilityMix": 0.7,
+      "description": "MOBA-style game with mixed reliable/unreliable messages"
+    },
+    "mmo": {
+      "clientCount": 1000,
+      "messageSize": 1024,
+      "messagesPerSecond": 10,
+      "useReliableTransport": true,
+      "description": "MMO-style game with many players and larger state updates"
+    }
+  },
+  "transports": [
+    {
+      "type": "LiteNetLib",
+      "reliable": true,
+      "settings": {
+        "disconnectTimeout": 5000,
+        "maxConnectAttempts": 10
+      }
+    },
+    {
+      "type": "LiteNetLib",
+      "reliable": false,
+      "settings": {
+        "disconnectTimeout": 5000,
+        "maxConnectAttempts": 10
+      }
+    },
+    {
+      "type": "Ruffles",
+      "reliable": true,
+      "settings": {
+        "socketBufferSize": 1024000,
+        "channelCount": 1
+      }
+    },
+    {
+      "type": "Ruffles",
+      "reliable": false,
+      "settings": {
+        "socketBufferSize": 1024000,
+        "channelCount": 1
+      }
+    },
+    {
+      "type": "Orleans.TCP",
+      "reliable": true,
+      "settings": {}
+    }
+  ],
+  "networkConditions": {
+    "default": {
+      "latencyMs": 0,
+      "jitterMs": 0,
+      "packetLoss": 0.0,
+      "bandwidth": 0
+    }
+  }
+}

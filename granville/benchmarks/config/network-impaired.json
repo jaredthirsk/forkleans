@@ -1,0 +1,75 @@
+{
+  "benchmarkSettings": {
+    "warmupDuration": "00:00:20",
+    "testDuration": "00:02:00",
+    "cooldownDuration": "00:00:10",
+    "iterations": 5
+  },
+  "workloads": {
+    "fps": {
+      "clientCount": 100,
+      "messageSize": 256,
+      "messagesPerSecond": 60,
+      "useReliableTransport": false,
+      "description": "FPS game under poor network conditions"
+    },
+    "moba": {
+      "clientCount": 200,
+      "messageSize": 512,
+      "messagesPerSecond": 30,
+      "useReliableTransport": true,
+      "reliabilityMix": 0.7,
+      "description": "MOBA game under poor network conditions"
+    }
+  },
+  "transports": [
+    {
+      "type": "LiteNetLib",
+      "reliable": true,
+      "settings": {
+        "disconnectTimeout": 10000,
+        "maxConnectAttempts": 20,
+        "reconnectDelay": 500
+      }
+    },
+    {
+      "type": "Ruffles",
+      "reliable": true,
+      "settings": {
+        "socketBufferSize": 2048000,
+        "channelCount": 2,
+        "maxRetransmits": 10
+      }
+    }
+  ],
+  "networkConditions": {
+    "lowLatency": {
+      "latencyMs": 20,
+      "jitterMs": 5,
+      "packetLoss": 0.01,
+      "bandwidth": 0,
+      "description": "Low latency with minimal packet loss (good broadband)"
+    },
+    "highLatency": {
+      "latencyMs": 100,
+      "jitterMs": 20,
+      "packetLoss": 0.02,
+      "bandwidth": 0,
+      "description": "High latency with some packet loss (intercontinental)"
+    },
+    "mobile3G": {
+      "latencyMs": 150,
+      "jitterMs": 50,
+      "packetLoss": 0.05,
+      "bandwidth": 1000000,
+      "description": "3G mobile network conditions"
+    },
+    "congested": {
+      "latencyMs": 50,
+      "jitterMs": 30,
+      "packetLoss": 0.10,
+      "bandwidth": 500000,
+      "description": "Congested network with high packet loss"
+    }
+  }
+}

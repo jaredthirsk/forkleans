@@ -112,7 +112,8 @@ builder.Host.UseOrleans(siloBuilder =>
     siloBuilder
         .UseLocalhostClustering(
             siloPort: 11111,
-            gatewayPort: 30000)
+            gatewayPort: 30000,
+            primarySiloEndpoint: new IPEndPoint(IPAddress.Loopback, 11111))
         .Configure<ClusterOptions>(options =>
         {
             options.ClusterId = "dev";
@@ -146,6 +147,8 @@ builder.Services.AddSerializer(serializerBuilder =>
     serializerBuilder.AddAssembly(typeof(Orleans.MembershipTableData).Assembly); // Orleans.Core
     // Add Orleans.Runtime assembly for internal types
     serializerBuilder.AddAssembly(typeof(Orleans.Runtime.SiloAddress).Assembly); // Orleans.Runtime
+    // Add Granville.Orleans.Persistence.Memory for storage-related types
+    serializerBuilder.AddAssembly(typeof(Orleans.Storage.MemoryGrainStorage).Assembly); // Granville.Orleans.Persistence.Memory
     // TODO: Add RPC interfaces when RPC client is properly configured
     // serializerBuilder.AddAssembly(typeof(Shooter.Shared.RpcInterfaces.IGameRpcGrain).Assembly);
 });
@@ -155,6 +158,9 @@ builder.Services.Configure<Orleans.Serialization.Configuration.TypeManifestOptio
 {
     options.AllowAllTypes = true; // Allow all types for development
 });
+
+// Add the serialization host services that include internal codecs
+builder.Services.AddSerializer();
 
 // Add trace logging for Orleans type discovery and grain registration
 builder.Logging.AddFilter("Orleans.Metadata", LogLevel.Trace);

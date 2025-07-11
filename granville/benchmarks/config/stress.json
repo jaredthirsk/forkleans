@@ -1,0 +1,59 @@
+{
+  "benchmarkSettings": {
+    "warmupDuration": "00:00:30",
+    "testDuration": "00:05:00",
+    "cooldownDuration": "00:00:10",
+    "iterations": 5
+  },
+  "workloads": {
+    "stress_connections": {
+      "clientCount": 10000,
+      "messageSize": 128,
+      "messagesPerSecond": 10,
+      "useReliableTransport": true,
+      "description": "Stress test with many concurrent connections"
+    },
+    "stress_throughput": {
+      "clientCount": 100,
+      "messageSize": 256,
+      "messagesPerSecond": 1000,
+      "useReliableTransport": false,
+      "description": "Stress test for maximum throughput"
+    },
+    "stress_large_messages": {
+      "clientCount": 50,
+      "messageSize": 65536,
+      "messagesPerSecond": 10,
+      "useReliableTransport": true,
+      "description": "Stress test with large message sizes"
+    }
+  },
+  "transports": [
+    {
+      "type": "LiteNetLib",
+      "reliable": false,
+      "settings": {
+        "disconnectTimeout": 10000,
+        "maxConnectAttempts": 20,
+        "updateTime": 5
+      }
+    },
+    {
+      "type": "Ruffles",
+      "reliable": false,
+      "settings": {
+        "socketBufferSize": 4096000,
+        "channelCount": 4,
+        "maxFragments": 512
+      }
+    }
+  ],
+  "networkConditions": {
+    "default": {
+      "latencyMs": 0,
+      "jitterMs": 0,
+      "packetLoss": 0.0,
+      "bandwidth": 0
+    }
+  }
+}
