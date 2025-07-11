@@ -1,0 +1,63 @@
+# Detailed Hierarchical Task List for Benchmarking
+
+- [ ] **Preparation Phase**
+  - [ ] Review current Granville implementation
+    - [ ] Build and run the forkleans repo locally.
+    - [ ] Test basic UDP RPC calls with LiteNetLib and Ruffles.
+    - [ ] Verify swappable transport functionality.
+    - [ ] Document any existing performance notes from granville/docs.
+  - [ ] Define benchmark scope
+    - [ ] List key metrics: latency (avg, p50, p95, p99), throughput, CPU/memory usage, packet loss recovery time, error rates.
+    - [ ] Identify comparison baselines: Granville UDP (LiteNetLib), Granville UDP (Ruffles), standard Orleans TCP.
+    - [ ] Specify configurations: reliable vs. unreliable modes, message sizes (small: 100B, medium: 1KB), frequencies (10Hz, 60Hz, 120Hz).
+  - [ ] Select tools and environment
+    - [ ] Choose benchmarking framework: BenchmarkDotNet for micro-benchmarks, custom simulator for end-to-end.
+    - [ ] Set up test environments: local machine, LAN cluster (2-5 machines), cloud VMs.
+    - [ ] Install network emulation tools (e.g., tc for Linux to simulate loss/latency).
+    - [ ] Prepare monitoring: Use dotnet-trace, PerfCollect, or integrate with Prometheus.
+
+- [ ] **Workload Design Phase**
+  - [ ] Create game-like workloads
+    - [ ] Develop client simulator: Generate RPC calls mimicking player actions (e.g., position updates, chat messages, entity spawns).
+    - [ ] Implement server zones: Single-zone, multi-zone with inter-server RPC.
+    - [ ] Add variability: Ramp-up connections (100 to 10,000), burst traffic.
+  - [ ] Integrate instrumentation
+    - [ ] Add timers/metrics to RPC send/receive paths in Granville code.
+    - [ ] Hook into UDP libraries for low-level stats (e.g., packets sent/lost).
+    - [ ] Ensure optional silo coordination is testable.
+
+- [ ] **Implementation Phase**
+  - [ ] Build benchmark harness
+    - [ ] Create scripts to automate runs: Configure transport, workload, and impairments.
+    - [ ] Implement data collection: Log to CSV/JSON for analysis.
+    - [ ] Develop visualization scripts: Use Python/Matplotlib or Excel for graphs.
+  - [ ] Handle edge cases
+    - [ ] Test with induced network issues: 1-10% packet loss, 10-100ms added latency, jitter.
+    - [ ] Evaluate reliability layers: Retries, acknowledgments for critical messages.
+
+- [ ] **Execution Phase**
+  - [ ] Run micro-benchmarks
+    - [ ] Single RPC call latency: 1000 iterations per config.
+    - [ ] Throughput under load: Fixed clients sending continuously.
+  - [ ] Run end-to-end simulations
+    - [ ] Game scenario 1: FPS-style (high-frequency updates, low reliability).
+    - [ ] Game scenario 2: MOBA-style (mixed events, some reliable commands).
+    - [ ] Scale tests: Increase clients/connections until failure.
+    - [ ] Collect baselines
+    - [ ] Repeat all with standard Orleans (disable Granville extensions).
+    - [ ] Compare UDP transports head-to-head.
+  - [ ] Perform statistical validation
+    - [ ] Run each test 10+ times, compute means/SD/confidence intervals.
+    - [ ] Use t-tests or similar for significant differences.
+
+- [ ] **Analysis and Reporting Phase**
+  - [ ] Analyze results
+    - [ ] Create comparison tables: Metrics by config (e.g., UDP vs TCP latency reduction %).
+    - [ ] Identify wins/losses (e.g., UDP better for latency but higher errors).
+    - [ ] Note impacts for games: Suitability for real-time vs. turn-based.
+  - [ ] Generate reports
+    - [ ] Write summary doc: Key findings, graphs, raw data appendix.
+    - [ ] Add recommendations: Optimizations, security integrations (e.g., auth over UDP).
+  - [ ] Iterate if needed
+    - [ ] Fix any discovered bugs during testing.
+    - [ ] Re-run targeted benchmarks post-fixes.

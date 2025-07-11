@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Test with Orleans_DesignTimeBuild set to true -->
+    <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
+  </PropertyGroup>
+</Project>

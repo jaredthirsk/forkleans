@@ -139,10 +139,21 @@ builder.Services.AddSerializer(serializerBuilder =>
 {
     serializerBuilder.AddAssembly(typeof(Shooter.Silo.Grains.WorldManagerGrain).Assembly);
     serializerBuilder.AddAssembly(typeof(Shooter.Shared.GrainInterfaces.IWorldManagerGrain).Assembly);
-    // Add Orleans.Serialization assembly to get ImmutableArray codec
+    // Add Orleans.Serialization assembly to get ImmutableArray codec and Response types
     serializerBuilder.AddAssembly(typeof(Orleans.Serialization.Codecs.ImmutableArrayCodec<>).Assembly);
+    // Add Orleans core assemblies that contain types like GrainManifest, MembershipTableData
+    serializerBuilder.AddAssembly(typeof(Orleans.Metadata.GrainManifest).Assembly); // Orleans.Core.Abstractions
+    serializerBuilder.AddAssembly(typeof(Orleans.MembershipTableData).Assembly); // Orleans.Core
+    // Add Orleans.Runtime assembly for internal types
+    serializerBuilder.AddAssembly(typeof(Orleans.Runtime.SiloAddress).Assembly); // Orleans.Runtime
     // TODO: Add RPC interfaces when RPC client is properly configured
     // serializerBuilder.AddAssembly(typeof(Shooter.Shared.RpcInterfaces.IGameRpcGrain).Assembly);
+});
+
+// Configure to use the ObjectCopier for types without specific copiers (development only)
+builder.Services.Configure<Orleans.Serialization.Configuration.TypeManifestOptions>(options =>
+{
+    options.AllowAllTypes = true; // Allow all types for development
 });
 
 // Add trace logging for Orleans type discovery and grain registration

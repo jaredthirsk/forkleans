@@ -22,8 +22,8 @@ public class WorldManagerInitializer : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        // Wait a bit for the silo to be fully initialized
-        await Task.Delay(2000, cancellationToken);
+        // Wait longer for the silo to be fully initialized
+        await Task.Delay(5000, cancellationToken);
         
         _logger.LogInformation("Initializing WorldManagerGrain to ensure timer functionality");
         
@@ -33,7 +33,7 @@ public class WorldManagerInitializer : IHostedService
             var grainFactory = _serviceProvider.GetService<Orleans.IGrainFactory>();
             if (grainFactory == null)
             {
-                _logger.LogWarning("IGrainFactory not available yet, will retry...");
+                _logger.LogWarning("IGrainFactory not available yet, skipping initialization");
                 return;
             }
             
@@ -48,7 +48,8 @@ public class WorldManagerInitializer : IHostedService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to initialize WorldManagerGrain");
+            // Log the error but don't fail startup - the grain can be activated later
+            _logger.LogWarning(ex, "Failed to initialize WorldManagerGrain on startup, it will be activated on first use");
         }
     }
 
