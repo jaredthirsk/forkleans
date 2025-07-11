@@ -2,8 +2,23 @@
 # Create Microsoft.Orleans analyzer shim packages that forward to Granville versions
 
 param(
-    [string]$Version = "9.1.2.65"
+    [string]$Version
 )
+
+# Read version from Directory.Build.props if not provided
+if (!$Version) {
+    $directoryBuildProps = Join-Path $PSScriptRoot "../../Directory.Build.props"
+    if (Test-Path $directoryBuildProps) {
+        $xml = [xml](Get-Content $directoryBuildProps)
+        $versionPrefix = $xml.SelectSingleNode("//VersionPrefix").InnerText
+        $granvilleRevision = $xml.SelectSingleNode("//GranvilleRevision").InnerText
+        $Version = "$versionPrefix.$granvilleRevision"
+        Write-Host "Using version from Directory.Build.props: $Version" -ForegroundColor Yellow
+    } else {
+        Write-Error "Version parameter is required or Directory.Build.props must exist with VersionPrefix and GranvilleRevision"
+        exit 1
+    }
+}
 
 Write-Host "Creating Microsoft.Orleans analyzer shim packages..." -ForegroundColor Green
 

@@ -13,7 +13,7 @@
 
 .PARAMETER SetupLocalFeed
     Whether to set up/update the local NuGet feed
-    Default: true
+    Default: false (assumes Artifacts/Release is already in NuGet sources)
 
 .PARAMETER RunAfterBuild
     Whether to run the AppHost after building
@@ -29,11 +29,23 @@
 #>
 param(
     [string]$Configuration = "Release",
-    [bool]$SetupLocalFeed = $true,
+    [bool]$SetupLocalFeed = $false,
     [switch]$RunAfterBuild = $false
 )
 
 $ErrorActionPreference = "Stop"
+
+# Determine if we're running in WSL2
+$isWSL = $false
+if (Test-Path "/proc/version") {
+    $procVersion = Get-Content "/proc/version" -ErrorAction SilentlyContinue
+    if ($procVersion -match "(WSL|Microsoft)") {
+        $isWSL = $true
+    }
+}
+
+# Choose appropriate dotnet command
+$dotnetCmd = if ($isWSL) { "dotnet-win" } else { "dotnet" }
 
 # Get repository root
 $repoRoot = (Get-Item $PSScriptRoot).Parent.Parent.FullName
@@ -59,23 +71,27 @@ try {
     try {
         # Clean previous builds
         Write-Host "`nCleaning previous builds..." -ForegroundColor Yellow
-        dotnet clean GranvilleSamples.sln -c $Configuration -v minimal
+        & $dotnetCmd clean GranvilleSamples.sln -c $Configuration -v minimal
         
-        # Clear NuGet cache for Granville packages to ensure we get latest
-        Write-Host "`nClearing NuGet cache for Granville packages..." -ForegroundColor Yellow
-        dotnet nuget locals all --clear | Out-Null
+        # Note: NuGet cache clearing disabled - relying on version bumping instead
+        # Write-Host "`nClearing NuGet cache for Granville packages..." -ForegroundColor Yellow
+        # dotnet nuget locals all --clear | Out-Null
         
         # Restore packages
         Write-Host "`nRestoring packages..." -ForegroundColor Yellow
-        dotnet restore GranvilleSamples.sln --verbosity minimal
+        & $dotnetCmd restore GranvilleSamples.sln --verbosity normal
         if ($LASTEXITCODE -ne 0) {
             Write-Error "Package restore failed"
+            Write-Host "`nTip: Check if all required packages are available in Artifacts/Release/" -ForegroundColor Yellow
+            Write-Host "If not already configured, add this directory as a NuGet source:" -ForegroundColor Yellow
+            Write-Host "  $dotnetCmd nuget add source $repoRoot/Artifacts/Release --name granville-local" -ForegroundColor Gray
+            Write-Host "You may need to run the build steps individually to diagnose the issue." -ForegroundColor Yellow
             exit 1
         }
         
         # Build the solution
         Write-Host "`nBuilding GranvilleSamples.sln..." -ForegroundColor Green
-        dotnet build GranvilleSamples.sln -c $Configuration --no-restore --verbosity minimal
+        & $dotnetCmd build GranvilleSamples.sln -c $Configuration --no-restore --verbosity normal
         if ($LASTEXITCODE -ne 0) {
             Write-Error "Build failed for GranvilleSamples.sln"
             exit 1
@@ -108,7 +124,7 @@ try {
             
             Push-Location "Shooter.AppHost"
             try {
-                dotnet run --no-build -c $Configuration
+                & $dotnetCmd run --no-build -c $Configuration
             }
             finally {
                 Pop-Location
@@ -117,7 +133,7 @@ try {
         else {
             Write-Host "`nTo run the Shooter sample:" -ForegroundColor Cyan
             Write-Host "  cd granville/samples/Rpc/Shooter.AppHost" -ForegroundColor Gray
-            Write-Host "  dotnet run" -ForegroundColor Gray
+            Write-Host "  $dotnetCmd run" -ForegroundColor Gray
         }
     }
     finally {

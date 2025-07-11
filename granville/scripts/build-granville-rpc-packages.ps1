@@ -12,8 +12,8 @@ if (!(Test-Path $OutputPath)) {
     New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
 }
 
-# Clean output directory
-Remove-Item "$OutputPath\*" -Force -ErrorAction SilentlyContinue
+# Clean only Granville.Rpc.* packages from output directory to preserve other packages
+Remove-Item "$OutputPath\Granville.Rpc.*.nupkg" -Force -ErrorAction SilentlyContinue
 
 # RPC projects to build and package
 $rpcProjects = @(
@@ -29,15 +29,15 @@ $rpcProjects = @(
 foreach ($project in $rpcProjects) {
     Write-Host "`nBuilding and packing $project..." -ForegroundColor Cyan
 
-    # Build the project
-    dotnet build $project -c $Configuration
+    # Build the project with BuildAsGranville to ensure Orleans dependencies get -granville-shim suffix
+    dotnet build $project -c $Configuration -p:BuildAsGranville=true
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Build failed for $project"
         exit 1
     }
 
-    # Pack the project
-    dotnet pack $project -c $Configuration -o $OutputPath --no-build
+    # Pack the project with BuildAsGranville to ensure Orleans dependencies get -granville-shim suffix
+    dotnet pack $project -c $Configuration -o $OutputPath --no-build -p:BuildAsGranville=true
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Pack failed for $project"
         exit 1

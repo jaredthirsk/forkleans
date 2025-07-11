@@ -114,6 +114,35 @@ $revisionFilePath = Join-Path $PSScriptRoot "../current-revision.txt"
 Set-Content -Path $revisionFilePath -Value $newRevision -NoNewline
 Write-Host "Updated current-revision.txt to: $newRevision" -ForegroundColor Green
 
+# Update Shooter sample's Directory.Packages.props
+$shooterPackagesPath = Join-Path $PSScriptRoot "../samples/Rpc/Directory.Packages.props"
+if (Test-Path $shooterPackagesPath) {
+    Write-Host "Updating Shooter sample package versions..." -ForegroundColor Yellow
+    
+    $shooterContent = Get-Content $shooterPackagesPath -Raw
+    
+    # Build the full version string for replacement
+    if ($VersionPart -eq "Full") {
+        $fullVersion = $newVersionString
+    } else {
+        $fullVersion = "$versionPrefix.$newRevision"
+    }
+    
+    # Update Granville.Rpc.* packages
+    $shooterContent = $shooterContent -replace '(Granville\.Rpc\.[^"]+"\s+Version=")[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(")', "`${1}$fullVersion`${2}"
+    
+    # Update Granville.Orleans.* packages
+    $shooterContent = $shooterContent -replace '(Granville\.Orleans\.[^"]+"\s+Version=")[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(")', "`${1}$fullVersion`${2}"
+    
+    # Update Microsoft.Orleans.* shim packages
+    $shooterContent = $shooterContent -replace '(Microsoft\.Orleans\.[^"]+"\s+Version=")[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+-granville-shim(")', "`${1}$fullVersion-granville-shim`${2}"
+    
+    Set-Content -Path $shooterPackagesPath -Value $shooterContent -NoNewline
+    Write-Host "Updated Shooter sample's Directory.Packages.props" -ForegroundColor Green
+} else {
+    Write-Warning "Shooter sample's Directory.Packages.props not found at: $shooterPackagesPath"
+}
+
 Write-Host "`nVersion bump complete!" -ForegroundColor Green
 Write-Host "Next steps:" -ForegroundColor Yellow
 Write-Host "  1. Build and package: ./build-granville-rpc.ps1" -ForegroundColor Gray

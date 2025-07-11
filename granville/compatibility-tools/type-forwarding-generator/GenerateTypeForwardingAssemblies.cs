@@ -93,6 +93,18 @@ namespace GenerateTypeForwardingAssemblies
             var targetDir = Path.GetDirectoryName(granvilleAssemblyPath);
             var loadedAssemblies = new Dictionary<string, Assembly>();
             
+            // Try to preload common dependencies
+            var commonDependencies = new[] {
+                "Microsoft.Extensions.Options",
+                "Microsoft.Extensions.DependencyInjection.Abstractions",
+                "Microsoft.Extensions.Logging.Abstractions",
+                "Microsoft.Extensions.ObjectPool",
+                "Microsoft.Extensions.Hosting.Abstractions",
+                "System.IO.Pipelines",
+                "System.Threading.Tasks.Extensions",
+                "Newtonsoft.Json"
+            };
+            
             AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
             {
                 var assemblyName = new AssemblyName(args.Name);
@@ -140,6 +152,47 @@ namespace GenerateTypeForwardingAssemblies
                         return asm;
                     }
                     catch { }
+                }
+                
+                // Try NuGet packages cache
+                var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                var nugetCache = Path.Combine(userProfile, ".nuget", "packages");
+                if (Directory.Exists(nugetCache))
+                {
+                    // Common patterns for finding packages
+                    var packagePatterns = new[] {
+                        simpleName.ToLower(),
+                        simpleName.Replace(".", "-").ToLower()
+                    };
+                    
+                    foreach (var pattern in packagePatterns)
+                    {
+                        var packageDir = Path.Combine(nugetCache, pattern);
+                        if (Directory.Exists(packageDir))
+                        {
+                            // Look for the highest version
+                            var versions = Directory.GetDirectories(packageDir).OrderByDescending(d => d).ToArray();
+                            foreach (var versionDir in versions)
+                            {
+                                // Try common target frameworks
+                                var frameworks = new[] { "net8.0", "net7.0", "net6.0", "netstandard2.1", "netstandard2.0" };
+                                foreach (var fw in frameworks)
+                                {
+                                    var dllPath = Path.Combine(versionDir, "lib", fw, simpleName + ".dll");
+                                    if (File.Exists(dllPath))
+                                    {
+                                        try
+                                        {
+                                            var asm = Assembly.LoadFrom(dllPath);
+                                            loadedAssemblies[simpleName] = asm;
+                                            return asm;
+                                        }
+                                        catch { }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 
                 return null;
@@ -212,7 +265,9 @@ namespace GenerateTypeForwardingAssemblies
                         }
                         
                         // Skip certain system types that may conflict
-                        if (type.FullName == "System.Runtime.CompilerServices.IsExternalInit")
+                        if (type.FullName == "System.Runtime.CompilerServices.IsExternalInit" ||
+                            type.Namespace == "System.Runtime.CompilerServices.Unsafe" ||
+                            (type.Namespace == "System.Runtime.CompilerServices" && type.Name.StartsWith("Is")))
                         {
                             skippedTypes.Add((type.FullName, "system type that may conflict"));
                             continue;
@@ -342,6 +397,11 @@ namespace GenerateTypeForwardingAssemblies
             catch (Exception ex)
             {
                 Console.WriteLine($"  Warning: Could not get types: {ex.Message}");
+                // If we completely failed to get any types, this is an error
+                if (typesToForward.Count == 0)
+                {
+                    throw new InvalidOperationException($"Failed to extract any types from {granvilleAssemblyPath}: {ex.Message}");
+                }
             }
 
             Console.WriteLine($"  Found {typesToForward.Count} types to forward (including {typesToForward.Count(t => !t.IsPublic)} internal types)");

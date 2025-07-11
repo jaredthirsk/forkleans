@@ -40,9 +40,9 @@ if ($Clean) {
     Write-Host "`nCleaning previous builds..." -ForegroundColor Yellow
     dotnet clean Orleans.sln -c $Configuration -v minimal
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "Clean failed, likely due to missing packages. Clearing NuGet cache and skipping clean..." -ForegroundColor Yellow
-        dotnet nuget locals all --clear
-        Write-Host "Skipping clean step and proceeding to restore..." -ForegroundColor Yellow
+        Write-Host "Clean failed, likely due to missing packages. Skipping clean..." -ForegroundColor Yellow
+        # Note: NuGet cache clearing disabled - relying on version bumping instead
+        # dotnet nuget locals all --clear
     }
 }
 

@@ -1,6 +1,74 @@
 using System.Collections.Concurrent;
+using System.Text;
 
 namespace Shooter.ActionServer;
+
+public class ConsoleRedirector : TextWriter
+{
+    private readonly TextWriter _originalWriter;
+    private readonly StreamWriter _fileWriter;
+    private readonly string _prefix;
+    private readonly object _lock;
+
+    public ConsoleRedirector(TextWriter originalWriter, StreamWriter fileWriter, string prefix, object lockObject)
+    {
+        _originalWriter = originalWriter;
+        _fileWriter = fileWriter;
+        _prefix = prefix;
+        _lock = lockObject;
+    }
+
+    public override Encoding Encoding => _originalWriter.Encoding;
+
+    public override void Write(char value)
+    {
+        lock (_lock)
+        {
+            _originalWriter.Write(value);
+            _fileWriter.Write(value);
+        }
+    }
+
+    public override void Write(string? value)
+    {
+        if (value == null) return;
+        
+        lock (_lock)
+        {
+            _originalWriter.Write(value);
+            _fileWriter.Write(value);
+        }
+    }
+
+    public override void WriteLine(string? value)
+    {
+        lock (_lock)
+        {
+            _originalWriter.WriteLine(value);
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            _fileWriter.WriteLine($"{timestamp} [{_prefix}] {value ?? string.Empty}");
+        }
+    }
+
+    public override void WriteLine()
+    {
+        lock (_lock)
+        {
+            _originalWriter.WriteLine();
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            _fileWriter.WriteLine($"{timestamp} [{_prefix}]");
+        }
+    }
+
+    public override void Flush()
+    {
+        lock (_lock)
+        {
+            _originalWriter.Flush();
+            _fileWriter.Flush();
+        }
+    }
+}
 
 public class FileLoggerProvider : ILoggerProvider
 {

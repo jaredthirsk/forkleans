@@ -1,12 +1,22 @@
 #!/usr/bin/env pwsh
 
 # Script to create Microsoft.Orleans shim packages with proper dependencies on Granville.Orleans packages
-# Version: 9.1.2.73-granville-shim
 
 $ErrorActionPreference = "Stop"
 
-$version = "9.1.2.76-granville-shim"
-$granvilleVersion = "9.1.2.76"
+# Read version from Directory.Build.props
+$directoryBuildProps = Join-Path $PSScriptRoot "../../Directory.Build.props"
+if (Test-Path $directoryBuildProps) {
+    $xml = [xml](Get-Content $directoryBuildProps)
+    $versionPrefix = $xml.SelectSingleNode("//VersionPrefix").InnerText
+    $granvilleRevision = $xml.SelectSingleNode("//GranvilleRevision").InnerText
+    $granvilleVersion = "$versionPrefix.$granvilleRevision"
+    $version = "$granvilleVersion-granville-shim"
+    Write-Host "Using version from Directory.Build.props: $version" -ForegroundColor Yellow
+} else {
+    Write-Error "Directory.Build.props not found"
+    exit 1
+}
 $outputDir = "$PSScriptRoot/../../Artifacts/Release"
 $shimDir = "$PSScriptRoot/shims-proper"
 $tempDir = "$PSScriptRoot/temp-shim-packaging"
@@ -53,6 +63,29 @@ $shimPackages = @(
             @{ Id = "Granville.Orleans.Serialization"; Version = $granvilleVersion },
             @{ Id = "Microsoft.Orleans.Serialization.Abstractions"; Version = $version }
         )
+    },
+    @{
+        Name = "Microsoft.Orleans.CodeGenerator"
+        Dll = "Orleans.CodeGenerator.dll"
+        HasProps = $true
+        Dependencies = @(
+            @{ Id = "Granville.Orleans.CodeGenerator"; Version = $granvilleVersion }
+        )
+    },
+    @{
+        Name = "Microsoft.Orleans.Analyzers"
+        Dll = "Orleans.Analyzers.dll"
+        Dependencies = @(
+            @{ Id = "Granville.Orleans.Analyzers"; Version = $granvilleVersion }
+        )
+    },
+    @{
+        Name = "Microsoft.Orleans.Sdk"
+        Dll = "Orleans.Sdk.dll"
+        HasProps = $true
+        Dependencies = @(
+            @{ Id = "Granville.Orleans.Sdk"; Version = $granvilleVersion }
+        )
     }
 )
 
@@ -72,6 +105,16 @@ foreach ($package in $shimPackages) {
     }
     
     Copy-Item $sourceDll "$pkgTempDir/lib/net8.0/"
+    
+    # Copy props file if this package has one
+    if ($package.HasProps) {
+        $propsFile = "$shimDir/$($package.Name).props"
+        if (Test-Path $propsFile) {
+            New-Item -ItemType Directory -Force -Path "$pkgTempDir/build" | Out-Null
+            Copy-Item $propsFile "$pkgTempDir/build/"
+            Write-Host "  Added props file for $($package.Name)" -ForegroundColor Gray
+        }
+    }
     
     # Create the nuspec file
     $nuspecContent = @"

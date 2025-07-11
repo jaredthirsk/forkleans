@@ -2,7 +2,18 @@
 
 $ErrorActionPreference = "Stop"
 
+# Detect if we're running on Windows filesystem (WSL)
+$isWindowsFileSystem = $false
+$currentPath = (Get-Location).Path
+if ($currentPath -match "^/mnt/[a-z]/") {
+    $isWindowsFileSystem = $true
+}
+
+# Choose appropriate dotnet command
+$dotnetCommand = if ($isWindowsFileSystem) { "dotnet-win" } else { "dotnet" }
+
 Write-Host "Compiling all shims..." -ForegroundColor Cyan
+Write-Host "Using $dotnetCommand for builds" -ForegroundColor Gray
 
 # Assembly compilation configurations
 $assemblies = @(
@@ -112,7 +123,7 @@ foreach ($assembly in $assemblies) {
     Push-Location $tempDir
     try {
         Write-Host "  Restoring..." -ForegroundColor Gray
-        & dotnet-win restore 2>&1 | Out-Host
+        & $dotnetCommand restore 2>&1 | Out-Host
         
         if ($LASTEXITCODE -ne 0) {
             Write-Host "✗ Failed to restore $assemblyName" -ForegroundColor Red
@@ -120,7 +131,7 @@ foreach ($assembly in $assemblies) {
         }
         
         Write-Host "  Building..." -ForegroundColor Gray
-        & dotnet-win build -c Release 2>&1 | Out-Host
+        & $dotnetCommand build -c Release 2>&1 | Out-Host
         
         if ($LASTEXITCODE -ne 0) {
             Write-Host "✗ Failed to build $assemblyName" -ForegroundColor Red

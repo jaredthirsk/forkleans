@@ -12,19 +12,30 @@
     <PackageReference Include="Swashbuckle.AspNetCore" />
 
     <!-- Granville Orleans packages (modified for InternalsVisibleTo) -->
+    <PackageReference Include="Granville.Orleans.Sdk" />
     <PackageReference Include="Granville.Orleans.Core" />
     <PackageReference Include="Granville.Orleans.Core.Abstractions" />
     <PackageReference Include="Granville.Orleans.Runtime" />
     <PackageReference Include="Granville.Orleans.Serialization" />
     <PackageReference Include="Granville.Orleans.Serialization.Abstractions" />
     <PackageReference Include="Granville.Orleans.Server" />
+    <PackageReference Include="Granville.Orleans.Reminders" />
     
-    <!-- Microsoft Orleans packages (unmodified, demonstrating compatibility) -->
-    <PackageReference Include="Microsoft.Orleans.Reminders" />
-    <PackageReference Include="Microsoft.Orleans.Serialization.SystemTextJson" />
+    <!-- Microsoft Orleans packages for features not in Granville -->
     <PackageReference Include="Microsoft.Orleans.Persistence.Memory" />
+    
+    <!-- Shim packages to redirect Microsoft.Orleans to Granville.Orleans -->
+    <PackageReference Include="Microsoft.Orleans.Core" />
+    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" />
+    <PackageReference Include="Microsoft.Orleans.Runtime" />
+    <PackageReference Include="Microsoft.Orleans.Serialization" />
+    <PackageReference Include="Microsoft.Orleans.Serialization.Abstractions" />
+    
+    <!-- Force use of shim build tools to prevent duplicate code generation -->
+    <PackageReference Include="Microsoft.Orleans.CodeGenerator" />
+    <PackageReference Include="Microsoft.Orleans.Analyzers" />
 
-    <!-- UFX.Orleans.SignalRBackplane - temporarily removed, depends on Microsoft.Orleans 8.2.0 -->
+    <!-- UFX.Orleans.SignalRBackplane - depends on Microsoft.Orleans -->
     <!-- <PackageReference Include="UFX.Orleans.SignalRBackplane" /> -->
   </ItemGroup>
 

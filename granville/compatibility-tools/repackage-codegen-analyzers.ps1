@@ -5,7 +5,18 @@
 
 $ErrorActionPreference = "Stop"
 
-$version = "9.1.2.65"
+# Read version from Directory.Build.props
+$directoryBuildProps = Join-Path $PSScriptRoot "../../Directory.Build.props"
+if (Test-Path $directoryBuildProps) {
+    $xml = [xml](Get-Content $directoryBuildProps)
+    $versionPrefix = $xml.SelectSingleNode("//VersionPrefix").InnerText
+    $granvilleRevision = $xml.SelectSingleNode("//GranvilleRevision").InnerText
+    $version = "$versionPrefix.$granvilleRevision"
+    Write-Host "Using version from Directory.Build.props: $version" -ForegroundColor Yellow
+} else {
+    Write-Error "Directory.Build.props must exist with VersionPrefix and GranvilleRevision"
+    exit 1
+}
 $outputDir = "$PSScriptRoot/../../Artifacts/Release"
 $tempDir = "$PSScriptRoot/temp-repackage"
 

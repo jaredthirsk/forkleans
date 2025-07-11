@@ -40,6 +40,16 @@ These packages forward types from Orleans.* to Granville.Orleans.*:
 - **Microsoft.Orleans.Serialization.Abstractions** (*-granville-shim)
 - **Microsoft.Orleans.Serialization** (*-granville-shim)
 
+### 3a. Build Tool Shim Packages
+These packages disable Microsoft.Orleans code generation to prevent conflicts:
+- **Microsoft.Orleans.CodeGenerator** (*-granville-shim)
+  - Contains props file that sets `Orleans_DesignTimeBuild=true`
+  - Prevents duplicate code generation when both generators are present
+  - No actual DLLs, just MSBuild props
+- **Microsoft.Orleans.Analyzers** (*-granville-shim)
+  - Empty package to satisfy dependency requirements
+  - Granville.Orleans.Analyzers provides the actual functionality
+
 ### 4. Code Generation Packages
 - **Granville.Orleans.CodeGenerator** - Roslyn source generator for Orleans types (renamed from Orleans.CodeGenerator)
 - **Granville.Orleans.Analyzers** - Code analyzers for Orleans best practices (renamed from Orleans.Analyzers)
@@ -127,17 +137,55 @@ Certain Orleans packages are not built as Granville versions. Instead, applicati
 
 <!-- Control which generator runs (obsolete - for debugging) -->
 <Granville_DesignTimeBuild>true</Granville_DesignTimeBuild>
+
+<!-- Build as Granville package with correct dependencies -->
+<BuildAsGranville>true</BuildAsGranville>
+```
+
+### BuildAsGranville Property
+
+The `BuildAsGranville` MSBuild property controls package naming and dependency generation:
+- When set to `true`: 
+  - Package names use Granville.* prefix
+  - Dependencies on Microsoft.Orleans.* are rewritten to Granville.Orleans.*
+  - Used by build-granville-rpc-packages.ps1
+- When unset or `false`: 
+  - Standard Orleans package naming
+  - No dependency rewriting
+
+**Usage example:**
+```bash
+dotnet pack -p:BuildAsGranville=true
 ```
 
 ### Handling Duplicate Code Generation
-When using third-party packages that depend on Microsoft.Orleans:
+
+When both Microsoft.Orleans.CodeGenerator and Granville.Orleans.CodeGenerator are present in a project (typically when using third-party packages that depend on Microsoft.Orleans), you may encounter duplicate code generation errors like CS0101 "The namespace already contains a definition".
+
+**Solution: Use Orleans_DesignTimeBuild property**
+
+The `Orleans_DesignTimeBuild` MSBuild property controls whether the Orleans code generators run:
+- When set to `true`: Disables Orleans code generation
+- When set to `false` or unset (default): Enables Orleans code generation
+
+To prevent duplicate code generation when both generators are present:
 ```xml
-<!-- In Directory.Build.props for the sample -->
+<!-- In Directory.Build.props for the sample or project -->
 <PropertyGroup>
   <!-- Disable Orleans code generation to prevent duplicates -->
   <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
 </PropertyGroup>
 ```
+
+**When to use this property:**
+1. When your project references both Microsoft.Orleans and Granville.Orleans packages
+2. When third-party packages (like UFX.Orleans.SignalRBackplane) bring in Microsoft.Orleans.Sdk
+3. When you see CS0101 errors about duplicate OrleansCodeGen types
+
+**Important notes:**
+- This property affects ALL Orleans code generators in the project
+- When using only Granville.Orleans packages, leave this unset (defaults to false)
+- This is a design-time build property, meaning it affects code generation during compilation
 
 ## Build Types and Code Generation
 
@@ -302,6 +350,17 @@ Due to the code generator emitting assembly-qualified type names, you may need M
 6. **CS0101 Duplicate definitions (code generation)**
    - Cause: Both Microsoft.Orleans.CodeGenerator and Granville.Orleans.CodeGenerator running
    - Solution: Set `Orleans_DesignTimeBuild=true` in Directory.Build.props
+   - Details: See [Handling Duplicate Code Generation](#handling-duplicate-code-generation) section above
+
+7. **Transitive Dependencies Bringing in Microsoft.Orleans Build Tools**
+   - Cause: Packages like Microsoft.Orleans.Persistence.Memory depend on Microsoft.Orleans.CodeGenerator
+   - Solution: Add explicit PackageReference to shim versions:
+   ```xml
+   <PackageReference Include="Microsoft.Orleans.CodeGenerator" />
+   <PackageReference Include="Microsoft.Orleans.Analyzers" />
+   ```
+   - These will resolve to the -granville-shim versions that disable code generation
+   - Example: See Shooter.Silo.csproj
 
 ## Build Process Details
 
@@ -408,6 +467,34 @@ Several scripts modify NuGet packages after they are created to ensure proper de
 1. Ensures all Granville.Rpc packages reference Granville.Orleans (not Microsoft.Orleans)
 2. Updates version references to match current Granville version
 
+### 5. MSBuild-Based Nuspec Manipulation
+
+**File:** `Directory.Build.targets`
+
+**Target:** `PostProcessGranvilleNuspec`
+
+**Operations:**
+1. Runs after `GenerateNuspec` target for Granville packages
+2. Reads the generated .nuspec file line by line
+3. Uses regex to replace `Microsoft.Orleans.*` dependencies with `Granville.Orleans.*`
+4. Only affects dependencies with the same version as the package being built
+5. Writes modified content back to the .nuspec file
+
+**Example transformation:**
+```xml
+<!-- Before -->
+<dependency id="Microsoft.Orleans.Core.Abstractions" version="9.1.2.80" />
+
+<!-- After -->
+<dependency id="Granville.Orleans.Core.Abstractions" version="9.1.2.80" />
+```
+
+**Benefits over PowerShell scripts:**
+- Runs automatically during pack process
+- No need for post-pack manipulation
+- Integrated into the build pipeline
+- Works with any pack command (dotnet pack, msbuild /t:pack)
+
 ## File Copying Operations
 
 The build process involves several file copying operations:
@@ -469,18 +556,27 @@ analyzers/dotnet/cs/
    - Creates Microsoft.Orleans shim packages with type forwarding
    - Adds -granville-shim suffix to version
 
-4. **fix-granville-dependencies.ps1**
+4. **package-buildtools-shims.ps1**
+   - Creates Microsoft.Orleans.CodeGenerator and Analyzers shim packages
+   - Sets Orleans_DesignTimeBuild=true to disable code generation
+   - Prevents duplicate code generation when both Microsoft and Granville packages are present
+
+5. **fix-granville-dependencies.ps1**
    - Post-pack manipulation of Granville.Orleans packages
    - Fixes analyzer/codegen dependencies
    - Adds -granville-shim suffix to Microsoft.Orleans dependencies
 
-5. **fix-sdk-package.ps1**
+6. **fix-sdk-package.ps1**
    - Post-pack manipulation of SDK package
    - Renames target files from Microsoft.Orleans to Granville.Orleans
 
-6. **fix-rpc-package-dependencies.ps1**
+7. **fix-rpc-package-dependencies.ps1**
    - Post-pack manipulation of Granville.Rpc packages
    - Ensures Granville.Orleans dependencies
+
+8. **build-granville-rpc-packages.ps1**
+   - Builds Granville.Rpc packages with BuildAsGranville=true
+   - Ensures correct dependency generation
 
 ### Version Management
 

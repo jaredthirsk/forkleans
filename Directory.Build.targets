@@ -104,6 +104,7 @@
     <!-- Process ProjectReference items to modify their metadata -->
     <ItemGroup>
       <!-- For ProjectReferences that will become Microsoft.Orleans.* packages, add version suffix -->
+      <!-- This now includes Orleans.Rpc.* projects that reference Orleans.* projects -->
       <ProjectReference Condition="$([System.String]::Copy('%(Filename)').StartsWith('Orleans.')) and !$([System.String]::Copy('%(Filename)').StartsWith('Orleans.Rpc.'))">
         <VersionSuffix>granville-shim</VersionSuffix>
         <PackageVersion>$(Version)-granville-shim</PackageVersion>
@@ -111,30 +112,52 @@
     </ItemGroup>
   </Target>
   
-  <!-- Alternative approach: Use custom nuspec generation -->
-  <Target Name="CustomGranvilleNuspecGeneration"
+  <!-- Hook into the Pack target to modify dependencies -->
+  <Target Name="UpdateGranvillePackDependencies"
+          BeforeTargets="_GetPackageTargetPath"
+          Condition="'$(BuildAsGranville)' == 'true' and '$(IsPackable)' == 'true'">
+    
+    <Message Text="UpdateGranvillePackDependencies executing for $(PackageId)" Importance="high" />
+    
+    <!-- Update project references to point to Granville packages -->
+    <ItemGroup>
+      <_ProjectReferencesWithPackageId Include="@(ProjectReference)" Condition="'%(ProjectReference.OutputItemType)' == '_PackageProjectReference' or '%(ProjectReference.ReferenceOutputAssembly)' != 'false'">
+        <PackageId Condition="$([System.String]::Copy('%(Filename)').StartsWith('Orleans.')) and !$([System.String]::Copy('%(Filename)').StartsWith('Orleans.Rpc.'))">Granville.$([System.String]::Copy('%(Filename)'))</PackageId>
+      </_ProjectReferencesWithPackageId>
+    </ItemGroup>
+  </Target>
+  
+  <!-- Post-process nuspec file after generation -->
+  <Target Name="PostProcessGranvilleNuspec"
           AfterTargets="GenerateNuspec"
-          Condition="'$(BuildAsGranville)' == 'true' and '$(IsPackable)' == 'true' and Exists('$(NuspecFile)')">
+          Condition="'$(BuildAsGranville)' == 'true' and '$(IsPackable)' == 'true'">
     
-    <Message Text="Modifying nuspec file: $(NuspecFile)" Importance="high" />
+    <PropertyGroup>
+      <!-- Compute the nuspec file path -->
+      <_NuspecFilePath>$(BaseIntermediateOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).nuspec</_NuspecFilePath>
+    </PropertyGroup>
     
-    <!-- Read the nuspec file -->
-    <ReadLinesFromFile File="$(NuspecFile)">
+    <Message Text="PostProcessGranvilleNuspec: Looking for nuspec at $(_NuspecFilePath)" Importance="high" />
+    
+    <!-- Read and modify the nuspec file if it exists -->
+    <ReadLinesFromFile File="$(_NuspecFilePath)" Condition="Exists('$(_NuspecFilePath)')">
       <Output TaskParameter="Lines" ItemName="NuspecLines" />
     </ReadLinesFromFile>
     
     <!-- Process each line to modify Microsoft.Orleans.* dependencies -->
-    <ItemGroup>
+    <ItemGroup Condition="Exists('$(_NuspecFilePath)')">
       <ModifiedNuspecLines Include="@(NuspecLines)">
-        <Text Condition="$([System.String]::Copy('%(Identity)').Contains('&lt;dependency id=&quot;Microsoft.Orleans.')) and $([System.String]::Copy('%(Identity)').Contains('version=&quot;')) and !$([System.String]::Copy('%(Identity)').Contains('-granville-shim'))">$([System.Text.RegularExpressions.Regex]::Replace('%(Identity)', 'version=&quot;([^&quot;]+)&quot;', 'version=&quot;$1-granville-shim&quot;'))</Text>
-        <Text Condition="!($([System.String]::Copy('%(Identity)').Contains('&lt;dependency id=&quot;Microsoft.Orleans.')) and $([System.String]::Copy('%(Identity)').Contains('version=&quot;')) and !$([System.String]::Copy('%(Identity)').Contains('-granville-shim')))">%(Identity)</Text>
+        <!-- For Granville packages with our version, change Microsoft.Orleans.* to Granville.Orleans.* -->
+        <Text Condition="$([System.String]::Copy('%(Identity)').Contains('&lt;dependency id=&quot;Microsoft.Orleans.')) and $([System.String]::Copy('%(Identity)').Contains('version=&quot;$(PackageVersion)&quot;'))">$([System.Text.RegularExpressions.Regex]::Replace('%(Identity)', 'id=&quot;Microsoft\.Orleans\.', 'id=&quot;Granville.Orleans.'))</Text>
+        <!-- Keep other lines unchanged -->
+        <Text Condition="!($([System.String]::Copy('%(Identity)').Contains('&lt;dependency id=&quot;Microsoft.Orleans.')) and $([System.String]::Copy('%(Identity)').Contains('version=&quot;$(PackageVersion)&quot;')))">%(Identity)</Text>
       </ModifiedNuspecLines>
     </ItemGroup>
     
     <!-- Write the modified nuspec back -->
-    <WriteLinesToFile File="$(NuspecFile)" Lines="@(ModifiedNuspecLines->'%(Text)')" Overwrite="true" />
+    <WriteLinesToFile File="$(_NuspecFilePath)" Lines="@(ModifiedNuspecLines->'%(Text)')" Overwrite="true" Condition="Exists('$(_NuspecFilePath)')" />
     
-    <Message Text="Modified nuspec dependencies to use -granville-shim versions" Importance="high" />
+    <Message Text="PostProcessGranvilleNuspec completed for $(_NuspecFilePath)" Importance="high" Condition="Exists('$(_NuspecFilePath)')" />
   </Target>
 
   <!-- Import Granville-specific build properties -->

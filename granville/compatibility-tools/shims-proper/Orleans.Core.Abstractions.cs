@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 
 // Type forwards to Granville.Orleans.Core.Abstractions
 // Note: InternalsVisibleTo in Granville.Orleans.Core.Abstractions allows us to forward internal types
+[assembly: TypeForwardedTo(typeof(OrleansCodeGen.GranvilleOrleansCoreAbstractions.Metadata_GranvilleOrleansCoreAbstractions))]
 [assembly: TypeForwardedTo(typeof(OrleansCodeGen.Orleans.Proxy_IGrain))]
 [assembly: TypeForwardedTo(typeof(OrleansCodeGen.Orleans.Proxy_IGrainWithGuidKey))]
 [assembly: TypeForwardedTo(typeof(OrleansCodeGen.Orleans.Proxy_IGrainWithIntegerKey))]
@@ -124,7 +125,6 @@ using System.Runtime.CompilerServices;
 [assembly: TypeForwardedTo(typeof(OrleansCodeGen.Orleans.Runtime.Codec_GrainReferenceNotBoundException))]
 [assembly: TypeForwardedTo(typeof(OrleansCodeGen.Orleans.Runtime.Copier_GrainReferenceNotBoundException))]
 [assembly: TypeForwardedTo(typeof(OrleansCodeGen.Orleans.Runtime.Codec_MembershipVersion))]
-[assembly: TypeForwardedTo(typeof(System.Runtime.CompilerServices.IsExternalInit))]
 [assembly: TypeForwardedTo(typeof(Orleans.GrainCancellationToken))]
 [assembly: TypeForwardedTo(typeof(Orleans.GrainCancellationTokenSource))]
 [assembly: TypeForwardedTo(typeof(Orleans.DeactivationReason))]

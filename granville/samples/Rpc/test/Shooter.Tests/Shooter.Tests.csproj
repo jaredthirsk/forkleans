@@ -7,6 +7,8 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <!-- Disable Orleans code generation to prevent duplicates with Granville -->
+    <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +33,7 @@
     <ProjectReference Include="..\..\Shooter.Client.Common\Shooter.Client.Common.csproj" />
     <ProjectReference Include="..\..\Shooter.Shared\Shooter.Shared.csproj" />
   </ItemGroup>
+
 
   <ItemGroup>
     <None Update="appsettings.Test.json">

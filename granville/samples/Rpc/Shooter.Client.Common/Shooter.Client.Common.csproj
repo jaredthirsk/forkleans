@@ -18,6 +18,8 @@
     <!-- Granville Orleans packages -->
     <PackageReference Include="Granville.Orleans.Core" />
     <PackageReference Include="Granville.Orleans.Core.Abstractions" />
+    
+    
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Http" />

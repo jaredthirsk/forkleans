@@ -93,8 +93,8 @@ $assemblies = @(
         TargetFramework = "net8.0"
     },
     @{
-        ShimName = "Orleans.Persistence.Memory"
-        GranvilleName = "Granville.Orleans.Persistence.Memory"
+        ShimName = "Orleans.Client"
+        GranvilleName = "Granville.Orleans.Client"
         TargetFramework = "net8.0"
     }
 )
@@ -121,14 +121,32 @@ foreach ($asm in $assemblies) {
     & $dotnetCmd type-forwarding-generator/bin/Release/net8.0/GenerateTypeForwardingAssemblies.dll $granvillePath $shimPath
     
     if ($LASTEXITCODE -eq 0 -and (Test-Path $shimPath)) {
-        Write-Host "  Success! Generated $shimPath" -ForegroundColor Green
+        $fileInfo = Get-Item $shimPath
+        if ($fileInfo.Length -eq 0) {
+            Write-Host "  Failed! Generated empty assembly: $shimPath" -ForegroundColor Red
+        } else {
+            Write-Host "  Success! Generated $shimPath" -ForegroundColor Green
+        }
     } else {
         Write-Host "  Failed to generate $shimPath" -ForegroundColor Red
     }
 }
 
 Write-Host "`nDone! Generated shims:" -ForegroundColor Cyan
+$hasErrors = $false
 Get-ChildItem "shims-proper/*.dll" | ForEach-Object { 
     $size = "{0:N0}" -f $_.Length
-    Write-Host "  - $($_.Name) ($size bytes)"
+    if ($_.Length -eq 0) {
+        Write-Host "  - $($_.Name) ($size bytes)" -ForegroundColor Red
+        $hasErrors = $true
+    } else {
+        Write-Host "  - $($_.Name) ($size bytes)"
+    }
+}
+
+if ($hasErrors) {
+    Write-Host "`n✗ Some shim assemblies failed to generate properly!" -ForegroundColor Red
+    exit 1
+} else {
+    Write-Host "`n✓ Shim assemblies generated successfully!" -ForegroundColor Green
 }

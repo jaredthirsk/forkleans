@@ -23,7 +23,33 @@ builder.AddServiceDefaults();
 // Configure file logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-builder.Logging.AddProvider(new FileLoggerProvider("../logs/silo.log"));
+var logFileName = "../logs/silo.log";
+builder.Logging.AddProvider(new FileLoggerProvider(logFileName));
+
+// Add console redirection for stdout and stderr
+var consoleLogFileName = logFileName.Replace(".log", "-console.log");
+var consoleLogDir = Path.GetDirectoryName(consoleLogFileName);
+if (!string.IsNullOrEmpty(consoleLogDir))
+{
+    Directory.CreateDirectory(consoleLogDir);
+}
+var consoleWriter = new StreamWriter(consoleLogFileName, append: true) { AutoFlush = true };
+var consoleLock = new object();
+
+// Store original console outputs for restoration
+var originalOut = Console.Out;
+var originalError = Console.Error;
+
+// Redirect console outputs
+Console.SetOut(new ConsoleRedirector(originalOut, consoleWriter, "OUT", consoleLock));
+Console.SetError(new ConsoleRedirector(originalError, consoleWriter, "ERR", consoleLock));
+
+// Register for cleanup on shutdown
+builder.Services.AddSingleton(consoleWriter);
+builder.Services.AddHostedService<ConsoleRedirectorCleanupService>();
+
+Console.WriteLine($"Silo logging to: {logFileName}");
+Console.WriteLine($"Console output logging to: {consoleLogFileName}");
 
 // Add services
 builder.Services.AddControllers();
@@ -156,3 +182,37 @@ app.MapGet("/orleans-ready", (Orleans.IGrainFactory grainFactory) =>
 });
 
 app.Run();
+
+// Service to cleanup console redirection on shutdown
+public class ConsoleRedirectorCleanupService : IHostedService
+{
+    private readonly StreamWriter _consoleWriter;
+    private readonly ILogger<ConsoleRedirectorCleanupService> _logger;
+
+    public ConsoleRedirectorCleanupService(StreamWriter consoleWriter, ILogger<ConsoleRedirectorCleanupService> logger)
+    {
+        _consoleWriter = consoleWriter;
+        _logger = logger;
+    }
+
+    public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Cleaning up console redirection...");
+        
+        try
+        {
+            // Flush and close the console writer
+            _consoleWriter.Flush();
+            _consoleWriter.Close();
+            _consoleWriter.Dispose();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during console redirection cleanup");
+        }
+        
+        return Task.CompletedTask;
+    }
+}

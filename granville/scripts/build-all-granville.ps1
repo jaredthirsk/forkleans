@@ -41,6 +41,10 @@
     Bump the Granville revision number before building
     Default: false
 
+.PARAMETER SetupLocalFeed
+    Set up the local NuGet feed by copying packages
+    Default: false (assumes Artifacts/Release is already in NuGet sources)
+
 .EXAMPLE
     ./build-all-granville.ps1
     Cleans and builds everything in Release mode
@@ -72,7 +76,8 @@ param(
     [switch]$RunSample = $false,
     [switch]$SkipClean = $false,
     [switch]$CleanArtifacts = $false,
-    [switch]$BumpRevision = $false
+    [switch]$BumpRevision = $false,
+    [switch]$SetupLocalFeed = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -118,64 +123,18 @@ else {
 if (-not $SkipClean) {
     Write-Host "`n[0/4] Cleaning build artifacts..." -ForegroundColor Yellow
     
-    # Determine if we're running in WSL2
-    $isWSL = $false
-    if (Test-Path "/proc/version") {
-        $procVersion = Get-Content "/proc/version" -ErrorAction SilentlyContinue
-        if ($procVersion -match "(WSL|Microsoft)") {
-            $isWSL = $true
-        }
-    }
-    
-    # Choose appropriate dotnet command
-    $dotnetCmd = if ($isWSL) { "dotnet-win" } else { "dotnet" }
-    
-    # Clean NuGet caches
-    Write-Host "  Clearing NuGet caches..." -ForegroundColor Gray
-    & $dotnetCmd nuget locals all --clear | Out-Null
-    
-    # Clean all bin and obj directories
-    Write-Host "  Cleaning bin and obj directories..." -ForegroundColor Gray
-    Get-ChildItem -Path . -Include bin,obj -Recurse -Directory | ForEach-Object {
-        Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue
-    }
-    
-    # Clean temporary build directories
-    Write-Host "  Cleaning temporary directories..." -ForegroundColor Gray
-    $tempDirs = @(
-        "granville/compatibility-tools/temp-*",
-        "granville/scripts/temp-*",
-        "temp-*",
-        "TestResults"
-    )
-    
-    foreach ($pattern in $tempDirs) {
-        Get-ChildItem -Path . -Filter $pattern -Recurse -Directory -ErrorAction SilentlyContinue | ForEach-Object {
-            Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue
-        }
-    }
-    
-    # Clean logs
-    Write-Host "  Cleaning log files..." -ForegroundColor Gray
-    $logPatterns = @(
-        "*.log",
-        "logs/*.log",
-        "granville/samples/Rpc/logs/*.log"
-    )
-    
-    foreach ($pattern in $logPatterns) {
-        Get-ChildItem -Path . -Filter $pattern -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
-            Remove-Item $_ -Force -ErrorAction SilentlyContinue
-        }
-    }
-    
-    # Clean Artifacts/Release if requested
+    # Use the consolidated clean script
+    $cleanParams = @()
     if ($CleanArtifacts) {
-        Write-Host "  Cleaning Artifacts/Release..." -ForegroundColor Gray
-        Remove-Item -Path "Artifacts/Release/*" -Force -ErrorAction SilentlyContinue
+        $cleanParams += "-Artifacts"
     }
+    $cleanParams += "-Force"  # Skip confirmation prompt in automated build
     
-    Write-Host "  ✓ Cleaning complete!" -ForegroundColor Green
+    & "$PSScriptRoot/clean.ps1" @cleanParams
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Cleaning failed"
+        exit 1
+    }
 }
 else {
     Write-Host "`n[0/4] Skipping clean step (SkipClean=true)" -ForegroundColor Gray
@@ -237,12 +196,17 @@ if (Test-Path $rpcScript) {
     exit 1
 }
 
-# Step 4: Setup local NuGet feed
-Write-Host "`n[4/5] Setting up local NuGet feed..." -ForegroundColor Yellow
-& "$PSScriptRoot/setup-local-feed.ps1"
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Failed to setup local NuGet feed"
-    exit 1
+# Step 4: Setup local NuGet feed if requested
+if ($SetupLocalFeed) {
+    Write-Host "`n[4/5] Setting up local NuGet feed..." -ForegroundColor Yellow
+    & "$PSScriptRoot/setup-local-feed.ps1"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to setup local NuGet feed"
+        exit 1
+    }
+}
+else {
+    Write-Host "`n[4/5] Skipping local NuGet feed setup (SetupLocalFeed=false)" -ForegroundColor Gray
 }
 
 # Step 5: Build Shooter sample
@@ -265,7 +229,9 @@ $duration = $endTime - $startTime
 Write-Host "`n=== Build Summary ===" -ForegroundColor Green
 Write-Host "Total build time: $($duration.ToString('mm\:ss'))" -ForegroundColor Cyan
 Write-Host "`nPackages created in: Artifacts/Release/" -ForegroundColor Cyan
-Write-Host "Local NuGet feed: ~/local-nuget-feed/" -ForegroundColor Cyan
+if (-not $SetupLocalFeed) {
+    Write-Host "Add as NuGet source: dotnet nuget add source ./Artifacts/Release --name granville-local" -ForegroundColor Cyan
+}
 
 if (-not $SkipSample -and -not $RunSample) {
     Write-Host "`nTo run the Shooter sample:" -ForegroundColor Yellow
