@@ -616,6 +616,39 @@ Potential long-term solutions include:
 2. **Post-Build Enhancement**: Use IL rewriting tools to add metadata providers to shims after compilation.
 3. **Orleans Core Modification**: Propose changes to Orleans to better support assembly forwarding scenarios.
 
+## Option 2 Implementation Results
+
+Based on implementing Option 2 (Fix Assembly Discovery), we discovered:
+
+### What Works:
+1. **Removing SerializerConfigurationValidator allows silo to start**
+   - Successfully removes the validator from service collection
+   - Bypasses early validation that was blocking startup
+   - Silo reaches "Started" state
+
+2. **Assembly loading is partially successful**
+   - All Granville assemblies can be loaded and added to serializer
+   - Assemblies contain TypeManifestProvider metadata
+   - ImmutableArrayCodec is found with proper attributes
+
+### What Doesn't Work:
+1. **Granville assemblies lack [ApplicationPart] attribute**
+   - None of the Granville.Orleans.* assemblies have this attribute
+   - This prevents Orleans' default discovery from finding them
+   - Even when explicitly added, runtime codec lookup still fails
+
+2. **Runtime copier discovery still fails**
+   - Error occurs during membership table operations
+   - Cannot find copier for `Response<MembershipTableData>`
+   - The metadata exists but isn't accessible at runtime
+
+### Key Insight:
+The issue has two parts:
+1. **Early validation** (solved by removing validator)
+2. **Runtime codec discovery** (still unsolved)
+
+Even with assemblies loaded and added to the serializer, the runtime codec provider cannot find the copiers. This suggests the issue is deeper in how Orleans' codec provider resolves types at runtime.
+
 ## Conclusion
 
 The fundamental issue is an architectural mismatch between:
@@ -625,3 +658,8 @@ The fundamental issue is an architectural mismatch between:
 - Orleans doesn't follow TypeForwardedTo when discovering metadata
 
 While we've attempted to make Orleans smarter by following TypeForwardedTo, the timing issue means we need a solution that works within the existing architecture. The current workaround of explicit assembly registration, while not as elegant as we'd like, provides a reliable solution for applications using Granville Orleans.
+
+### Recommended Approach:
+1. **For Development**: Remove SerializerConfigurationValidator to bypass validation
+2. **For Production**: Complete the Granville.Orleans.Shims package with proper metadata forwarding
+3. **Long-term**: Consider adding [ApplicationPart] to Granville assemblies or implementing a custom codec provider

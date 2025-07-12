@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Runtime.Loader;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Linq;
+using Orleans.Serialization.Configuration;
 // TODO: Uncomment when Granville.Orleans.Shims package is available
 // using Granville.Orleans.Shims;
 // using UFX.Orleans.SignalRBackplane; // Temporarily disabled - depends on Microsoft.Orleans 8.2.0
@@ -169,14 +171,32 @@ builder.Services.Configure<Orleans.Serialization.Configuration.TypeManifestOptio
     options.AllowAllTypes = true; // Allow all types for development
 });
 
-// Try disabling serializer validation - this might help with shim issues
-try 
+// Option 2 attempt: Remove just the SerializerConfigurationValidator to bypass early validation
+// This is a temporary workaround for development while we fix the root issue
+Console.WriteLine("\n--- Attempting to remove SerializerConfigurationValidator ---");
+var validatorDescriptor = builder.Services.FirstOrDefault(d => 
+    d.ServiceType == typeof(Orleans.IConfigurationValidator) && 
+    d.ImplementationType?.Name == "SerializerConfigurationValidator");
+
+if (validatorDescriptor != null)
 {
-    builder.Services.RemoveAll<Orleans.IConfigurationValidator>();
+    builder.Services.Remove(validatorDescriptor);
+    Console.WriteLine("✓ Successfully removed SerializerConfigurationValidator");
 }
-catch (Exception ex)
+else
 {
-    Console.WriteLine($"DEBUG: Could not remove configuration validators: {ex.Message}");
+    Console.WriteLine("✗ SerializerConfigurationValidator not found in services");
+    
+    // Try removing all validators as a fallback
+    try 
+    {
+        var validatorCount = builder.Services.RemoveAll<Orleans.IConfigurationValidator>();
+        Console.WriteLine($"✓ Removed {validatorCount} configuration validators");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"✗ Could not remove configuration validators: {ex.Message}");
+    }
 }
 
 // Note: AddSerializer() is already called above with configuration, so we don't call it again here
@@ -272,81 +292,135 @@ public static class GranvilleShimExtensions
 {
     public static ISerializerBuilder AddGranvilleAssemblies(this ISerializerBuilder serializerBuilder)
     {
-        Console.WriteLine("DEBUG: AddGranvilleAssemblies called");
+        Console.WriteLine("================== AddGranvilleAssemblies START ==================");
         
-        // Force load Granville assemblies by referencing their types
-        var granvilleSerializationType = typeof(Orleans.Serialization.Serializer);
-        var granvilleCoreAbstractionsType = typeof(Orleans.Metadata.GrainManifest);
-        var granvilleCoreType = typeof(Orleans.MembershipTableData);
+        var loadedAssemblies = new List<Assembly>();
+        var failedAssemblies = new List<(string name, string error)>();
         
-        // Load Runtime assembly by assembly name since SiloAddress is actually in Core.Abstractions
-        System.Reflection.Assembly granvilleRuntimeAssembly = null;
+        // List of all Granville.Orleans assemblies we want to load
+        var granvilleAssemblyNames = new[]
+        {
+            "Granville.Orleans.Serialization",
+            "Granville.Orleans.Serialization.Abstractions",
+            "Granville.Orleans.Core",
+            "Granville.Orleans.Core.Abstractions",
+            "Granville.Orleans.Runtime",
+            "Granville.Orleans.Client",
+            "Granville.Orleans.Server",
+            "Granville.Orleans.Persistence.Memory",
+            "Granville.Orleans.Reminders"
+        };
+        
+        // Try to load each assembly
+        foreach (var assemblyName in granvilleAssemblyNames)
+        {
+            try
+            {
+                var assembly = Assembly.Load(assemblyName);
+                loadedAssemblies.Add(assembly);
+                Console.WriteLine($"✓ Loaded: {assembly.FullName}");
+                
+                // Check if assembly has ApplicationPart attribute
+                var hasAppPart = assembly.IsDefined(typeof(ApplicationPartAttribute));
+                Console.WriteLine($"  - Has [ApplicationPart]: {hasAppPart}");
+                
+                // Check for TypeManifestProvider attributes (indicates serialization metadata)
+                var manifestProviders = assembly.GetCustomAttributes<TypeManifestProviderAttribute>().ToList();
+                if (manifestProviders.Any())
+                {
+                    Console.WriteLine($"  - Has {manifestProviders.Count} TypeManifestProvider(s)");
+                    foreach (var provider in manifestProviders)
+                    {
+                        Console.WriteLine($"    - Provider type: {provider.ProviderType.FullName}");
+                    }
+                }
+                
+                // Add to serializer builder
+                serializerBuilder.AddAssembly(assembly);
+            }
+            catch (Exception ex)
+            {
+                failedAssemblies.Add((assemblyName, ex.Message));
+                Console.WriteLine($"✗ Failed to load {assemblyName}: {ex.Message}");
+            }
+        }
+        
+        // Also try to load assemblies that are already in AppDomain but start with Granville.Orleans
+        Console.WriteLine("\n--- Checking AppDomain for additional Granville assemblies ---");
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            if (assembly.FullName?.StartsWith("Granville.Orleans") == true && 
+                !loadedAssemblies.Any(a => a.FullName == assembly.FullName))
+            {
+                loadedAssemblies.Add(assembly);
+                Console.WriteLine($"✓ Found in AppDomain: {assembly.FullName}");
+                serializerBuilder.AddAssembly(assembly);
+            }
+        }
+        
+        // Try to check if ImmutableArrayCodec is available
+        Console.WriteLine("\n--- Checking for ImmutableArray codec ---");
         try
         {
-            granvilleRuntimeAssembly = System.Reflection.Assembly.Load("Granville.Orleans.Runtime");
-            Console.WriteLine($"DEBUG: Runtime assembly: {granvilleRuntimeAssembly.FullName}");
+            var immutableArrayCodecType = Type.GetType("Orleans.Serialization.Codecs.ImmutableArrayCodec`1, Granville.Orleans.Serialization");
+            if (immutableArrayCodecType != null)
+            {
+                Console.WriteLine($"✓ Found ImmutableArrayCodec type: {immutableArrayCodecType.FullName}");
+                Console.WriteLine($"  - Assembly: {immutableArrayCodecType.Assembly.FullName}");
+                Console.WriteLine($"  - Has [RegisterSerializer]: {immutableArrayCodecType.IsDefined(typeof(RegisterSerializerAttribute))}");
+            }
+            else
+            {
+                Console.WriteLine("✗ ImmutableArrayCodec type not found");
+            }
+            
+            var immutableArrayCopierType = Type.GetType("Orleans.Serialization.Codecs.ImmutableArrayCopier`1, Granville.Orleans.Serialization");
+            if (immutableArrayCopierType != null)
+            {
+                Console.WriteLine($"✓ Found ImmutableArrayCopier type: {immutableArrayCopierType.FullName}");
+                Console.WriteLine($"  - Has [RegisterCopier]: {immutableArrayCopierType.IsDefined(typeof(RegisterCopierAttribute))}");
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"DEBUG: Could not load Granville.Orleans.Runtime: {ex.Message}");
-        }
-
-        Console.WriteLine($"DEBUG: Serialization assembly: {granvilleSerializationType.Assembly.FullName}");
-        Console.WriteLine($"DEBUG: Core.Abstractions assembly: {granvilleCoreAbstractionsType.Assembly.FullName}");
-        Console.WriteLine($"DEBUG: Core assembly: {granvilleCoreType.Assembly.FullName}");
-
-        // Add the actual Granville assemblies (not the shims)
-        serializerBuilder.AddAssembly(granvilleSerializationType.Assembly); // Granville.Orleans.Serialization
-        serializerBuilder.AddAssembly(granvilleCoreAbstractionsType.Assembly); // Granville.Orleans.Core.Abstractions
-        serializerBuilder.AddAssembly(granvilleCoreType.Assembly); // Granville.Orleans.Core
-        if (granvilleRuntimeAssembly != null)
-        {
-            serializerBuilder.AddAssembly(granvilleRuntimeAssembly); // Granville.Orleans.Runtime
+            Console.WriteLine($"✗ Error checking for ImmutableArray types: {ex.Message}");
         }
         
-        // Also add other Granville assemblies that might contain metadata
-        try
-        {
-            var granvilleClientAssembly = System.Reflection.Assembly.Load("Granville.Orleans.Client");
-            serializerBuilder.AddAssembly(granvilleClientAssembly);
-            Console.WriteLine($"DEBUG: Client assembly: {granvilleClientAssembly.FullName}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"DEBUG: Could not load Granville.Orleans.Client: {ex.Message}");
-        }
-        
-        try
-        {
-            var granvilleSerializationAbstractionsAssembly = System.Reflection.Assembly.Load("Granville.Orleans.Serialization.Abstractions");
-            serializerBuilder.AddAssembly(granvilleSerializationAbstractionsAssembly);
-            Console.WriteLine($"DEBUG: Serialization.Abstractions assembly: {granvilleSerializationAbstractionsAssembly.FullName}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"DEBUG: Could not load Granville.Orleans.Serialization.Abstractions: {ex.Message}");
-        }
-
         // Also add Orleans.Persistence.Memory if it's being used
+        Console.WriteLine("\n--- Checking for Orleans.Persistence.Memory ---");
         try
         {
             var memoryStorageType = Type.GetType("Orleans.Storage.MemoryGrainStorage, Orleans.Persistence.Memory");
             if (memoryStorageType != null)
             {
-                Console.WriteLine($"DEBUG: Memory storage assembly: {memoryStorageType.Assembly.FullName}");
+                Console.WriteLine($"✓ Found Memory storage assembly: {memoryStorageType.Assembly.FullName}");
                 serializerBuilder.AddAssembly(memoryStorageType.Assembly);
             }
             else
             {
-                Console.WriteLine("DEBUG: Orleans.Storage.MemoryGrainStorage not found");
+                // Try Granville version
+                memoryStorageType = Type.GetType("Orleans.Storage.MemoryGrainStorage, Granville.Orleans.Persistence.Memory");
+                if (memoryStorageType != null)
+                {
+                    Console.WriteLine($"✓ Found Granville Memory storage assembly: {memoryStorageType.Assembly.FullName}");
+                    serializerBuilder.AddAssembly(memoryStorageType.Assembly);
+                }
+                else
+                {
+                    Console.WriteLine("✗ Orleans.Storage.MemoryGrainStorage not found in either Orleans or Granville assemblies");
+                }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"DEBUG: Error loading Orleans.Persistence.Memory: {ex.Message}");
+            Console.WriteLine($"✗ Error loading memory storage: {ex.Message}");
         }
 
-        Console.WriteLine("DEBUG: AddGranvilleAssemblies completed");
+        Console.WriteLine($"\n--- Summary ---");
+        Console.WriteLine($"Successfully loaded: {loadedAssemblies.Count} assemblies");
+        Console.WriteLine($"Failed to load: {failedAssemblies.Count} assemblies");
+        
+        Console.WriteLine("================== AddGranvilleAssemblies END ==================\n");
         return serializerBuilder;
     }
 }
