@@ -8,6 +8,7 @@
   <ItemGroup>
     <!-- Make Granville_DesignTimeBuild visible to the code generator -->
     <CompilerVisibleProperty Include="Granville_DesignTimeBuild" />
+    <CompilerVisibleProperty Include="Granville_FinalAssemblyName" />
     <CompilerVisibleProperty Include="Orleans_AttachDebugger" />
     <CompilerVisibleProperty Include="Orleans_GenerateFieldIds" />
     <CompilerVisibleProperty Include="Orleans_ImmutableAttributes" />

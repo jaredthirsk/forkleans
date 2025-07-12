@@ -34,11 +34,13 @@ namespace Orleans.CodeGenerator
         private readonly Dictionary<InvokableMethodId, InvokableMethodDescription> _invokableMethodDescriptions = new();
         private readonly HashSet<INamedTypeSymbol> _visitedInterfaces = new(SymbolEqualityComparer.Default);
         private readonly List<string> DisabledWarnings = new() { "CS1591" };
+        private readonly string _finalAssemblyName;
 
-        public CodeGenerator(Compilation compilation, CodeGeneratorOptions options)
+        public CodeGenerator(Compilation compilation, CodeGeneratorOptions options, string finalAssemblyName = null)
         {
             Compilation = compilation;
             Options = options;
+            _finalAssemblyName = finalAssemblyName;
             LibraryTypes = LibraryTypes.FromCompilation(compilation, options);
             MetadataModel = new MetadataModel();
             CopierGenerator = new CopierGenerator(this);
@@ -69,7 +71,9 @@ namespace Orleans.CodeGenerator
 
             // Expand the set of referenced assemblies
             referencedAssemblies.Add(compilationAsm);
-            MetadataModel.ApplicationParts.Add(compilationAsm.MetadataName);
+            // Use the final assembly name if provided (for Granville builds), otherwise use the compilation assembly name
+            var assemblyName = !string.IsNullOrEmpty(_finalAssemblyName) ? _finalAssemblyName : compilationAsm.MetadataName;
+            MetadataModel.ApplicationParts.Add(assemblyName);
             foreach (var reference in LibraryTypes.Compilation.References)
             {
                 if (LibraryTypes.Compilation.GetAssemblyOrModuleSymbol(reference) is not IAssemblySymbol asm)

@@ -663,3 +663,4 @@ While we've attempted to make Orleans smarter by following TypeForwardedTo, the 
 1. **For Development**: Remove SerializerConfigurationValidator to bypass validation
 2. **For Production**: Complete the Granville.Orleans.Shims package with proper metadata forwarding
 3. **Long-term**: Consider adding [ApplicationPart] to Granville assemblies or implementing a custom codec provider
+## ApplicationPart Fix Implementation (Dec 2024)

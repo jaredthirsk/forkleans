@@ -6,7 +6,8 @@
     <TargetFrameworks>$(DefaultTargetFrameworks);netstandard2.1</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
-    <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
+    <!-- Remove IsOrleansFrameworkPart=false to enable ApplicationPart generation -->
+    <!-- <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart> -->
   </PropertyGroup>
 
   <ItemGroup>

@@ -39,6 +39,9 @@
     <AssemblyName>$([System.String]::Copy('$(OriginalPackageId)').Replace('Microsoft.Orleans', 'Granville.Orleans'))</AssemblyName>
     <TargetName>$(AssemblyName)</TargetName>
     
+    <!-- Pass the final assembly name to the code generator -->
+    <Granville_FinalAssemblyName>$(AssemblyName)</Granville_FinalAssemblyName>
+    
     <!-- Add version suffix -->
     <VersionSuffix>granville</VersionSuffix>
   </PropertyGroup>
@@ -51,6 +54,9 @@
     <PackageId>Granville.$(MSBuildProjectName)</PackageId>
     <AssemblyName>Granville.$(MSBuildProjectName)</AssemblyName>
     <TargetName>$(AssemblyName)</TargetName>
+    
+    <!-- Pass the final assembly name to the code generator -->
+    <Granville_FinalAssemblyName>$(AssemblyName)</Granville_FinalAssemblyName>
     
     <!-- Add version suffix -->
     <VersionSuffix>granville</VersionSuffix>

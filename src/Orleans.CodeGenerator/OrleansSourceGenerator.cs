@@ -73,7 +73,15 @@ namespace Orleans.CodeGenerator
                     options.GenerateCompatibilityInvokers = genCompatInvokers;
                 }
 
-                var codeGenerator = new CodeGenerator(context.Compilation, options);
+                // Check for Granville final assembly name override
+                string finalAssemblyName = null;
+                if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.granville_finalassemblyname", out var granvilleFinalAssemblyName) 
+                    && !string.IsNullOrWhiteSpace(granvilleFinalAssemblyName))
+                {
+                    finalAssemblyName = granvilleFinalAssemblyName;
+                }
+
+                var codeGenerator = new CodeGenerator(context.Compilation, options, finalAssemblyName);
                 var syntax = codeGenerator.GenerateCode(context.CancellationToken);
                 var sourceString = syntax.NormalizeWhitespace().ToFullString();
                 var sourceText = SourceText.From(sourceString, Encoding.UTF8);

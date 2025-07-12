@@ -321,7 +321,7 @@ public static class GranvilleShimExtensions
                 Console.WriteLine($"✓ Loaded: {assembly.FullName}");
                 
                 // Check if assembly has ApplicationPart attribute
-                var hasAppPart = assembly.IsDefined(typeof(ApplicationPartAttribute));
+                var hasAppPart = assembly.GetCustomAttributes().Any(attr => attr.GetType().FullName == "Orleans.ApplicationPartAttribute");
                 Console.WriteLine($"  - Has [ApplicationPart]: {hasAppPart}");
                 
                 // Check for TypeManifestProvider attributes (indicates serialization metadata)
