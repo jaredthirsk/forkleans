@@ -116,15 +116,31 @@ builder.Services.AddCors(options =>
 // Configure Orleans
 builder.Host.UseOrleans(siloBuilder =>
 {
+    // Read Orleans configuration from environment/config
+    var siloPort = builder.Configuration.GetValue<int>("Orleans:SiloPort", 11111);
+    var gatewayPort = builder.Configuration.GetValue<int>("Orleans:GatewayPort", 30000);
+    var clusterId = builder.Configuration.GetValue<string>("Orleans:ClusterId", "dev");
+    var serviceId = builder.Configuration.GetValue<string>("Orleans:ServiceId", "ShooterDemo");
+    var isPrimarySilo = builder.Configuration.GetValue<bool>("Orleans:IsPrimarySilo", true);
+    var primarySiloEndpoint = builder.Configuration.GetValue<string>("Orleans:PrimarySiloEndpoint", $"localhost:{siloPort}");
+    
+    // Parse primary silo endpoint
+    var primaryParts = primarySiloEndpoint.Split(':');
+    var primaryHost = primaryParts[0];
+    var primaryPort = int.Parse(primaryParts.Length > 1 ? primaryParts[1] : "11111");
+    var primaryIp = primaryHost == "localhost" ? IPAddress.Loopback : IPAddress.Parse(primaryHost);
+    
+    Console.WriteLine($"Configuring Orleans Silo: Port={siloPort}, Gateway={gatewayPort}, Primary={isPrimarySilo}, Cluster={clusterId}");
+    
     siloBuilder
         .UseLocalhostClustering(
-            siloPort: 11111,
-            gatewayPort: 30000,
-            primarySiloEndpoint: new IPEndPoint(IPAddress.Loopback, 11111))
+            siloPort: siloPort,
+            gatewayPort: gatewayPort,
+            primarySiloEndpoint: new IPEndPoint(primaryIp, primaryPort))
         .Configure<ClusterOptions>(options =>
         {
-            options.ClusterId = "dev";
-            options.ServiceId = "ShooterDemo";
+            options.ClusterId = clusterId;
+            options.ServiceId = serviceId;
         })
         .Configure<EndpointOptions>(options =>
         {

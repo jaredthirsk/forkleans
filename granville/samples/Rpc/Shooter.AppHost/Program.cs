@@ -5,36 +5,74 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 // Configuration
 const int InitialActionServerCount = 4;
+const int SiloCount = 2; // Number of silos to start
 var transportType = args.FirstOrDefault(arg => arg.StartsWith("--transport="))?.Replace("--transport=", "") ?? "litenetlib";
-
-// Add the Orleans silo with Orleans ports exposed
-var silo = builder.AddProject<Projects.Shooter_Silo>("shooter-silo")
-    .WithEndpoint(30000, 30000, name: "orleans-gateway", scheme: "tcp", isProxied: false) // Orleans gateway port
-    .WithEndpoint(11111, 11111, name: "orleans-silo", scheme: "tcp", isProxied: false)   // Orleans silo port
-    .WithEnvironment("InitialActionServerCount", InitialActionServerCount.ToString());
 
 // Pass environment from parent if available
 var aspnetcoreEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-if (!string.IsNullOrEmpty(aspnetcoreEnv))
+
+// Add multiple Orleans silos to test SignalR backplane
+var silos = new List<IResourceBuilder<ProjectResource>>();
+IResourceBuilder<ProjectResource>? primarySilo = null;
+
+for (int i = 0; i < SiloCount; i++)
 {
-    silo.WithEnvironment("ASPNETCORE_ENVIRONMENT", aspnetcoreEnv);
+    var siloPort = 11111 + i;
+    var gatewayPort = 30000 + i;
+    var siloName = $"shooter-silo-{i}";
+    
+    var silo = builder.AddProject<Projects.Shooter_Silo>(siloName)
+        .WithEndpoint(gatewayPort, gatewayPort, name: "orleans-gateway", scheme: "tcp", isProxied: false)
+        .WithEndpoint(siloPort, siloPort, name: "orleans-silo", scheme: "tcp", isProxied: false)
+        .WithEnvironment("Orleans:ClusterId", "shooter-cluster")
+        .WithEnvironment("Orleans:ServiceId", "shooter-service")
+        .WithEnvironment("Orleans:SiloPort", siloPort.ToString())
+        .WithEnvironment("Orleans:GatewayPort", gatewayPort.ToString())
+        .WithEnvironment("InitialActionServerCount", InitialActionServerCount.ToString());
+    
+    // Configure clustering - all silos need to know about the primary
+    if (i == 0)
+    {
+        // First silo is the primary
+        primarySilo = silo;
+        silo.WithEnvironment("Orleans:IsPrimarySilo", "true");
+    }
+    else
+    {
+        // Other silos connect to the primary
+        silo.WithEnvironment("Orleans:PrimarySiloEndpoint", $"localhost:{11111}");
+        if (primarySilo != null)
+        {
+            silo.WaitFor(primarySilo);
+        }
+    }
+    
+    if (!string.IsNullOrEmpty(aspnetcoreEnv))
+    {
+        silo.WithEnvironment("ASPNETCORE_ENVIRONMENT", aspnetcoreEnv);
+    }
+    
+    silos.Add(silo);
 }
 
-// Add action servers with replicas - they depend on the silo being ready
+// Add action servers with replicas - they depend on the silos being ready
 // Running initial instances to cover a grid of zones
 // Create individual instances with specific RPC ports to avoid conflicts
 var actionServers = new List<IResourceBuilder<ProjectResource>>();
 for (int i = 0; i < InitialActionServerCount; i++)
 {
     var rpcPort = 12000 + i;
+    // Distribute action servers across silos using round-robin
+    var targetSilo = silos[i % silos.Count];
+    
     var server = builder.AddProject<Projects.Shooter_ActionServer>($"shooter-actionserver-{i}")
-        .WithEnvironment("Orleans__SiloUrl", silo.GetEndpoint("https"))
-        .WithEnvironment("Orleans__GatewayEndpoint", silo.GetEndpoint("orleans-gateway"))
+        .WithEnvironment("Orleans__SiloUrl", targetSilo.GetEndpoint("https"))
+        .WithEnvironment("Orleans__GatewayEndpoint", targetSilo.GetEndpoint("orleans-gateway"))
         .WithEnvironment("RPC_PORT", rpcPort.ToString())
         .WithEnvironment("ASPIRE_INSTANCE_ID", i.ToString()) // Help identify instances
         .WithArgs($"--transport={transportType}")
-        .WithReference(silo)
-        .WaitFor(silo);
+        .WithReference(targetSilo)
+        .WaitFor(targetSilo);
     
     // Pass environment from parent if available
     if (!string.IsNullOrEmpty(aspnetcoreEnv))
@@ -46,23 +84,27 @@ for (int i = 0; i < InitialActionServerCount; i++)
     // Aspire will automatically assign unique HTTP endpoints
 }
 
-// Add the Blazor client - it depends on the silo being ready
+// Add the Blazor client - it depends on the primary silo being ready
+// Client can connect to any silo through the gateway
 builder.AddProject<Projects.Shooter_Client>("shooter-client")
-    .WithEnvironment("SiloUrl", silo.GetEndpoint("https"))
+    .WithEnvironment("SiloUrl", primarySilo!.GetEndpoint("https"))
     .WithEnvironment("RpcTransport", transportType)
-    .WithReference(silo)
-    .WaitFor(silo);
+    .WithReference(primarySilo!)
+    .WaitFor(primarySilo!);
 
 // Add bot instances for testing - wait for at least one action server to be ready
 for (int i = 0; i < 3; i++)
 {
+    // Distribute bots across silos
+    var targetSilo = silos[i % silos.Count];
+    
     var bot = builder.AddProject<Projects.Shooter_Bot>($"shooter-bot-{i}")
-        .WithEnvironment("SiloUrl", silo.GetEndpoint("https"))
+        .WithEnvironment("SiloUrl", targetSilo.GetEndpoint("https"))
         .WithEnvironment("RpcTransport", transportType)
         .WithEnvironment("TestMode", "true")
         .WithEnvironment("ASPIRE_INSTANCE_ID", i.ToString())
-        .WithReference(silo)
-        .WaitFor(silo);
+        .WithReference(targetSilo)
+        .WaitFor(targetSilo);
     
     // Wait for at least the first action server
     if (actionServers.Count > 0)
