@@ -5,6 +5,7 @@ This document tracks all modifications made to upstream Orleans files in the Gra
 **Note**: For repository organization guidelines and the location of Granville-specific files, see `/granville/REPO-ORGANIZATION.md`.
 
 **Last assessed**: 2025-07-01 (compared against upstream merge base: 6905fa9b309446682aabd7265ce98d8825e0390d)
+**Last updated**: 2025-07-12 (ApplicationPart generation support added)
 
 ## Assessment Summary
 
@@ -12,15 +13,18 @@ Based on automated analysis using `/granville/compatibility-tools/Assess-Upstrea
 
 **Total changes (excluding granville/, src/Rpc/, and test/Rpc/):**
 - **Added files**: 6 (5 in src/, 1 in root)
-- **Modified files**: 5 (all in root directory)
+- **Modified files**: 15 (5 in root directory, 10 in src/)
 - **Deleted files**: 0
 
 **By Location:**
-- **src/ folder** (excluding src/Rpc/): Added: 5, Modified: 0, Deleted: 0
+- **src/ folder** (excluding src/Rpc/): Added: 5, Modified: 10, Deleted: 0
 - **Root directory**: Added: 1, Modified: 5, Deleted: 0
 - **Other directories**: Added: 0, Modified: 0, Deleted: 0
 
-This demonstrates our minimal impact approach - we have made NO modifications to existing Orleans source files in the src/ folder.
+Note: The modifications to src/ files are minimal and focused on:
+- Adding InternalsVisibleTo attributes for Granville assemblies
+- Supporting Granville assembly naming in code generation
+- Enabling ApplicationPart generation for serialization assemblies
 
 ## New Files Added (No upstream conflict)
 
@@ -56,8 +60,17 @@ These files are completely new and do not exist in upstream Orleans:
 ### Orleans.Serialization
 - `src/Orleans.Serialization/Hosting/SerializerBuilderExtensions.cs` - Modified AddAssembly to follow TypeForwardedTo attributes for metadata discovery
 - `src/Orleans.Serialization/Hosting/ReferencedAssemblyProvider.cs` - Modified AddAssembly to include assemblies referenced via TypeForwardedTo
+- `src/Orleans.Serialization/Orleans.Serialization.csproj` - Removed IsOrleansFrameworkPart=false to enable ApplicationPart generation
 
 These modifications enable Orleans to discover metadata in Granville assemblies when using shim packages that forward types.
+
+### Orleans.CodeGenerator
+- `src/Orleans.CodeGenerator/CodeGenerator.cs` - Modified to accept optional finalAssemblyName parameter for ApplicationPart generation
+- `src/Orleans.CodeGenerator/OrleansSourceGenerator.cs` - Modified to read granville_finalassemblyname property and pass to CodeGenerator
+- `src/Orleans.CodeGenerator/build/Microsoft.Orleans.CodeGenerator.props` - Added Granville_FinalAssemblyName to CompilerVisibleProperty
+- `src/Orleans.CodeGenerator/build/Granville.Orleans.CodeGenerator.props` - Added Granville_FinalAssemblyName to CompilerVisibleProperty
+
+These modifications ensure that when building with BuildAsGranville=true, the ApplicationPart attributes are generated with the correct Granville assembly names instead of the original Orleans names.
 
 ### Granville.Orleans.Shims (New Project)
 - `src/Granville.Orleans.Shims/` - New project providing helper methods for shim compatibility
@@ -69,18 +82,21 @@ Note: All other Granville-specific files are located under `/granville/` directo
 ## Modified Upstream Files
 
 ### Source Files Modified
-1. `src/Orleans.CodeGenerator/OrleansSourceGenerator.cs` - Changed to check `granville_designtimebuild` instead of `orleans_designtimebuild`
-2. `src/Orleans.CodeGenerator/build/Microsoft.Orleans.CodeGenerator.props` - Changed to use `Granville_DesignTimeBuild` property
+1. `src/Orleans.CodeGenerator/OrleansSourceGenerator.cs` - Changed to check `granville_designtimebuild` instead of `orleans_designtimebuild`; Added support for reading granville_finalassemblyname property
+2. `src/Orleans.CodeGenerator/build/Microsoft.Orleans.CodeGenerator.props` - Changed to use `Granville_DesignTimeBuild` property; Added Granville_FinalAssemblyName to CompilerVisibleProperty
 3. `src/Orleans.Core/Orleans.Core.csproj` - Added packaging of Granville.Orleans.Core.props
 4. `src/Orleans.Sdk/Orleans.Sdk.csproj` - Added packaging of Granville.Orleans.Sdk.props
 5. `src/Orleans.CodeGenerator/Orleans.CodeGenerator.csproj` - Added packaging of Granville.Orleans.CodeGenerator.props
 6. `src/Orleans.Runtime/Properties/AssemblyInfo.cs` - Added InternalsVisibleTo for Granville.Orleans.Streaming and Granville.Orleans.TestingHost
 7. `src/Orleans.Transactions/Properties/AssemblyInfo.cs` - Added InternalsVisibleTo for Granville.Orleans.Transactions.TestKit.Base
+8. `src/Orleans.CodeGenerator/CodeGenerator.cs` - Modified constructor to accept optional finalAssemblyName parameter; Modified GenerateCode to use finalAssemblyName for ApplicationPart
+9. `src/Orleans.Serialization/Orleans.Serialization.csproj` - Removed IsOrleansFrameworkPart=false to enable ApplicationPart generation
+10. `src/Orleans.CodeGenerator/build/Granville.Orleans.CodeGenerator.props` - Added Granville_FinalAssemblyName to CompilerVisibleProperty
 
 ### Root-Level Configuration Files Modified
 1. `.gitignore` - Added entries for Granville-specific patterns
 2. `Directory.Build.props` - Minor adjustments for build configuration
-3. `Directory.Build.targets` - Assembly renaming logic from Microsoft.Orleans.* to Granville.Orleans.*
+3. `Directory.Build.targets` - Assembly renaming logic from Microsoft.Orleans.* to Granville.Orleans.*; Added Granville_FinalAssemblyName property for code generation
 4. `Directory.Packages.props` - Package version management
 5. `NuGet.Config` - Package source configuration
 
