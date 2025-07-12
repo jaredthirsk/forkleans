@@ -15,6 +15,7 @@ public class WorldController : ControllerBase
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<WorldController> _logger;
     private readonly ActionServerManager _actionServerManager;
+    private static readonly SemaphoreSlim _addServerSemaphore = new(1, 1);
 
     public WorldController(
         Orleans.IGrainFactory grainFactory, 
@@ -168,6 +169,13 @@ public class WorldController : ControllerBase
     [HttpPost("action-servers/add")]
     public async Task<ActionResult<ActionServerInfo>> AddActionServer()
     {
+        // Prevent concurrent server additions
+        if (!await _addServerSemaphore.WaitAsync(0))
+        {
+            _logger.LogWarning("Another ActionServer addition is already in progress");
+            return StatusCode(429, new { error = "Another server addition is in progress. Please try again later." });
+        }
+        
         try
         {
             _logger.LogInformation("Request to add new ActionServer");
@@ -175,18 +183,30 @@ public class WorldController : ControllerBase
             // Start a new ActionServer process
             var serverId = await _actionServerManager.StartNewActionServerAsync();
             
-            // Wait a bit for it to register itself
-            await Task.Delay(5000);
-            
-            // Get the registered server info
+            // Wait for the server to register, with retries
             var worldManager = _grainFactory.GetGrain<IWorldManagerGrain>(0);
-            var servers = await worldManager.GetAllActionServers();
-            var newServer = servers.FirstOrDefault(s => s.ServerId == serverId);
+            ActionServerInfo? newServer = null;
+            
+            // Wait up to 30 seconds for the server to register
+            for (int i = 0; i < 6; i++)
+            {
+                await Task.Delay(5000);
+                
+                var servers = await worldManager.GetAllActionServers();
+                newServer = servers.FirstOrDefault(s => s.ServerId == serverId);
+                
+                if (newServer != null)
+                {
+                    break;
+                }
+                
+                _logger.LogDebug("Waiting for ActionServer {ServerId} to register... (attempt {Attempt}/6)", serverId, i + 1);
+            }
             
             if (newServer == null)
             {
                 _logger.LogWarning("New ActionServer {ServerId} did not register within timeout", serverId);
-                return StatusCode(500, new { error = "ActionServer started but did not register" });
+                return StatusCode(500, new { error = "ActionServer started but did not register within 30 seconds" });
             }
             
             _logger.LogInformation("Successfully added ActionServer {ServerId} with zone ({X},{Y})", 
@@ -198,6 +218,10 @@ public class WorldController : ControllerBase
         {
             _logger.LogError(ex, "Failed to add new ActionServer");
             return StatusCode(500, new { error = ex.Message });
+        }
+        finally
+        {
+            _addServerSemaphore.Release();
         }
     }
     

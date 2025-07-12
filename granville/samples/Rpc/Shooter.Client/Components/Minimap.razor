@@ -387,6 +387,13 @@
                 var error = await response.Content.ReadAsStringAsync();
                 Logger.LogError("Failed to add zone: {Status} - {Error}", response.StatusCode, error);
                 _desiredZoneCount--; // Revert on failure
+                
+                // Handle specific status codes
+                if ((int)response.StatusCode == 429)
+                {
+                    // Too Many Requests - another addition is in progress
+                    Logger.LogWarning("Another zone addition is already in progress. Please wait and try again.");
+                }
             }
         }
         catch (Exception ex)

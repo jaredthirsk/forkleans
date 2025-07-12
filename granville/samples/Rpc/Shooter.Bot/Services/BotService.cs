@@ -74,9 +74,7 @@ public class BotService : BackgroundService
             _logger.LogInformation("Bot {BotName} starting in {Mode} mode using {Transport} transport", 
                 _botName, _testMode ? "test" : "normal", transportType);
             
-            // Wait for services to be ready
-            _logger.LogInformation("Waiting 5 seconds for services to be ready...");
-            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+            // OrleansStartupDelayService handles waiting for services to be ready
             
             // Connect to the game
             _logger.LogInformation("Bot {BotName} connecting to game...", _botName);

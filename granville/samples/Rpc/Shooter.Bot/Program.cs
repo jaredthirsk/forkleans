@@ -114,6 +114,9 @@ TaskScheduler.UnobservedTaskException += (sender, args) =>
 // Add services
 builder.Services.AddHttpClient();
 
+// Add Orleans startup delay service
+builder.Services.AddHostedService<OrleansStartupDelayService>();
+
 // Add health checks
 builder.Services.AddHealthChecks();
 
