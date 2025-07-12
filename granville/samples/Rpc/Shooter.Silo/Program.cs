@@ -2,6 +2,7 @@ using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Serialization;
+using Orleans.Reminders;
 using Shooter.Silo;
 using Shooter.Silo.Configuration;
 using Shooter.Silo.Controllers;

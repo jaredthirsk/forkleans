@@ -5,6 +5,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Disable Orleans code generation to avoid conflicts with Granville code generation -->
+    <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +21,7 @@
     <PackageReference Include="Granville.Orleans.Serialization" />
     <PackageReference Include="Granville.Orleans.Serialization.Abstractions" />
     <PackageReference Include="Granville.Orleans.Server" />
-    <PackageReference Include="Granville.Orleans.Reminders" />
+    <PackageReference Include="Microsoft.Orleans.Reminders" />
     
     <!-- Microsoft Orleans packages for features not in Granville -->
     <PackageReference Include="Microsoft.Orleans.Persistence.Memory" />
@@ -31,9 +33,9 @@
     <PackageReference Include="Microsoft.Orleans.Serialization" />
     <PackageReference Include="Microsoft.Orleans.Serialization.Abstractions" />
     
-    <!-- Force use of shim build tools to prevent duplicate code generation -->
-    <PackageReference Include="Microsoft.Orleans.CodeGenerator" />
-    <PackageReference Include="Microsoft.Orleans.Analyzers" />
+    <!-- Use Granville Orleans build tools -->
+    <PackageReference Include="Granville.Orleans.CodeGenerator" />
+    <PackageReference Include="Granville.Orleans.Analyzers" />
 
     <!-- UFX.Orleans.SignalRBackplane - depends on Microsoft.Orleans -->
     <!-- <PackageReference Include="UFX.Orleans.SignalRBackplane" /> -->

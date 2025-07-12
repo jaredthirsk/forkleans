@@ -4,6 +4,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- Disable Orleans code generation to prevent duplicate code generation -->
+    <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
   </PropertyGroup>
 
   <ItemGroup>
