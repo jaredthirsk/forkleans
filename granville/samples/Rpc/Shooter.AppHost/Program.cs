@@ -40,7 +40,7 @@ for (int i = 0; i < SiloCount; i++)
     else
     {
         // Other silos connect to the primary
-        silo.WithEnvironment("Orleans:PrimarySiloEndpoint", $"localhost:{11111}");
+        silo.WithEnvironment("Orleans:PrimarySiloEndpoint", "localhost:11111");
         if (primarySilo != null)
         {
             silo.WaitFor(primarySilo);
