@@ -12,3 +12,8 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("Granville.Rpc.Server")]
 [assembly: InternalsVisibleTo("Granville.Rpc.Client")]
 [assembly: InternalsVisibleTo("Granville.Rpc.Abstractions")]
+
+// Orleans shim assemblies need access for compatibility
+[assembly: InternalsVisibleTo("Orleans.Core")]
+[assembly: InternalsVisibleTo("Orleans.Runtime")]
+[assembly: InternalsVisibleTo("Orleans.Core.Abstractions")]

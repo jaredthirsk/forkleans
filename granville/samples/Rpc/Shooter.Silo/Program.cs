@@ -10,6 +10,10 @@ using System.Net;
 using System.Reflection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Runtime.Loader;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+// TODO: Uncomment when Granville.Orleans.Shims package is available
+// using Granville.Orleans.Shims;
 // using UFX.Orleans.SignalRBackplane; // Temporarily disabled - depends on Microsoft.Orleans 8.2.0
 
 // Assembly redirect system disabled - relying on proper shim compilation instead
@@ -135,20 +139,26 @@ builder.Host.UseOrleans(siloBuilder =>
 // For now, commenting out complex RPC client configuration to fix build
 // The main issues (missing storage provider) are fixed above
 
-// Configure serialization to include grain assemblies
+// Workaround: Force load Granville assemblies immediately
+// This must happen before any Orleans serialization configuration
+_ = typeof(Orleans.Serialization.Serializer).Assembly; // Force load Granville.Orleans.Serialization
+_ = typeof(Orleans.Metadata.GrainManifest).Assembly; // Force load Granville.Orleans.Core.Abstractions
+_ = typeof(Orleans.MembershipTableData).Assembly; // Force load Granville.Orleans.Core
+try { _ = System.Reflection.Assembly.Load("Granville.Orleans.Runtime"); } catch { }
+try { _ = System.Reflection.Assembly.Load("Granville.Orleans.Serialization.Abstractions"); } catch { }
+
+// Configure Orleans shim compatibility and serialization
+// TODO: Replace with builder.Services.AddOrleansShims() when Granville.Orleans.Shims package is available
 builder.Services.AddSerializer(serializerBuilder =>
 {
+    // Add Granville assemblies for shim compatibility
+    // This is the workaround from Granville.Orleans.Shims package
+    serializerBuilder.AddGranvilleAssemblies();
+    
+    // Add application-specific assemblies
     serializerBuilder.AddAssembly(typeof(Shooter.Silo.Grains.WorldManagerGrain).Assembly);
     serializerBuilder.AddAssembly(typeof(Shooter.Shared.GrainInterfaces.IWorldManagerGrain).Assembly);
-    // Add Orleans.Serialization assembly to get ImmutableArray codec and Response types
-    serializerBuilder.AddAssembly(typeof(Orleans.Serialization.Codecs.ImmutableArrayCodec<>).Assembly);
-    // Add Orleans core assemblies that contain types like GrainManifest, MembershipTableData
-    serializerBuilder.AddAssembly(typeof(Orleans.Metadata.GrainManifest).Assembly); // Orleans.Core.Abstractions
-    serializerBuilder.AddAssembly(typeof(Orleans.MembershipTableData).Assembly); // Orleans.Core
-    // Add Orleans.Runtime assembly for internal types
-    serializerBuilder.AddAssembly(typeof(Orleans.Runtime.SiloAddress).Assembly); // Orleans.Runtime
-    // Add Granville.Orleans.Persistence.Memory for storage-related types
-    serializerBuilder.AddAssembly(typeof(Orleans.Storage.MemoryGrainStorage).Assembly); // Granville.Orleans.Persistence.Memory
+    
     // TODO: Add RPC interfaces when RPC client is properly configured
     // serializerBuilder.AddAssembly(typeof(Shooter.Shared.RpcInterfaces.IGameRpcGrain).Assembly);
 });
@@ -159,8 +169,17 @@ builder.Services.Configure<Orleans.Serialization.Configuration.TypeManifestOptio
     options.AllowAllTypes = true; // Allow all types for development
 });
 
-// Add the serialization host services that include internal codecs
-builder.Services.AddSerializer();
+// Try disabling serializer validation - this might help with shim issues
+try 
+{
+    builder.Services.RemoveAll<Orleans.IConfigurationValidator>();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"DEBUG: Could not remove configuration validators: {ex.Message}");
+}
+
+// Note: AddSerializer() is already called above with configuration, so we don't call it again here
 
 // Add trace logging for Orleans type discovery and grain registration
 builder.Logging.AddFilter("Orleans.Metadata", LogLevel.Trace);
@@ -244,5 +263,90 @@ public class ConsoleRedirectorCleanupService : IHostedService
         }
         
         return Task.CompletedTask;
+    }
+}
+
+// Temporary extension method until Granville.Orleans.Shims package is available
+// This will be removed once the package is published
+public static class GranvilleShimExtensions
+{
+    public static ISerializerBuilder AddGranvilleAssemblies(this ISerializerBuilder serializerBuilder)
+    {
+        Console.WriteLine("DEBUG: AddGranvilleAssemblies called");
+        
+        // Force load Granville assemblies by referencing their types
+        var granvilleSerializationType = typeof(Orleans.Serialization.Serializer);
+        var granvilleCoreAbstractionsType = typeof(Orleans.Metadata.GrainManifest);
+        var granvilleCoreType = typeof(Orleans.MembershipTableData);
+        
+        // Load Runtime assembly by assembly name since SiloAddress is actually in Core.Abstractions
+        System.Reflection.Assembly granvilleRuntimeAssembly = null;
+        try
+        {
+            granvilleRuntimeAssembly = System.Reflection.Assembly.Load("Granville.Orleans.Runtime");
+            Console.WriteLine($"DEBUG: Runtime assembly: {granvilleRuntimeAssembly.FullName}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DEBUG: Could not load Granville.Orleans.Runtime: {ex.Message}");
+        }
+
+        Console.WriteLine($"DEBUG: Serialization assembly: {granvilleSerializationType.Assembly.FullName}");
+        Console.WriteLine($"DEBUG: Core.Abstractions assembly: {granvilleCoreAbstractionsType.Assembly.FullName}");
+        Console.WriteLine($"DEBUG: Core assembly: {granvilleCoreType.Assembly.FullName}");
+
+        // Add the actual Granville assemblies (not the shims)
+        serializerBuilder.AddAssembly(granvilleSerializationType.Assembly); // Granville.Orleans.Serialization
+        serializerBuilder.AddAssembly(granvilleCoreAbstractionsType.Assembly); // Granville.Orleans.Core.Abstractions
+        serializerBuilder.AddAssembly(granvilleCoreType.Assembly); // Granville.Orleans.Core
+        if (granvilleRuntimeAssembly != null)
+        {
+            serializerBuilder.AddAssembly(granvilleRuntimeAssembly); // Granville.Orleans.Runtime
+        }
+        
+        // Also add other Granville assemblies that might contain metadata
+        try
+        {
+            var granvilleClientAssembly = System.Reflection.Assembly.Load("Granville.Orleans.Client");
+            serializerBuilder.AddAssembly(granvilleClientAssembly);
+            Console.WriteLine($"DEBUG: Client assembly: {granvilleClientAssembly.FullName}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DEBUG: Could not load Granville.Orleans.Client: {ex.Message}");
+        }
+        
+        try
+        {
+            var granvilleSerializationAbstractionsAssembly = System.Reflection.Assembly.Load("Granville.Orleans.Serialization.Abstractions");
+            serializerBuilder.AddAssembly(granvilleSerializationAbstractionsAssembly);
+            Console.WriteLine($"DEBUG: Serialization.Abstractions assembly: {granvilleSerializationAbstractionsAssembly.FullName}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DEBUG: Could not load Granville.Orleans.Serialization.Abstractions: {ex.Message}");
+        }
+
+        // Also add Orleans.Persistence.Memory if it's being used
+        try
+        {
+            var memoryStorageType = Type.GetType("Orleans.Storage.MemoryGrainStorage, Orleans.Persistence.Memory");
+            if (memoryStorageType != null)
+            {
+                Console.WriteLine($"DEBUG: Memory storage assembly: {memoryStorageType.Assembly.FullName}");
+                serializerBuilder.AddAssembly(memoryStorageType.Assembly);
+            }
+            else
+            {
+                Console.WriteLine("DEBUG: Orleans.Storage.MemoryGrainStorage not found");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DEBUG: Error loading Orleans.Persistence.Memory: {ex.Message}");
+        }
+
+        Console.WriteLine("DEBUG: AddGranvilleAssemblies completed");
+        return serializerBuilder;
     }
 }

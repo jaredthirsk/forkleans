@@ -55,6 +55,25 @@ namespace Orleans.Serialization.Internal
             {
                 AddAssembly(parts, referencedAsm);
             }
+
+            // Add assemblies that this assembly forwards types to
+            // This ensures that shim assemblies can forward their metadata to implementation assemblies
+            try
+            {
+                var forwardedTypes = assembly.GetCustomAttributes<System.Runtime.CompilerServices.TypeForwardedToAttribute>();
+                foreach (var forwarded in forwardedTypes)
+                {
+                    var targetAssembly = forwarded.Destination.Assembly;
+                    if (targetAssembly != assembly) // Avoid self-reference
+                    {
+                        AddAssembly(parts, targetAssembly);
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore errors when checking for forwarded types
+            }
         }
 
 #if NETCOREAPP3_1_OR_GREATER

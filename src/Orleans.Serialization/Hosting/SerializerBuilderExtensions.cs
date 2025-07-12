@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Orleans.Serialization
 {
@@ -62,6 +64,21 @@ namespace Orleans.Serialization
             foreach (var attr in attrs)
             {
                 _ = builder.Services.AddSingleton(typeof(IConfigureOptions<TypeManifestOptions>), attr.ProviderType);
+            }
+
+            // Check for TypeForwardedTo attributes and add the target assemblies
+            // This allows shim assemblies to forward their metadata discovery to the actual implementation assemblies
+            var forwardedTypes = assembly.GetCustomAttributes<System.Runtime.CompilerServices.TypeForwardedToAttribute>();
+            var processedAssemblies = new HashSet<Assembly> { assembly };
+            
+            foreach (var forwarded in forwardedTypes)
+            {
+                var targetAssembly = forwarded.Destination.Assembly;
+                if (processedAssemblies.Add(targetAssembly))
+                {
+                    // Recursively add the target assembly to discover its metadata
+                    builder.AddAssembly(targetAssembly);
+                }
             }
 
             return builder;

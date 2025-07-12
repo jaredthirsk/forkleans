@@ -36,6 +36,9 @@ These files are completely new and do not exist in upstream Orleans:
 ### Root Directory Files (Added)
 - `CLAUDE.md` - Guidance for Claude Code when working with this fork
 
+### Granville-Specific Projects Added
+- `src/Granville.Orleans.Shims/` - Helper package for Orleans shim compatibility
+
 ### Build Files Added to Source Projects
 - `src/Orleans.Core/build/Granville.Orleans.Core.props` - Auto-disables official Orleans code generator
 - `src/Orleans.Sdk/build/Granville.Orleans.Sdk.props` - Auto-disables official Orleans code generator  
@@ -47,6 +50,19 @@ These files are completely new and do not exist in upstream Orleans:
 - `Directory.Build.targets` - MSBuild customizations to rename assemblies from Microsoft.Orleans.* to Granville.Orleans.*
 - `Directory.Packages.props` - Package version management adjustments
 - `NuGet.Config` - Configuration updates for package sources
+
+## Source Code Modifications
+
+### Orleans.Serialization
+- `src/Orleans.Serialization/Hosting/SerializerBuilderExtensions.cs` - Modified AddAssembly to follow TypeForwardedTo attributes for metadata discovery
+- `src/Orleans.Serialization/Hosting/ReferencedAssemblyProvider.cs` - Modified AddAssembly to include assemblies referenced via TypeForwardedTo
+
+These modifications enable Orleans to discover metadata in Granville assemblies when using shim packages that forward types.
+
+### Granville.Orleans.Shims (New Project)
+- `src/Granville.Orleans.Shims/` - New project providing helper methods for shim compatibility
+- Provides `AddOrleansShims()` extension method to work around serialization metadata discovery issues
+- See `/granville/docs/SERIALIZATION-SHIM-ISSUE.md` for details
 
 Note: All other Granville-specific files are located under `/granville/` directory as per our repository organization guidelines.
 
