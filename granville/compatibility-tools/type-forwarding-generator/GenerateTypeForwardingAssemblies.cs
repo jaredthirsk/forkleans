@@ -267,7 +267,8 @@ namespace GenerateTypeForwardingAssemblies
                         // Skip certain system types that may conflict
                         if (type.FullName == "System.Runtime.CompilerServices.IsExternalInit" ||
                             type.Namespace == "System.Runtime.CompilerServices.Unsafe" ||
-                            (type.Namespace == "System.Runtime.CompilerServices" && type.Name.StartsWith("Is")))
+                            (type.Namespace == "System.Runtime.CompilerServices" && type.Name.StartsWith("Is")) ||
+                            type.FullName == "Microsoft.CodeAnalysis.EmbeddedAttribute")
                         {
                             skippedTypes.Add((type.FullName, "system type that may conflict"));
                             continue;

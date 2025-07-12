@@ -649,6 +649,48 @@ The issue has two parts:
 
 Even with assemblies loaded and added to the serializer, the runtime codec provider cannot find the copiers. This suggests the issue is deeper in how Orleans' codec provider resolves types at runtime.
 
+## ApplicationPart Fix Implementation (Dec 2024)
+
+### Problem Discovered
+When building with `BuildAsGranville=true`, the Orleans code generator was using the original assembly names (e.g., "Orleans.Core") instead of the renamed assembly names (e.g., "Granville.Orleans.Core") for ApplicationPart attributes. This caused the serialization system to not discover the assemblies at runtime.
+
+### Solution Implemented
+1. **Added Granville_FinalAssemblyName CompilerVisibleProperty**:
+   - Added to Microsoft.Orleans.CodeGenerator.props and Granville.Orleans.CodeGenerator.props
+   - Set in Directory.Build.targets when BuildAsGranville=true
+
+2. **Modified Orleans Code Generator**:
+   - Updated CodeGenerator constructor to accept optional finalAssemblyName parameter
+   - Modified GenerateCode to use finalAssemblyName if provided
+   - Updated OrleansSourceGenerator to read and pass Granville_FinalAssemblyName
+
+3. **Enabled Code Generation for Orleans.Serialization**:
+   - Removed IsOrleansFrameworkPart=false to enable ApplicationPart generation
+
+### Results
+After implementation:
+- Granville.Orleans.Core has [ApplicationPart]: True ✓
+- Granville.Orleans.Core.Abstractions has [ApplicationPart]: True ✓
+- Granville.Orleans.Runtime has [ApplicationPart]: True ✓
+- Granville.Orleans.Reminders has [ApplicationPart]: True ✓
+- Granville.Orleans.Serialization has [ApplicationPart]: True (verified via external tool)
+
+### Current Status
+Despite ApplicationPart attributes being correctly generated, the Shooter.Silo still fails with:
+```
+Orleans.Serialization.CodecNotFoundException: Could not find a copier for type Orleans.Serialization.Invocation.Response`1[Orleans.MembershipTableData]
+```
+
+This suggests that:
+1. ApplicationPart generation is now correct
+2. The AddGranvilleAssemblies detection logic may have issues (shows False for Serialization)
+3. There may be additional timing or discovery issues beyond ApplicationPart attributes
+
+### Next Steps
+1. Investigate why AddGranvilleAssemblies shows ApplicationPart as False for Granville.Orleans.Serialization despite external verification showing it's present
+2. Consider if there are additional metadata requirements beyond ApplicationPart
+3. Explore if TypeManifestProvider generation is working correctly for all assemblies
+
 ## Conclusion
 
 The fundamental issue is an architectural mismatch between:
@@ -657,10 +699,44 @@ The fundamental issue is an architectural mismatch between:
 - When Orleans needs these copiers (very early, before user configuration)
 - Orleans doesn't follow TypeForwardedTo when discovering metadata
 
-While we've attempted to make Orleans smarter by following TypeForwardedTo, the timing issue means we need a solution that works within the existing architecture. The current workaround of explicit assembly registration, while not as elegant as we'd like, provides a reliable solution for applications using Granville Orleans.
+While we've implemented ApplicationPart generation fixes, the timing issue means we need a solution that works within the existing architecture. The current workaround of explicit assembly registration, while not as elegant as we'd like, provides a reliable solution for applications using Granville Orleans.
 
 ### Recommended Approach:
 1. **For Development**: Remove SerializerConfigurationValidator to bypass validation
 2. **For Production**: Complete the Granville.Orleans.Shims package with proper metadata forwarding
-3. **Long-term**: Consider adding [ApplicationPart] to Granville assemblies or implementing a custom codec provider
-## ApplicationPart Fix Implementation (Dec 2024)
+3. **Long-term**: Investigate the runtime codec resolution issues that persist despite correct ApplicationPart generation
+
+## Current Status (July 2025)
+
+### What's Fixed:
+1. **ApplicationPart Generation**: Fixed in Orleans code generator to use correct assembly names for Granville builds
+2. **Shooter Sample**: Now builds and runs successfully after:
+   - Fixing package references (using Microsoft.Orleans.Reminders instead of non-existent Granville.Orleans.Reminders)
+   - Adding Orleans_DesignTimeBuild property to prevent duplicate code generation
+   - Removing SerializerConfigurationValidator in Shooter.Silo's Program.cs
+
+### What Works:
+- Shooter sample builds without errors
+- Silo starts successfully
+- ActionServers connect to Silo (with increased startup delay)
+- Game is fully playable
+- All Granville.Orleans assemblies have correct ApplicationPart attributes
+
+### Remaining Issues:
+1. **Serialization Discovery**: Despite ApplicationPart fixes, the serialization system still doesn't automatically discover Granville assemblies
+2. **Manual Registration Required**: Applications must explicitly register Granville assemblies with the serializer
+3. **Startup Timing**: ActionServers need a delay to ensure Silo's Orleans gateway is ready
+
+### Current Workaround:
+The Shooter.Silo uses this workaround in Program.cs:
+```csharp
+// Remove the SerializerConfigurationValidator to prevent early validation errors
+builder.Services.RemoveAll<IConfigurationValidator>(
+    validator => validator.GetType().Name == "SerializerConfigurationValidator");
+
+// Explicitly register Granville assemblies
+builder.Services.AddSerializer(serializerBuilder =>
+{
+    serializerBuilder.AddGranvilleAssemblies();
+});
+```
