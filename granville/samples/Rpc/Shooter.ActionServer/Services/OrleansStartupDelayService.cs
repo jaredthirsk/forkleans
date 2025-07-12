@@ -36,7 +36,7 @@ public class OrleansStartupDelayService : IHostedService
             var siloUrl = _configuration["Orleans:SiloUrl"];
             if (!string.IsNullOrEmpty(siloUrl))
             {
-                var healthEndpoint = $"{siloUrl}/health/ready";
+                var healthEndpoint = $"{siloUrl}/ready";
                 var httpClient = _httpClientFactory.CreateClient();
                 httpClient.Timeout = TimeSpan.FromSeconds(2);
                 
@@ -56,11 +56,17 @@ public class OrleansStartupDelayService : IHostedService
                             return;
                         }
                         
-                        _logger.LogDebug("Silo health check returned {StatusCode}, retrying...", response.StatusCode);
+                        if (attempt % 10 == 0) // Only log every 10th attempt to reduce noise
+                    {
+                        _logger.LogDebug("Silo health check returned {StatusCode}, retrying... (attempt {Attempt}/{Max})", response.StatusCode, attempt, maxAttempts);
+                    }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogDebug(ex, "Failed to connect to Silo health endpoint, retrying...");
+                        if (attempt % 10 == 0) // Only log every 10th attempt to reduce noise
+                        {
+                            _logger.LogDebug(ex, "Failed to connect to Silo health endpoint, retrying... (attempt {Attempt}/{Max})", attempt, maxAttempts);
+                        }
                     }
                     
                     attempt++;

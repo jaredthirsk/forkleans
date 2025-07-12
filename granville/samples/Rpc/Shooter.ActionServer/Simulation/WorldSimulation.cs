@@ -1383,6 +1383,33 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             // Send alerts to enemies in target zones
             var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
             
+            // First, check which zones actually exist
+            var existingZones = new List<GridSquare>();
+            foreach (var zone in zonesToAlert)
+            {
+                var targetPosition = zone.GetCenter();
+                var targetServer = await worldManager.GetActionServerForPosition(targetPosition);
+                if (targetServer != null)
+                {
+                    existingZones.Add(zone);
+                }
+            }
+            
+            // Recalculate alert direction based only on existing zones
+            if (existingZones.Count > 0 && !(gridX == 1 && gridY == 1))
+            {
+                // Calculate average direction to existing zones
+                float sumX = 0, sumY = 0;
+                foreach (var zone in existingZones)
+                {
+                    var dx = zone.X - _assignedSquare.X;
+                    var dy = zone.Y - _assignedSquare.Y;
+                    sumX += dx;
+                    sumY += dy;
+                }
+                alertDirection = MathF.Atan2(sumY / existingZones.Count, sumX / existingZones.Count);
+            }
+            
             foreach (var targetZone in zonesToAlert)
             {
                 try
@@ -1404,6 +1431,11 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                                     _logger.LogInformation("Scout alert sent to zone ({X},{Y})", targetZone.X, targetZone.Y);
                                 }
                             });
+                    }
+                    else
+                    {
+                        _logger.LogDebug("Scout at {Position} cannot alert zone ({X},{Y}) - no action server assigned", 
+                            playerPosition, targetZone.X, targetZone.Y);
                     }
                 }
                 catch (Exception ex)
