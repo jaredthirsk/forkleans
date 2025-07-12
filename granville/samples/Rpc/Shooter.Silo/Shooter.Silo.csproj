@@ -21,11 +21,15 @@
     <PackageReference Include="Granville.Orleans.Server" />
     <PackageReference Include="Granville.Orleans.Reminders" />
     
-    <!-- Use Granville version of persistence package to avoid conflicts -->
-    <PackageReference Include="Granville.Orleans.Persistence.Memory" />
+    <!-- Microsoft Orleans packages for features not in Granville -->
+    <PackageReference Include="Microsoft.Orleans.Persistence.Memory" />
     
-    <!-- Removed shim packages - using Granville.Orleans directly -->
-    <!-- The shim packages were causing conflicts with internal type visibility -->
+    <!-- Shim packages to redirect Microsoft.Orleans to Granville.Orleans -->
+    <PackageReference Include="Microsoft.Orleans.Core" />
+    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" />
+    <PackageReference Include="Microsoft.Orleans.Runtime" />
+    <PackageReference Include="Microsoft.Orleans.Serialization" />
+    <PackageReference Include="Microsoft.Orleans.Serialization.Abstractions" />
     
     <!-- Force use of shim build tools to prevent duplicate code generation -->
     <PackageReference Include="Microsoft.Orleans.CodeGenerator" />

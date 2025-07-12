@@ -39,7 +39,6 @@
     <PackageVersion Include="Granville.Orleans.Client" Version="9.1.2.80" />
     <PackageVersion Include="Granville.Orleans.Analyzers" Version="9.1.2.80" />
     <PackageVersion Include="Granville.Orleans.Reminders" Version="9.1.2.80" />
-    <PackageVersion Include="Granville.Orleans.Persistence.Memory" Version="9.1.2.80" />
     
     <!-- Microsoft Orleans shim packages to resolve transitive dependencies -->
     <PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2.80-granville-shim" />
