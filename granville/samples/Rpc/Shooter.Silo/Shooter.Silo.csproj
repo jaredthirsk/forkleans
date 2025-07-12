@@ -38,7 +38,7 @@
     <PackageReference Include="Granville.Orleans.Analyzers" />
 
     <!-- UFX.Orleans.SignalRBackplane - depends on Microsoft.Orleans -->
-    <!-- <PackageReference Include="UFX.Orleans.SignalRBackplane" /> -->
+    <PackageReference Include="UFX.Orleans.SignalRBackplane" />
   </ItemGroup>
 
   <ItemGroup>
