@@ -1,6 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <!-- Use local NuGet feed for Granville packages -->
-    <RestoreSources>$(RestoreSources);/mnt/g/forks/orleans/Artifacts/Release;https://api.nuget.org/v3/index.json</RestoreSources>
-  </PropertyGroup>
-</Project>
