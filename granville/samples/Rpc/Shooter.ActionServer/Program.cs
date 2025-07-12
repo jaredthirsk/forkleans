@@ -368,7 +368,9 @@ public class OrleansStartupDelayService : IHostedService
         if (!string.IsNullOrEmpty(_configuration["Orleans:GatewayEndpoint"]))
         {
             _logger.LogInformation("Delaying Orleans client startup to ensure silo is ready...");
-            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+            // Increased delay to ensure Silo is fully ready - temporary fix
+            // TODO: Replace with proper health check polling
+            await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
             _logger.LogInformation("Orleans startup delay complete");
         }
     }
