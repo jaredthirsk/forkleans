@@ -19,11 +19,14 @@ for (int i = 0; i < SiloCount; i++)
 {
     var siloPort = 11111 + i;
     var gatewayPort = 30000 + i;
+    var httpPort = 7071 + i;
+    var httpsPort = 7171 + i;
     var siloName = $"shooter-silo-{i}";
     
     var silo = builder.AddProject<Projects.Shooter_Silo>(siloName)
         .WithEndpoint(gatewayPort, gatewayPort, name: "orleans-gateway", scheme: "tcp", isProxied: false)
         .WithEndpoint(siloPort, siloPort, name: "orleans-silo", scheme: "tcp", isProxied: false)
+        .WithEnvironment("ASPNETCORE_URLS", $"https://localhost:{httpsPort.ToString()};http://localhost:{httpPort.ToString()}")
         .WithEnvironment("Orleans:ClusterId", "shooter-cluster")
         .WithEnvironment("Orleans:ServiceId", "shooter-service")
         .WithEnvironment("Orleans:SiloPort", siloPort.ToString())
