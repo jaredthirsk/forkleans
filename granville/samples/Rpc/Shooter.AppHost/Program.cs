@@ -15,12 +15,47 @@ var aspnetcoreEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
 var silos = new List<IResourceBuilder<ProjectResource>>();
 IResourceBuilder<ProjectResource>? primarySilo = null;
 
+// Helper to find next available port block
+static int FindAvailablePortBlock(int startBlock, int blockSize = 10)
+{
+    int currentBlock = startBlock;
+    while (currentBlock < 100) // Limit search to prevent infinite loop
+    {
+        var basePort = 7070 + (currentBlock * blockSize);
+        var portsToCheck = new[] { basePort + 1, basePort + 2, basePort + 3 }; // HTTP, HTTPS, Dashboard
+        
+        bool allAvailable = true;
+        foreach (var port in portsToCheck)
+        {
+            try
+            {
+                using var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, port);
+                listener.Start();
+                listener.Stop();
+            }
+            catch
+            {
+                allAvailable = false;
+                break;
+            }
+        }
+        
+        if (allAvailable)
+            return currentBlock;
+            
+        currentBlock++;
+    }
+    throw new InvalidOperationException($"Could not find available port block starting from block {startBlock}");
+}
+
 for (int i = 0; i < SiloCount; i++)
 {
     var siloPort = 11111 + i;
     var gatewayPort = 30000 + i;
-    // Each silo gets a block of 10 ports starting at 7070 + (i * 10)
-    var basePort = 7070 + (i * 10);
+    
+    // Find next available port block
+    var blockIndex = FindAvailablePortBlock(i);
+    var basePort = 7070 + (blockIndex * 10);
     var httpPort = basePort + 1;        // 7071, 7081, etc.
     var httpsPort = basePort + 2;       // 7072, 7082, etc.
     var dashboardPort = basePort + 3;   // 7073, 7083, etc.

@@ -171,6 +171,9 @@ builder.Host.UseOrleans(siloBuilder =>
             var siloIndex = (siloHttpPort - 7071) / 10; // 7071->0, 7081->1, etc.
             var basePort = 7070 + (siloIndex * 10);
             var dashboardPort = basePort + 3; // Dashboard is at basePort + 3
+            
+            // Check if port is available and find next available block if not
+            dashboardPort = FindAvailablePort(dashboardPort, 10);
             options.Port = dashboardPort;
             
             Console.WriteLine($"Orleans Dashboard will be available at http://localhost:{dashboardPort}/");
@@ -291,6 +294,30 @@ app.MapGet("/orleans-ready", (Orleans.IGrainFactory grainFactory) =>
 });
 
 app.Run();
+
+// Helper method to find an available port
+static int FindAvailablePort(int startPort, int blockSize = 10)
+{
+    var port = startPort;
+    while (port < 65535)
+    {
+        try
+        {
+            using var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, port);
+            listener.Start();
+            listener.Stop();
+            return port;
+        }
+        catch (System.Net.Sockets.SocketException)
+        {
+            // Port is in use, try next block
+            var currentBlock = (port - 7070) / blockSize;
+            var nextBlock = currentBlock + 1;
+            port = 7070 + (nextBlock * blockSize) + 3; // Jump to next block's dashboard port
+        }
+    }
+    throw new InvalidOperationException($"Could not find an available port starting from {startPort}");
+}
 
 // Service to cleanup console redirection on shutdown
 public class ConsoleRedirectorCleanupService : IHostedService
