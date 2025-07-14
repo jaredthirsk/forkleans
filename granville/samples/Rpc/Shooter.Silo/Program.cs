@@ -165,9 +165,9 @@ builder.Host.UseOrleans(siloBuilder =>
             options.HostSelf = true;
             
             // Calculate dashboard port based on silo instance
-            // Default silo (7071) gets port 8080, silo-1 (7075) gets 8081, etc.
+            // Default silo (7071) gets port 7171, silo-1 (7072) gets 7172, etc.
             var siloHttpPort = builder.Configuration.GetValue<int?>("ASPNETCORE_HTTP_PORT") ?? 7071;
-            var dashboardPort = 8080 + ((siloHttpPort - 7071) / 4);
+            var dashboardPort = 7171 + (siloHttpPort - 7071);
             options.Port = dashboardPort;
             
             Console.WriteLine($"Orleans Dashboard will be available at http://localhost:{dashboardPort}/");
