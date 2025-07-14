@@ -19,9 +19,11 @@ for (int i = 0; i < SiloCount; i++)
 {
     var siloPort = 11111 + i;
     var gatewayPort = 30000 + i;
-    var httpPort = 7071 + i;
-    var httpsPort = 7271 + i;
-    var dashboardPort = 7171 + i;
+    // Each silo gets a block of 10 ports starting at 7070 + (i * 10)
+    var basePort = 7070 + (i * 10);
+    var httpPort = basePort + 1;        // 7071, 7081, etc.
+    var httpsPort = basePort + 2;       // 7072, 7082, etc.
+    var dashboardPort = basePort + 3;   // 7073, 7083, etc.
     var siloName = $"shooter-silo-{i}";
     
     var silo = builder.AddProject<Projects.Shooter_Silo>(siloName)
