@@ -17,6 +17,18 @@
             </div>
         }
     </div>
+    
+    <div class="chat-input">
+        <form @onsubmit="SendMessage" @onsubmit:preventDefault="true">
+            <div class="input-group">
+                <input type="text" @bind="chatInput" @bind:event="oninput" 
+                       placeholder="Type a message..." class="chat-input-field" />
+                <button type="submit" class="chat-send-btn" disabled="@(string.IsNullOrWhiteSpace(chatInput))">
+                    Send
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <style>
@@ -102,12 +114,59 @@
     .chat-messages::-webkit-scrollbar-thumb:hover {
         background: #555;
     }
+    
+    .chat-input {
+        padding: 10px;
+        border-top: 1px solid #444;
+        background-color: #333;
+    }
+    
+    .input-group {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .chat-input-field {
+        flex: 1;
+        padding: 8px;
+        background-color: #2a2a2a;
+        border: 1px solid #555;
+        border-radius: 4px;
+        color: #e0e0e0;
+        font-size: 14px;
+    }
+    
+    .chat-input-field:focus {
+        outline: none;
+        border-color: #2196F3;
+    }
+    
+    .chat-send-btn {
+        padding: 8px 16px;
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    
+    .chat-send-btn:hover:not(:disabled) {
+        background-color: #1976D2;
+    }
+    
+    .chat-send-btn:disabled {
+        background-color: #666;
+        cursor: not-allowed;
+    }
 </style>
 
 @code {
     [Parameter] public List<ChatMessage> Messages { get; set; } = new();
+    [Parameter] public EventCallback<string> OnSendMessage { get; set; }
     
     private ElementReference chatMessagesElement;
+    private string chatInput = "";
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -117,5 +176,13 @@
         {
             await chatMessagesElement.FocusAsync();
         });
+    }
+    
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(chatInput)) return;
+        
+        await OnSendMessage.InvokeAsync(chatInput);
+        chatInput = "";
     }
 }

@@ -194,4 +194,33 @@ public class CrossZoneRpcService : IHostedService, IDisposable
         _cleanupTimer?.Dispose();
         _connectionLock?.Dispose();
     }
+    
+    public async Task NotifyBulletDestroyed(GridSquare targetZone, string bulletId)
+    {
+        try
+        {
+            // Get the action server for the target zone
+            var orleansClient = _serviceProvider.GetRequiredService<Orleans.IClusterClient>();
+            var worldManager = orleansClient.GetGrain<Shooter.Shared.GrainInterfaces.IWorldManagerGrain>(0);
+            var targetServer = await worldManager.GetActionServerForPosition(targetZone.GetCenter());
+            
+            if (targetServer == null)
+            {
+                _logger.LogDebug("No server found for zone ({X},{Y}), skipping bullet destruction notification", 
+                    targetZone.X, targetZone.Y);
+                return;
+            }
+            
+            // Get the game grain for the target server
+            var gameGrain = await GetGameGrainForServer(targetServer);
+            
+            // Notify about bullet destruction
+            await gameGrain.NotifyBulletDestroyed(bulletId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Failed to notify zone ({X},{Y}) about bullet {BulletId} destruction", 
+                targetZone.X, targetZone.Y, bulletId);
+        }
+    }
 }

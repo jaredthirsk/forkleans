@@ -226,7 +226,13 @@
     {
         if (entity.Type == EntityType.Player)
         {
-            return entity.EntityId == PlayerId ? "#00ff00" : "#00aa00";
+            // Use team colors for players
+            return entity.Team switch
+            {
+                1 => "#00ff00", // Team 1 - green
+                2 => "#ff0000", // Team 2 - red
+                _ => "#ffff00"  // No team - yellow
+            };
         }
         
         return entity.Type switch
@@ -236,10 +242,13 @@
                 (int)EnemySubType.Kamikaze => "#ff4444",
                 (int)EnemySubType.Sniper => "#44ff44",
                 (int)EnemySubType.Strafing => "#ffaa44",
+                (int)EnemySubType.Scout => "#9966cc",
                 _ => "#ff0000"
             },
             EntityType.Bullet => "#ffff00",
             EntityType.Explosion => "#ff8800",
+            EntityType.Factory => "#666666",
+            EntityType.Asteroid => "#8B4513",
             _ => "#ffffff"
         };
     }

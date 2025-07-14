@@ -29,6 +29,17 @@ public class GameService : IGameService, IHostedService
         _simulation = simulation;
         _orleansClient = orleansClient;
         _logger = logger;
+        
+        // Set up callback for when players are removed due to timeout
+        if (_simulation is WorldSimulation worldSim)
+        {
+            worldSim.SetPlayerTimeoutCallback(playerId =>
+            {
+                _logger.LogInformation("Player {PlayerId} timed out, updating telemetry", playerId);
+                ActionServerTelemetry.PlayerDisconnections.Add(1, new KeyValuePair<string, object?>("player.id", playerId), new KeyValuePair<string, object?>("reason", "timeout"));
+                ActionServerTelemetry.ActivePlayers.Add(-1);
+            });
+        }
     }
 
     public async Task<bool> ConnectPlayer(string playerId)

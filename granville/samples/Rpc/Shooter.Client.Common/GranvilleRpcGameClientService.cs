@@ -30,6 +30,8 @@ public class GranvilleRpcGameClientService : IDisposable
     private Timer? _worldStateTimer;
     private Timer? _heartbeatTimer;
     private Timer? _availableZonesTimer;
+    private Timer? _chatPollingTimer;
+    private DateTime _lastChatPollTime = DateTime.UtcNow;
     private CancellationTokenSource? _cancellationTokenSource;
     private bool _isTransitioning = false;
     private DateTime _lastZoneBoundaryCheck = DateTime.MinValue;
@@ -64,6 +66,7 @@ public class GranvilleRpcGameClientService : IDisposable
     public string? PlayerId { get; private set; }
     public string? PlayerName { get; private set; }
     public string? CurrentServerId { get; private set; }
+    public string? TransportType { get; private set; }
     
     public GranvilleRpcGameClientService(
         ILogger<GranvilleRpcGameClientService> logger,
@@ -81,6 +84,10 @@ public class GranvilleRpcGameClientService : IDisposable
         {
             _cancellationTokenSource = new CancellationTokenSource();
             
+            // Log the instance hash code to verify we have separate instances
+            _logger.LogInformation("[CONNECT] GranvilleRpcGameClientService instance {InstanceId} connecting for player {PlayerName}", 
+                this.GetHashCode(), playerName);
+            
             // First register with HTTP to get server info and player ID
             var registrationResponse = await RegisterWithHttpAsync(playerName);
             if (registrationResponse == null) return false;
@@ -96,8 +103,8 @@ public class GranvilleRpcGameClientService : IDisposable
                 _visitedZones.Add($"{_currentZone.X},{_currentZone.Y}");
             }
             
-            _logger.LogInformation("Player registered with ID {PlayerId} on server {ServerId} in zone ({X}, {Y})", 
-                PlayerId, CurrentServerId, 
+            _logger.LogInformation("[CONNECT] Instance {InstanceId} - Player registered with ID {PlayerId} on server {ServerId} in zone ({X}, {Y})", 
+                this.GetHashCode(), PlayerId, CurrentServerId, 
                 registrationResponse.ActionServer?.AssignedSquare.X ?? -1, 
                 registrationResponse.ActionServer?.AssignedSquare.Y ?? -1);
             
@@ -155,7 +162,8 @@ public class GranvilleRpcGameClientService : IDisposable
                     rpcBuilder.ConnectTo(resolvedHost, rpcPort);
                     // Configure transport based on configuration
                     var transportType = _configuration["RpcTransport"] ?? "litenetlib";
-                    switch (transportType.ToLowerInvariant())
+                    TransportType = transportType.ToLowerInvariant();
+                    switch (TransportType)
                     {
                         case "ruffles":
                             _logger.LogInformation("Using Ruffles UDP transport");
@@ -165,6 +173,7 @@ public class GranvilleRpcGameClientService : IDisposable
                         default:
                             _logger.LogInformation("Using LiteNetLib UDP transport");
                             rpcBuilder.UseLiteNetLib();
+                            TransportType = "litenetlib"; // Ensure we always have a value
                             break;
                     }
                 })
@@ -254,16 +263,19 @@ public class GranvilleRpcGameClientService : IDisposable
                 var observerRef = _rpcClient.CreateObjectReference<IGameRpcObserver>(_observer);
                 await _gameGrain.Subscribe(observerRef);
                 
-                _logger.LogInformation("Successfully subscribed to game updates via observer");
+                _logger.LogInformation("[CHAT_DEBUG] Successfully subscribed to game updates via observer. Observer created: {ObserverCreated}", _observer != null);
             }
-            catch (NotSupportedException)
+            catch (NotSupportedException nse)
             {
-                _logger.LogWarning("Observer pattern not supported by RPC transport, falling back to polling");
-                // Observer pattern might not be supported yet, continue with polling
+                _logger.LogWarning(nse, "[CHAT_DEBUG] Observer pattern not supported by RPC transport, falling back to polling.");
+                // Start chat polling as fallback
+                StartChatPolling();
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to subscribe observer, continuing with polling");
+                _logger.LogWarning(ex, "[CHAT_DEBUG] Failed to subscribe observer, falling back to polling. Exception type: {ExceptionType}", ex.GetType().Name);
+                // Start chat polling as fallback
+                StartChatPolling();
             }
             
             // Start polling for world state
@@ -299,19 +311,17 @@ public class GranvilleRpcGameClientService : IDisposable
     {
         try
         {
-            // For bots, use the bot name as the player ID to ensure consistency
-            // This prevents duplicate bot ships when multiple bot instances try to connect
-            string playerId;
+            // Always generate a unique player ID to prevent conflicts
+            // Even for bots, we need unique IDs when multiple instances run
+            string playerId = Guid.NewGuid().ToString();
+            
             if (IsBotName(playerName))
             {
-                // Use the bot name directly as the player ID
-                playerId = playerName;
-                _logger.LogInformation("Registering bot with predictable ID: {PlayerId}", playerId);
+                _logger.LogInformation("Registering bot {BotName} with unique ID: {PlayerId}", playerName, playerId);
             }
             else
             {
-                // For human players, generate a unique ID
-                playerId = Guid.NewGuid().ToString();
+                _logger.LogInformation("Registering player {PlayerName} with ID: {PlayerId}", playerName, playerId);
             }
             
             var response = await _httpClient.PostAsJsonAsync("api/world/players/register", 
@@ -394,6 +404,14 @@ public class GranvilleRpcGameClientService : IDisposable
         {
             // Add timeout to prevent 30-second hangs
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            
+            // Debug log to track which player is sending input
+            if (moveDirection.HasValue || shootDirection.HasValue)
+            {
+                _logger.LogDebug("[INPUT_SEND] Instance {InstanceId} - Player {PlayerId} sending input - Move: {Move}, Shoot: {Shoot}", 
+                    this.GetHashCode(), PlayerId, moveDirection.HasValue, shootDirection.HasValue);
+            }
+            
             await _gameGrain.UpdatePlayerInputEx(PlayerId, moveDirection, shootDirection).WaitAsync(cts.Token);
         }
         catch (OperationCanceledException)
@@ -840,7 +858,8 @@ public class GranvilleRpcGameClientService : IDisposable
                     rpcBuilder.ConnectTo(resolvedHost, rpcPort);
                     // Configure transport based on configuration
                     var transportType = _configuration["RpcTransport"] ?? "litenetlib";
-                    switch (transportType.ToLowerInvariant())
+                    TransportType = transportType.ToLowerInvariant();
+                    switch (TransportType)
                     {
                         case "ruffles":
                             _logger.LogInformation("Using Ruffles UDP transport");
@@ -850,6 +869,7 @@ public class GranvilleRpcGameClientService : IDisposable
                         default:
                             _logger.LogInformation("Using LiteNetLib UDP transport");
                             rpcBuilder.UseLiteNetLib();
+                            TransportType = "litenetlib"; // Ensure we always have a value
                             break;
                     }
                 })
@@ -954,6 +974,12 @@ public class GranvilleRpcGameClientService : IDisposable
         _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(16));
         _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
         _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(2));
+        
+        // Restart chat polling if it was active
+        if (_observer == null)
+        {
+            StartChatPolling();
+        }
         
         // Reset sequence number for new server
         _lastSequenceNumber = -1;
@@ -1151,8 +1177,9 @@ public class GranvilleRpcGameClientService : IDisposable
                 else if (playerEntity.Position.Y > max.Y)
                     distToZone = Math.Max(distToZone, playerEntity.Position.Y - max.Y);
                 
-                // Only include zones within 150 units
-                if (distToZone <= 150)
+                // Include zones within peek distance (200 units) to ensure smooth transitions
+                const float PRE_CONNECTION_DISTANCE = 200f; // Match peek distance
+                if (distToZone <= PRE_CONNECTION_DISTANCE)
                 {
                     neighbors.Add(neighborZone);
                     _logger.LogDebug("Including neighbor zone ({X},{Y}) - distance: {Distance} units", 
@@ -1160,8 +1187,8 @@ public class GranvilleRpcGameClientService : IDisposable
                 }
                 else
                 {
-                    _logger.LogDebug("Excluding neighbor zone ({X},{Y}) - distance: {Distance} units (> 150)", 
-                        neighborZone.X, neighborZone.Y, distToZone);
+                    _logger.LogDebug("Excluding neighbor zone ({X},{Y}) - distance: {Distance} units (> {MaxDist})", 
+                        neighborZone.X, neighborZone.Y, distToZone, PRE_CONNECTION_DISTANCE);
                 }
             }
         }
@@ -1260,7 +1287,8 @@ public class GranvilleRpcGameClientService : IDisposable
                     rpcBuilder.ConnectTo(resolvedHost, rpcPort);
                     // Configure transport based on configuration
                     var transportType = _configuration["RpcTransport"] ?? "litenetlib";
-                    switch (transportType.ToLowerInvariant())
+                    TransportType = transportType.ToLowerInvariant();
+                    switch (TransportType)
                     {
                         case "ruffles":
                             _logger.LogInformation("Using Ruffles UDP transport");
@@ -1270,6 +1298,7 @@ public class GranvilleRpcGameClientService : IDisposable
                         default:
                             _logger.LogInformation("Using LiteNetLib UDP transport");
                             rpcBuilder.UseLiteNetLib();
+                            TransportType = "litenetlib"; // Ensure we always have a value
                             break;
                     }
                 })
@@ -1570,6 +1599,7 @@ public class GranvilleRpcGameClientService : IDisposable
     private void Cleanup()
     {
         IsConnected = false;
+        TransportType = null;
         _lastSequenceNumber = -1;
         
         _cancellationTokenSource?.Cancel();
@@ -1579,9 +1609,11 @@ public class GranvilleRpcGameClientService : IDisposable
         _worldStateTimer?.Dispose();
         _heartbeatTimer?.Dispose();
         _availableZonesTimer?.Dispose();
+        _chatPollingTimer?.Dispose();
         _worldStateTimer = null;
         _heartbeatTimer = null;
         _availableZonesTimer = null;
+        _chatPollingTimer = null;
         
         _gameGrain = null;
         _rpcClient = null;
@@ -1634,6 +1666,24 @@ public class GranvilleRpcGameClientService : IDisposable
         ScoutAlertReceived?.Invoke(alert);
     }
     
+    public async Task<double> GetServerFpsAsync()
+    {
+        if (_gameGrain == null || !IsConnected)
+        {
+            return 0;
+        }
+        
+        try
+        {
+            return await _gameGrain.GetServerFps();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Error getting server FPS");
+            return 0;
+        }
+    }
+    
     public void Dispose()
     {
         Cleanup();
@@ -1676,6 +1726,89 @@ public class GranvilleRpcGameClientService : IDisposable
         
         // Notify UI about chat message
         ChatMessageReceived?.Invoke(message);
+    }
+    
+    public async Task SendChatMessage(string message)
+    {
+        if (!IsConnected || _gameGrain == null)
+        {
+            _logger.LogWarning("[CHAT_DEBUG] Cannot send chat message - not connected to game. IsConnected={IsConnected}, GameGrain={GameGrain}", IsConnected, _gameGrain != null);
+            return;
+        }
+
+        var chatMessage = new ChatMessage(
+            SenderId: PlayerId ?? "Unknown",
+            SenderName: PlayerName ?? "Unknown",
+            Message: message,
+            Timestamp: DateTime.UtcNow,
+            IsSystemMessage: false
+        );
+
+        try
+        {
+            _logger.LogInformation("[CHAT_DEBUG] Attempting to send chat message from {PlayerName} ({PlayerId}): {Message}", PlayerName, PlayerId, message);
+            await _gameGrain.SendChatMessage(chatMessage);
+            _logger.LogInformation("[CHAT_DEBUG] Successfully sent chat message to RPC grain: {Message}", message);
+            
+            // As a workaround, always handle the message locally to ensure the sender sees their own message
+            // This is necessary because observer pattern might not be supported by the RPC transport
+            _logger.LogInformation("[CHAT_DEBUG] Handling chat message locally to ensure sender sees it");
+            HandleChatMessage(chatMessage);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[CHAT_DEBUG] Failed to send chat message: {Message}", message);
+            throw; // Re-throw so the UI can show an error
+        }
+    }
+    
+    private void StartChatPolling()
+    {
+        if (_chatPollingTimer != null)
+        {
+            _logger.LogDebug("[CHAT_DEBUG] Chat polling already started");
+            return;
+        }
+        
+        _logger.LogInformation("[CHAT_DEBUG] Starting chat polling fallback");
+        _lastChatPollTime = DateTime.UtcNow;
+        _chatPollingTimer = new Timer(async _ => await PollChatMessages(), null, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(500));
+    }
+    
+    private async Task PollChatMessages()
+    {
+        if (_gameGrain == null || !IsConnected || _cancellationTokenSource?.Token.IsCancellationRequested == true)
+        {
+            return;
+        }
+        
+        try
+        {
+            var messages = await _gameGrain.GetRecentChatMessages(_lastChatPollTime);
+            if (messages != null && messages.Count > 0)
+            {
+                _logger.LogInformation("[CHAT_DEBUG] Received {Count} chat messages from polling", messages.Count);
+                
+                foreach (var message in messages)
+                {
+                    // Don't show our own messages again (we already added them locally)
+                    if (message.SenderId != PlayerId)
+                    {
+                        HandleChatMessage(message);
+                    }
+                }
+                
+                // Update poll time to the latest message timestamp
+                if (messages.Count > 0)
+                {
+                    _lastChatPollTime = messages.Max(m => m.Timestamp);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "[CHAT_DEBUG] Failed to poll chat messages");
+        }
     }
 }
 

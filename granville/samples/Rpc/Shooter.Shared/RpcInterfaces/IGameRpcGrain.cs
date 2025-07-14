@@ -58,12 +58,18 @@ public interface IGameRpcGrain : Granville.Rpc.IRpcGrainInterfaceWithStringKey, 
     Task<ZoneStats> GetZoneStats();
     
     /// <summary>
+    /// Gets the server's simulation FPS (frames per second) over the last 10 seconds.
+    /// </summary>
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    Task<double> GetServerFps();
+    
+    /// <summary>
     /// Efficiently transfer a bullet trajectory to this zone.
     /// The bullet will be spawned at the calculated position based on current time.
     /// </summary>
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
     [OneWay]
-    Task TransferBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId);
+    Task TransferBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId, int team = 0);
     
     /// <summary>
     /// Subscribe to game updates via observer pattern.
@@ -101,6 +107,20 @@ public interface IGameRpcGrain : Granville.Rpc.IRpcGrainInterfaceWithStringKey, 
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
     [OneWay]
     Task SendChatMessage(ChatMessage message);
+    
+    /// <summary>
+    /// Get recent chat messages for polling fallback when observer pattern is not supported.
+    /// </summary>
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    Task<List<ChatMessage>> GetRecentChatMessages(DateTime since);
+    
+    /// <summary>
+    /// Notify this zone that a bullet has been destroyed.
+    /// Used for cross-zone coordination when bullets hit targets in neighbor zones.
+    /// </summary>
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    [OneWay]
+    Task NotifyBulletDestroyed(string bulletId);
 }
 
 /// <summary>

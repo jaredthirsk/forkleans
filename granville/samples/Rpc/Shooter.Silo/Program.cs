@@ -27,8 +27,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-// Configure file logging
-builder.Logging.ClearProviders();
+// Configure file logging - DON'T clear providers to keep OpenTelemetry logging
+// builder.Logging.ClearProviders(); // Commented out to preserve structured logging to Aspire
 builder.Logging.AddConsole();
 var logFileName = "../logs/silo.log";
 builder.Logging.AddProvider(new FileLoggerProvider(logFileName));
@@ -93,8 +93,16 @@ builder.Services.AddSingleton<Shooter.Silo.Services.ActionServerManager>();
 builder.Services.AddHostedService<Shooter.Silo.Services.ActionServerManager>(provider => 
     provider.GetRequiredService<Shooter.Silo.Services.ActionServerManager>());
 
+// Add SiloManager for managing additional silo instances
+builder.Services.AddSingleton<Shooter.Silo.Services.SiloManager>();
+builder.Services.AddHostedService<Shooter.Silo.Services.SiloManager>(provider => 
+    provider.GetRequiredService<Shooter.Silo.Services.SiloManager>());
+
 // Add WorldManagerGrain initializer to ensure timer functionality works
 builder.Services.AddHostedService<Shooter.Silo.Services.WorldManagerInitializer>();
+
+// Add Silo registration service for multi-silo discovery
+builder.Services.AddHostedService<Shooter.Silo.Services.SiloRegistrationService>();
 
 // Add CORS to allow client to call API and SignalR
 builder.Services.AddCors(options =>
@@ -151,7 +159,19 @@ builder.Host.UseOrleans(siloBuilder =>
         .AddMemoryGrainStorage("statsStore")  // Fix Issue 3: Add missing statsStore
         .AddMemoryGrainStorage(UFX.Orleans.SignalRBackplane.Constants.StorageName) // UFX SignalR backplane storage
         .UseInMemoryReminderService()
-        .AddSignalRBackplane();  // Enable SignalR backplane for multi-silo support
+        .AddSignalRBackplane()  // Enable SignalR backplane for multi-silo support
+        .UseDashboard(options =>
+        {
+            options.HostSelf = true;
+            
+            // Calculate dashboard port based on silo instance
+            // Default silo (7071) gets port 8080, silo-1 (7075) gets 8081, etc.
+            var siloHttpPort = builder.Configuration.GetValue<int?>("ASPNETCORE_HTTP_PORT") ?? 7071;
+            var dashboardPort = 8080 + ((siloHttpPort - 7071) / 4);
+            options.Port = dashboardPort;
+            
+            Console.WriteLine($"Orleans Dashboard will be available at http://localhost:{dashboardPort}/");
+        });
 });
 
 // TODO: Configure RPC client so Silo can communicate with ActionServers

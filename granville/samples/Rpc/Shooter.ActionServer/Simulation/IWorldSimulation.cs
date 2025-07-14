@@ -24,8 +24,14 @@ public interface IWorldSimulation
     void ProcessScoutAlert(GridSquare playerZone, Vector2 playerPosition);
     
     // Bullet trajectories
-    void ReceiveBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId);
+    void ReceiveBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId, int team = 0);
     
     // Damage tracking
     ZoneDamageReport GetDamageReport();
+    
+    // Performance tracking
+    double GetServerFps();
+    
+    // Bullet management
+    void RemoveBullet(string bulletId);
 }

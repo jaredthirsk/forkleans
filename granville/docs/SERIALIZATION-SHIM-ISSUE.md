@@ -649,7 +649,7 @@ The issue has two parts:
 
 Even with assemblies loaded and added to the serializer, the runtime codec provider cannot find the copiers. This suggests the issue is deeper in how Orleans' codec provider resolves types at runtime.
 
-## ApplicationPart Fix Implementation (Dec 2024)
+## ApplicationPart Fix Implementation (July 2025)
 
 ### Problem Discovered
 When building with `BuildAsGranville=true`, the Orleans code generator was using the original assembly names (e.g., "Orleans.Core") instead of the renamed assembly names (e.g., "Granville.Orleans.Core") for ApplicationPart attributes. This caused the serialization system to not discover the assemblies at runtime.

@@ -169,8 +169,8 @@ builder.UseOrleansClient((Orleans.Hosting.IClientBuilder clientBuilder) =>
     // Configure cluster options to match the Silo
     clientBuilder.Configure<Orleans.Configuration.ClusterOptions>(options =>
     {
-        options.ClusterId = "dev";
-        options.ServiceId = "ShooterDemo";
+        options.ClusterId = builder.Configuration["Orleans:ClusterId"] ?? "dev";
+        options.ServiceId = builder.Configuration["Orleans:ServiceId"] ?? "ShooterDemo";
     });
 });
 

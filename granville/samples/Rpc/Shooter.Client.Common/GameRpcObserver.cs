@@ -72,7 +72,7 @@ public class GameRpcObserver : IGameRpcObserver
     
     public void OnChatMessage(ChatMessage message)
     {
-        _logger.LogInformation("Received chat message from {Sender}: {Message}", 
+        _logger.LogInformation("[CHAT_DEBUG] Observer received chat message from {Sender}: {Message}", 
             message.SenderName, message.Message);
         
         // Handle chat message

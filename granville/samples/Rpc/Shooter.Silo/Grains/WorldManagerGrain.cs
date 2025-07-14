@@ -177,21 +177,53 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
         if (existingInfo != null && existingInfo.Health > 0 && existingInfo.Health < 1000f)
         {
             // Player exists with damaged health - preserve it
-            _logger.LogInformation("Preserving existing player {PlayerId} with health {Health}", playerId, existingInfo.Health);
-            var playerInfo = new PlayerInfo(playerId, name, existingInfo.Position, existingInfo.Velocity, existingInfo.Health);
+            _logger.LogInformation("Preserving existing player {PlayerId} with health {Health} and team {Team}", 
+                playerId, existingInfo.Health, existingInfo.Team);
+            var playerInfo = new PlayerInfo(playerId, name, existingInfo.Position, existingInfo.Velocity, existingInfo.Health, existingInfo.Team);
             _state.State.Players[playerId] = playerInfo;
             await _state.WriteStateAsync();
             return playerInfo;
         }
         else
         {
-            // New player or respawning - initialize with full health
+            // New player or respawning - initialize with full health and assign team
             var startPosition = await GetPlayerStartPosition(playerId);
+            
+            // Determine team assignment
+            int team;
+            bool isBot = name.Contains("Test") || name.Contains("Bot"); // Simple bot detection
+            
+            if (isBot)
+            {
+                // Bots alternate between teams
+                // Use hash of bot name to ensure consistent team assignment
+                var botNumber = playerId.GetHashCode() & 0x7FFFFFFF; // Ensure positive
+                team = (botNumber % 2) + 1; // Team 1 or 2
+                _logger.LogInformation("Assigning bot {PlayerId} to team {Team}", playerId, team);
+            }
+            else
+            {
+                // Human players
+                if (_state.State.HumanPlayerCount == 0)
+                {
+                    // First human player is always team 1
+                    team = 1;
+                }
+                else
+                {
+                    // Subsequent human players alternate between teams
+                    team = _state.State.NextTeamAssignment;
+                    _state.State.NextTeamAssignment = team == 1 ? 2 : 1; // Toggle between 1 and 2
+                }
+                _state.State.HumanPlayerCount++;
+                _logger.LogInformation("Assigning human player {PlayerId} to team {Team} (human #{Count})", 
+                    playerId, team, _state.State.HumanPlayerCount);
+            }
             
             // Initialize the player grain with name and starting position
             await playerGrain.Initialize(name, startPosition);
             
-            var playerInfo = new PlayerInfo(playerId, name, startPosition, Vector2.Zero, 1000f);
+            var playerInfo = new PlayerInfo(playerId, name, startPosition, Vector2.Zero, 1000f, team);
             _state.State.Players[playerId] = playerInfo;
             await _state.WriteStateAsync();
             
@@ -359,7 +391,8 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
             try
             {
                 // Get the GameRpcGrain for this server's zone
-                var grainId = $"game_{server.AssignedSquare.X}_{server.AssignedSquare.Y}";
+                // Note: RPC clients connect to GameRpcGrain using "game" as the grain ID
+                var grainId = "game";
                 var gameGrain = GrainFactory.GetGrain<IGameRpcGrain>(grainId);
                 
                 // Send chat message to this zone
@@ -547,4 +580,6 @@ public class WorldManagerState
     public Dictionary<string, PlayerInfo> Players { get; set; } = new();
     public int RoundsCompleted { get; set; } = 0;
     public DateTime? FirstActivationTime { get; set; }
+    public int NextTeamAssignment { get; set; } = 1; // Track which team to assign next human player
+    public int HumanPlayerCount { get; set; } = 0; // Track number of human players (non-bots)
 }

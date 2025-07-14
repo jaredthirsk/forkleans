@@ -67,7 +67,7 @@
         <div class="control-group">
             <label>Silos:</label>
             <div class="control-row">
-                <button class="zone-btn remove-silo" @onclick="RemoveSilo" title="Remove Silo" disabled="@_isProcessing">
+                <button class="zone-btn remove-silo" @onclick="RemoveSilo" title="Remove Silo" disabled="@(_isProcessing || _actualSiloCount <= 1)">
                     <span class="btn-icon">-</span>
                 </button>
                 <div class="count-display">
@@ -212,17 +212,20 @@
     }
     
     .zone-btn {
-        width: 40px;
-        height: 40px;
+        width: 24px;
+        height: 24px;
         border: none;
         border-radius: 4px;
         cursor: pointer;
-        font-size: 24px;
+        font-size: 18px;
         font-weight: bold;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
+        background: transparent;
+        color: #888;
+        padding: 0;
     }
     
     .zone-btn:disabled {
@@ -230,44 +233,44 @@
         cursor: not-allowed;
     }
     
-    .add-zone {
+    .add-zone:hover:not(:disabled) {
         background-color: #4CAF50;
         color: white;
     }
     
-    .add-zone:hover:not(:disabled) {
-        background-color: #45a049;
-        transform: scale(1.05);
-    }
-    
-    .remove-zone {
-        background-color: #f44336;
-        color: white;
+    .add-zone:not(:hover):not(:disabled) {
+        background-color: transparent;
+        color: #888;
     }
     
     .remove-zone:hover:not(:disabled) {
-        background-color: #da190b;
-        transform: scale(1.05);
-    }
-    
-    .add-silo {
-        background-color: #4CAF50;
-        color: white;
-    }
-    
-    .add-silo:hover:not(:disabled) {
-        background-color: #45a049;
-        transform: scale(1.05);
-    }
-    
-    .remove-silo {
         background-color: #f44336;
         color: white;
     }
     
+    .remove-zone:not(:hover):not(:disabled) {
+        background-color: transparent;
+        color: #888;
+    }
+    
+    .add-silo:hover:not(:disabled) {
+        background-color: #2196F3;
+        color: white;
+    }
+    
+    .add-silo:not(:hover):not(:disabled) {
+        background-color: transparent;
+        color: #888;
+    }
+    
     .remove-silo:hover:not(:disabled) {
-        background-color: #da190b;
-        transform: scale(1.05);
+        background-color: #FF9800;
+        color: white;
+    }
+    
+    .remove-silo:not(:hover):not(:disabled) {
+        background-color: transparent;
+        color: #888;
     }
     
     .btn-icon {
@@ -278,6 +281,7 @@
 @code {
     [Parameter] public WorldState? WorldState { get; set; }
     [Parameter] public List<GridSquare>? AvailableZones { get; set; }
+    [Parameter] public int TotalSilos { get; set; }
     [Inject] private GranvilleRpcGameClientService RpcGameClient { get; set; } = default!;
     [Inject] private HttpClient Http { get; set; } = default!;
     [Inject] private IConfiguration Configuration { get; set; } = default!;
@@ -291,8 +295,8 @@
     private bool _isProcessing = false;
     private int _desiredZoneCount = 4; // Default desired zone count
     private int _actualZoneCount = 0;
-    private int _desiredSiloCount = 1; // Default desired silo count  
-    private int _actualSiloCount = 1;
+    private int _desiredSiloCount = 2; // Will be updated from TotalSilos
+    private int _actualSiloCount => TotalSilos > 0 ? TotalSilos : 1;
     
     private class ZoneStats
     {
@@ -325,6 +329,12 @@
             _maxX = AvailableZones.Max(z => z.X);
             _maxY = AvailableZones.Max(z => z.Y);
         }
+        
+        // Initialize desired silo count to match actual silo count on first load
+        if (TotalSilos > 0 && _desiredSiloCount == 2 && TotalSilos != 2)
+        {
+            _desiredSiloCount = TotalSilos;
+        }
     }
     
     private async Task UpdateZoneStats()
@@ -349,6 +359,9 @@
                         EnemyCount = stat.EnemyCount
                     };
                 }
+                
+                // Update the actual zone count
+                _actualZoneCount = response.Count;
                 
                 await InvokeAsync(StateHasChanged);
             }
@@ -478,13 +491,23 @@
             var response = await Http.PostAsync($"{siloUrl}api/world/silos/add", null);
             if (response.IsSuccessStatusCode)
             {
-                Logger.LogInformation("Successfully added new silo");
+                var result = await response.Content.ReadFromJsonAsync<Shooter.Shared.GrainInterfaces.SiloInfo>();
+                Logger.LogInformation("Successfully added new silo: {SiloId} at {IpAddress}:{Port}", 
+                    result?.SiloId, result?.IpAddress, result?.HttpsPort);
+                
+                // The actual count will be updated via the SignalR callback
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
                 Logger.LogError("Failed to add silo: {Status} - {Error}", response.StatusCode, error);
                 _desiredSiloCount--; // Revert on failure
+                
+                // Handle specific status codes
+                if ((int)response.StatusCode == 501)
+                {
+                    Logger.LogWarning("Silo addition not implemented in this environment");
+                }
             }
         }
         catch (Exception ex)
@@ -501,7 +524,7 @@
     
     private async Task RemoveSilo()
     {
-        if (_isProcessing) return;
+        if (_isProcessing || _actualSiloCount <= 1) return; // Keep at least one silo
         
         _isProcessing = true;
         _desiredSiloCount--;
@@ -515,13 +538,22 @@
             var response = await Http.PostAsync($"{siloUrl}api/world/silos/remove", null);
             if (response.IsSuccessStatusCode)
             {
-                Logger.LogInformation("Successfully removed silo");
+                var content = await response.Content.ReadAsStringAsync();
+                Logger.LogInformation("Successfully removed silo: {Response}", content);
+                
+                // The actual count will be updated via the SignalR callback
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
                 Logger.LogError("Failed to remove silo: {Status} - {Error}", response.StatusCode, error);
                 _desiredSiloCount++; // Revert on failure
+                
+                // Handle specific status codes
+                if ((int)response.StatusCode == 501)
+                {
+                    Logger.LogWarning("Silo removal not implemented in this environment");
+                }
             }
         }
         catch (Exception ex)

@@ -1,8 +1,10 @@
 ﻿@page "/game"
 @using Shooter.Client.Common
 @using Shooter.Client.Components
+@using Shooter.Client.Services
 @using Shooter.Shared.Models
 @inject GranvilleRpcGameClientService RpcGameClient
+@inject SignalRChatService SignalRChat
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 @inject ILogger<Game> _logger
@@ -19,16 +21,6 @@
             <h2>Enter Game</h2>
             <input @bind="_playerName" placeholder="Enter your name" />
             <div class="engine-buttons">
-                <button @onclick="() => ConnectToGame(false)" disabled="@_isConnecting" class="engine-btn canvas-btn">
-                    @if (_isConnecting && !_usePhaser)
-                    {
-                        <span>Connecting...</span>
-                    }
-                    else
-                    {
-                        <span>Join with Canvas</span>
-                    }
-                </button>
                 <button @onclick="() => ConnectToGame(true)" disabled="@_isConnecting" class="engine-btn phaser-btn">
                     @if (_isConnecting && _usePhaser)
                     {
@@ -37,6 +29,16 @@
                     else
                     {
                         <span>Join with Phaser</span>
+                    }
+                </button>
+                <button @onclick="() => ConnectToGame(false)" disabled="@_isConnecting" class="engine-btn canvas-btn">
+                    @if (_isConnecting && !_usePhaser)
+                    {
+                        <span>Connecting...</span>
+                    }
+                    else
+                    {
+                        <span>Join with Canvas</span>
                     }
                 </button>
             </div>
@@ -72,19 +74,25 @@
                 }
                 
                 <div class="game-bottom-panel">
-                    <GameChat Messages="@_chatMessages" />
+                    <GameChat Messages="@_chatMessages" OnSendMessage="HandleChatMessage" />
                 </div>
             </div>
             <div class="game-sidebar">
                 <Minimap
                     WorldState="@_currentWorldState"
-                    AvailableZones="@_availableZones" />
+                    AvailableZones="@_availableZones"
+                    TotalSilos="@_totalSilos" />
                              
                 <GameStats 
                     Fps="@_fps"
                     WorldState="@_currentWorldState"
                     ServerId="@_currentServerZone"
-                    DebugInfo="@_debugInfo" />
+                    DebugInfo="@_debugInfo"
+                    ServerFps="@_serverFps"
+                    ActionServersConnected="@_serverZoneMap.Count"
+                    CurrentSilo="@_currentSilo"
+                    TotalSilos="@_totalSilos"
+                    OnSwitchSilo="@HandleSwitchSilo" />
                 
                 <button class="disconnect-btn" @onclick="Disconnect">Disconnect</button>
                 <button class="toggle-btn" @onclick="ToggleRenderer">Switch to @(_usePhaser ? "Canvas" : "Phaser")</button>
@@ -142,11 +150,14 @@
     }
     
     .canvas-btn {
-        background-color: #2196F3;
+        background-color: transparent;
+        color: #2196F3;
+        border: 2px solid #2196F3;
     }
     
     .canvas-btn:hover:not(:disabled) {
-        background-color: #1976D2;
+        background-color: #2196F3;
+        color: white;
     }
     
     .phaser-btn {
@@ -206,12 +217,18 @@
     
     .toggle-btn {
         padding: 10px 20px;
-        background-color: #2196F3;
-        color: white;
-        border: none;
+        background-color: transparent;
+        color: #2196F3;
+        border: 2px solid #2196F3;
         border-radius: 4px;
         cursor: pointer;
         margin-top: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .toggle-btn:hover {
+        background-color: #2196F3;
+        color: white;
     }
 </style>
 
@@ -227,6 +244,8 @@
     private int _fps = 0;
     private DateTime _lastFpsUpdate = DateTime.UtcNow;
     private int _frameCount = 0;
+    private double _serverFps = 0;
+    private DateTime _lastServerFpsUpdate = DateTime.MinValue;
     private Vector2 _currentMoveDirection = Vector2.Zero;
     private bool _currentIsShooting = false;
     private List<GridSquare> _availableZones = new();
@@ -243,14 +262,25 @@
     private CancellationTokenSource? _autoPilotCts;
     private CancellationTokenSource? _autoShootCts;
     private List<ChatMessage> _chatMessages = new();
+    private Shooter.Shared.GrainInterfaces.SiloInfo? _currentSilo;
+    private int _totalSilos = 0;
     
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
         // Subscribe to RPC client events
         RpcGameClient.WorldStateUpdated += OnWorldStateUpdated;
         RpcGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
         RpcGameClient.ServerChanged += OnServerChanged;
         RpcGameClient.ChatMessageReceived += OnChatMessageReceived;
+        
+        // Subscribe to SignalR chat events
+        SignalRChat.ChatMessageReceived += OnSignalRChatMessageReceived;
+        SignalRChat.SiloChanged += OnSiloChanged;
+        SignalRChat.SilosUpdated += OnSilosUpdated;
+        SignalRChat.ConnectionStatusChanged += OnSignalRConnectionChanged;
+        
+        // Initialize SignalR service
+        await SignalRChat.InitializeAsync();
         
         // Set up timer to periodically refresh server zone mappings
         _serverMappingTimer = new System.Timers.Timer(5000); // Every 5 seconds
@@ -272,10 +302,24 @@
                     // Don't auto-connect, let user choose engine
                     StateHasChanged();
                 }
+                
+                // Load auto-move and auto-shoot settings
+                var autoMoveStr = await JS.InvokeAsync<string>("localStorage.getItem", "autoMove");
+                var autoShootStr = await JS.InvokeAsync<string>("localStorage.getItem", "autoShoot");
+                
+                if (!string.IsNullOrEmpty(autoMoveStr) && bool.TryParse(autoMoveStr, out var autoMove))
+                {
+                    _autoMove = autoMove;
+                }
+                
+                if (!string.IsNullOrEmpty(autoShootStr) && bool.TryParse(autoShootStr, out var autoShoot))
+                {
+                    _autoShoot = autoShoot;
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error checking localStorage for player name");
+                _logger.LogError(ex, "Error checking localStorage");
             }
         }
     }
@@ -305,8 +349,20 @@
                 _currentServerId = RpcGameClient.CurrentServerId ?? "Unknown";
                 _isConnected = true;
                 
-                // Store player ID in localStorage for GamePhaser component
-                await JS.InvokeVoidAsync("localStorage.setItem", "playerId", _playerId);
+                _logger.LogInformation("[GAME_CONNECT] RpcGameClient instance {InstanceId} - Connected with playerId: {PlayerId}", 
+                    RpcGameClient.GetHashCode(), _playerId);
+                
+                // Connect to SignalR chat
+                try
+                {
+                    await SignalRChat.ConnectAsync(_playerId, _playerName);
+                    _logger.LogInformation("[GAME_CONNECT] Connected to SignalR chat");
+                }
+                catch (Exception chatEx)
+                {
+                    _logger.LogError(chatEx, "[GAME_CONNECT] Failed to connect to SignalR chat");
+                    // Don't fail the whole connection if chat fails
+                }
                 
                 // Fetch server zone mappings
                 await FetchServerZoneMappings();
@@ -331,9 +387,8 @@
         await RpcGameClient.DisconnectAsync();
         _isConnected = false;
         
-        // Clear remembered player name and ID on disconnect
+        // Clear remembered player name on disconnect
         await JS.InvokeVoidAsync("localStorage.removeItem", "playerName");
-        await JS.InvokeVoidAsync("localStorage.removeItem", "playerId");
         
         Navigation.NavigateTo("/");
     }
@@ -362,9 +417,20 @@
         }
     }
     
-    private void HandleAutoMoveChange(bool enabled)
+    private async void HandleAutoMoveChange(bool enabled)
     {
         _autoMove = enabled;
+        
+        // Save to localStorage
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", "autoMove", enabled.ToString());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save autoMove setting");
+        }
+        
         if (_autoMove)
         {
             // Start auto-pilot movement
@@ -372,9 +438,20 @@
         }
     }
     
-    private void HandleAutoShootChange(bool enabled)
+    private async void HandleAutoShootChange(bool enabled)
     {
         _autoShoot = enabled;
+        
+        // Save to localStorage
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", "autoShoot", enabled.ToString());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save autoShoot setting");
+        }
+        
         if (_autoShoot)
         {
             // Start auto-shoot loop
@@ -494,26 +571,39 @@
                     var player = _currentWorldState.Entities.FirstOrDefault(e => e.EntityId == _playerId);
                     if (player != null)
                     {
-                        // Find nearest target, prioritizing enemies over asteroids
+                        // Find nearest target with priority: Enemy > Factory > Asteroid
+                        // Only target entities that are Active or Alerting (for Scouts)
                         var enemies = _currentWorldState.Entities
-                            .Where(e => e.Type == EntityType.Enemy && e.Health > 0)
+                            .Where(e => e.Type == EntityType.Enemy && 
+                                   (e.State == EntityStateType.Active || e.State == EntityStateType.Alerting) && 
+                                   e.Health > 0)
+                            .OrderBy(e => player.Position.DistanceTo(e.Position))
+                            .ToList();
+                        
+                        var factories = _currentWorldState.Entities
+                            .Where(e => e.Type == EntityType.Factory && e.State == EntityStateType.Active && e.Health > 0)
                             .OrderBy(e => player.Position.DistanceTo(e.Position))
                             .ToList();
                         
                         var asteroids = _currentWorldState.Entities
-                            .Where(e => e.Type == EntityType.Asteroid && e.Health > 0)
+                            .Where(e => e.Type == EntityType.Asteroid && e.State == EntityStateType.Active && e.Health > 0)
                             .OrderBy(e => player.Position.DistanceTo(e.Position))
                             .ToList();
                         
-                        // Priority: Enemy > Asteroid
+                        // Priority: Enemy (highest) > Factory (low) > Asteroid (lowest)
                         EntityState? target = null;
                         if (enemies.Any())
                         {
                             target = enemies.First();
                         }
+                        else if (factories.Any())
+                        {
+                            // Target factories if no enemies are present
+                            target = factories.First();
+                        }
                         else if (asteroids.Any())
                         {
-                            // Only target asteroids if no enemies are present
+                            // Only target asteroids if no enemies or factories are present
                             target = asteroids.First();
                         }
                         
@@ -571,6 +661,27 @@
             _lastFpsUpdate = now;
         }
         
+        // Poll server FPS every second
+        if ((now - _lastServerFpsUpdate).TotalSeconds >= 1)
+        {
+            _lastServerFpsUpdate = now;
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    if (RpcGameClient.IsConnected)
+                    {
+                        var fps = await RpcGameClient.GetServerFpsAsync();
+                        _serverFps = fps;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogDebug("Failed to get server FPS: {Message}", ex.Message);
+                }
+            });
+        }
+        
         // Update server zone check
         UpdateServerZone();
         
@@ -609,6 +720,84 @@
             
             StateHasChanged();
         });
+    }
+    
+    private async Task HandleChatMessage(string message)
+    {
+        try
+        {
+            // Use SignalR for chat instead of RPC
+            await SignalRChat.SendMessageAsync(message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send chat message");
+            // Add error message to chat
+            var errorMessage = new ChatMessage(
+                SenderId: "System",
+                SenderName: "System",
+                Message: $"Failed to send message: {ex.Message}",
+                Timestamp: DateTime.UtcNow,
+                IsSystemMessage: true
+            );
+            _chatMessages.Add(errorMessage);
+            StateHasChanged();
+        }
+    }
+    
+    private void OnSignalRChatMessageReceived(ChatMessage message)
+    {
+        InvokeAsync(() =>
+        {
+            _chatMessages.Add(message);
+            
+            // Keep only last 100 messages
+            if (_chatMessages.Count > 100)
+            {
+                _chatMessages.RemoveAt(0);
+            }
+            
+            StateHasChanged();
+        });
+    }
+    
+    private void OnSiloChanged(Shooter.Shared.GrainInterfaces.SiloInfo silo)
+    {
+        InvokeAsync(() =>
+        {
+            _currentSilo = silo;
+            StateHasChanged();
+        });
+    }
+    
+    private void OnSilosUpdated(List<Shooter.Shared.GrainInterfaces.SiloInfo> silos)
+    {
+        InvokeAsync(() =>
+        {
+            _totalSilos = silos.Count;
+            StateHasChanged();
+        });
+    }
+    
+    private void OnSignalRConnectionChanged(string status)
+    {
+        InvokeAsync(() =>
+        {
+            _logger.LogInformation("[SIGNALR] Connection status: {Status}", status);
+            StateHasChanged();
+        });
+    }
+    
+    private async Task HandleSwitchSilo()
+    {
+        try
+        {
+            await SignalRChat.SwitchToNextSiloAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to switch silo");
+        }
     }
     
     private void UpdateServerZone()
@@ -747,9 +936,20 @@
     {
         _serverMappingTimer?.Stop();
         _serverMappingTimer?.Dispose();
+        
+        // Unsubscribe from RPC events
         RpcGameClient.WorldStateUpdated -= OnWorldStateUpdated;
         RpcGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
         RpcGameClient.ServerChanged -= OnServerChanged;
         RpcGameClient.ChatMessageReceived -= OnChatMessageReceived;
+        
+        // Unsubscribe from SignalR events
+        SignalRChat.ChatMessageReceived -= OnSignalRChatMessageReceived;
+        SignalRChat.SiloChanged -= OnSiloChanged;
+        SignalRChat.SilosUpdated -= OnSilosUpdated;
+        SignalRChat.ConnectionStatusChanged -= OnSignalRConnectionChanged;
+        
+        // Disconnect SignalR
+        _ = SignalRChat.DisconnectAsync();
     }
 }

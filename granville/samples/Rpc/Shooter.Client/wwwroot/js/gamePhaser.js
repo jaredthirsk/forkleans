@@ -14,11 +14,14 @@ class GamePhaser {
         this.playerZone = null;
         this.preEstablishedConnections = {}; // Track pre-established connections
         this.lastZoneMismatchLog = null; // Track last time we logged zone mismatch
+        this.lastEntityPositions = new Map(); // Track last positions for jump detection
+        this.positionJumpThreshold = 100; // Threshold for detecting position jumps
     }
 
     init(dotNetReference, containerId, playerId) {
         this.dotNetReference = dotNetReference;
         this.playerId = playerId;
+        console.log('GamePhaser initialized with playerId:', playerId);
 
         const config = {
             type: Phaser.AUTO,
@@ -317,10 +320,21 @@ class GamePhaser {
             fontSize: '16px', 
             fill: '#ffffff' 
         }).setScrollFactor(0);
-        this.playerText = this.scene.add.text(10, 50, '', { 
+        this.healthText = this.scene.add.text(10, this.scene.cameras.main.height - 30, '', { 
             fontSize: '16px', 
             fill: '#ffffff' 
         }).setScrollFactor(0);
+        
+        // Add player ID text in top right (subtle gray color)
+        this.playerIdText = this.scene.add.text(this.scene.cameras.main.width - 10, 10, '', { 
+            fontSize: '12px', 
+            fill: '#888888' 
+        }).setScrollFactor(0).setOrigin(1, 0); // Right-aligned
+        
+        // Set the player ID text
+        if (this.playerId) {
+            this.playerIdText.setText(`ID: ${this.playerId.substring(0, 8)}...`);
+        }
         
         // Log camera bounds
         console.log('Phaser camera bounds:', {
@@ -488,13 +502,41 @@ class GamePhaser {
                 sprite.setOrigin(0.5, 0.5);
                 this.sprites.set(entity.entityId, sprite);
                 
+                // Apply team color tinting for players
+                const entityType = typeof entity.type === 'string' ? this.parseEntityType(entity.type) : entity.type;
+                if (entityType === 0) { // Player
+                    const color = this.getEntityColor(entity);
+                    sprite.setTint(color);
+                    console.log(`Applied team color tint ${color.toString(16)} to player ${entity.entityId} (team ${entity.team})`);
+                }
+                
                 console.log(`Created sprite for ${this.getEntityTypeName(entity.type)} at (${entity.position.x}, ${entity.position.y})`);
                 
                 // Make camera follow the player
-                const entityType = typeof entity.type === 'string' ? this.parseEntityType(entity.type) : entity.type;
                 if (entityType === 0 && entity.entityId === this.playerId) {
                     this.scene.cameras.main.startFollow(sprite, true, 0.1, 0.1);
                     console.log('Camera now following player sprite');
+                }
+            }
+
+            // Check for position jumps before updating position
+            const lastPosition = this.lastEntityPositions.get(entity.entityId);
+            if (lastPosition) {
+                const deltaX = entity.position.x - lastPosition.x;
+                const deltaY = entity.position.y - lastPosition.y;
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                
+                if (distance > this.positionJumpThreshold) {
+                    const entityTypeName = this.getEntityTypeName(entity.type);
+                    console.warn(`Position jump detected for ${entityTypeName} ${entity.entityId}: ${distance.toFixed(2)} units from (${lastPosition.x.toFixed(2)}, ${lastPosition.y.toFixed(2)}) to (${entity.position.x.toFixed(2)}, ${entity.position.y.toFixed(2)})`);
+                    
+                    // Notify .NET for logging if this is the player
+                    if (entity.entityId === this.playerId && this.dotNetReference) {
+                        this.dotNetReference.invokeMethodAsync('OnPositionJump', 
+                            lastPosition.x, lastPosition.y, 
+                            entity.position.x, entity.position.y, 
+                            distance);
+                    }
                 }
             }
 
@@ -502,6 +544,21 @@ class GamePhaser {
             sprite.x = entity.position.x;
             sprite.y = entity.position.y;
             sprite.rotation = entity.rotation;
+            
+            // Store current position for next frame comparison
+            this.lastEntityPositions.set(entity.entityId, { x: entity.position.x, y: entity.position.y });
+            
+            // Update team color tinting for players
+            const entityType = typeof entity.type === 'string' ? this.parseEntityType(entity.type) : entity.type;
+            if (entityType === 0) { // Player
+                const color = this.getEntityColor(entity);
+                sprite.setTint(color);
+                // Debug: log team changes
+                if (!sprite.lastTeam || sprite.lastTeam !== entity.team) {
+                    console.log(`Player ${entity.entityId} team changed from ${sprite.lastTeam} to ${entity.team}, color: ${color.toString(16)}`);
+                    sprite.lastTeam = entity.team;
+                }
+            }
 
             // Check if entity is in a different zone than the player
             const entityZone = this.getGridSquare(entity.position.x, entity.position.y);
@@ -556,8 +613,11 @@ class GamePhaser {
                     }
                 }
                 
-                const playerInfo = `Player: ${entity.entityId.substring(0, 8)}... Health: ${Math.round(entity.health)}`;
-                this.playerText.setText(playerInfo);
+                // Update zone text (top left)
+                this.zoneText.setText(`Zone: ${zone.x}, ${zone.y}`);
+                
+                // Update health text (bottom left)
+                this.healthText.setText(`Health: ${Math.round(entity.health)}`);
                 
                 // Ensure camera is following player sprite
                 if (!this.scene.cameras.main.target && sprite) {
@@ -651,7 +711,14 @@ class GamePhaser {
     }
     
     getEntityColor(entity) {
-        if (entity.type === 0) return 0x00ff00; // Player - green
+        if (entity.type === 0) { // Player
+            // Use team colors for players
+            switch (entity.team) {
+                case 1: return 0x00ff00; // Team 1 - green
+                case 2: return 0xff0000; // Team 2 - red
+                default: return 0xffff00; // No team - yellow
+            }
+        }
         if (entity.type === 1) { // Enemy
             switch (entity.subType) {
                 case 1: return 0xff4444; // Kamikaze - red
@@ -923,9 +990,7 @@ class GamePhaser {
         this.availableZones = zones || [];
         this.drawGrid();
         
-        if (this.currentZone) {
-            this.zoneText.setText(`Current Zone: ${this.currentZone}`);
-        }
+        // Zone text will be updated in updateEntities when we have the player position
     }
 
     updateServerInfo(serverId, serverZone) {
@@ -942,7 +1007,10 @@ class GamePhaser {
 
         // Find player position
         const playerSprite = this.sprites.get(this.playerId);
-        if (!playerSprite) return;
+        if (!playerSprite) {
+            console.warn(`[INPUT] No sprite found for playerId: ${this.playerId}`);
+            return;
+        }
 
         // Convert screen coordinates to world coordinates
         const worldX = x + this.scene.cameras.main.scrollX;
@@ -956,6 +1024,7 @@ class GamePhaser {
         if (length > 0) {
             const shootX = dx / length;
             const shootY = dy / length;
+            console.log(`[INPUT] Player ${this.playerId} shooting direction: (${shootX.toFixed(2)}, ${shootY.toFixed(2)})`);
             this.dotNetReference.invokeMethodAsync('OnShootInput', shootX, shootY);
         }
     }
@@ -1124,6 +1193,10 @@ class GamePhaser {
                 maxHealth = 1000;
             } else if (entityType === 1) { // Enemy
                 maxHealth = entity.subType === 1 ? 30 : entity.subType === 4 ? 300 : 50; // Kamikaze: 30, Scout: 300, Others: 50
+            } else if (entityType === 4) { // Factory
+                maxHealth = 500;
+            } else if (entityType === 5) { // Asteroid
+                maxHealth = 50;
             } else {
                 maxHealth = 100; // Default
             }

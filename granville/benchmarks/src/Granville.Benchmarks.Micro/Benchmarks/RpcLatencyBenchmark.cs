@@ -13,7 +13,8 @@ namespace Granville.Benchmarks.Micro.Benchmarks
         private readonly byte[] _mediumPayload = new byte[1024];
         private readonly byte[] _largePayload = new byte[10240];
         
-        // TODO: Add RPC client/server setup once we can test the implementation
+        // TODO: Add actual Granville RPC implementation once we have standalone RPC server/client setup
+        // For now, we'll benchmark the basic serialization and transport simulation
         
         [GlobalSetup]
         public void Setup()
@@ -22,62 +23,68 @@ namespace Granville.Benchmarks.Micro.Benchmarks
             Random.Shared.NextBytes(_smallPayload);
             Random.Shared.NextBytes(_mediumPayload);
             Random.Shared.NextBytes(_largePayload);
-            
-            // TODO: Initialize RPC server and client
         }
         
         [GlobalCleanup]
         public void Cleanup()
         {
-            // TODO: Cleanup RPC resources
+            // Cleanup resources
         }
         
         [Benchmark(Baseline = true)]
-        public async Task<byte[]> SmallPayload_LiteNetLib()
+        public async Task<byte[]> SmallPayload_Simulation()
         {
-            // TODO: Implement actual RPC call
-            await Task.Delay(1); // Simulate network latency
-            return _smallPayload;
+            // Simulate network round-trip with minimal overhead
+            await Task.Yield();
+            return SimulateNetworkTransfer(_smallPayload);
         }
         
         [Benchmark]
-        public async Task<byte[]> SmallPayload_Ruffles()
+        public async Task<byte[]> MediumPayload_Simulation()
         {
-            // TODO: Implement actual RPC call
-            await Task.Delay(1); // Simulate network latency
-            return _smallPayload;
+            await Task.Yield();
+            return SimulateNetworkTransfer(_mediumPayload);
         }
         
         [Benchmark]
-        public async Task<byte[]> MediumPayload_LiteNetLib()
+        public async Task<byte[]> LargePayload_Simulation()
         {
-            // TODO: Implement actual RPC call
-            await Task.Delay(1); // Simulate network latency
-            return _mediumPayload;
+            await Task.Yield();
+            return SimulateNetworkTransfer(_largePayload);
         }
         
         [Benchmark]
-        public async Task<byte[]> MediumPayload_Ruffles()
+        public byte[] SmallPayload_SerializationOnly()
         {
-            // TODO: Implement actual RPC call
-            await Task.Delay(1); // Simulate network latency
-            return _mediumPayload;
+            return SimulateSerializationRoundtrip(_smallPayload);
         }
         
         [Benchmark]
-        public async Task<byte[]> LargePayload_LiteNetLib()
+        public byte[] MediumPayload_SerializationOnly()
         {
-            // TODO: Implement actual RPC call
-            await Task.Delay(2); // Simulate network latency
-            return _largePayload;
+            return SimulateSerializationRoundtrip(_mediumPayload);
         }
         
         [Benchmark]
-        public async Task<byte[]> LargePayload_Ruffles()
+        public byte[] LargePayload_SerializationOnly()
         {
-            // TODO: Implement actual RPC call
-            await Task.Delay(2); // Simulate network latency
-            return _largePayload;
+            return SimulateSerializationRoundtrip(_largePayload);
+        }
+        
+        private byte[] SimulateNetworkTransfer(byte[] data)
+        {
+            // Simulate basic network transfer overhead
+            var buffer = new byte[data.Length];
+            Buffer.BlockCopy(data, 0, buffer, 0, data.Length);
+            return buffer;
+        }
+        
+        private byte[] SimulateSerializationRoundtrip(byte[] data)
+        {
+            // Simulate serialization/deserialization
+            var buffer = new byte[data.Length];
+            Buffer.BlockCopy(data, 0, buffer, 0, data.Length);
+            return buffer;
         }
     }
 }

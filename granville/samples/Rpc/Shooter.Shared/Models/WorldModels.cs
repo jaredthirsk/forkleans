@@ -35,7 +35,8 @@ public record PlayerInfo(
     string Name,
     Vector2 Position,
     Vector2 Velocity,
-    float Health);
+    float Health,
+    int Team = 1);
 
 [Orleans.GenerateSerializer]
 public record EntityState(
@@ -48,7 +49,8 @@ public record EntityState(
     [property: JsonPropertyName("subType")] int SubType = 0,
     [property: JsonPropertyName("state")] EntityStateType State = EntityStateType.Active,
     [property: JsonPropertyName("stateTimer")] float StateTimer = 0f,
-    [property: JsonPropertyName("playerName")] string? PlayerName = null);
+    [property: JsonPropertyName("playerName")] string? PlayerName = null,
+    [property: JsonPropertyName("team")] int Team = 0);
 
 [Orleans.GenerateSerializer]
 [JsonConverter(typeof(JsonStringEnumConverter))]

@@ -15,18 +15,21 @@ public class WorldController : ControllerBase
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<WorldController> _logger;
     private readonly ActionServerManager _actionServerManager;
+    private readonly SiloManager _siloManager;
     private static readonly SemaphoreSlim _addServerSemaphore = new(1, 1);
 
     public WorldController(
         Orleans.IGrainFactory grainFactory, 
         IHttpClientFactory httpClientFactory, 
         ILogger<WorldController> logger,
-        ActionServerManager actionServerManager)
+        ActionServerManager actionServerManager,
+        SiloManager siloManager)
     {
         _grainFactory = grainFactory;
         _httpClientFactory = httpClientFactory;
         _logger = logger;
         _actionServerManager = actionServerManager;
+        _siloManager = siloManager;
     }
 
     [HttpPost("action-servers/register")]
@@ -48,6 +51,42 @@ public class WorldController : ControllerBase
         var worldManager = _grainFactory.GetGrain<IWorldManagerGrain>(0);
         await worldManager.UnregisterActionServer(serverId);
         return Ok();
+    }
+
+    [HttpGet("silos")]
+    public async Task<ActionResult<List<SiloInfo>>> GetSilos()
+    {
+        var registryGrain = _grainFactory.GetGrain<ISiloRegistryGrain>(0);
+        var silos = await registryGrain.GetActiveSilos();
+        return Ok(silos);
+    }
+
+    [HttpGet("silos/random")]
+    public async Task<ActionResult<SiloInfo>> GetRandomSilo()
+    {
+        var registryGrain = _grainFactory.GetGrain<ISiloRegistryGrain>(0);
+        var silo = await registryGrain.GetRandomSilo();
+        
+        if (silo == null)
+        {
+            return NotFound(new { error = "No active silos available" });
+        }
+        
+        return Ok(silo);
+    }
+
+    [HttpGet("silos/{siloId}")]
+    public async Task<ActionResult<SiloInfo>> GetSilo(string siloId)
+    {
+        var registryGrain = _grainFactory.GetGrain<ISiloRegistryGrain>(0);
+        var silo = await registryGrain.GetSilo(siloId);
+        
+        if (silo == null)
+        {
+            return NotFound(new { error = $"Silo {siloId} not found" });
+        }
+        
+        return Ok(silo);
     }
 
     [HttpGet("action-servers")]
@@ -323,6 +362,109 @@ public class WorldController : ControllerBase
         var statsCollector = _grainFactory.GetGrain<IStatsCollectorGrain>(0);
         await statsCollector.ClearStats();
         return Ok(new { message = "Damage statistics cleared" });
+    }
+    
+    [HttpPost("silos/add")]
+    public async Task<ActionResult<SiloInfo>> AddSilo()
+    {
+        try
+        {
+            _logger.LogInformation("Request to add new Silo");
+            
+            // Start a new Silo process
+            var siloId = await _siloManager.StartNewSiloAsync();
+            
+            // Wait for the silo to register
+            var registryGrain = _grainFactory.GetGrain<ISiloRegistryGrain>(0);
+            SiloInfo? newSilo = null;
+            
+            // Wait up to 30 seconds for the silo to register
+            for (int i = 0; i < 6; i++)
+            {
+                await Task.Delay(5000);
+                
+                var silos = await registryGrain.GetActiveSilos();
+                newSilo = silos.FirstOrDefault(s => s.SiloId == siloId);
+                
+                if (newSilo != null)
+                {
+                    break;
+                }
+                
+                _logger.LogDebug("Waiting for Silo {SiloId} to register... (attempt {Attempt}/6)", siloId, i + 1);
+            }
+            
+            if (newSilo == null)
+            {
+                _logger.LogWarning("New Silo {SiloId} did not register within timeout", siloId);
+                return StatusCode(500, new { error = "Silo started but did not register within 30 seconds" });
+            }
+            
+            _logger.LogInformation("Successfully added Silo {SiloId} at {IpAddress}:{Port}", 
+                siloId, newSilo.IpAddress, newSilo.HttpsPort);
+            
+            return Ok(newSilo);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to add new Silo");
+            return StatusCode(500, new { error = ex.Message });
+        }
+    }
+    
+    [HttpPost("silos/remove")]
+    public async Task<IActionResult> RemoveSilo()
+    {
+        try
+        {
+            _logger.LogInformation("Request to remove a Silo");
+            
+            // Get current silos
+            var registryGrain = _grainFactory.GetGrain<ISiloRegistryGrain>(0);
+            var silos = await registryGrain.GetActiveSilos();
+            
+            if (silos.Count <= 1)
+            {
+                return BadRequest(new { error = "Cannot remove the last silo" });
+            }
+            
+            // Find a silo to remove (prefer managed silos, but not the current one)
+            var currentSiloId = Environment.GetEnvironmentVariable("SILO_INSTANCE_ID") ?? 
+                               Environment.GetEnvironmentVariable("ASPIRE_INSTANCE_ID") ?? 
+                               "shooter-silo-0";
+            
+            // Sort silos to get the last one (highest numbered) that's not the current one
+            var siloToRemove = silos
+                .Where(s => s.SiloId != currentSiloId)
+                .OrderByDescending(s => s.SiloId)
+                .FirstOrDefault();
+                
+            if (siloToRemove == null)
+            {
+                return BadRequest(new { error = "No suitable silo found to remove" });
+            }
+            
+            _logger.LogInformation("Attempting to remove Silo {SiloId}", siloToRemove.SiloId);
+            
+            // Try to shut down the silo if it's managed by us
+            var stopped = await _siloManager.StopSiloAsync(siloToRemove.SiloId);
+            if (!stopped)
+            {
+                _logger.LogWarning("Silo {SiloId} is not managed by this instance, it needs to be shut down manually", siloToRemove.SiloId);
+                return StatusCode(501, new { 
+                    error = $"Silo {siloToRemove.SiloId} is not managed by this instance. Please shut it down manually."
+                });
+            }
+            
+            _logger.LogInformation("Successfully removed Silo {SiloId}", siloToRemove.SiloId);
+            
+            return Ok(new { message = $"Silo {siloToRemove.SiloId} removed successfully" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to remove Silo");
+            return StatusCode(500, new { error = ex.Message });
+        }
     }
 }
 

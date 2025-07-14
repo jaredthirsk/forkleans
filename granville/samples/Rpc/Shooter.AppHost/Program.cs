@@ -21,17 +21,22 @@ for (int i = 0; i < SiloCount; i++)
     var gatewayPort = 30000 + i;
     var httpPort = 7071 + i;
     var httpsPort = 7171 + i;
+    var dashboardPort = 8080 + i;
     var siloName = $"shooter-silo-{i}";
     
     var silo = builder.AddProject<Projects.Shooter_Silo>(siloName)
+        .WithHttpsEndpoint(httpsPort, httpsPort, isProxied: false)
+        .WithHttpEndpoint(httpPort, httpPort, isProxied: false)
+        .WithHttpEndpoint(dashboardPort, dashboardPort, name: "orleans-dashboard", isProxied: false)
         .WithEndpoint(gatewayPort, gatewayPort, name: "orleans-gateway", scheme: "tcp", isProxied: false)
         .WithEndpoint(siloPort, siloPort, name: "orleans-silo", scheme: "tcp", isProxied: false)
-        .WithEnvironment("ASPNETCORE_URLS", $"https://localhost:{httpsPort.ToString()};http://localhost:{httpPort.ToString()}")
         .WithEnvironment("Orleans:ClusterId", "shooter-cluster")
         .WithEnvironment("Orleans:ServiceId", "shooter-service")
         .WithEnvironment("Orleans:SiloPort", siloPort.ToString())
         .WithEnvironment("Orleans:GatewayPort", gatewayPort.ToString())
-        .WithEnvironment("InitialActionServerCount", InitialActionServerCount.ToString());
+        .WithEnvironment("InitialActionServerCount", InitialActionServerCount.ToString())
+        .WithEnvironment("ASPNETCORE_HTTP_PORT", httpPort.ToString())
+        .WithEnvironment("OTEL_EXPORTER_OTLP_ENDPOINT", builder.Configuration["DOTNET_DASHBOARD_OTLP_ENDPOINT_URL"] ?? "http://localhost:19265");
     
     // Configure clustering - all silos need to know about the primary
     if (i == 0)
@@ -71,8 +76,11 @@ for (int i = 0; i < InitialActionServerCount; i++)
     var server = builder.AddProject<Projects.Shooter_ActionServer>($"shooter-actionserver-{i}")
         .WithEnvironment("Orleans__SiloUrl", targetSilo.GetEndpoint("https"))
         .WithEnvironment("Orleans__GatewayEndpoint", targetSilo.GetEndpoint("orleans-gateway"))
+        .WithEnvironment("Orleans__ClusterId", "shooter-cluster")
+        .WithEnvironment("Orleans__ServiceId", "shooter-service")
         .WithEnvironment("RPC_PORT", rpcPort.ToString())
         .WithEnvironment("ASPIRE_INSTANCE_ID", i.ToString()) // Help identify instances
+        .WithEnvironment("OTEL_EXPORTER_OTLP_ENDPOINT", builder.Configuration["DOTNET_DASHBOARD_OTLP_ENDPOINT_URL"] ?? "http://localhost:19265")
         .WithArgs($"--transport={transportType}")
         .WithReference(targetSilo)
         .WaitFor(targetSilo);
@@ -92,6 +100,7 @@ for (int i = 0; i < InitialActionServerCount; i++)
 builder.AddProject<Projects.Shooter_Client>("shooter-client")
     .WithEnvironment("SiloUrl", primarySilo!.GetEndpoint("https"))
     .WithEnvironment("RpcTransport", transportType)
+    .WithEnvironment("OTEL_EXPORTER_OTLP_ENDPOINT", builder.Configuration["DOTNET_DASHBOARD_OTLP_ENDPOINT_URL"] ?? "http://localhost:19265")
     .WithReference(primarySilo!)
     .WaitFor(primarySilo!);
 
@@ -106,6 +115,7 @@ for (int i = 0; i < 3; i++)
         .WithEnvironment("RpcTransport", transportType)
         .WithEnvironment("TestMode", "true")
         .WithEnvironment("ASPIRE_INSTANCE_ID", i.ToString())
+        .WithEnvironment("OTEL_EXPORTER_OTLP_ENDPOINT", builder.Configuration["DOTNET_DASHBOARD_OTLP_ENDPOINT_URL"] ?? "http://localhost:19265")
         .WithReference(targetSilo)
         .WaitFor(targetSilo);
     

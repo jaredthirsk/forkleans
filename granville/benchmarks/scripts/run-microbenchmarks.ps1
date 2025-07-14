@@ -31,7 +31,7 @@ $artifactsPath = Join-Path $outputDir "BenchmarkDotNet.Artifacts_$timestamp"
 
 $args = @(
     "--filter", $Filter,
-    "--exporters", "json,html,csv",
+    "--exporters", "json", "html", "csv",
     "--artifacts", $artifactsPath
 )
 

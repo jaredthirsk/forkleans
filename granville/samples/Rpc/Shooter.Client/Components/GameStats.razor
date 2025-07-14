@@ -4,8 +4,12 @@
 <div class="game-stats">
     <h4>Game Stats</h4>
     <div class="stat-item">
-        <span class="stat-label">FPS:</span>
+        <span class="stat-label">Client FPS:</span>
         <span class="stat-value">@Fps</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Server FPS:</span>
+        <span class="stat-value">@((int)ServerFps)</span>
     </div>
     <div class="stat-item">
         <span class="stat-label">Players:</span>
@@ -23,6 +27,35 @@
         <span class="stat-label">Server Zone:</span>
         <span class="stat-value">@ServerZone</span>
     </div>
+    <div class="stat-item">
+        <span class="stat-label">Transport:</span>
+        <span class="stat-value">@TransportType</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Servers connected:</span>
+        <span class="stat-value">@ActionServersConnected</span>
+    </div>
+    
+    @if (CurrentSilo != null)
+    {
+        <div class="stat-item silo-item">
+            <span class="stat-label">Silo:</span>
+            <div class="silo-value-container">
+                <span class="stat-value">@($"{CurrentSilo.IpAddress}:{CurrentSilo.HttpsPort}")</span>
+                @if (OnSwitchSilo.HasDelegate)
+                {
+                    <button class="switch-silo-icon-btn" @onclick="HandleSwitchSilo" title="Switch to next silo">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 2v6h-6"></path>
+                            <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                            <path d="M3 22v-6h6"></path>
+                            <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                        </svg>
+                    </button>
+                }
+            </div>
+        </div>
+    }
     
     @if (!string.IsNullOrEmpty(DebugInfo))
     {
@@ -72,6 +105,53 @@
         border-top: 1px solid #444;
         font-size: 12px;
     }
+    
+    .switch-silo-btn {
+        width: 100%;
+        padding: 8px;
+        background-color: transparent;
+        color: #2196F3;
+        border: 2px solid #2196F3;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .switch-silo-btn:hover {
+        background-color: #2196F3;
+        color: white;
+    }
+    
+    .silo-item .stat-label {
+        align-self: flex-start;
+    }
+    
+    .silo-value-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .switch-silo-icon-btn {
+        padding: 4px;
+        background-color: transparent;
+        color: #666;
+        border: 1px solid #444;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        line-height: 0;
+    }
+    
+    .switch-silo-icon-btn:hover {
+        color: #2196F3;
+        border-color: #2196F3;
+        background-color: rgba(33, 150, 243, 0.1);
+    }
 </style>
 
 @code {
@@ -79,6 +159,11 @@
     [Parameter] public WorldState? WorldState { get; set; }
     [Parameter] public string? ServerId { get; set; }
     [Parameter] public string? DebugInfo { get; set; }
+    [Parameter] public double ServerFps { get; set; }
+    [Parameter] public int ActionServersConnected { get; set; }
+    [Parameter] public Shooter.Shared.GrainInterfaces.SiloInfo? CurrentSilo { get; set; }
+    [Parameter] public int TotalSilos { get; set; }
+    [Parameter] public EventCallback OnSwitchSilo { get; set; }
     [Inject] private GranvilleRpcGameClientService RpcGameClient { get; set; } = default!;
     
     private int PlayerCount => WorldState?.Entities?.Count(e => e.Type == EntityType.Player) ?? 0;
@@ -86,4 +171,10 @@
     private int BulletCount => WorldState?.Entities?.Count(e => e.Type == EntityType.Bullet) ?? 0;
     
     private string ServerZone => ServerId ?? "Unknown";
+    private string TransportType => RpcGameClient?.TransportType?.ToUpperInvariant() ?? "Unknown";
+    
+    private async Task HandleSwitchSilo()
+    {
+        await OnSwitchSilo.InvokeAsync();
+    }
 }

@@ -26,6 +26,8 @@ public class BotService : BackgroundService
     private List<GridSquare> _availableZones = new();
     private AutoMoveController? _autoMoveController;
     private DateTime _lastShootTime = DateTime.UtcNow;
+    private Vector2? _lastPlayerPosition;
+    private readonly float _positionJumpThreshold = 100f;
 
     public BotService(
         ILogger<BotService> logger,
@@ -218,6 +220,27 @@ public class BotService : BackgroundService
     private void OnWorldStateUpdated(WorldState worldState)
     {
         _lastWorldState = worldState;
+        
+        // Check for position jumps
+        if (_gameClient.PlayerId != null)
+        {
+            var player = worldState.Entities.FirstOrDefault(e => e.EntityId == _gameClient.PlayerId);
+            if (player != null)
+            {
+                if (_lastPlayerPosition.HasValue)
+                {
+                    var distance = (player.Position - _lastPlayerPosition.Value).Length();
+                    if (distance > _positionJumpThreshold)
+                    {
+                        _logger.LogWarning("[BOT_POSITION_JUMP] Bot {BotName} position jumped {Distance:F2} units from ({FromX:F2}, {FromY:F2}) to ({ToX:F2}, {ToY:F2})",
+                            _botName, distance, _lastPlayerPosition.Value.X, _lastPlayerPosition.Value.Y, 
+                            player.Position.X, player.Position.Y);
+                    }
+                }
+                _lastPlayerPosition = player.Position;
+            }
+        }
+        
         _logger.LogDebug("Bot {BotName}: World state updated with {EntityCount} entities (sequence: {Sequence})",
             _botName, worldState?.Entities?.Count ?? 0, worldState?.SequenceNumber ?? -1);
     }

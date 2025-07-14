@@ -1,6 +1,7 @@
 using Shooter.Client;
 using Shooter.Client.Data;
 using Shooter.Client.Common;
+using Shooter.Client.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,8 +71,9 @@ if (!siloUrl.EndsWith("/"))
 // Register HttpClient factory
 builder.Services.AddHttpClient();
 
-// Register the RPC game client service
-builder.Services.AddSingleton<GranvilleRpcGameClientService>(serviceProvider =>
+// Register the RPC game client service as SCOPED to prevent shared state between browser instances
+// Each SignalR connection (browser tab/window) will get its own instance
+builder.Services.AddScoped<GranvilleRpcGameClientService>(serviceProvider =>
 {
     var logger = serviceProvider.GetRequiredService<ILogger<GranvilleRpcGameClientService>>();
     var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
@@ -79,6 +81,17 @@ builder.Services.AddSingleton<GranvilleRpcGameClientService>(serviceProvider =>
     httpClient.BaseAddress = new Uri(siloUrl);
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
     return new GranvilleRpcGameClientService(logger, httpClient, configuration);
+});
+
+// Register SignalR chat service as SCOPED to match the game client service
+builder.Services.AddScoped<SignalRChatService>(serviceProvider =>
+{
+    var logger = serviceProvider.GetRequiredService<ILogger<SignalRChatService>>();
+    var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient();
+    httpClient.BaseAddress = new Uri(siloUrl);
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    return new SignalRChatService(logger, httpClient, configuration);
 });
 
 var app = builder.Build();

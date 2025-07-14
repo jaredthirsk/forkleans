@@ -39,6 +39,9 @@
 
     <!-- UFX.Orleans.SignalRBackplane - depends on Microsoft.Orleans -->
     <PackageReference Include="UFX.Orleans.SignalRBackplane" />
+    
+    <!-- Orleans Dashboard for monitoring -->
+    <PackageReference Include="OrleansDashboard" />
   </ItemGroup>
 
   <ItemGroup>

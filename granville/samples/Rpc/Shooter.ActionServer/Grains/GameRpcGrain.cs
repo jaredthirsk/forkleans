@@ -22,6 +22,8 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
     private readonly Orleans.IClusterClient _orleansClient;
     private readonly ObserverManager<IGameRpcObserver> _observers;
     private readonly GameEventBroker _gameEventBroker;
+    private readonly List<ChatMessage> _recentChatMessages = new();
+    private readonly TimeSpan _chatMessageRetention = TimeSpan.FromMinutes(5);
 
     public GameRpcGrain(
         GameService gameService,
@@ -70,6 +72,13 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
     
     public async Task UpdatePlayerInputEx(string playerId, Vector2? moveDirection, Vector2? shootDirection)
     {
+        // Log input receipt to help debug cross-control issues
+        if (moveDirection.HasValue || shootDirection.HasValue)
+        {
+            _logger.LogDebug("[RPC_INPUT] Received input for player {PlayerId} - Move: {Move}, Shoot: {Shoot}", 
+                playerId, moveDirection.HasValue, shootDirection.HasValue);
+        }
+        
         await _gameService.UpdatePlayerInputEx(playerId, moveDirection, shootDirection);
     }
 
@@ -125,14 +134,19 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
         return Task.FromResult(new ZoneStats(factoryCount, enemyCount, playerCount));
     }
     
-    public Task TransferBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId)
+    public Task<double> GetServerFps()
+    {
+        return Task.FromResult(_worldSimulation.GetServerFps());
+    }
+    
+    public Task TransferBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId, int team = 0)
     {
         var currentZone = _worldSimulation.GetAssignedSquare();
-        _logger.LogDebug("RPC: Zone ({ZoneX},{ZoneY}) receiving bullet trajectory {BulletId} with origin {Origin}, velocity {Velocity}, lifespan {Lifespan}", 
-            currentZone.X, currentZone.Y, bulletId, origin, velocity, lifespan);
+        _logger.LogDebug("RPC: Zone ({ZoneX},{ZoneY}) receiving bullet trajectory {BulletId} with origin {Origin}, velocity {Velocity}, lifespan {Lifespan}, team {Team}", 
+            currentZone.X, currentZone.Y, bulletId, origin, velocity, lifespan, team);
         
         // Transfer the bullet trajectory to the world simulation
-        _worldSimulation.ReceiveBulletTrajectory(bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId);
+        _worldSimulation.ReceiveBulletTrajectory(bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId, team);
         
         return Task.CompletedTask;
     }
@@ -140,7 +154,7 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
     public Task Subscribe(IGameRpcObserver observer)
     {
         _observers.Subscribe(observer, observer);
-        _logger.LogInformation("RPC: Observer subscribed to game updates");
+        _logger.LogInformation("[CHAT_DEBUG] RPC: Observer subscribed to game updates. Total observers: {ObserverCount}", _observers.Count);
         return Task.CompletedTask;
     }
     
@@ -291,11 +305,26 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
     
     public Task SendChatMessage(ChatMessage message)
     {
-        _logger.LogInformation("RPC: Received chat message from {Sender}: {Message}", 
+        _logger.LogInformation("[CHAT_DEBUG] RPC: Received chat message from {Sender}: {Message}", 
             message.SenderName, message.Message);
+        
+        // Store message for polling fallback
+        lock (_recentChatMessages)
+        {
+            _recentChatMessages.Add(message);
+            
+            // Clean up old messages
+            var cutoff = DateTime.UtcNow - _chatMessageRetention;
+            _recentChatMessages.RemoveAll(m => m.Timestamp < cutoff);
+            
+            _logger.LogInformation("[CHAT_DEBUG] Stored message in history. Total messages: {Count}", _recentChatMessages.Count);
+        }
         
         // Notify all observers (connected clients) in this zone
         NotifyObserversChat(message);
+        
+        // Also raise the chat message event for cross-zone broadcasting via SignalR
+        _gameEventBroker.RaiseChatMessage(message);
         
         return Task.CompletedTask;
     }
@@ -305,7 +334,37 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
     /// </summary>
     public void NotifyObserversChat(ChatMessage message)
     {
-        _logger.LogInformation("Notifying {ObserverCount} observers about chat message", _observers.Count);
+        _logger.LogInformation("[CHAT_DEBUG] Notifying {ObserverCount} observers about chat message from {Sender}", _observers.Count, message.SenderName);
+        
+        if (_observers.Count == 0)
+        {
+            _logger.LogWarning("[CHAT_DEBUG] No observers to notify about chat message!");
+        }
+        
         _observers.Notify(observer => observer.OnChatMessage(message));
+    }
+    
+    public Task<List<ChatMessage>> GetRecentChatMessages(DateTime since)
+    {
+        lock (_recentChatMessages)
+        {
+            var messages = _recentChatMessages
+                .Where(m => m.Timestamp > since)
+                .OrderBy(m => m.Timestamp)
+                .ToList();
+                
+            _logger.LogDebug("[CHAT_DEBUG] Returning {Count} messages since {Since}", messages.Count, since);
+            return Task.FromResult(messages);
+        }
+    }
+    
+    public Task NotifyBulletDestroyed(string bulletId)
+    {
+        _logger.LogDebug("RPC: Received notification to destroy bullet {BulletId}", bulletId);
+        
+        // Immediately remove the bullet from our world simulation
+        _worldSimulation.RemoveBullet(bulletId);
+        
+        return Task.CompletedTask;
     }
 }

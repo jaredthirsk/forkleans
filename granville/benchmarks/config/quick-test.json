@@ -1,0 +1,35 @@
+{
+  "benchmarkSettings": {
+    "warmupDuration": "00:00:02",
+    "testDuration": "00:00:05",
+    "cooldownDuration": "00:00:01",
+    "iterations": 1
+  },
+  "workloads": {
+    "fps": {
+      "clientCount": 10,
+      "messageSize": 256,
+      "messagesPerSecond": 60,
+      "useReliableTransport": false,
+      "description": "FPS-style game with high-frequency position updates"
+    }
+  },
+  "transports": [
+    {
+      "type": "LiteNetLib",
+      "reliable": false,
+      "settings": {
+        "disconnectTimeout": 5000,
+        "maxConnectAttempts": 10
+      }
+    }
+  ],
+  "networkConditions": {
+    "default": {
+      "latencyMs": 0,
+      "jitterMs": 0,
+      "packetLoss": 0.0,
+      "bandwidth": 0
+    }
+  }
+}

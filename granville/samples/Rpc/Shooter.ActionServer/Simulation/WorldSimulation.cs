@@ -33,6 +33,12 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private readonly List<DamageEvent> _damageEvents = new();
     private readonly object _damageEventsLock = new();
     private readonly GameEventBroker _gameEventBroker;
+    private Action<string>? _onPlayerTimeoutRemoved;
+    
+    // FPS tracking
+    private readonly Queue<DateTime> _frameTimestamps = new();
+    private readonly object _fpsLock = new();
+    private double _currentFps = 0;
 
     public WorldSimulation(ILogger<WorldSimulation> logger, Orleans.IClusterClient orleansClient, CrossZoneRpcService crossZoneRpc, GameEventBroker gameEventBroker)
     {
@@ -40,6 +46,11 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         _orleansClient = orleansClient;
         _crossZoneRpc = crossZoneRpc;
         _gameEventBroker = gameEventBroker;
+    }
+    
+    public void SetPlayerTimeoutCallback(Action<string> callback)
+    {
+        _onPlayerTimeoutRemoved = callback;
     }
 
     public void SetAssignedSquare(GridSquare square)
@@ -62,9 +73,21 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             if (_entities.ContainsKey(playerId))
             {
                 var existingEntity = _entities[playerId];
-                _logger.LogWarning("Player {PlayerId} ({PlayerName}) already exists in simulation at position {Position} with state {State}, health {Health}. Request to add rejected.", 
-                    playerId, existingEntity.PlayerName, existingEntity.Position, existingEntity.State, existingEntity.Health);
-                return true; // Return true since player is already here
+                _logger.LogWarning("[DUPLICATE_PLAYER] Player {PlayerId} ({PlayerName}) already exists in simulation at position {Position} with state {State}, health {Health}, velocity {Velocity}. Request to add rejected.", 
+                    playerId, existingEntity.PlayerName, existingEntity.Position, existingEntity.State, existingEntity.Health, existingEntity.Velocity);
+                
+                // If the existing entity is dead or disconnected, remove it first
+                if (existingEntity.State == EntityStateType.Dead || existingEntity.Health <= 0)
+                {
+                    _logger.LogInformation("[DUPLICATE_PLAYER] Removing dead existing player {PlayerId} to allow re-add", playerId);
+                    _entities.TryRemove(playerId, out _);
+                    _playerInputs.TryRemove(playerId, out _);
+                    // Continue with adding the new player
+                }
+                else
+                {
+                    return false; // Return false to indicate the player was not added
+                }
             }
             
             _logger.LogInformation("AddPlayer called for {PlayerId}", playerId);
@@ -123,7 +146,8 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 Rotation = 0,
                 State = EntityStateType.Active,
                 StateTimer = 0f,
-                PlayerName = playerInfo.Name // Store the player name
+                PlayerName = playerInfo.Name, // Store the player name
+                Team = playerInfo.Team // Set the player's team
             };
             
             _entities[playerId] = entity;
@@ -248,7 +272,8 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 e.SubType,
                 e.State,
                 e.StateTimer,
-                e.PlayerName))
+                e.PlayerName,
+                e.Team))
             .ToList();
         
         // Log entity counts by type for debugging
@@ -310,6 +335,9 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             var now = DateTime.UtcNow;
             var deltaTime = (float)(now - _lastUpdate).TotalSeconds;
             _lastUpdate = now;
+            
+            // Track FPS
+            UpdateFps(now);
             
             // Update simulation based on current phase
             if (_currentPhase == GamePhase.Playing)
@@ -381,7 +409,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 if (player.State == EntityStateType.Dead || player.State == EntityStateType.Respawning)
                     continue;
                 
-                var speed = 100f; // units per second (reduced by 50%)
+                var speed = 80f; // units per second (reduced by 20% from original 100)
                 var oldPos = player.Position;
                 player.Velocity = input.MoveDirection.Normalized() * speed;
                 var newPos = player.Position + player.Velocity * deltaTime;
@@ -501,7 +529,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                         shootDirection = new Vector2(MathF.Cos(player.Rotation), MathF.Sin(player.Rotation));
                     }
                     
-                    SpawnBullet(player.Position, shootDirection, false, playerId);
+                    SpawnBullet(player.Position, shootDirection, false, playerId, player.Team);
                     input.LastShot = DateTime.UtcNow;
                 }
             }
@@ -611,7 +639,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     // No players in current zone, follow the alert
                     // Move toward last known player position
                     var targetDirection = (enemy.LastKnownPlayerPosition - enemy.Position).Normalized();
-                    enemy.Velocity = targetDirection * 30f; // Move at moderate speed
+                    enemy.Velocity = targetDirection * 19.2f; // Move at moderate speed (reduced by 40% total)
                     
                     // If close to last known position, stop being alerted
                     if (enemy.Position.DistanceTo(enemy.LastKnownPlayerPosition) < 50f)
@@ -631,14 +659,14 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             {
                 case EnemySubType.Kamikaze:
                     // Always move towards player at high speed
-                    enemy.Velocity = direction * 45f; // 30% of 150f
+                    enemy.Velocity = direction * 36f; // Reduced by 20% from 45f
                     break;
                     
                 case EnemySubType.Sniper:
                     // Move to range then stop and shoot
                     if (distance > 250f)
                     {
-                        enemy.Velocity = direction * 24f; // 30% of 80f
+                        enemy.Velocity = direction * 19.2f; // Reduced by 20% from 24f
                     }
                     else
                     {
@@ -654,7 +682,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     // Move to range then strafe while shooting
                     if (distance > 200f)
                     {
-                        enemy.Velocity = direction * 30f; // 30% of 100f
+                        enemy.Velocity = direction * 24f; // Reduced by 20% from 30f
                     }
                     else
                     {
@@ -668,7 +696,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                             enemy.StrafeDirection *= -1f;
                         }
                         
-                        enemy.Velocity = strafeDirection * enemy.StrafeDirection.Value * 36f; // 30% of 120f
+                        enemy.Velocity = strafeDirection * enemy.StrafeDirection.Value * 28.8f; // Reduced by 20% from 36f
                         
                         // Shoot while strafing
                         if (_random.NextDouble() < 0.03)
@@ -714,7 +742,17 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                                 try 
                                 {
                                     var alertDirection = await AlertNeighboringZones(enemy, closestPlayer.Position);
-                                    enemy.Rotation = alertDirection; // Store alert direction for client
+                                    if (alertDirection != -999f) // -999f means no zones to alert
+                                    {
+                                        enemy.Rotation = alertDirection; // Store alert direction for client
+                                    }
+                                    else
+                                    {
+                                        // No zones to alert - scout should not be in alert state
+                                        enemy.HasAlerted = false;
+                                        enemy.State = EntityStateType.Active;
+                                        _logger.LogDebug("Scout {EntityId} has no neighboring zones to alert, returning to roaming", enemy.EntityId);
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
@@ -828,65 +866,93 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     // Handle collision based on entity types
                     if (e1.Type == EntityType.Bullet && e2.Type != EntityType.Bullet)
                     {
-                        var wasAlive = e2.Health > 0;
-                        var damage = 25f;
-                        e2.Health -= damage;
-                        e1.Health = 0; // Destroy bullet
-                        
-                        // Record damage event
-                        RecordDamageEvent(e1, e2, damage);
-                        
-                        // If this killed an enemy, give health to the player who shot the bullet
-                        if (wasAlive && e2.Health <= 0 && e2.Type == EntityType.Enemy && e1.SubType == 0) // Player bullet
+                        // Check if bullet should collide with target
+                        bool shouldCollide = true;
+                        if (e2.Type == EntityType.Player && e1.Team > 0 && e1.Team == e2.Team)
                         {
-                            // Find the player who owns this bullet (bullets have player ID in entity ID)
-                            var playerId = e1.OwnerId ?? "";
-                            if (!string.IsNullOrEmpty(playerId) && _entities.TryGetValue(playerId, out var player))
-                            {
-                                player.Health = Math.Min(player.Health + 2f, 1000f); // Cap at max health
-                                _logger.LogDebug("Player {PlayerId} gained 2 HP for killing enemy, new health: {Health}", playerId, player.Health);
-                            }
+                            // Don't collide with teammates
+                            shouldCollide = false;
                         }
-                        // If this killed an asteroid, give 5 HP to the player
-                        else if (wasAlive && e2.Health <= 0 && e2.Type == EntityType.Asteroid && e1.SubType == 0) // Player bullet
+                        
+                        if (shouldCollide)
                         {
-                            var playerId = e1.OwnerId ?? "";
-                            if (!string.IsNullOrEmpty(playerId) && _entities.TryGetValue(playerId, out var player))
+                            var wasAlive = e2.Health > 0;
+                            var damage = 25f;
+                            e2.Health -= damage;
+                            e1.Health = 0; // Destroy bullet
+                            
+                            // Record damage event
+                            RecordDamageEvent(e1, e2, damage);
+                            
+                            // Notify neighbor zones about bullet destruction
+                            _ = Task.Run(async () => await NotifyNeighborZonesBulletDestroyed(e1.EntityId));
+                            
+                            // If this killed an enemy, give health to the player who shot the bullet
+                            if (wasAlive && e2.Health <= 0 && e2.Type == EntityType.Enemy && e1.SubType == 0) // Player bullet
                             {
-                                player.Health = Math.Min(player.Health + 5f, 1000f); // 5 HP for asteroids
-                                _logger.LogDebug("Player {PlayerId} gained 5 HP for destroying asteroid, new health: {Health}", playerId, player.Health);
+                                // Find the player who owns this bullet (bullets have player ID in entity ID)
+                                var playerId = e1.OwnerId ?? "";
+                                if (!string.IsNullOrEmpty(playerId) && _entities.TryGetValue(playerId, out var player))
+                                {
+                                    player.Health = Math.Min(player.Health + 2f, 1000f); // Cap at max health
+                                    _logger.LogDebug("Player {PlayerId} gained 2 HP for killing enemy, new health: {Health}", playerId, player.Health);
+                                }
+                            }
+                            // If this killed an asteroid, give 5 HP to the player
+                            else if (wasAlive && e2.Health <= 0 && e2.Type == EntityType.Asteroid && e1.SubType == 0) // Player bullet
+                            {
+                                var playerId = e1.OwnerId ?? "";
+                                if (!string.IsNullOrEmpty(playerId) && _entities.TryGetValue(playerId, out var player))
+                                {
+                                    player.Health = Math.Min(player.Health + 5f, 1000f); // 5 HP for asteroids
+                                    _logger.LogDebug("Player {PlayerId} gained 5 HP for destroying asteroid, new health: {Health}", playerId, player.Health);
+                                }
                             }
                         }
                     }
                     else if (e2.Type == EntityType.Bullet && e1.Type != EntityType.Bullet)
                     {
-                        var wasAlive = e1.Health > 0;
-                        var damage = 25f;
-                        e1.Health -= damage;
-                        e2.Health = 0; // Destroy bullet
-                        
-                        // Record damage event
-                        RecordDamageEvent(e2, e1, damage);
-                        
-                        // If this killed an enemy, give health to the player who shot the bullet
-                        if (wasAlive && e1.Health <= 0 && e1.Type == EntityType.Enemy && e2.SubType == 0) // Player bullet
+                        // Check if bullet should collide with target
+                        bool shouldCollide = true;
+                        if (e1.Type == EntityType.Player && e2.Team > 0 && e2.Team == e1.Team)
                         {
-                            // Find the player who owns this bullet
-                            var playerId = e2.OwnerId ?? "";
-                            if (!string.IsNullOrEmpty(playerId) && _entities.TryGetValue(playerId, out var player))
-                            {
-                                player.Health = Math.Min(player.Health + 2f, 1000f); // Cap at max health
-                                _logger.LogDebug("Player {PlayerId} gained 2 HP for killing enemy, new health: {Health}", playerId, player.Health);
-                            }
+                            // Don't collide with teammates
+                            shouldCollide = false;
                         }
-                        // If this killed an asteroid, give 5 HP to the player
-                        else if (wasAlive && e1.Health <= 0 && e1.Type == EntityType.Asteroid && e2.SubType == 0) // Player bullet
+                        
+                        if (shouldCollide)
                         {
-                            var playerId = e2.OwnerId ?? "";
-                            if (!string.IsNullOrEmpty(playerId) && _entities.TryGetValue(playerId, out var player))
+                            var wasAlive = e1.Health > 0;
+                            var damage = 25f;
+                            e1.Health -= damage;
+                            e2.Health = 0; // Destroy bullet
+                            
+                            // Record damage event
+                            RecordDamageEvent(e2, e1, damage);
+                            
+                            // Notify neighbor zones about bullet destruction
+                            _ = Task.Run(async () => await NotifyNeighborZonesBulletDestroyed(e2.EntityId));
+                            
+                            // If this killed an enemy, give health to the player who shot the bullet
+                            if (wasAlive && e1.Health <= 0 && e1.Type == EntityType.Enemy && e2.SubType == 0) // Player bullet
                             {
-                                player.Health = Math.Min(player.Health + 5f, 1000f); // 5 HP for asteroids
-                                _logger.LogDebug("Player {PlayerId} gained 5 HP for destroying asteroid, new health: {Health}", playerId, player.Health);
+                                // Find the player who owns this bullet
+                                var playerId = e2.OwnerId ?? "";
+                                if (!string.IsNullOrEmpty(playerId) && _entities.TryGetValue(playerId, out var player))
+                                {
+                                    player.Health = Math.Min(player.Health + 2f, 1000f); // Cap at max health
+                                    _logger.LogDebug("Player {PlayerId} gained 2 HP for killing enemy, new health: {Health}", playerId, player.Health);
+                                }
+                            }
+                            // If this killed an asteroid, give 5 HP to the player
+                            else if (wasAlive && e1.Health <= 0 && e1.Type == EntityType.Asteroid && e2.SubType == 0) // Player bullet
+                            {
+                                var playerId = e2.OwnerId ?? "";
+                                if (!string.IsNullOrEmpty(playerId) && _entities.TryGetValue(playerId, out var player))
+                                {
+                                    player.Health = Math.Min(player.Health + 5f, 1000f); // 5 HP for asteroids
+                                    _logger.LogDebug("Player {PlayerId} gained 5 HP for destroying asteroid, new health: {Health}", playerId, player.Health);
+                                }
                             }
                         }
                     }
@@ -1063,6 +1129,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
 
     private void CleanupDeadEntities()
     {
+        // Clean up dead non-player entities
         var deadEntities = _entities.Where(kvp => 
             kvp.Value.Health <= 0 && 
             kvp.Value.Type != EntityType.Player && 
@@ -1071,6 +1138,20 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         foreach (var (id, entity) in deadEntities)
         {
             _entities.TryRemove(id, out _);
+        }
+        
+        // Clean up dead player entities that have been dead for too long (likely bots that disconnected)
+        var deadPlayers = _entities.Where(kvp =>
+            kvp.Value.Type == EntityType.Player &&
+            kvp.Value.State == EntityStateType.Dead &&
+            kvp.Value.StateTimer > 30f).ToList(); // Dead for more than 30 seconds
+            
+        foreach (var (id, entity) in deadPlayers)
+        {
+            _logger.LogWarning("[CLEANUP] Removing long-dead player {PlayerId} ({PlayerName}) - dead for {DeadTime:F1} seconds", 
+                id, entity.PlayerName, entity.StateTimer);
+            _entities.TryRemove(id, out _);
+            _playerInputs.TryRemove(id, out _);
         }
         
         // Also clean up disconnected players (those with no recent input)
@@ -1087,6 +1168,9 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 _logger.LogWarning("Removing disconnected player {PlayerId} ({PlayerName}) - no input for 30+ seconds", 
                     playerId, entity.PlayerName);
                 RemovePlayer(playerId);
+                
+                // Notify GameService about the timeout removal so it can update telemetry
+                _onPlayerTimeoutRemoved?.Invoke(playerId);
             }
         }
     }
@@ -1253,7 +1337,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         }
     }
 
-    private void SpawnBullet(Vector2 position, Vector2 direction, bool isEnemyBullet = false, string? ownerId = null)
+    private void SpawnBullet(Vector2 position, Vector2 direction, bool isEnemyBullet = false, string? ownerId = null, int team = 0)
     {
         // Enemy bullets are 40% of normal speed (60% slower)
         var bulletSpeed = isEnemyBullet ? 200f : 500f;
@@ -1293,14 +1377,15 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             State = EntityStateType.Active,
             StateTimer = 0f,
             SubType = isEnemyBullet ? 1 : 0, // Track bullet type
-            OwnerId = ownerId // Track who shot this bullet
+            OwnerId = ownerId, // Track who shot this bullet
+            Team = team // Team of the shooter
         };
         
         _entities[bullet.EntityId] = bullet;
         
         // Calculate which zones the bullet might enter based on its trajectory
         _ = Task.Run(async () => await SendBulletTrajectoryToNeighboringZones(
-            bulletId, bullet.SubType, spawnPosition, velocity, spawnTime, bulletLifespan, ownerId));
+            bulletId, bullet.SubType, spawnPosition, velocity, spawnTime, bulletLifespan, ownerId, bullet.Team));
     }
 
     private void SpawnExplosion(Vector2 position, bool isSmall = false)
@@ -1363,9 +1448,6 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 var alertX = gridX == 0 ? -1 : (gridX == 2 ? 1 : 0);
                 var alertY = gridY == 0 ? -1 : (gridY == 2 ? 1 : 0);
                 
-                // Calculate primary alert direction angle for client
-                alertDirection = MathF.Atan2(alertY, alertX);
-                
                 // Add primary direction zone
                 if (alertX != 0 || alertY != 0)
                 {
@@ -1395,19 +1477,33 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 }
             }
             
-            // Recalculate alert direction based only on existing zones
-            if (existingZones.Count > 0 && !(gridX == 1 && gridY == 1))
+            // Calculate alert direction based only on existing zones
+            if (existingZones.Count > 0)
             {
-                // Calculate average direction to existing zones
-                float sumX = 0, sumY = 0;
-                foreach (var zone in existingZones)
+                if (gridX == 1 && gridY == 1)
                 {
-                    var dx = zone.X - _assignedSquare.X;
-                    var dy = zone.Y - _assignedSquare.Y;
-                    sumX += dx;
-                    sumY += dy;
+                    // Center position - only show 8-way pattern if we have zones to alert
+                    alertDirection = 0f;
                 }
-                alertDirection = MathF.Atan2(sumY / existingZones.Count, sumX / existingZones.Count);
+                else
+                {
+                    // Calculate average direction to existing zones
+                    float sumX = 0, sumY = 0;
+                    foreach (var zone in existingZones)
+                    {
+                        var dx = zone.X - _assignedSquare.X;
+                        var dy = zone.Y - _assignedSquare.Y;
+                        sumX += dx;
+                        sumY += dy;
+                    }
+                    alertDirection = MathF.Atan2(sumY / existingZones.Count, sumX / existingZones.Count);
+                }
+            }
+            else
+            {
+                // No zones to alert - don't show alert direction
+                _logger.LogDebug("Scout at {Position} has no neighboring zones to alert", scout.Position);
+                return -999f; // Special value to indicate no alert direction
             }
             
             foreach (var targetZone in zonesToAlert)
@@ -1479,6 +1575,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         public float StateTimer { get; set; }
         public float? StrafeDirection { get; set; } // For strafing enemies
         public string? OwnerId { get; set; } // For bullets to track who shot them
+        public int Team { get; set; } = 0; // 0 = hostile/enemy, 1 = team 1, 2 = team 2
         
         // Scout-specific fields
         public bool HasSpottedPlayer { get; set; }
@@ -1868,7 +1965,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         return Task.FromResult(new Vector2(MathF.Cos(randomAngle), MathF.Sin(randomAngle)));
     }
     
-    public void ReceiveBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId)
+    public void ReceiveBulletTrajectory(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId, int team = 0)
     {
         try
         {
@@ -1945,7 +2042,8 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 Rotation = MathF.Atan2(velocity.Y, velocity.X),
                 State = EntityStateType.Active,
                 StateTimer = elapsedTime,
-                OwnerId = ownerId
+                OwnerId = ownerId,
+                Team = team
             };
             
             _entities[bulletId] = bullet;
@@ -1965,7 +2063,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         return (float)(DateTime.UtcNow - _startTime).TotalSeconds;
     }
     
-    private async Task SendBulletTrajectoryToNeighboringZones(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId)
+    private async Task SendBulletTrajectoryToNeighboringZones(string bulletId, int subType, Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId, int team = 0)
     {
         try
         {
@@ -2011,7 +2109,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     if (targetServer != null && targetServer.RpcPort > 0)
                     {
                         // Send trajectory to this server
-                        await SendBulletTrajectoryToServer(targetServer, bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId);
+                        await SendBulletTrajectoryToServer(targetServer, bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId, team);
                         _logger.LogDebug("Sent bullet trajectory {BulletId} to zone ({X},{Y})", 
                             bulletId, targetZone.X, targetZone.Y);
                     }
@@ -2030,13 +2128,13 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     }
     
     private async Task SendBulletTrajectoryToServer(ActionServerInfo targetServer, string bulletId, int subType, 
-        Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId)
+        Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId, int team = 0)
     {
         try
         {
             var gameGrain = await _crossZoneRpc.GetGameGrainForServer(targetServer);
             // Fire and forget - bullet transfers don't need confirmation
-            _ = gameGrain.TransferBulletTrajectory(bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId)
+            _ = gameGrain.TransferBulletTrajectory(bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId, team)
                 .ContinueWith(t =>
                 {
                     if (t.IsFaulted)
@@ -2240,6 +2338,90 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to notify players of game restart");
+        }
+    }
+    
+    private void UpdateFps(DateTime now)
+    {
+        lock (_fpsLock)
+        {
+            // Add current timestamp
+            _frameTimestamps.Enqueue(now);
+            
+            // Remove timestamps older than 10 seconds
+            var cutoff = now.AddSeconds(-10);
+            while (_frameTimestamps.Count > 0 && _frameTimestamps.Peek() < cutoff)
+            {
+                _frameTimestamps.Dequeue();
+            }
+            
+            // Calculate FPS based on frame count in the last 10 seconds
+            if (_frameTimestamps.Count >= 2)
+            {
+                var oldestTimestamp = _frameTimestamps.Peek();
+                var timeSpan = (now - oldestTimestamp).TotalSeconds;
+                _currentFps = _frameTimestamps.Count / timeSpan;
+            }
+            else
+            {
+                _currentFps = 0;
+            }
+        }
+    }
+    
+    public double GetServerFps()
+    {
+        lock (_fpsLock)
+        {
+            return _currentFps;
+        }
+    }
+    
+    public void RemoveBullet(string bulletId)
+    {
+        if (_entities.TryRemove(bulletId, out var bullet))
+        {
+            _logger.LogDebug("[BULLET_DESTROY] Immediately removed bullet {BulletId} from zone ({ZoneX},{ZoneY})", 
+                bulletId, _assignedSquare.X, _assignedSquare.Y);
+        }
+    }
+    
+    private async Task NotifyNeighborZonesBulletDestroyed(string bulletId)
+    {
+        try
+        {
+            // Get all neighboring zones (8-way)
+            var neighborZones = new List<GridSquare>();
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                for (int dy = -1; dy <= 1; dy++)
+                {
+                    if (dx == 0 && dy == 0) continue; // Skip our own zone
+                    neighborZones.Add(new GridSquare(_assignedSquare.X + dx, _assignedSquare.Y + dy));
+                }
+            }
+            
+            // Notify each neighbor zone about the bullet destruction
+            var tasks = neighborZones.Select(async zone =>
+            {
+                try
+                {
+                    await _crossZoneRpc.NotifyBulletDestroyed(zone, bulletId);
+                    _logger.LogDebug("[BULLET_DESTROY] Notified zone ({ZoneX},{ZoneY}) about bullet {BulletId} destruction", 
+                        zone.X, zone.Y, bulletId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogDebug(ex, "[BULLET_DESTROY] Failed to notify zone ({ZoneX},{ZoneY}) about bullet {BulletId}", 
+                        zone.X, zone.Y, bulletId);
+                }
+            });
+            
+            await Task.WhenAll(tasks);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[BULLET_DESTROY] Failed to notify neighbor zones about bullet {BulletId}", bulletId);
         }
     }
 }

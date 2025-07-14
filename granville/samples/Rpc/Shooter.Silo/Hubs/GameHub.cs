@@ -11,6 +11,8 @@ namespace Shooter.Silo.Hubs;
 public interface IGameHubClient
 {
     Task ReceiveChatMessage(ChatMessage message);
+    Task ReceiveMessage(string user, string message); // For compatibility with simple clients
+    Task ReceiveSystemMessage(string message);
     Task ReceiveZoneStats(GlobalZoneStats stats);
     Task GameOver(GameOverMessage message);
     Task GameRestarted();
@@ -67,14 +69,25 @@ public class GameHub : Hub<IGameHubClient>
     /// <summary>
     /// Client sends a chat message to all connected clients.
     /// </summary>
-    public async Task SendMessage(string message)
+    public async Task SendMessage(string user, string message)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
             return;
         }
         
-        // Limit message length
+        // Sanitize user name
+        if (string.IsNullOrWhiteSpace(user))
+        {
+            user = "Anonymous";
+        }
+        
+        // Limit lengths
+        if (user.Length > 50)
+        {
+            user = user.Substring(0, 50);
+        }
+        
         if (message.Length > 500)
         {
             message = message.Substring(0, 500);
@@ -82,7 +95,7 @@ public class GameHub : Hub<IGameHubClient>
         
         var chatMessage = new ChatMessage(
             Context.ConnectionId,
-            Context.UserIdentifier ?? "Anonymous",
+            user,
             message,
             DateTime.UtcNow,
             false

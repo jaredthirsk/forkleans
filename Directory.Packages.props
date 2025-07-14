@@ -12,6 +12,7 @@
     <!-- System packages -->
     <PackageVersion Include="Aspire.Azure.Storage.Queues" Version="9.0.0" />
     <PackageVersion Include="System.Diagnostics.PerformanceCounter" Version="8.0.1" />
+    <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" />
     <PackageVersion Include="System.IO.Hashing" Version="8.0.0" NoWarn="NU5104" />
     <PackageVersion Include="System.IO.Pipelines" Version="8.0.0" />
     <PackageVersion Include="System.Memory.Data" Version="8.0.1" />
@@ -34,6 +35,7 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.CommandLine" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
     <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="8.0.2" />
@@ -81,6 +83,7 @@
     <PackageVersion Include="Google.Protobuf" Version="3.28.2" />
     <PackageVersion Include="protobuf-net" Version="3.2.30" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="CsvHelper" Version="31.0.2" />
     <PackageVersion Include="ZooKeeperNetEx" Version="3.4.12.4" />
     <PackageVersion Include="StackExchange.Redis" Version="2.8.16" />
     <PackageVersion Include="KubernetesClient" Version="15.0.1" />
