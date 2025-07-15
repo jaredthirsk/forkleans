@@ -42,6 +42,11 @@ public interface IGameRpcObserver : IGrainObserver
     /// Called when a chat message is received.
     /// </summary>
     void OnChatMessage(ChatMessage message);
+    
+    /// <summary>
+    /// Called when network statistics are updated.
+    /// </summary>
+    void OnNetworkStatsUpdated(NetworkStatistics stats);
 }
 
 /// <summary>
@@ -70,5 +75,20 @@ public class ScoutAlert
     [Id(3)] public required string EntityId { get; set; }
     [Id(4)] public EntityType EntityType { get; set; }
     [Id(5)] public Vector2 Position { get; set; }
+    [Id(6)] public DateTime Timestamp { get; set; }
+}
+
+/// <summary>
+/// Network statistics for monitoring packet flow.
+/// </summary>
+[GenerateSerializer]
+public class NetworkStatistics
+{
+    [Id(0)] public required string ServerId { get; set; }
+    [Id(1)] public long PacketsSent { get; set; }
+    [Id(2)] public long PacketsReceived { get; set; }
+    [Id(3)] public long BytesSent { get; set; }
+    [Id(4)] public long BytesReceived { get; set; }
+    [Id(5)] public double AverageLatency { get; set; }
     [Id(6)] public DateTime Timestamp { get; set; }
 }

@@ -119,6 +119,8 @@
                     TotalSilos="@_totalSilos"
                     OnSwitchSilo="@HandleSwitchSilo" />
                 
+                <NetworkStatsGraph RpcGameClient="@RpcGameClient" />
+                
                 <button class="disconnect-btn" @onclick="Disconnect">Disconnect</button>
                 <button class="toggle-btn" @onclick="ToggleRenderer">Switch to @(_usePhaser ? "Canvas" : "Phaser")</button>
             </div>

@@ -1,0 +1,220 @@
+@using Shooter.Shared.RpcInterfaces
+@using Shooter.Client.Common
+@using System.Collections.Generic
+@inject IJSRuntime JS
+@implements IDisposable
+
+<div class="network-stats-graph">
+    <h4>Network Statistics</h4>
+    <canvas @ref="_canvasElement" width="280" height="150"></canvas>
+    <div class="stats-legend">
+        <div class="legend-item">
+            <span class="legend-color client-sent"></span>
+            <span>Client Sent: @(_clientStats?.PacketsSent ?? 0)</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color client-recv"></span>
+            <span>Client Recv: @(_clientStats?.PacketsReceived ?? 0)</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color server-sent"></span>
+            <span>Server Sent: @(_serverStats?.PacketsSent ?? 0)</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color server-recv"></span>
+            <span>Server Recv: @(_serverStats?.PacketsReceived ?? 0)</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .network-stats-graph {
+        background-color: #2a2a2a;
+        padding: 20px;
+        border-radius: 8px;
+        color: white;
+    }
+    
+    .network-stats-graph h4 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #888;
+        font-size: 18px;
+    }
+    
+    .network-stats-graph canvas {
+        background-color: #1a1a1a;
+        border: 1px solid #444;
+        border-radius: 4px;
+        width: 100%;
+        height: auto;
+    }
+    
+    .stats-legend {
+        margin-top: 10px;
+        font-size: 12px;
+        font-family: monospace;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        gap: 8px;
+    }
+    
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+    }
+    
+    .legend-color.client-sent {
+        background-color: #2196F3;
+    }
+    
+    .legend-color.client-recv {
+        background-color: #4CAF50;
+    }
+    
+    .legend-color.server-sent {
+        background-color: #FF9800;
+    }
+    
+    .legend-color.server-recv {
+        background-color: #F44336;
+    }
+</style>
+
+@code {
+    [Parameter] public GranvilleRpcGameClientService? RpcGameClient { get; set; }
+    
+    private ElementReference _canvasElement;
+    private Timer? _updateTimer;
+    private NetworkStatistics? _clientStats;
+    private NetworkStatistics? _serverStats;
+    
+    // Data history for graph
+    private readonly int _maxDataPoints = 60; // 60 seconds of data
+    private readonly Queue<long> _clientSentHistory = new();
+    private readonly Queue<long> _clientRecvHistory = new();
+    private readonly Queue<long> _serverSentHistory = new();
+    private readonly Queue<long> _serverRecvHistory = new();
+    
+    // For calculating packets per second
+    private long _lastClientSent = 0;
+    private long _lastClientRecv = 0;
+    private long _lastServerSent = 0;
+    private long _lastServerRecv = 0;
+    
+    protected override Task OnInitializedAsync()
+    {
+        if (RpcGameClient != null)
+        {
+            RpcGameClient.NetworkStatsUpdated += OnServerNetworkStatsUpdated;
+        }
+        
+        // Start update timer
+        _updateTimer = new Timer(async _ => await UpdateGraph(), null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+        
+        return Task.CompletedTask;
+    }
+    
+    private void OnServerNetworkStatsUpdated(NetworkStatistics stats)
+    {
+        _serverStats = stats;
+    }
+    
+    private async Task UpdateGraph()
+    {
+        try
+        {
+            // Get client stats
+            if (RpcGameClient != null)
+            {
+                _clientStats = RpcGameClient.GetClientNetworkStats();
+            }
+            
+            // Calculate packets per second
+            long clientSentPerSec = 0;
+            long clientRecvPerSec = 0;
+            long serverSentPerSec = 0;
+            long serverRecvPerSec = 0;
+            
+            if (_clientStats != null)
+            {
+                clientSentPerSec = Math.Max(0, _clientStats.PacketsSent - _lastClientSent);
+                clientRecvPerSec = Math.Max(0, _clientStats.PacketsReceived - _lastClientRecv);
+                _lastClientSent = _clientStats.PacketsSent;
+                _lastClientRecv = _clientStats.PacketsReceived;
+            }
+            
+            if (_serverStats != null)
+            {
+                serverSentPerSec = Math.Max(0, _serverStats.PacketsSent - _lastServerSent);
+                serverRecvPerSec = Math.Max(0, _serverStats.PacketsReceived - _lastServerRecv);
+                _lastServerSent = _serverStats.PacketsSent;
+                _lastServerRecv = _serverStats.PacketsReceived;
+            }
+            
+            // Add to history
+            _clientSentHistory.Enqueue(clientSentPerSec);
+            _clientRecvHistory.Enqueue(clientRecvPerSec);
+            _serverSentHistory.Enqueue(serverSentPerSec);
+            _serverRecvHistory.Enqueue(serverRecvPerSec);
+            
+            // Keep only recent history
+            while (_clientSentHistory.Count > _maxDataPoints) _clientSentHistory.Dequeue();
+            while (_clientRecvHistory.Count > _maxDataPoints) _clientRecvHistory.Dequeue();
+            while (_serverSentHistory.Count > _maxDataPoints) _serverSentHistory.Dequeue();
+            while (_serverRecvHistory.Count > _maxDataPoints) _serverRecvHistory.Dequeue();
+            
+            // Update the graph
+            await InvokeAsync(async () =>
+            {
+                await DrawGraph();
+                StateHasChanged();
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating network stats graph: {ex.Message}");
+        }
+    }
+    
+    private async Task DrawGraph()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("drawNetworkGraph", 
+                _canvasElement,
+                _clientSentHistory.ToArray(),
+                _clientRecvHistory.ToArray(),
+                _serverSentHistory.ToArray(),
+                _serverRecvHistory.ToArray());
+        }
+        catch
+        {
+            // Ignore JS interop errors during disposal
+        }
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Initialize the canvas
+            await DrawGraph();
+        }
+    }
+    
+    public void Dispose()
+    {
+        _updateTimer?.Dispose();
+        
+        if (RpcGameClient != null)
+        {
+            RpcGameClient.NetworkStatsUpdated -= OnServerNetworkStatsUpdated;
+        }
+    }
+}

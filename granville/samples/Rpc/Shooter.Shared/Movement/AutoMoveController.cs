@@ -209,14 +209,14 @@ public class AutoMoveController
                 var targetY = nearBottomBorder ? max.Y - BorderDistance : (nearTopBorder ? min.Y + BorderDistance : currentPosition.Y);
                 
                 var target = new Vector2(targetX, targetY);
-                _currentMoveDirection = (target - currentPosition).Normalized() * 100f;
+                _currentMoveDirection = (target - currentPosition).Normalized() * 60f;
                 _logger.LogDebug("AutoMove {EntityId}: Near border, moving toward distant wall", _entityId);
             }
             else
             {
                 // Pick random direction
                 var angle = _random.NextSingle() * MathF.PI * 2;
-                _currentMoveDirection = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * 100f;
+                _currentMoveDirection = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * 60f;
                 _logger.LogDebug("AutoMove {EntityId}: Random direction in zone", _entityId);
             }
             
@@ -251,7 +251,7 @@ public class AutoMoveController
         
         // Move toward the persistent target zone
         var targetPos = _randomTargetZone.GetCenter();
-        var direction = (targetPos - currentPosition).Normalized() * 100f;
+        var direction = (targetPos - currentPosition).Normalized() * 60f;
         
         _logger.LogDebug("AutoMove {EntityId}: Moving to target zone ({X},{Y})", 
             _entityId, _randomTargetZone.X, _randomTargetZone.Y);
@@ -296,7 +296,7 @@ public class AutoMoveController
             targetPos = targetZone.GetCenter();
         }
         
-        var direction = (targetPos - currentPosition).Normalized() * 100f;
+        var direction = (targetPos - currentPosition).Normalized() * 60f;
         
         _logger.LogDebug("AutoMove {EntityId}: Moving to predictable zone ({X},{Y}), distance {Distance:F1}", 
             _entityId, targetZone.X, targetZone.Y, distance);
@@ -321,7 +321,7 @@ public class AutoMoveController
         if (distance > EnemyStrafeDistance * 1.5f)
         {
             // Move closer
-            moveDir = direction * 100f;
+            moveDir = direction * 60f;
             _logger.LogDebug("AutoMove {EntityId}: Moving closer to target", _entityId);
         }
         else if (distance < EnemyBackAwayDistance)
@@ -336,12 +336,12 @@ public class AutoMoveController
             {
                 // Would go out of zone, strafe instead
                 var strafeDir = new Vector2(-direction.Y, direction.X);
-                moveDir = strafeDir * 100f;
+                moveDir = strafeDir * 60f;
                 _logger.LogDebug("AutoMove {EntityId}: Would leave zone backing away, strafing instead", _entityId);
             }
             else
             {
-                moveDir = backAwayDir * 100f;
+                moveDir = backAwayDir * 60f;
                 _logger.LogDebug("AutoMove {EntityId}: Backing away from target", _entityId);
             }
         }
@@ -366,7 +366,7 @@ public class AutoMoveController
                 var centerX = (min.X + max.X) / 2f;
                 var centerY = (min.Y + max.Y) / 2f;
                 var toCenter = new Vector2(centerX - currentPosition.X, centerY - currentPosition.Y).Normalized();
-                moveDir = toCenter * 100f;
+                moveDir = toCenter * 60f;
                 _logger.LogDebug("AutoMove {EntityId}: Very near zone border at {Position}, moving toward center", _entityId, currentPosition);
             }
             else
@@ -416,7 +416,7 @@ public class AutoMoveController
                 
                 if (!veryNearBorder)
                 {
-                    moveDir = strafeDir * 100f;
+                    moveDir = strafeDir * 60f;
                 }
             }
             

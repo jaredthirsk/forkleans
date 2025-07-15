@@ -78,4 +78,13 @@ public class GameRpcObserver : IGameRpcObserver
         // Handle chat message
         _clientService.HandleChatMessage(message);
     }
+    
+    public void OnNetworkStatsUpdated(NetworkStatistics stats)
+    {
+        _logger.LogDebug("Received network stats: Packets sent={Sent}, received={Received}, latency={Latency}ms", 
+            stats.PacketsSent, stats.PacketsReceived, stats.AverageLatency);
+        
+        // Handle network stats update
+        _clientService.HandleNetworkStats(stats);
+    }
 }

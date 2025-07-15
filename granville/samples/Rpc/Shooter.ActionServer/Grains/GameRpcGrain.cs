@@ -6,6 +6,7 @@ using Shooter.ActionServer.Simulation;
 using Shooter.Shared.Models;
 using Shooter.Shared.RpcInterfaces;
 using Shooter.Shared.GrainInterfaces;
+using System.Threading;
 
 namespace Shooter.ActionServer.Grains;
 
@@ -24,6 +25,8 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
     private readonly GameEventBroker _gameEventBroker;
     private readonly List<ChatMessage> _recentChatMessages = new();
     private readonly TimeSpan _chatMessageRetention = TimeSpan.FromMinutes(5);
+    private Timer? _networkStatsTimer;
+    private readonly NetworkStatisticsTracker _networkStatsTracker;
 
     public GameRpcGrain(
         GameService gameService,
@@ -44,6 +47,12 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
         _gameEventBroker.SubscribeToGameRestart(NotifyObserversGameRestarted);
         _gameEventBroker.SubscribeToChatMessage(NotifyObserversChat);
         _logger.LogInformation("GameRpcGrain subscribed to GameEventBroker events");
+        
+        // Initialize network stats tracker
+        _networkStatsTracker = new NetworkStatisticsTracker(_worldSimulation.GetAssignedSquare().ToString());
+        
+        // Start network stats timer
+        _networkStatsTimer = new Timer(SendNetworkStats, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
     }
 
     public async Task<string> ConnectPlayer(string playerId)
@@ -366,5 +375,36 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
         _worldSimulation.RemoveBullet(bulletId);
         
         return Task.CompletedTask;
+    }
+    
+    public Task<NetworkStatistics> GetNetworkStatistics()
+    {
+        var stats = _networkStatsTracker.GetStats();
+        stats.ServerId = $"Zone({_worldSimulation.GetAssignedSquare().X},{_worldSimulation.GetAssignedSquare().Y})";
+        return Task.FromResult(stats);
+    }
+    
+    private void SendNetworkStats(object? state)
+    {
+        try
+        {
+            var stats = _networkStatsTracker.GetStats();
+            stats.ServerId = $"Zone({_worldSimulation.GetAssignedSquare().X},{_worldSimulation.GetAssignedSquare().Y})";
+            
+            _logger.LogDebug("[NETWORK_STATS] Sending network stats to {ObserverCount} observers. Stats: Sent={Sent}, Recv={Recv}", 
+                _observers.Count, stats.PacketsSent, stats.PacketsReceived);
+            
+            // Notify all observers about network stats
+            _observers.Notify(observer => observer.OnNetworkStatsUpdated(stats));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send network statistics");
+        }
+    }
+    
+    public void Dispose()
+    {
+        _networkStatsTimer?.Dispose();
     }
 }

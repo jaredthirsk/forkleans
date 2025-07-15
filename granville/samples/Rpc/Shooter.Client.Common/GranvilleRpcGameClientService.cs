@@ -31,6 +31,7 @@ public class GranvilleRpcGameClientService : IDisposable
     private Timer? _heartbeatTimer;
     private Timer? _availableZonesTimer;
     private Timer? _chatPollingTimer;
+    private Timer? _networkStatsTimer;
     private DateTime _lastChatPollTime = DateTime.UtcNow;
     private CancellationTokenSource? _cancellationTokenSource;
     private bool _isTransitioning = false;
@@ -55,6 +56,8 @@ public class GranvilleRpcGameClientService : IDisposable
     private GameRpcObserver? _observer;
     private List<GridSquare> _cachedAvailableZones = new();
     private Dictionary<string, List<EntityState>> _cachedAdjacentEntities = new();
+    private NetworkStatistics? _latestNetworkStats = null;
+    private NetworkStatisticsTracker? _clientNetworkTracker = null;
     
     // Connection distance thresholds with hysteresis
     private const float CONNECTION_CREATE_DISTANCE = 200f;    // Create connections when within this distance
@@ -70,6 +73,7 @@ public class GranvilleRpcGameClientService : IDisposable
     public event Action<GameOverMessage>? GameOverReceived;
     public event Action? GameRestartedReceived;
     public event Action<ChatMessage>? ChatMessageReceived;
+    public event Action<NetworkStatistics>? NetworkStatsUpdated;
     
     public bool IsConnected { get; private set; }
     public bool IsTransitioning => _isTransitioning;
@@ -202,6 +206,9 @@ public class GranvilleRpcGameClientService : IDisposable
             _rpcHost = hostBuilder;
             _rpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
             
+            // Initialize client-side network statistics tracker
+            _clientNetworkTracker = new NetworkStatisticsTracker(PlayerId ?? "Unknown");
+            
             // Debug: check what manifest provider we have
             try
             {
@@ -251,7 +258,7 @@ public class GranvilleRpcGameClientService : IDisposable
             
             // Connect via RPC
             _logger.LogInformation("Connecting player {PlayerId} via RPC", PlayerId);
-            var result = await _gameGrain.ConnectPlayer(PlayerId);
+            var result = await _gameGrain.ConnectPlayer(PlayerId!);
             _logger.LogInformation("RPC ConnectPlayer returned: {Result}", result);
             
             if (result != "SUCCESS")
@@ -296,6 +303,9 @@ public class GranvilleRpcGameClientService : IDisposable
             
             // Start polling for available zones - reduced frequency for better performance
             _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+            
+            // Start polling for network stats (since observer might not be supported)
+            _networkStatsTimer = new Timer(async _ => await PollNetworkStats(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
             
             _logger.LogInformation("Connected to game via Orleans RPC");
             return true;
@@ -736,6 +746,7 @@ public class GranvilleRpcGameClientService : IDisposable
                 _worldStateTimer = null;
                 _heartbeatTimer = null;
                 _availableZonesTimer = null;
+                _networkStatsTimer = null;
                 
                 // Explicitly disconnect player from old server before cleanup
                 if (_gameGrain != null && !string.IsNullOrEmpty(PlayerId))
@@ -938,6 +949,9 @@ public class GranvilleRpcGameClientService : IDisposable
             _rpcHost = hostBuilder;
             _rpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
             
+            // Initialize client-side network statistics tracker
+            _clientNetworkTracker = new NetworkStatisticsTracker(PlayerId ?? "Unknown");
+            
             // Wait for handshake and manifest exchange to complete with retry logic
             _logger.LogInformation("[ZONE_TRANSITION] Waiting for RPC handshake...");
             
@@ -1025,6 +1039,7 @@ public class GranvilleRpcGameClientService : IDisposable
         _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(33)); // Reduced from 16ms to 33ms (30 FPS)
         _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
         _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(10));
+        _networkStatsTimer = new Timer(async _ => await PollNetworkStats(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
         
         // Restart chat polling if it was active
         if (_observer == null)
@@ -1149,10 +1164,11 @@ public class GranvilleRpcGameClientService : IDisposable
                                               playerEntity.Velocity.Y * playerEntity.Velocity.Y);
             }
             
-            // Skip cleanup if player is moving fast (threshold: 50 units/sec)
-            if (playerSpeed > 50f)
+            // Skip cleanup if player is moving very fast (threshold: 150 units/sec)
+            // Normal speeds: human players 80 units/sec, bots 100 units/sec
+            if (playerSpeed > 150f)
             {
-                _logger.LogDebug("Skipping connection cleanup - player is actively moving at {Speed} units/sec", playerSpeed);
+                _logger.LogDebug("Skipping connection cleanup - player is moving extremely fast at {Speed} units/sec", playerSpeed);
                 return;
             }
             
@@ -1180,13 +1196,13 @@ public class GranvilleRpcGameClientService : IDisposable
                 if (parts.Length != 2 || !int.TryParse(parts[0], out var zoneX) || !int.TryParse(parts[1], out var zoneY))
                     continue;
                 
-                var zone = new GridSquare { X = zoneX, Y = zoneY };
+                var zone = new GridSquare(zoneX, zoneY);
                 var (min, max) = zone.GetBounds();
                 
                 // Calculate distance from player to zone
                 float distToZone = 0;
                 
-                if (playerEntity.Position.X < min.X)
+                if (playerEntity!.Position.X < min.X)
                     distToZone = Math.Max(distToZone, min.X - playerEntity.Position.X);
                 else if (playerEntity.Position.X > max.X)
                     distToZone = Math.Max(distToZone, playerEntity.Position.X - max.X);
@@ -1340,13 +1356,12 @@ public class GranvilleRpcGameClientService : IDisposable
                         }
                     }
                 }
-                    
-                    // If it's been disconnected for too long, remove it
-                    if ((DateTime.UtcNow - connection.EstablishedAt).TotalMinutes > 1)
-                    {
-                        _logger.LogInformation("Removing stale pre-established connection {Key}", key);
-                        await CleanupPreEstablishedConnection(key);
-                    }
+                
+                // If it's been disconnected for too long, remove it
+                if (!connection.IsConnected && (DateTime.UtcNow - connection.EstablishedAt).TotalMinutes > 1)
+                {
+                    _logger.LogInformation("Removing stale pre-established connection {Key}", key);
+                    await CleanupPreEstablishedConnection(key);
                 }
             }
         }
@@ -1553,8 +1568,8 @@ public class GranvilleRpcGameClientService : IDisposable
         // Add to recently visited zones
         _recentlyVisitedZones.Enqueue((zoneKey, DateTime.UtcNow));
         
-        // Keep only the last 5 visited zones
-        while (_recentlyVisitedZones.Count > 5)
+        // Keep only the last 4 visited zones
+        while (_recentlyVisitedZones.Count > 4)
         {
             _recentlyVisitedZones.Dequeue();
         }
@@ -1754,10 +1769,12 @@ public class GranvilleRpcGameClientService : IDisposable
         _heartbeatTimer?.Dispose();
         _availableZonesTimer?.Dispose();
         _chatPollingTimer?.Dispose();
+        _networkStatsTimer?.Dispose();
         _worldStateTimer = null;
         _heartbeatTimer = null;
         _availableZonesTimer = null;
         _chatPollingTimer = null;
+        _networkStatsTimer = null;
         
         _gameGrain = null;
         _rpcClient = null;
@@ -1953,6 +1970,40 @@ public class GranvilleRpcGameClientService : IDisposable
         {
             _logger.LogDebug(ex, "[CHAT_DEBUG] Failed to poll chat messages");
         }
+    }
+    
+    private async Task PollNetworkStats()
+    {
+        if (_gameGrain == null || !IsConnected || _cancellationTokenSource?.Token.IsCancellationRequested == true)
+        {
+            return;
+        }
+        
+        try
+        {
+            var stats = await _gameGrain.GetNetworkStatistics();
+            if (stats != null)
+            {
+                _logger.LogDebug("[NETWORK_STATS] Polled server stats: Sent={Sent}, Recv={Recv}", 
+                    stats.PacketsSent, stats.PacketsReceived);
+                HandleNetworkStats(stats);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "[NETWORK_STATS] Failed to poll network statistics");
+        }
+    }
+    
+    public void HandleNetworkStats(NetworkStatistics stats)
+    {
+        _latestNetworkStats = stats;
+        NetworkStatsUpdated?.Invoke(stats);
+    }
+    
+    public NetworkStatistics? GetClientNetworkStats()
+    {
+        return _clientNetworkTracker?.GetStats();
     }
 }
 
