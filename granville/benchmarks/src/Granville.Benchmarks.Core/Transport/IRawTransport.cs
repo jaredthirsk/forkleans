@@ -35,6 +35,7 @@ namespace Granville.Benchmarks.Core.Transport
         public string TransportType { get; set; } = "LiteNetLib";
         public bool UseReliableTransport { get; set; } = true;
         public int TimeoutMs { get; set; } = 5000;
+        public bool UseActualTransport { get; set; } = false;
     }
     
     /// <summary>

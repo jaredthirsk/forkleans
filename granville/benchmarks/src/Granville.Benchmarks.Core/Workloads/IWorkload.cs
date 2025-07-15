@@ -40,6 +40,11 @@ namespace Granville.Benchmarks.Core.Workloads
         /// Server port for raw transport benchmarks
         /// </summary>
         public int ServerPort { get; set; } = 12345;
+        
+        /// <summary>
+        /// When true, use actual network transport implementations instead of simulation
+        /// </summary>
+        public bool UseActualTransport { get; set; } = false;
     }
     
     public class WorkloadResult

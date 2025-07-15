@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Granville.Benchmarks.Core.Metrics;
 using Granville.Benchmarks.Core.Workloads;
 using Granville.Benchmarks.Core.Transport;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Granville.Benchmarks.EndToEnd.Workloads
@@ -17,7 +18,8 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
         private readonly Random _random = new();
         private IRawTransport? _rawTransport;
         
-        public FpsGameWorkload(ILogger<FpsGameWorkload> logger) : base(logger)
+        public FpsGameWorkload(ILogger<FpsGameWorkload> logger, IServiceProvider serviceProvider) 
+            : base(logger, serviceProvider)
         {
         }
         
@@ -28,24 +30,24 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
             // Initialize raw transport if enabled
             if (configuration.UseRawTransport)
             {
-                _rawTransport = TransportFactory.CreateTransport(new RawTransportConfig
+                var transportConfig = new RawTransportConfig
                 {
                     Host = configuration.ServerHost,
                     Port = configuration.ServerPort,
                     TransportType = configuration.TransportType,
-                    UseReliableTransport = configuration.UseReliableTransport
-                });
+                    UseReliableTransport = configuration.UseReliableTransport,
+                    UseActualTransport = configuration.UseActualTransport
+                };
                 
-                await _rawTransport.InitializeAsync(new RawTransportConfig
-                {
-                    Host = configuration.ServerHost,
-                    Port = configuration.ServerPort,
-                    TransportType = configuration.TransportType,
-                    UseReliableTransport = configuration.UseReliableTransport
-                });
+                _rawTransport = TransportFactory.CreateTransport(transportConfig, _serviceProvider, configuration.UseActualTransport);
                 
-                _logger.LogInformation("Raw transport initialized: {TransportType} -> {Host}:{Port}", 
-                    configuration.TransportType, configuration.ServerHost, configuration.ServerPort);
+                await _rawTransport.InitializeAsync(transportConfig);
+                
+                _logger.LogInformation("Raw transport initialized: {TransportType} ({Mode}) -> {Host}:{Port}", 
+                    configuration.TransportType, 
+                    configuration.UseActualTransport ? "Network" : "Simulation",
+                    configuration.ServerHost, 
+                    configuration.ServerPort);
             }
         }
         

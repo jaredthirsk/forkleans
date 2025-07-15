@@ -14,6 +14,7 @@
     "TestDuration": "00:00:05",
     "CooldownDuration": "00:00:01",
     "UseRawTransport": true,
+    "UseActualTransport": false,
     "ServerHost": "127.0.0.1",
     "ServerPort": 12345,
     "Transports": [

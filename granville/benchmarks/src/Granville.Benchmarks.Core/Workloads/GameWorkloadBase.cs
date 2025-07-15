@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Granville.Benchmarks.Core.Metrics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Granville.Benchmarks.Core.Workloads
@@ -11,15 +12,17 @@ namespace Granville.Benchmarks.Core.Workloads
     public abstract class GameWorkloadBase : IWorkload
     {
         protected readonly ILogger _logger;
+        protected readonly IServiceProvider _serviceProvider;
         protected WorkloadConfiguration _configuration = null!;
         protected List<Task> _clientTasks = new();
         
         public abstract string Name { get; }
         public abstract string Description { get; }
         
-        protected GameWorkloadBase(ILogger logger)
+        protected GameWorkloadBase(ILogger logger, IServiceProvider serviceProvider)
         {
             _logger = logger;
+            _serviceProvider = serviceProvider;
         }
         
         public virtual Task InitializeAsync(WorkloadConfiguration configuration)

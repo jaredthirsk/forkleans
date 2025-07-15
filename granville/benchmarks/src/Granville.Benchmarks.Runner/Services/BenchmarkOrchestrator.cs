@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Granville.Benchmarks.Core.Metrics;
 using Granville.Benchmarks.Core.Workloads;
+using Granville.Benchmarks.Core.Transport;
 
 namespace Granville.Benchmarks.Runner.Services
 {
@@ -18,6 +19,7 @@ namespace Granville.Benchmarks.Runner.Services
         private readonly BenchmarkOptions _options;
         private readonly ResultsExporter _resultsExporter;
         private readonly NetworkEmulator _networkEmulator;
+        private BenchmarkUdpServer? _benchmarkServer;
         
         public BenchmarkOrchestrator(
             IServiceProvider serviceProvider,
@@ -37,31 +39,48 @@ namespace Granville.Benchmarks.Runner.Services
         {
             _logger.LogInformation("Starting benchmark orchestration");
             
-            var allResults = new List<BenchmarkResult>();
-            var workloads = _serviceProvider.GetServices<IWorkload>().ToList();
-            
-            _logger.LogInformation("Found {Count} workloads to run", workloads.Count);
-            
-            foreach (var workload in workloads)
+            try
             {
-                if (cancellationToken.IsCancellationRequested)
-                    break;
-                    
-                try
+                // Start benchmark servers if using actual transport
+                if (_options.UseRawTransport && _options.UseActualTransport)
                 {
-                    var results = await RunWorkloadBenchmarksAsync(workload, cancellationToken);
-                    allResults.AddRange(results);
+                    await StartBenchmarkServersAsync(cancellationToken);
                 }
-                catch (Exception ex)
+                
+                var allResults = new List<BenchmarkResult>();
+                var workloads = _serviceProvider.GetServices<IWorkload>().ToList();
+                
+                _logger.LogInformation("Found {Count} workloads to run", workloads.Count);
+                
+                foreach (var workload in workloads)
                 {
-                    _logger.LogError(ex, "Failed to run workload {Workload}", workload.Name);
+                    if (cancellationToken.IsCancellationRequested)
+                        break;
+                        
+                    try
+                    {
+                        var results = await RunWorkloadBenchmarksAsync(workload, cancellationToken);
+                        allResults.AddRange(results);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to run workload {Workload}", workload.Name);
+                    }
+                }
+                
+                // Export results
+                await _resultsExporter.ExportResultsAsync(allResults, cancellationToken);
+                
+                _logger.LogInformation("Benchmark orchestration completed. Total results: {Count}", allResults.Count);
+            }
+            finally
+            {
+                // Stop benchmark servers
+                if (_benchmarkServer != null)
+                {
+                    await StopBenchmarkServersAsync();
                 }
             }
-            
-            // Export results
-            await _resultsExporter.ExportResultsAsync(allResults, cancellationToken);
-            
-            _logger.LogInformation("Benchmark orchestration completed. Total results: {Count}", allResults.Count);
         }
         
         private async Task<List<BenchmarkResult>> RunWorkloadBenchmarksAsync(IWorkload workload, CancellationToken cancellationToken)
@@ -111,6 +130,10 @@ namespace Granville.Benchmarks.Runner.Services
                 }
                 
                 // Initialize workload
+                var serverPort = _options.UseActualTransport ? 
+                    _options.ServerPort + GetTransportPortOffset(transportConfig.Type) : 
+                    _options.ServerPort;
+                    
                 var workloadConfig = new WorkloadConfiguration
                 {
                     ClientCount = _options.ClientCount,
@@ -121,8 +144,9 @@ namespace Granville.Benchmarks.Runner.Services
                     TransportType = transportConfig.Type,
                     CustomSettings = transportConfig.Settings,
                     UseRawTransport = _options.UseRawTransport,
+                    UseActualTransport = _options.UseActualTransport,
                     ServerHost = _options.ServerHost,
-                    ServerPort = _options.ServerPort
+                    ServerPort = serverPort
                 };
                 
                 await workload.InitializeAsync(workloadConfig);
@@ -176,6 +200,64 @@ namespace Granville.Benchmarks.Runner.Services
                 return null;
             }
         }
+        
+        private async Task StartBenchmarkServersAsync(CancellationToken cancellationToken)
+        {
+            var serverLogger = _serviceProvider.GetRequiredService<ILogger<BenchmarkUdpServer>>();
+            _benchmarkServer = new BenchmarkUdpServer(serverLogger);
+            
+            // Start servers for each unique transport type
+            var transportTypes = _options.Transports.Select(t => t.Type).Distinct();
+            
+            foreach (var transportType in transportTypes)
+            {
+                // Use a unique port for each transport type to avoid conflicts
+                var port = _options.ServerPort + GetTransportPortOffset(transportType);
+                
+                try
+                {
+                    await _benchmarkServer.StartAsync(transportType, port, cancellationToken);
+                    _logger.LogInformation("Started benchmark server for {TransportType} on port {Port}", transportType, port);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to start benchmark server for {TransportType} on port {Port}", transportType, port);
+                    throw;
+                }
+            }
+            
+            // Give servers time to start
+            await Task.Delay(1000, cancellationToken);
+        }
+        
+        private async Task StopBenchmarkServersAsync()
+        {
+            if (_benchmarkServer != null)
+            {
+                try
+                {
+                    await _benchmarkServer.StopAllAsync();
+                    _benchmarkServer.Dispose();
+                    _benchmarkServer = null;
+                    _logger.LogInformation("Stopped all benchmark servers");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error stopping benchmark servers");
+                }
+            }
+        }
+        
+        private static int GetTransportPortOffset(string transportType)
+        {
+            return transportType switch
+            {
+                "LiteNetLib" => 0,
+                "Ruffles" => 1,
+                "Orleans.TCP" => 2,
+                _ => 0
+            };
+        }
     }
     
     public class BenchmarkOptions
@@ -203,6 +285,11 @@ namespace Granville.Benchmarks.Runner.Services
         /// Server port for raw transport benchmarks
         /// </summary>
         public int ServerPort { get; set; } = 12345;
+        
+        /// <summary>
+        /// When true, use actual network transport implementations instead of simulation
+        /// </summary>
+        public bool UseActualTransport { get; set; } = false;
     }
     
     public class TransportConfiguration

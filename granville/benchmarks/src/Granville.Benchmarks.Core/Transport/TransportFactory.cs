@@ -1,4 +1,6 @@
 using System;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Granville.Benchmarks.Core.Transport
 {
@@ -7,11 +9,21 @@ namespace Granville.Benchmarks.Core.Transport
     /// </summary>
     public static class TransportFactory
     {
-        public static IRawTransport CreateTransport(RawTransportConfig config)
+        public static IRawTransport CreateTransport(RawTransportConfig config, IServiceProvider serviceProvider, bool useActualTransport = false)
         {
-            // For now, always return simulation transport
-            // TODO: Add actual transport implementations for LiteNetLib, Ruffles, Orleans.TCP
-            return new SimulationTransport();
+            if (!useActualTransport)
+            {
+                // Use simulation transport for backward compatibility
+                return new SimulationTransport();
+            }
+            
+            return config.TransportType switch
+            {
+                "LiteNetLib" => CreateLiteNetLibTransport(serviceProvider),
+                "Ruffles" => CreateRufflesTransport(serviceProvider),
+                "Orleans.TCP" => throw new NotImplementedException("Orleans.TCP raw transport not yet implemented"),
+                _ => throw new ArgumentException($"Unsupported transport type: {config.TransportType}")
+            };
         }
         
         public static IRawTransport CreateSimulationTransport()
@@ -19,22 +31,21 @@ namespace Granville.Benchmarks.Core.Transport
             return new SimulationTransport();
         }
         
-        // TODO: Add these methods when implementing actual transports
-        /*
-        public static IRawTransport CreateLiteNetLibTransport()
+        public static IRawTransport CreateLiteNetLibTransport(IServiceProvider serviceProvider)
         {
-            return new LiteNetLibTransport();
+            var logger = serviceProvider.GetRequiredService<ILogger<LiteNetLibRawTransport>>();
+            return new LiteNetLibRawTransport(logger);
         }
         
-        public static IRawTransport CreateRufflesTransport()
+        public static IRawTransport CreateRufflesTransport(IServiceProvider serviceProvider)
         {
-            return new RufflesTransport();
+            throw new NotImplementedException("Ruffles raw transport not yet implemented");
         }
         
-        public static IRawTransport CreateOrleansTcpTransport()
+        // Future: Orleans.TCP raw transport implementation
+        public static IRawTransport CreateOrleansTcpTransport(IServiceProvider serviceProvider)
         {
-            return new OrleansTcpTransport();
+            throw new NotImplementedException("Orleans.TCP raw transport not yet implemented");
         }
-        */
     }
 }

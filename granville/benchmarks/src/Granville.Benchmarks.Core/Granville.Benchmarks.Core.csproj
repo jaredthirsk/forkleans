@@ -11,7 +11,10 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Configuration" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+    <PackageReference Include="LiteNetLib" />
+    <PackageReference Include="Ruffles" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Granville.Benchmarks.Core.Metrics;
 using Granville.Benchmarks.Core.Workloads;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Granville.Benchmarks.EndToEnd.Workloads
@@ -15,7 +16,8 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
         
         private readonly Random _random = new();
         
-        public MobaGameWorkload(ILogger<MobaGameWorkload> logger) : base(logger)
+        public MobaGameWorkload(ILogger<MobaGameWorkload> logger, IServiceProvider serviceProvider) 
+            : base(logger, serviceProvider)
         {
         }
         
