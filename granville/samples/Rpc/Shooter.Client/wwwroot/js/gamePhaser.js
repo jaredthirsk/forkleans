@@ -31,18 +31,17 @@ class GamePhaser {
         // Calculate responsive dimensions while maintaining aspect ratio
         const aspectRatio = 800 / 600; // 4:3 aspect ratio
         let gameWidth = Math.min(containerWidth, 800);
-        let gameHeight = Math.min(containerHeight, 600);
-        
-        // Ensure we maintain aspect ratio
-        if (gameWidth / gameHeight > aspectRatio) {
-            gameWidth = gameHeight * aspectRatio;
-        } else {
-            gameHeight = gameWidth / aspectRatio;
-        }
+        let gameHeight = gameWidth / aspectRatio; // Always calculate height from width for consistency
         
         // Minimum dimensions for playability
         gameWidth = Math.max(gameWidth, 320);
         gameHeight = Math.max(gameHeight, 240);
+        
+        // Ensure height doesn't exceed available space (if container has height constraint)
+        if (containerHeight > 0 && gameHeight > containerHeight) {
+            gameHeight = containerHeight;
+            gameWidth = gameHeight * aspectRatio;
+        }
 
         const config = {
             type: Phaser.AUTO,
@@ -91,17 +90,17 @@ class GamePhaser {
         // Calculate new dimensions
         const aspectRatio = 800 / 600;
         let newWidth = Math.min(containerWidth, 800);
-        let newHeight = Math.min(containerHeight, 600);
-        
-        if (newWidth / newHeight > aspectRatio) {
-            newWidth = newHeight * aspectRatio;
-        } else {
-            newHeight = newWidth / aspectRatio;
-        }
+        let newHeight = newWidth / aspectRatio; // Always calculate height from width for consistency
         
         // Minimum dimensions
         newWidth = Math.max(newWidth, 320);
         newHeight = Math.max(newHeight, 240);
+        
+        // Ensure height doesn't exceed available space (if container has height constraint)
+        if (containerHeight > 0 && newHeight > containerHeight) {
+            newHeight = containerHeight;
+            newWidth = newHeight * aspectRatio;
+        }
         
         // Only resize if dimensions changed significantly
         if (Math.abs(newWidth - this.gameWidth) > 10 || Math.abs(newHeight - this.gameHeight) > 10) {

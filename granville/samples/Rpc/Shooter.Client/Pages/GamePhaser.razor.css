@@ -1,24 +1,32 @@
 /* Responsive game layout */
 .game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     max-width: 100%;
-    overflow-x: auto;
-    padding: 0;
+    min-height: 100vh;
+    padding: 0 clamp(10px, 5vw, 200px); /* Flexible horizontal padding */
+    box-sizing: border-box;
 }
 
 .phaser-viewport {
     width: 800px;
     height: 600px;
-    margin: 0 auto;
+    max-width: 100%;
     background-color: #000033;
     border: 1px solid #444;
     border-radius: 4px;
     min-width: 320px; /* Minimum usable width */
+    flex-shrink: 1; /* Allow shrinking */
+    margin: 0; /* Remove fixed margin */
 }
 
 .chat-container {
     width: 800px;
-    margin: 0 auto;
+    max-width: 100%;
     min-width: 320px; /* Match phaser viewport minimum */
+    margin: 0; /* Remove fixed margin */
+    flex-shrink: 1; /* Allow shrinking */
 }
 
 .chat-history {
@@ -144,14 +152,18 @@
     background-color: #ff9800;
 }
 
-/* Responsive breakpoints */
+/* Responsive breakpoints with flexible margins */
 @media (max-width: 1200px) {
     .game-container {
-        padding: 0 10px;
+        padding: 0 clamp(5px, 3vw, 100px); /* Smaller flexible padding */
     }
 }
 
 @media (max-width: 900px) {
+    .game-container {
+        padding: 0 clamp(5px, 2vw, 50px); /* Even smaller flexible padding */
+    }
+    
     .phaser-viewport {
         width: 100%;
         max-width: 800px;
@@ -167,7 +179,7 @@
 
 @media (max-width: 768px) {
     .game-container {
-        padding: 0 5px;
+        padding: 0 clamp(5px, 1vw, 20px); /* Minimal flexible padding */
     }
     
     .phaser-viewport {
@@ -196,7 +208,7 @@
 
 @media (max-width: 640px) {
     .game-container {
-        padding: 0 2px;
+        padding: 0 5px; /* Minimal fixed padding for very narrow screens */
     }
     
     .phaser-viewport {
@@ -237,6 +249,10 @@
 }
 
 @media (max-width: 480px) {
+    .game-container {
+        padding: 0 2px; /* Absolute minimum padding */
+    }
+    
     .phaser-viewport {
         width: 100%;
         height: auto;
@@ -259,21 +275,8 @@
     }
 }
 
-/* Ensure sidebar is visible on narrow screens */
-@media (max-width: 1100px) {
-    .game-container {
-        /* Remove any margins that might interfere with sidebar */
-        margin-left: 0;
-        margin-right: 0;
-    }
-}
-
-/* Handle very narrow screens where sidebar should be prioritized */
+/* Ensure no horizontal overflow */
 @media (max-width: 850px) {
-    .game-container {
-        overflow-x: auto;
-    }
-    
     .phaser-viewport {
         min-width: 300px; /* Reduced minimum for mobile */
     }
