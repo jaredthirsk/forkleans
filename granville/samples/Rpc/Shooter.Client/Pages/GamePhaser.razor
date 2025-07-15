@@ -11,26 +11,25 @@
 @implements IDisposable
 
 <div class="game-container">
-    <div id="phaser-container" style="width: 800px; height: 600px; margin: 0 auto;"></div>
+    <div id="phaser-container" class="phaser-viewport"></div>
     
-    <div class="chat-container mt-3" style="width: 800px; margin: 0 auto;">
-        <div class="chat-history" style="height: 200px; overflow-y: auto; border: 1px solid #444; padding: 10px; background-color: #1a1a1a; color: #e0e0e0;">
+    <div class="chat-container mt-3">
+        <div class="chat-history">
             @foreach (var message in _chatMessages)
             {
                 <div class="chat-message" style="color: @message.Color">
-                    <span class="timestamp" style="color: #888;">[(@message.Timestamp.ToString("HH:mm:ss"))]</span>
+                    <span class="timestamp">[(@message.Timestamp.ToString("HH:mm:ss"))]</span>
                     <span class="sender">@message.Sender:</span>
                     <span class="text">@message.Text</span>
                 </div>
             }
             <div @ref="_chatScrollAnchor"></div>
         </div>
-        <div class="chat-input mt-2">
+        <div class="chat-input">
             <form @onsubmit="SendChatMessage" @onsubmit:preventDefault="true">
                 <div class="input-group">
                     <input type="text" class="form-control" @bind="_chatInput" @bind:event="oninput" 
-                           placeholder="Type a message..." maxlength="200" 
-                           style="background-color: #2a2a2a; border-color: #444; color: #e0e0e0;" />
+                           placeholder="Type a message..." maxlength="200" />
                     <button class="btn btn-primary" type="submit" disabled="@(string.IsNullOrWhiteSpace(_chatInput))">
                         Send
                     </button>

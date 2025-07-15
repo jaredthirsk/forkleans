@@ -23,12 +23,39 @@ class GamePhaser {
         this.playerId = playerId;
         console.log('GamePhaser initialized with playerId:', playerId);
 
+        // Get container element to determine responsive dimensions
+        const container = document.getElementById(containerId);
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+        
+        // Calculate responsive dimensions while maintaining aspect ratio
+        const aspectRatio = 800 / 600; // 4:3 aspect ratio
+        let gameWidth = Math.min(containerWidth, 800);
+        let gameHeight = Math.min(containerHeight, 600);
+        
+        // Ensure we maintain aspect ratio
+        if (gameWidth / gameHeight > aspectRatio) {
+            gameWidth = gameHeight * aspectRatio;
+        } else {
+            gameHeight = gameWidth / aspectRatio;
+        }
+        
+        // Minimum dimensions for playability
+        gameWidth = Math.max(gameWidth, 320);
+        gameHeight = Math.max(gameHeight, 240);
+
         const config = {
             type: Phaser.AUTO,
             parent: containerId,
-            width: 800,
-            height: 600,
+            width: gameWidth,
+            height: gameHeight,
             backgroundColor: '#000033',
+            scale: {
+                mode: Phaser.Scale.FIT,
+                autoCenter: Phaser.Scale.CENTER_BOTH,
+                width: gameWidth,
+                height: gameHeight
+            },
             scene: {
                 preload: this.preload.bind(this),
                 create: this.create.bind(this),
@@ -43,7 +70,45 @@ class GamePhaser {
         };
 
         this.game = new Phaser.Game(config);
+        this.gameWidth = gameWidth;
+        this.gameHeight = gameHeight;
+        
+        // Add window resize listener for responsive behavior
+        window.addEventListener('resize', () => this.handleResize());
+        
         return true;
+    }
+
+    handleResize() {
+        if (!this.game) return;
+        
+        const container = document.getElementById('phaser-container');
+        if (!container) return;
+        
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+        
+        // Calculate new dimensions
+        const aspectRatio = 800 / 600;
+        let newWidth = Math.min(containerWidth, 800);
+        let newHeight = Math.min(containerHeight, 600);
+        
+        if (newWidth / newHeight > aspectRatio) {
+            newWidth = newHeight * aspectRatio;
+        } else {
+            newHeight = newWidth / aspectRatio;
+        }
+        
+        // Minimum dimensions
+        newWidth = Math.max(newWidth, 320);
+        newHeight = Math.max(newHeight, 240);
+        
+        // Only resize if dimensions changed significantly
+        if (Math.abs(newWidth - this.gameWidth) > 10 || Math.abs(newHeight - this.gameHeight) > 10) {
+            this.gameWidth = newWidth;
+            this.gameHeight = newHeight;
+            this.game.scale.resize(newWidth, newHeight);
+        }
     }
 
     preload() {
@@ -1284,6 +1349,9 @@ class GamePhaser {
     }
 
     destroy() {
+        // Remove resize listener
+        window.removeEventListener('resize', () => this.handleResize());
+        
         if (this.game) {
             this.game.destroy(true);
             this.game = null;
