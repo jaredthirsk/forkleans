@@ -119,7 +119,10 @@ namespace Granville.Benchmarks.Runner.Services
                     Duration = _options.TestDuration,
                     UseReliableTransport = transportConfig.Reliable,
                     TransportType = transportConfig.Type,
-                    CustomSettings = transportConfig.Settings
+                    CustomSettings = transportConfig.Settings,
+                    UseRawTransport = _options.UseRawTransport,
+                    ServerHost = _options.ServerHost,
+                    ServerPort = _options.ServerPort
                 };
                 
                 await workload.InitializeAsync(workloadConfig);
@@ -185,6 +188,21 @@ namespace Granville.Benchmarks.Runner.Services
         public TimeSpan CooldownDuration { get; set; } = TimeSpan.FromSeconds(5);
         public List<TransportConfiguration> Transports { get; set; } = new();
         public List<NetworkCondition> NetworkConditions { get; set; } = new();
+        
+        /// <summary>
+        /// When true, use actual network calls instead of simulation delays
+        /// </summary>
+        public bool UseRawTransport { get; set; } = false;
+        
+        /// <summary>
+        /// Server host for raw transport benchmarks
+        /// </summary>
+        public string ServerHost { get; set; } = "127.0.0.1";
+        
+        /// <summary>
+        /// Server port for raw transport benchmarks
+        /// </summary>
+        public int ServerPort { get; set; } = 12345;
     }
     
     public class TransportConfiguration

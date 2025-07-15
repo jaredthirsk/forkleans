@@ -37,6 +37,9 @@ public class GranvilleRpcGameClientService : IDisposable
     private DateTime _lastZoneBoundaryCheck = DateTime.MinValue;
     private DateTime _lastZoneChangeTime = DateTime.MinValue;
     private GridSquare? _lastDetectedZone = null;
+    private readonly object _transitionLock = new object();
+    private int _transitionAttempts = 0;
+    private DateTime _lastTransitionAttempt = DateTime.MinValue;
     private long _lastSequenceNumber = -1;
     private readonly Dictionary<string, PreEstablishedConnection> _preEstablishedConnections = new();
     private GridSquare? _currentZone = null;
@@ -44,6 +47,7 @@ public class GranvilleRpcGameClientService : IDisposable
     private Vector2 _lastInputDirection = Vector2.Zero;
     private bool _lastInputShooting = false;
     private readonly HashSet<string> _visitedZones = new();
+    private readonly Queue<(string zoneKey, DateTime visitTime)> _recentlyVisitedZones = new();
     private bool _worldStateErrorLogged = false;
     private DateTime _lastWorldStateError = DateTime.MinValue;
     private bool _playerInputErrorLogged = false;
@@ -51,6 +55,11 @@ public class GranvilleRpcGameClientService : IDisposable
     private GameRpcObserver? _observer;
     private List<GridSquare> _cachedAvailableZones = new();
     private Dictionary<string, List<EntityState>> _cachedAdjacentEntities = new();
+    
+    // Connection distance thresholds with hysteresis
+    private const float CONNECTION_CREATE_DISTANCE = 200f;    // Create connections when within this distance
+    private const float CONNECTION_DISPOSE_DISTANCE = 400f;   // Dispose connections when beyond this distance
+    private const float ADJACENT_ENTITY_FETCH_DISTANCE = 200f; // Fetch entities when near zone edge
     
     public event Action<WorldState>? WorldStateUpdated;
     public event Action<string>? ServerChanged;
@@ -63,6 +72,7 @@ public class GranvilleRpcGameClientService : IDisposable
     public event Action<ChatMessage>? ChatMessageReceived;
     
     public bool IsConnected { get; private set; }
+    public bool IsTransitioning => _isTransitioning;
     public string? PlayerId { get; private set; }
     public string? PlayerName { get; private set; }
     public string? CurrentServerId { get; private set; }
@@ -100,7 +110,7 @@ public class GranvilleRpcGameClientService : IDisposable
             // Mark initial zone as visited
             if (_currentZone != null)
             {
-                _visitedZones.Add($"{_currentZone.X},{_currentZone.Y}");
+                TrackVisitedZone($"{_currentZone.X},{_currentZone.Y}");
             }
             
             _logger.LogInformation("[CONNECT] Instance {InstanceId} - Player registered with ID {PlayerId} on server {ServerId} in zone ({X}, {Y})", 
@@ -279,13 +289,13 @@ public class GranvilleRpcGameClientService : IDisposable
             }
             
             // Start polling for world state
-            _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(16));
+            _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(33)); // Reduced from 16ms to 33ms (30 FPS)
             
             // Start heartbeat
             _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
             
-            // Start polling for available zones
-            _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
+            // Start polling for available zones - reduced frequency for better performance
+            _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
             
             _logger.LogInformation("Connected to game via Orleans RPC");
             return true;
@@ -492,10 +502,10 @@ public class GranvilleRpcGameClientService : IDisposable
                         var (min, max) = _currentZone.GetBounds();
                         var pos = player.Position;
                         
-                        bool nearLeftEdge = pos.X <= min.X + 150;
-                        bool nearRightEdge = pos.X >= max.X - 150;
-                        bool nearTopEdge = pos.Y <= min.Y + 150;
-                        bool nearBottomEdge = pos.Y >= max.Y - 150;
+                        bool nearLeftEdge = pos.X <= min.X + ADJACENT_ENTITY_FETCH_DISTANCE;
+                        bool nearRightEdge = pos.X >= max.X - ADJACENT_ENTITY_FETCH_DISTANCE;
+                        bool nearTopEdge = pos.Y <= min.Y + ADJACENT_ENTITY_FETCH_DISTANCE;
+                        bool nearBottomEdge = pos.Y >= max.Y - ADJACENT_ENTITY_FETCH_DISTANCE;
                         
                         if (nearLeftEdge || nearRightEdge || nearTopEdge || nearBottomEdge)
                         {
@@ -530,14 +540,13 @@ public class GranvilleRpcGameClientService : IDisposable
                         // Check if player's actual zone differs from the server's zone
                         if (_currentZone != null && (playerZone.X != _currentZone.X || playerZone.Y != _currentZone.Y))
                         {
-                            // Debounce zone changes - only process if this is a new zone change or enough time has passed
+                            // Process zone changes immediately without debouncing
                             var now = DateTime.UtcNow;
                             var timeSinceLastChange = (now - _lastZoneChangeTime).TotalSeconds;
                             
                             if (_lastDetectedZone == null || 
                                 _lastDetectedZone.X != playerZone.X || 
-                                _lastDetectedZone.Y != playerZone.Y ||
-                                timeSinceLastChange > 2.0) // Allow re-processing after 2 seconds
+                                _lastDetectedZone.Y != playerZone.Y)
                             {
                                 _lastZoneChangeTime = now;
                                 _lastDetectedZone = playerZone;
@@ -545,14 +554,8 @@ public class GranvilleRpcGameClientService : IDisposable
                                 _logger.LogInformation("[CLIENT_ZONE_CHANGE] Player moved from zone ({OldX},{OldY}) to ({NewX},{NewY}) at position {Position}", 
                                     _currentZone.X, _currentZone.Y, playerZone.X, playerZone.Y, playerEntity.Position);
                                 
-                                // Immediately check for server transition
-                                _ = Task.Run(async () => {
-                                    try {
-                                        await CheckForServerTransition();
-                                    } catch (Exception ex) {
-                                        _logger.LogError(ex, "Failed to check for server transition after zone change");
-                                    }
-                                });
+                                // Schedule server transition check (don't use Task.Run in hot path)
+                                _ = CheckForServerTransition();
                             }
                             else
                             {
@@ -656,7 +659,39 @@ public class GranvilleRpcGameClientService : IDisposable
     
     private async Task CheckForServerTransition()
     {
-        if (string.IsNullOrEmpty(PlayerId) || _isTransitioning)
+        // Prevent multiple simultaneous transition attempts
+        lock (_transitionLock)
+        {
+            if (string.IsNullOrEmpty(PlayerId) || _isTransitioning)
+            {
+                return;
+            }
+            
+            var now = DateTime.UtcNow;
+            _lastTransitionAttempt = now;
+            _transitionAttempts++;
+            _isTransitioning = true;
+        }
+        
+        try
+        {
+            _logger.LogDebug("[ZONE_TRANSITION] Attempt #{Attempts} for player {PlayerId}", _transitionAttempts, PlayerId);
+            
+            await CheckForServerTransitionInternal();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ZONE_TRANSITION] Error in transition attempt #{Attempts}", _transitionAttempts);
+        }
+        finally
+        {
+            _isTransitioning = false;
+        }
+    }
+    
+    private async Task CheckForServerTransitionInternal()
+    {
+        if (string.IsNullOrEmpty(PlayerId))
         {
             return;
         }
@@ -753,7 +788,7 @@ public class GranvilleRpcGameClientService : IDisposable
         _currentZone = serverInfo.AssignedSquare;
         
         // Mark zone as visited
-        _visitedZones.Add($"{serverInfo.AssignedSquare.X},{serverInfo.AssignedSquare.Y}");
+        TrackVisitedZone($"{serverInfo.AssignedSquare.X},{serverInfo.AssignedSquare.Y}");
         
         // Create new cancellation token source for the new connection
         _cancellationTokenSource = new CancellationTokenSource();
@@ -765,25 +800,41 @@ public class GranvilleRpcGameClientService : IDisposable
         
         if (_preEstablishedConnections.TryGetValue(connectionKey, out var preEstablished) && preEstablished.IsConnected)
         {
-            // Verify the connection is still alive by attempting a simple operation
+            // Verify the connection is still alive by attempting a simple operation with retry
             bool connectionStillValid = false;
-            try
+            int maxRetries = 2;
+            
+            for (int attempt = 0; attempt < maxRetries && !connectionStillValid; attempt++)
             {
-                _logger.LogInformation("[ZONE_TRANSITION] Testing pre-established connection for zone {Key}", connectionKey);
-                var testState = await preEstablished.GameGrain!.GetWorldState();
-                connectionStillValid = true;
-                _logger.LogInformation("[ZONE_TRANSITION] Pre-established connection test successful");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("[ZONE_TRANSITION] Pre-established connection for zone {Key} is no longer valid: {Error}", 
-                    connectionKey, ex.Message);
-                preEstablished.IsConnected = false;
+                try
+                {
+                    _logger.LogInformation("[ZONE_TRANSITION] Testing pre-established connection for zone {Key} (attempt {Attempt}/{Max})", 
+                        connectionKey, attempt + 1, maxRetries);
+                    var testState = await preEstablished.GameGrain!.GetWorldState();
+                    connectionStillValid = true;
+                    _logger.LogInformation("[ZONE_TRANSITION] Pre-established connection test successful");
+                }
+                catch (Exception ex)
+                {
+                    if (attempt < maxRetries - 1)
+                    {
+                        _logger.LogWarning("[ZONE_TRANSITION] Connection test failed for zone {Key}, retrying: {Error}", 
+                            connectionKey, ex.Message);
+                        await Task.Delay(100); // Short delay before retry
+                    }
+                    else
+                    {
+                        _logger.LogWarning("[ZONE_TRANSITION] Pre-established connection for zone {Key} is no longer valid after {Attempts} attempts: {Error}", 
+                            connectionKey, maxRetries, ex.Message);
+                        preEstablished.IsConnected = false;
+                    }
+                }
             }
             
             if (connectionStillValid)
             {
                 _logger.LogInformation("[ZONE_TRANSITION] Using pre-established connection for zone {Key}", connectionKey);
+                preEstablished.LastUsedTime = DateTime.UtcNow;
                 
                 _rpcHost = preEstablished.RpcHost;
                 _rpcClient = preEstablished.RpcClient;
@@ -971,9 +1022,9 @@ public class GranvilleRpcGameClientService : IDisposable
         }
         
         // Restart timers with minimal initial delay for smooth transition
-        _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(16));
+        _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(33)); // Reduced from 16ms to 33ms (30 FPS)
         _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
-        _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(2));
+        _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(10));
         
         // Restart chat polling if it was active
         if (_observer == null)
@@ -1053,8 +1104,8 @@ public class GranvilleRpcGameClientService : IDisposable
                 else if (playerEntity.Position.Y > max.Y)
                     distToZone = Math.Max(distToZone, playerEntity.Position.Y - max.Y);
                 
-                // Include zones within 150 units
-                if (distToZone <= 150)
+                // Include zones within connection creation distance
+                if (distToZone <= CONNECTION_CREATE_DISTANCE)
                 {
                     zonesWithinRange.Add(zone);
                     _logger.LogDebug("Zone ({X},{Y}) is within range - distance: {Distance} units", 
@@ -1090,14 +1141,70 @@ public class GranvilleRpcGameClientService : IDisposable
                 }
             }
             
-            // Clean up connections to zones that are out of range
-            var validKeys = zonesWithinRange.Select(z => $"{z.X},{z.Y}").ToHashSet();
-            validKeys.Add($"{_currentZone.X},{_currentZone.Y}"); // Always keep current zone connection
+            // Check if player is actively moving
+            var playerSpeed = 0f;
+            if (playerEntity != null)
+            {
+                playerSpeed = (float)Math.Sqrt(playerEntity.Velocity.X * playerEntity.Velocity.X + 
+                                              playerEntity.Velocity.Y * playerEntity.Velocity.Y);
+            }
             
-            var keysToRemove = _preEstablishedConnections
-                .Where(kvp => !validKeys.Contains(kvp.Key))
-                .Select(kvp => kvp.Key)
-                .ToList();
+            // Skip cleanup if player is moving fast (threshold: 50 units/sec)
+            if (playerSpeed > 50f)
+            {
+                _logger.LogDebug("Skipping connection cleanup - player is actively moving at {Speed} units/sec", playerSpeed);
+                return;
+            }
+            
+            // Clean up connections based on hysteresis distance and last used time
+            var now = DateTime.UtcNow;
+            var connectionTimeout = TimeSpan.FromSeconds(30); // Keep connections alive for 30 seconds after last use
+            
+            // Calculate which connections are beyond disposal distance
+            var keysToRemove = new List<string>();
+            foreach (var kvp in _preEstablishedConnections)
+            {
+                // Never remove current zone
+                if (kvp.Key == $"{_currentZone.X},{_currentZone.Y}")
+                    continue;
+                
+                // Never remove recently visited zones
+                if (_recentlyVisitedZones.Any(z => z.zoneKey == kvp.Key))
+                {
+                    _logger.LogTrace("Skipping cleanup of recently visited zone {Key}", kvp.Key);
+                    continue;
+                }
+                
+                // Parse zone coordinates
+                var parts = kvp.Key.Split(',');
+                if (parts.Length != 2 || !int.TryParse(parts[0], out var zoneX) || !int.TryParse(parts[1], out var zoneY))
+                    continue;
+                
+                var zone = new GridSquare { X = zoneX, Y = zoneY };
+                var (min, max) = zone.GetBounds();
+                
+                // Calculate distance from player to zone
+                float distToZone = 0;
+                
+                if (playerEntity.Position.X < min.X)
+                    distToZone = Math.Max(distToZone, min.X - playerEntity.Position.X);
+                else if (playerEntity.Position.X > max.X)
+                    distToZone = Math.Max(distToZone, playerEntity.Position.X - max.X);
+                
+                if (playerEntity.Position.Y < min.Y)
+                    distToZone = Math.Max(distToZone, min.Y - playerEntity.Position.Y);
+                else if (playerEntity.Position.Y > max.Y)
+                    distToZone = Math.Max(distToZone, playerEntity.Position.Y - max.Y);
+                
+                // Remove if beyond disposal distance AND hasn't been used recently
+                if (distToZone > CONNECTION_DISPOSE_DISTANCE && 
+                    (now - kvp.Value.LastUsedTime) > connectionTimeout)
+                {
+                    keysToRemove.Add(kvp.Key);
+                    _logger.LogDebug("Marking connection {Key} for removal - distance: {Distance}, last used: {LastUsed}s ago", 
+                        kvp.Key, distToZone, (now - kvp.Value.LastUsedTime).TotalSeconds);
+                }
+            }
             
             if (keysToRemove.Count > 0)
             {
@@ -1110,10 +1217,9 @@ public class GranvilleRpcGameClientService : IDisposable
                 _preEstablishedConnections.Count, 
                 string.Join(", ", _preEstablishedConnections.Select(kvp => $"{kvp.Key}:{(kvp.Value.IsConnected ? "OK" : "DEAD")}")));
             
-            foreach (var key in keysToRemove)
-            {
-                await CleanupPreEstablishedConnection(key);
-            }
+            // Run cleanup operations in parallel for better performance
+            var cleanupTasks = keysToRemove.Select(key => CleanupPreEstablishedConnection(key));
+            await Task.WhenAll(cleanupTasks);
             
             // Notify about ALL pre-established connections
             var allConnectionStatus = new Dictionary<string, (bool isConnected, bool isNeighbor, bool isConnecting)>();
@@ -1204,17 +1310,36 @@ public class GranvilleRpcGameClientService : IDisposable
         {
             if (_preEstablishedConnections.TryGetValue(key, out var connection))
             {
-                try
+                // Try health check with retry
+                bool healthCheckPassed = false;
+                int maxRetries = 2;
+                
+                for (int attempt = 0; attempt < maxRetries && !healthCheckPassed; attempt++)
                 {
-                    // Send a lightweight request to check if connection is alive
-                    var zones = await connection.GameGrain!.GetAvailableZones();
-                    connection.IsConnected = true;
-                    connection.EstablishedAt = DateTime.UtcNow; // Update last successful check time
+                    try
+                    {
+                        // Send a lightweight request to check if connection is alive
+                        var zones = await connection.GameGrain!.GetAvailableZones();
+                        connection.IsConnected = true;
+                        connection.EstablishedAt = DateTime.UtcNow; // Update last successful check time
+                        connection.LastUsedTime = DateTime.UtcNow;
+                        healthCheckPassed = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (attempt < maxRetries - 1)
+                        {
+                            _logger.LogDebug("Pre-established connection {Key} health check failed, retrying: {Error}", key, ex.Message);
+                            await Task.Delay(50); // Short delay before retry
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Pre-established connection {Key} health check failed after {Attempts} attempts: {Error}", 
+                                key, maxRetries, ex.Message);
+                            connection.IsConnected = false;
+                        }
+                    }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning("Pre-established connection {Key} health check failed: {Error}", key, ex.Message);
-                    connection.IsConnected = false;
                     
                     // If it's been disconnected for too long, remove it
                     if ((DateTime.UtcNow - connection.EstablishedAt).TotalMinutes > 1)
@@ -1245,6 +1370,7 @@ public class GranvilleRpcGameClientService : IDisposable
             {
                 ServerInfo = serverInfo,
                 EstablishedAt = DateTime.UtcNow,
+                LastUsedTime = DateTime.UtcNow,
                 IsConnected = false,
                 IsConnecting = true
             };
@@ -1420,6 +1546,23 @@ public class GranvilleRpcGameClientService : IDisposable
         }
     }
     
+    private void TrackVisitedZone(string zoneKey)
+    {
+        _visitedZones.Add(zoneKey);
+        
+        // Add to recently visited zones
+        _recentlyVisitedZones.Enqueue((zoneKey, DateTime.UtcNow));
+        
+        // Keep only the last 5 visited zones
+        while (_recentlyVisitedZones.Count > 5)
+        {
+            _recentlyVisitedZones.Dequeue();
+        }
+        
+        _logger.LogDebug("Tracked visit to zone {Zone}. Recent zones: {RecentZones}", 
+            zoneKey, string.Join(", ", _recentlyVisitedZones.Select(z => z.zoneKey)));
+    }
+    
     private async Task<List<EntityState>> FetchAdjacentZoneEntities()
     {
         var adjacentEntities = new List<EntityState>();
@@ -1513,6 +1656,7 @@ public class GranvilleRpcGameClientService : IDisposable
                     
                     // Use GetLocalWorldState to avoid recursive fetching on the server
                     var worldState = await connection.GameGrain.GetLocalWorldState();
+                    connection.LastUsedTime = DateTime.UtcNow;
                     if (worldState?.Entities != null && _currentZone != null)
                     {
                         // Get bounds of current zone for filtering
@@ -1823,6 +1967,7 @@ internal class PreEstablishedConnection
     public IGameRpcGrain? GameGrain { get; set; }
     public Shooter.Shared.Models.ActionServerInfo ServerInfo { get; set; } = null!;
     public DateTime EstablishedAt { get; set; }
+    public DateTime LastUsedTime { get; set; }
     public bool IsConnected { get; set; }
     public bool IsConnecting { get; set; }
 }

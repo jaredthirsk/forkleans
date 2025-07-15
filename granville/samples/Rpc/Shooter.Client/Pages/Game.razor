@@ -19,26 +19,50 @@
     {
         <div class="connection-form">
             <h2>Enter Game</h2>
-            <input @bind="_playerName" placeholder="Enter your name" />
-            <div class="engine-buttons">
-                <button @onclick="() => ConnectToGame(true)" disabled="@_isConnecting" class="engine-btn phaser-btn">
-                    @if (_isConnecting && _usePhaser)
+            <input @bind="_playerName" @oninput="OnPlayerNameChanged" placeholder="Enter your name" />
+            
+            <div class="client-type-selection">
+                <label for="clientType">Client Type:</label>
+                <select id="clientType" @bind="_selectedClientType" @bind:after="OnClientTypeChanged" class="client-type-dropdown">
+                    <option value="phaser">Phaser</option>
+                    <option value="canvas">Canvas</option>
+                </select>
+            </div>
+            
+            <div class="auto-join-section">
+                <label class="auto-join-checkbox">
+                    <input type="checkbox" @bind="_autoJoinEnabled" @bind:after="OnAutoJoinChanged" />
+                    <span>Auto-join in 5 seconds</span>
+                </label>
+                @if (_autoJoinEnabled && _countdownSeconds > 0)
+                {
+                    <div class="countdown">Auto-joining in @_countdownSeconds seconds...</div>
+                }
+                @if (_autoJoinRetrying)
+                {
+                    <div class="retry-status">
+                        Retry #@_autoJoinRetryCount - @((int)(120 - (DateTime.UtcNow - _autoJoinRetryStartTime).TotalSeconds))s remaining
+                    </div>
+                }
+            </div>
+            
+            <div class="join-button-section">
+                <button @onclick="JoinGame" disabled="@_isConnecting" class="engine-btn join-btn">
+                    @if (_isConnecting)
                     {
                         <span>Connecting...</span>
                     }
-                    else
+                    else if (_autoJoinRetrying)
                     {
-                        <span>Join with Phaser</span>
+                        <span>Retry #@_autoJoinRetryCount (Stop Auto-Join)</span>
                     }
-                </button>
-                <button @onclick="() => ConnectToGame(false)" disabled="@_isConnecting" class="engine-btn canvas-btn">
-                    @if (_isConnecting && !_usePhaser)
+                    else if (_autoJoinEnabled && _countdownSeconds > 0)
                     {
-                        <span>Connecting...</span>
+                        <span>Join Now (@_countdownSeconds...)</span>
                     }
                     else
                     {
-                        <span>Join with Canvas</span>
+                        <span>Join Game</span>
                     }
                 </button>
             </div>
@@ -63,7 +87,7 @@
                 }
                 else
                 {
-                    <GameCanvas Width="1200" Height="800" 
+                    <GameCanvas Width="@GetCanvasWidth()" Height="@GetCanvasHeight()" 
                                WorldState="@_currentWorldState" 
                                PlayerId="@_playerId"
                                ServerId="@_currentServerId"
@@ -72,6 +96,8 @@
                                OnMouseRightClick="HandleMouseRightClick"
                                OnMouseRelease="HandleMouseRelease" />
                 }
+                
+                <StatusBar WarningMessage="@_debugInfo" />
                 
                 <div class="game-bottom-panel">
                     <GameChat Messages="@_chatMessages" OnSendMessage="HandleChatMessage" />
@@ -87,7 +113,6 @@
                     Fps="@_fps"
                     WorldState="@_currentWorldState"
                     ServerId="@_currentServerZone"
-                    DebugInfo="@_debugInfo"
                     ServerFps="@_serverFps"
                     ActionServersConnected="@_serverZoneMap.Count"
                     CurrentSilo="@_currentSilo"
@@ -132,14 +157,69 @@
         border-radius: 4px;
     }
     
-    .engine-buttons {
+    .client-type-selection {
+        margin: 20px 0;
+    }
+    
+    .client-type-selection label {
+        display: block;
+        margin-bottom: 8px;
+        color: #888;
+        font-size: 14px;
+    }
+    
+    .client-type-dropdown {
+        width: 100%;
+        padding: 10px;
+        background-color: #333;
+        border: 1px solid #444;
+        color: white;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    
+    .auto-join-section {
+        margin: 20px 0;
+        text-align: center;
+    }
+    
+    .auto-join-checkbox {
         display: flex;
-        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        color: #888;
+        font-size: 14px;
+    }
+    
+    .auto-join-checkbox input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+    
+    .countdown {
+        margin-top: 10px;
+        color: #ff9800;
+        font-weight: bold;
+        font-size: 16px;
+    }
+    
+    .retry-status {
+        margin-top: 10px;
+        color: #2196F3;
+        font-weight: bold;
+        font-size: 14px;
+        text-align: center;
+    }
+    
+    .join-button-section {
         margin-top: 20px;
     }
     
     .engine-btn {
-        flex: 1;
+        width: 100%;
         padding: 12px;
         color: white;
         border: none;
@@ -149,22 +229,11 @@
         transition: all 0.3s ease;
     }
     
-    .canvas-btn {
-        background-color: transparent;
-        color: #2196F3;
-        border: 2px solid #2196F3;
-    }
-    
-    .canvas-btn:hover:not(:disabled) {
-        background-color: #2196F3;
-        color: white;
-    }
-    
-    .phaser-btn {
+    .join-btn {
         background-color: #9C27B0;
     }
     
-    .phaser-btn:hover:not(:disabled) {
+    .join-btn:hover:not(:disabled) {
         background-color: #7B1FA2;
     }
     
@@ -186,23 +255,78 @@
     .game-layout {
         display: flex;
         gap: 20px;
+        max-width: 100%;
+        overflow-x: auto;
     }
     
     .game-main {
         display: flex;
         flex-direction: column;
         gap: 10px;
+        min-width: 0; /* Allow shrinking */
+        flex: 1;
     }
     
     .game-bottom-panel {
-        width: 1200px;
+        width: 100%;
+        max-width: 1200px;
         height: 200px;
+        min-width: 320px;
     }
     
     .game-sidebar {
         display: flex;
         flex-direction: column;
         gap: 20px;
+        flex-shrink: 0; /* Prevent sidebar from shrinking */
+        min-width: 200px; /* Minimum sidebar width */
+    }
+    
+    /* Responsive layout for Game.razor */
+    @@media (max-width: 1400px) {
+        .game-layout {
+            gap: 15px;
+        }
+        
+        .game-sidebar {
+            min-width: 180px;
+        }
+    }
+    
+    @@media (max-width: 1200px) {
+        .game-layout {
+            gap: 10px;
+        }
+        
+        .game-sidebar {
+            min-width: 160px;
+        }
+    }
+    
+    @@media (max-width: 900px) {
+        .game-layout {
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .game-sidebar {
+            min-width: 0;
+            width: 100%;
+        }
+        
+        .game-bottom-panel {
+            height: 150px; /* Smaller chat on mobile */
+        }
+    }
+    
+    @@media (max-width: 640px) {
+        .game-layout {
+            gap: 15px;
+        }
+        
+        .game-bottom-panel {
+            height: 120px; /* Even smaller chat on mobile */
+        }
     }
     
     
@@ -253,7 +377,15 @@
     private float _currentSpeed = 1.0f;
     private Vector2 _shootDirection = Vector2.Zero;
     private bool _isMoving = false;
-    private bool _usePhaser = false; // Default to Canvas renderer
+    private bool _usePhaser = true; // Default to Phaser renderer
+    private string _selectedClientType = "phaser"; // Default to Phaser
+    private bool _autoJoinEnabled = false;
+    private int _countdownSeconds = 0;
+    private System.Timers.Timer? _countdownTimer;
+    private bool _autoJoinRetrying = false;
+    private int _autoJoinRetryCount = 0;
+    private DateTime _autoJoinRetryStartTime = DateTime.MinValue;
+    private System.Timers.Timer? _autoJoinRetryTimer;
     private string? _debugInfo = null;
     private System.Timers.Timer? _serverMappingTimer;
     private bool _autoMove = false;
@@ -316,6 +448,26 @@
                 {
                     _autoShoot = autoShoot;
                 }
+                
+                // Load client type and auto-join settings
+                var clientTypeStr = await JS.InvokeAsync<string>("localStorage.getItem", "clientType");
+                if (!string.IsNullOrEmpty(clientTypeStr))
+                {
+                    _selectedClientType = clientTypeStr;
+                    _usePhaser = clientTypeStr == "phaser";
+                }
+                
+                var autoJoinStr = await JS.InvokeAsync<string>("localStorage.getItem", "autoJoin");
+                if (!string.IsNullOrEmpty(autoJoinStr) && bool.TryParse(autoJoinStr, out var autoJoin))
+                {
+                    _autoJoinEnabled = autoJoin;
+                }
+                
+                // Start auto-join countdown if enabled and player name is set
+                if (_autoJoinEnabled && !string.IsNullOrEmpty(_playerName))
+                {
+                    StartAutoJoinCountdown();
+                }
             }
             catch (Exception ex)
             {
@@ -324,7 +476,7 @@
         }
     }
     
-    private async Task ConnectToGame(bool usePhaser)
+    private async Task JoinGame()
     {
         if (string.IsNullOrWhiteSpace(_playerName))
         {
@@ -332,6 +484,30 @@
             return;
         }
         
+        // If retrying, stop the retry process
+        if (_autoJoinRetrying)
+        {
+            StopAutoJoinRetry();
+            _errorMessage = "Auto-join retry stopped";
+            StateHasChanged();
+            return;
+        }
+        
+        // Stop countdown and retry timers if running
+        StopAutoJoinCountdown();
+        StopAutoJoinRetry();
+        
+        // Save client type preference
+        await JS.InvokeVoidAsync("localStorage.setItem", "clientType", _selectedClientType);
+        
+        // Set _usePhaser based on selected client type
+        _usePhaser = _selectedClientType == "phaser";
+        
+        await ConnectToGame(_usePhaser);
+    }
+    
+    private async Task ConnectToGame(bool usePhaser)
+    {
         _isConnecting = true;
         _errorMessage = "";
         _usePhaser = usePhaser;
@@ -348,6 +524,9 @@
                 _playerId = RpcGameClient.PlayerId ?? string.Empty;
                 _currentServerId = RpcGameClient.CurrentServerId ?? "Unknown";
                 _isConnected = true;
+                
+                // Stop auto-join retry on successful connection
+                StopAutoJoinRetry();
                 
                 _logger.LogInformation("[GAME_CONNECT] RpcGameClient instance {InstanceId} - Connected with playerId: {PlayerId}", 
                     RpcGameClient.GetHashCode(), _playerId);
@@ -370,15 +549,108 @@
             else
             {
                 _errorMessage = "Failed to connect to game server";
+                
+                // Start auto-join retry if enabled
+                if (_autoJoinEnabled && !_autoJoinRetrying)
+                {
+                    StartAutoJoinRetry();
+                }
             }
         }
         catch (Exception ex)
         {
             _errorMessage = $"Connection error: {ex.Message}";
+            
+            // Start auto-join retry if enabled
+            if (_autoJoinEnabled && !_autoJoinRetrying)
+            {
+                StartAutoJoinRetry();
+            }
         }
         finally
         {
             _isConnecting = false;
+        }
+    }
+    
+    private void StartAutoJoinCountdown()
+    {
+        if (string.IsNullOrWhiteSpace(_playerName))
+        {
+            return; // Don't start countdown if no name
+        }
+        
+        StopAutoJoinCountdown(); // Stop any existing countdown
+        
+        _countdownSeconds = 4; // 3.5 seconds + 0.5 for first display
+        _countdownTimer = new System.Timers.Timer(1000); // 1 second interval
+        _countdownTimer.Elapsed += async (sender, e) =>
+        {
+            _countdownSeconds--;
+            await InvokeAsync(StateHasChanged);
+            
+            if (_countdownSeconds <= 0)
+            {
+                StopAutoJoinCountdown();
+                await InvokeAsync(async () =>
+                {
+                    if (!_isConnecting && !_isConnected && !string.IsNullOrWhiteSpace(_playerName))
+                    {
+                        await JoinGame();
+                    }
+                });
+            }
+        };
+        _countdownTimer.Start();
+        StateHasChanged();
+    }
+    
+    private void StopAutoJoinCountdown()
+    {
+        _countdownTimer?.Stop();
+        _countdownTimer?.Dispose();
+        _countdownTimer = null;
+        _countdownSeconds = 0;
+    }
+    
+    private void OnAutoJoinChanged()
+    {
+        // Save auto-join preference
+        _ = JS.InvokeVoidAsync("localStorage.setItem", "autoJoin", _autoJoinEnabled.ToString());
+        
+        if (_autoJoinEnabled)
+        {
+            StartAutoJoinCountdown();
+        }
+        else
+        {
+            StopAutoJoinCountdown();
+        }
+    }
+    
+    private void OnClientTypeChanged()
+    {
+        // Save client type preference
+        _ = JS.InvokeVoidAsync("localStorage.setItem", "clientType", _selectedClientType);
+        _usePhaser = _selectedClientType == "phaser";
+    }
+    
+    private async Task OnPlayerNameChanged(ChangeEventArgs e)
+    {
+        _playerName = e.Value?.ToString() ?? "";
+        
+        // Save player name to localStorage
+        await JS.InvokeVoidAsync("localStorage.setItem", "playerName", _playerName);
+        
+        // Start auto-join countdown if enabled and name is not empty
+        if (_autoJoinEnabled && !string.IsNullOrWhiteSpace(_playerName))
+        {
+            StartAutoJoinCountdown();
+        }
+        else if (_autoJoinEnabled && string.IsNullOrWhiteSpace(_playerName))
+        {
+            // Stop countdown if name is cleared
+            StopAutoJoinCountdown();
         }
     }
     
@@ -932,10 +1204,95 @@
         }
     }
     
+    private void StartAutoJoinRetry()
+    {
+        if (_autoJoinRetrying) return;
+        
+        _autoJoinRetrying = true;
+        _autoJoinRetryCount = 0;
+        _autoJoinRetryStartTime = DateTime.UtcNow;
+        
+        _logger.LogInformation("[AUTO_JOIN_RETRY] Starting auto-join retry process");
+        
+        // Start retry timer - retry every 10 seconds
+        _autoJoinRetryTimer = new System.Timers.Timer(10000); // 10 seconds
+        _autoJoinRetryTimer.Elapsed += async (sender, e) =>
+        {
+            var elapsedTime = DateTime.UtcNow - _autoJoinRetryStartTime;
+            
+            // Stop retrying after 2 minutes
+            if (elapsedTime.TotalMinutes >= 2)
+            {
+                _logger.LogInformation("[AUTO_JOIN_RETRY] Giving up after 2 minutes, {RetryCount} attempts", _autoJoinRetryCount);
+                StopAutoJoinRetry();
+                await InvokeAsync(() =>
+                {
+                    _errorMessage = $"Auto-join failed after {_autoJoinRetryCount} attempts over 2 minutes";
+                    StateHasChanged();
+                });
+                return;
+            }
+            
+            // Don't retry if already connected or connecting
+            if (_isConnected || _isConnecting)
+            {
+                StopAutoJoinRetry();
+                return;
+            }
+            
+            _autoJoinRetryCount++;
+            _logger.LogInformation("[AUTO_JOIN_RETRY] Attempt #{RetryCount} (elapsed: {ElapsedMinutes:F1}m)", 
+                _autoJoinRetryCount, elapsedTime.TotalMinutes);
+            
+            await InvokeAsync(async () =>
+            {
+                _errorMessage = $"Auto-join retry #{_autoJoinRetryCount} - {(int)(120 - elapsedTime.TotalSeconds)}s remaining";
+                StateHasChanged();
+                await ConnectToGame(_usePhaser);
+            });
+        };
+        _autoJoinRetryTimer.Start();
+        
+        // Initial retry message
+        _errorMessage = $"Auto-join retry #1 - 120s remaining";
+        StateHasChanged();
+    }
+    
+    private void StopAutoJoinRetry()
+    {
+        if (!_autoJoinRetrying) return;
+        
+        _autoJoinRetryTimer?.Stop();
+        _autoJoinRetryTimer?.Dispose();
+        _autoJoinRetryTimer = null;
+        _autoJoinRetrying = false;
+        _autoJoinRetryCount = 0;
+        _autoJoinRetryStartTime = DateTime.MinValue;
+        
+        _logger.LogInformation("[AUTO_JOIN_RETRY] Stopped auto-join retry process");
+    }
+    
+    private int GetCanvasWidth()
+    {
+        // Return responsive width that adapts to screen size
+        // Default to 800px but can be smaller on narrow screens
+        return 800;
+    }
+    
+    private int GetCanvasHeight()
+    {
+        // Return responsive height that maintains aspect ratio
+        // Default to 600px but can be smaller on narrow screens
+        return 600;
+    }
+    
     public void Dispose()
     {
         _serverMappingTimer?.Stop();
         _serverMappingTimer?.Dispose();
+        
+        StopAutoJoinCountdown();
+        StopAutoJoinRetry();
         
         // Unsubscribe from RPC events
         RpcGameClient.WorldStateUpdated -= OnWorldStateUpdated;

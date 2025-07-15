@@ -72,7 +72,15 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
                 var elapsed = sw.Elapsed;
                 if (elapsed < updateInterval)
                 {
-                    await Task.Delay(updateInterval - elapsed, cancellationToken);
+                    try
+                    {
+                        await Task.Delay(updateInterval - elapsed, cancellationToken);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        // Expected when cancellation is requested - break out of loop
+                        break;
+                    }
                 }
             }
             
@@ -85,7 +93,15 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
             // Reliable messages have slightly higher latency due to ACKs
             var baseLatency = isReliable ? 5 : 3;
             var latency = _random.NextDouble() * 10 + baseLatency;
-            await Task.Delay(TimeSpan.FromMilliseconds(latency), cancellationToken);
+            try
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(latency), cancellationToken);
+            }
+            catch (TaskCanceledException)
+            {
+                // Re-throw cancellation exceptions so they can be handled by the caller
+                throw;
+            }
             
             // Unreliable messages have higher packet loss
             var lossRate = isReliable ? 0.001 : 0.02; // 0.1% vs 2%

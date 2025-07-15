@@ -1,0 +1,68 @@
+﻿@if (!string.IsNullOrEmpty(WarningMessage))
+{
+    <div class="status-bar warning">
+        <div class="warning-content">
+            <svg class="warning-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span class="warning-text">@WarningMessage</span>
+        </div>
+    </div>
+}
+
+<style>
+    .status-bar {
+        width: 100%;
+        padding: 8px 16px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px;
+        min-height: 32px;
+        box-sizing: border-box;
+    }
+    
+    .status-bar.warning {
+        background-color: rgba(255, 193, 7, 0.15);
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        color: #ffc107;
+    }
+    
+    .warning-content {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .warning-icon {
+        flex-shrink: 0;
+        opacity: 0.9;
+    }
+    
+    .warning-text {
+        line-height: 1.2;
+    }
+    
+    /* Make the status bar responsive */
+    @@media (max-width: 768px) {
+        .status-bar {
+            padding: 6px 12px;
+            font-size: 13px;
+            min-height: 28px;
+        }
+        
+        .warning-icon {
+            width: 14px;
+            height: 14px;
+        }
+    }
+</style>
+
+@code {
+    [Parameter] public string? WarningMessage { get; set; }
+}

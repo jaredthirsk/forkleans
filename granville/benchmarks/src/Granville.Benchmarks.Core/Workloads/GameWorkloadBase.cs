@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Granville.Benchmarks.Core.Metrics;
@@ -30,16 +31,18 @@ namespace Granville.Benchmarks.Core.Workloads
         
         public virtual async Task<WorkloadResult> RunAsync(MetricsCollector metricsCollector, CancellationToken cancellationToken)
         {
+            using var clientCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            
             try
             {
                 _logger.LogInformation("Starting workload {Name}", Name);
                 metricsCollector.Start();
                 
-                // Create client tasks
+                // Create client tasks with their own cancellation token
                 for (int i = 0; i < _configuration.ClientCount; i++)
                 {
                     var clientId = i;
-                    var clientTask = RunClientAsync(clientId, metricsCollector, cancellationToken);
+                    var clientTask = RunClientAsync(clientId, metricsCollector, clientCts.Token);
                     _clientTasks.Add(clientTask);
                 }
                 
@@ -51,10 +54,23 @@ namespace Granville.Benchmarks.Core.Workloads
                 if (completedTask == delayTask)
                 {
                     _logger.LogInformation("Workload duration reached, stopping clients");
+                    clientCts.Cancel(); // Actually cancel the client tasks
                 }
                 
-                // Wait for all clients to complete
-                await Task.WhenAll(_clientTasks);
+                // Wait for all clients to complete (with timeout to avoid hanging)
+                try
+                {
+                    await Task.WhenAll(_clientTasks).WaitAsync(TimeSpan.FromSeconds(30));
+                }
+                catch (TimeoutException)
+                {
+                    _logger.LogWarning("Timeout waiting for clients to stop, continuing anyway");
+                }
+                catch (TaskCanceledException)
+                {
+                    // TaskCanceledException is expected when clients are cancelled - this is normal completion
+                    _logger.LogDebug("Client tasks cancelled successfully");
+                }
                 
                 var metrics = metricsCollector.GetMetrics(
                     Name, 

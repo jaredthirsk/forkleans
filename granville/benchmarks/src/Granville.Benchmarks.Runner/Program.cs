@@ -17,6 +17,13 @@ namespace Granville.Benchmarks.Runner
                 {
                     config.AddJsonFile("appsettings.json", optional: false);
                     config.AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true);
+                    
+                    // Support custom configuration files passed as command line arguments
+                    if (args.Length > 0 && args[0].EndsWith(".json"))
+                    {
+                        config.AddJsonFile(args[0], optional: false);
+                    }
+                    
                     config.AddCommandLine(args);
                 })
                 .ConfigureServices((context, services) =>

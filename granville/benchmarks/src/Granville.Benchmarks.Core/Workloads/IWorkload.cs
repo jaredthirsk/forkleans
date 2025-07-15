@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Granville.Benchmarks.Core.Metrics;
@@ -23,6 +25,21 @@ namespace Granville.Benchmarks.Core.Workloads
         public bool UseReliableTransport { get; set; } = true;
         public string TransportType { get; set; } = "LiteNetLib";
         public Dictionary<string, object> CustomSettings { get; set; } = new();
+        
+        /// <summary>
+        /// When true, use actual network calls instead of simulation delays
+        /// </summary>
+        public bool UseRawTransport { get; set; } = false;
+        
+        /// <summary>
+        /// Server host for raw transport benchmarks
+        /// </summary>
+        public string ServerHost { get; set; } = "127.0.0.1";
+        
+        /// <summary>
+        /// Server port for raw transport benchmarks
+        /// </summary>
+        public int ServerPort { get; set; } = 12345;
     }
     
     public class WorkloadResult

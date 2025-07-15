@@ -1,5 +1,7 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Engines;
 using System.Diagnostics;
 
 namespace Granville.Benchmarks.Micro.Benchmarks
@@ -7,6 +9,7 @@ namespace Granville.Benchmarks.Micro.Benchmarks
     [SimpleJob(RuntimeMoniker.Net80)]
     [MemoryDiagnoser]
     [ThreadingDiagnoser]
+    [MinIterationTime(100)] // Ensure minimum 100ms per iteration to avoid warnings
     public class RpcLatencyBenchmark
     {
         private readonly byte[] _smallPayload = new byte[100];
@@ -32,43 +35,79 @@ namespace Granville.Benchmarks.Micro.Benchmarks
         }
         
         [Benchmark(Baseline = true)]
+        [OperationsPerInvoke(1000)] // Run 1,000 operations per invocation for async benchmarks
         public async Task<byte[]> SmallPayload_Simulation()
         {
-            // Simulate network round-trip with minimal overhead
-            await Task.Yield();
-            return SimulateNetworkTransfer(_smallPayload);
+            byte[] result = null;
+            for (int i = 0; i < 1000; i++)
+            {
+                // Simulate network round-trip with minimal overhead
+                await Task.Yield();
+                result = SimulateNetworkTransfer(_smallPayload);
+            }
+            return result;
         }
         
         [Benchmark]
+        [OperationsPerInvoke(1000)] // Run 1,000 operations per invocation for async benchmarks
         public async Task<byte[]> MediumPayload_Simulation()
         {
-            await Task.Yield();
-            return SimulateNetworkTransfer(_mediumPayload);
+            byte[] result = null;
+            for (int i = 0; i < 1000; i++)
+            {
+                await Task.Yield();
+                result = SimulateNetworkTransfer(_mediumPayload);
+            }
+            return result;
         }
         
         [Benchmark]
+        [OperationsPerInvoke(1000)] // Run 1,000 operations per invocation for async benchmarks
         public async Task<byte[]> LargePayload_Simulation()
         {
-            await Task.Yield();
-            return SimulateNetworkTransfer(_largePayload);
+            byte[] result = null;
+            for (int i = 0; i < 1000; i++)
+            {
+                await Task.Yield();
+                result = SimulateNetworkTransfer(_largePayload);
+            }
+            return result;
         }
         
         [Benchmark]
+        [OperationsPerInvoke(10000)] // Run 10,000 operations per invocation to increase iteration time
         public byte[] SmallPayload_SerializationOnly()
         {
-            return SimulateSerializationRoundtrip(_smallPayload);
+            byte[] result = null;
+            for (int i = 0; i < 10000; i++)
+            {
+                result = SimulateSerializationRoundtrip(_smallPayload);
+            }
+            return result;
         }
         
         [Benchmark]
+        [OperationsPerInvoke(5000)] // Run 5,000 operations per invocation for medium payload
         public byte[] MediumPayload_SerializationOnly()
         {
-            return SimulateSerializationRoundtrip(_mediumPayload);
+            byte[] result = null;
+            for (int i = 0; i < 5000; i++)
+            {
+                result = SimulateSerializationRoundtrip(_mediumPayload);
+            }
+            return result;
         }
         
         [Benchmark]
+        [OperationsPerInvoke(1000)] // Run 1,000 operations per invocation for large payload
         public byte[] LargePayload_SerializationOnly()
         {
-            return SimulateSerializationRoundtrip(_largePayload);
+            byte[] result = null;
+            for (int i = 0; i < 1000; i++)
+            {
+                result = SimulateSerializationRoundtrip(_largePayload);
+            }
+            return result;
         }
         
         private byte[] SimulateNetworkTransfer(byte[] data)

@@ -1,0 +1,186 @@
+info: Granville.Benchmarks.Runner.Program[0]
+      Granville RPC Benchmark Runner starting...
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark orchestration
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Found 2 workloads to run
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Running benchmarks for workload: FPS Game Simulation
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: FPS Game Simulation_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Initializing workload FPS Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Starting workload FPS Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload duration reached, stopping clients
+fail: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload FPS Game Simulation failed
+      System.Threading.Tasks.TaskCanceledException: A task was canceled.
+         at Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload.RunClientAsync(Int32 clientId, MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.EndToEnd/Workloads/FpsGameWorkload.cs:line 90
+         at Granville.Benchmarks.Core.Workloads.GameWorkloadBase.RunAsync(MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Core/Workloads/GameWorkloadBase.cs:line 62
+warn: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Workload failed: A task was canceled.
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: FPS Game Simulation_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Initializing workload FPS Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Starting workload FPS Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload duration reached, stopping clients
+fail: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload FPS Game Simulation failed
+      System.Threading.Tasks.TaskCanceledException: A task was canceled.
+         at Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload.RunClientAsync(Int32 clientId, MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.EndToEnd/Workloads/FpsGameWorkload.cs:line 90
+         at Granville.Benchmarks.Core.Workloads.GameWorkloadBase.RunAsync(MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Core/Workloads/GameWorkloadBase.cs:line 62
+warn: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Workload failed: A task was canceled.
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: FPS Game Simulation_Ruffles_default
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Initializing workload FPS Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Starting workload FPS Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload duration reached, stopping clients
+fail: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload FPS Game Simulation failed
+      System.Threading.Tasks.TaskCanceledException: A task was canceled.
+         at Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload.RunClientAsync(Int32 clientId, MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.EndToEnd/Workloads/FpsGameWorkload.cs:line 90
+         at Granville.Benchmarks.Core.Workloads.GameWorkloadBase.RunAsync(MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Core/Workloads/GameWorkloadBase.cs:line 62
+warn: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Workload failed: A task was canceled.
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: FPS Game Simulation_Ruffles_default
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Initializing workload FPS Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Starting workload FPS Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload duration reached, stopping clients
+fail: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload FPS Game Simulation failed
+      System.Threading.Tasks.TaskCanceledException: A task was canceled.
+         at Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload.RunClientAsync(Int32 clientId, MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.EndToEnd/Workloads/FpsGameWorkload.cs:line 90
+         at Granville.Benchmarks.Core.Workloads.GameWorkloadBase.RunAsync(MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Core/Workloads/GameWorkloadBase.cs:line 62
+warn: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Workload failed: A task was canceled.
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: FPS Game Simulation_Orleans.TCP_default
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Initializing workload FPS Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Starting workload FPS Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload duration reached, stopping clients
+fail: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload FPS Game Simulation failed
+      System.Threading.Tasks.TaskCanceledException: A task was canceled.
+         at Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload.RunClientAsync(Int32 clientId, MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.EndToEnd/Workloads/FpsGameWorkload.cs:line 90
+         at Granville.Benchmarks.Core.Workloads.GameWorkloadBase.RunAsync(MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Core/Workloads/GameWorkloadBase.cs:line 62
+warn: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Workload failed: A task was canceled.
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Running benchmarks for workload: MOBA Game Simulation
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: MOBA Game Simulation_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Initializing workload MOBA Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Starting workload MOBA Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload duration reached, stopping clients
+fail: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload MOBA Game Simulation failed
+      System.Threading.Tasks.TaskCanceledException: A task was canceled.
+         at Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload.RunClientAsync(Int32 clientId, MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.EndToEnd/Workloads/MobaGameWorkload.cs:line 75
+         at Granville.Benchmarks.Core.Workloads.GameWorkloadBase.RunAsync(MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Core/Workloads/GameWorkloadBase.cs:line 62
+warn: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Workload failed: A task was canceled.
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: MOBA Game Simulation_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Initializing workload MOBA Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Starting workload MOBA Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload duration reached, stopping clients
+fail: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload MOBA Game Simulation failed
+      System.Threading.Tasks.TaskCanceledException: A task was canceled.
+         at Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload.RunClientAsync(Int32 clientId, MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.EndToEnd/Workloads/MobaGameWorkload.cs:line 75
+         at Granville.Benchmarks.Core.Workloads.GameWorkloadBase.RunAsync(MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Core/Workloads/GameWorkloadBase.cs:line 62
+warn: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Workload failed: A task was canceled.
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: MOBA Game Simulation_Ruffles_default
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Initializing workload MOBA Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Starting workload MOBA Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload duration reached, stopping clients
+fail: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload MOBA Game Simulation failed
+      System.Threading.Tasks.TaskCanceledException: A task was canceled.
+         at Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload.RunClientAsync(Int32 clientId, MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.EndToEnd/Workloads/MobaGameWorkload.cs:line 75
+         at Granville.Benchmarks.Core.Workloads.GameWorkloadBase.RunAsync(MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Core/Workloads/GameWorkloadBase.cs:line 62
+warn: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Workload failed: A task was canceled.
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: MOBA Game Simulation_Ruffles_default
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Initializing workload MOBA Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Starting workload MOBA Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload duration reached, stopping clients
+fail: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload MOBA Game Simulation failed
+      System.Threading.Tasks.TaskCanceledException: A task was canceled.
+         at Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload.RunClientAsync(Int32 clientId, MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.EndToEnd/Workloads/MobaGameWorkload.cs:line 75
+         at Granville.Benchmarks.Core.Workloads.GameWorkloadBase.RunAsync(MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Core/Workloads/GameWorkloadBase.cs:line 62
+warn: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Workload failed: A task was canceled.
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: MOBA Game Simulation_Orleans.TCP_default
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Initializing workload MOBA Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Starting workload MOBA Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload duration reached, stopping clients
+fail: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload MOBA Game Simulation failed
+      System.Threading.Tasks.TaskCanceledException: A task was canceled.
+         at Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload.RunClientAsync(Int32 clientId, MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.EndToEnd/Workloads/MobaGameWorkload.cs:line 75
+         at Granville.Benchmarks.Core.Workloads.GameWorkloadBase.RunAsync(MetricsCollector metricsCollector, CancellationToken cancellationToken) in /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Core/Workloads/GameWorkloadBase.cs:line 62
+warn: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Workload failed: A task was canceled.
+warn: Granville.Benchmarks.Runner.Services.ResultsExporter[0]
+      No results to export
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Benchmark orchestration completed. Total results: 0
+info: Granville.Benchmarks.Runner.Program[0]
+      All benchmarks completed successfully

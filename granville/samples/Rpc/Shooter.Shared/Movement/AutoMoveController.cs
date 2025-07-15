@@ -31,6 +31,13 @@ public class AutoMoveController
     private int _predictableZoneIndex = 0;
     private readonly Random _random = new();
     
+    // Inter-zone movement tracking
+    private GridSquare? _randomTargetZone = null;
+    
+    // Strafe direction tracking
+    private bool _strafeClockwise = true; // true = clockwise, false = counter-clockwise
+    private DateTime _lastStrafeDirectionChange = DateTime.UtcNow;
+    
     // Configuration
     private const float BorderDistance = 100f;
     private const float IntraZoneMoveTime = 1f; // seconds
@@ -38,6 +45,7 @@ public class AutoMoveController
     private const float EnemyDetectionRange = 300f;
     private const float EnemyStrafeDistance = 150f;
     private const float EnemyBackAwayDistance = 100f;
+    private const float StrafeDirectionChangeCooldown = 1.0f; // seconds to prevent rapid direction changes
     
     public AutoMoveController(ILogger logger, string entityId, bool isTestMode)
     {
@@ -90,7 +98,13 @@ public class AutoMoveController
         if (hasTargets && _currentMode != MoveMode.StrafeEnemy)
         {
             _currentMode = MoveMode.StrafeEnemy;
-            _logger.LogDebug("AutoMove {EntityId}: Switching to StrafeEnemy mode", _entityId);
+            // Reset strafe direction when entering combat mode
+            _strafeClockwise = _random.NextSingle() < 0.5f; // Random initial direction
+            _lastStrafeDirectionChange = DateTime.UtcNow;
+            // Clear random target zone when switching away from RandomInterZone
+            _randomTargetZone = null;
+            _logger.LogDebug("AutoMove {EntityId}: Switching to StrafeEnemy mode, initial strafe direction: {Direction}", 
+                _entityId, _strafeClockwise ? "clockwise" : "counter-clockwise");
         }
         else if (!hasTargets && _currentMode == MoveMode.StrafeEnemy)
         {
@@ -99,12 +113,16 @@ public class AutoMoveController
             {
                 // Not test mode: immediately go to next zone
                 _currentMode = MoveMode.RandomInterZone;
+                // Clear random target zone when entering RandomInterZone mode
+                _randomTargetZone = null;
                 _logger.LogDebug("AutoMove {EntityId}: No enemies, switching to RandomInterZone", _entityId);
             }
             else
             {
                 // Test mode: stay in IntraZone until 15 seconds
                 _currentMode = MoveMode.IntraZone;
+                // Clear random target zone when switching away from RandomInterZone
+                _randomTargetZone = null;
                 _logger.LogDebug("AutoMove {EntityId}: No enemies, switching to IntraZone (test mode)", _entityId);
             }
         }
@@ -114,11 +132,15 @@ public class AutoMoveController
             if (_isTestMode)
             {
                 _currentMode = MoveMode.PredictableInterZone;
+                // Clear random target zone when switching away from RandomInterZone
+                _randomTargetZone = null;
                 _logger.LogDebug("AutoMove {EntityId}: Time up, switching to PredictableInterZone (test mode)", _entityId);
             }
             else
             {
                 _currentMode = MoveMode.RandomInterZone;
+                // Clear random target zone when entering RandomInterZone mode
+                _randomTargetZone = null;
                 _logger.LogDebug("AutoMove {EntityId}: Time up, switching to RandomInterZone", _entityId);
             }
         }
@@ -209,22 +231,30 @@ public class AutoMoveController
     {
         if (!availableZones.Any() || _currentZone == null) return (null, null);
         
-        // Find neighboring available zones
-        var neighbors = GetNeighboringZones(_currentZone, availableZones);
-        
-        if (!neighbors.Any())
+        // If we don't have a target zone, or we've reached it, pick a new one
+        if (_randomTargetZone == null || HasReachedTargetZone(currentPosition, _randomTargetZone))
         {
-            _logger.LogWarning("AutoMove {EntityId}: No neighboring zones available", _entityId);
-            return ExecuteIntraZoneMode(currentPosition, availableZones);
+            // Find neighboring available zones
+            var neighbors = GetNeighboringZones(_currentZone, availableZones);
+            
+            if (!neighbors.Any())
+            {
+                _logger.LogWarning("AutoMove {EntityId}: No neighboring zones available", _entityId);
+                return ExecuteIntraZoneMode(currentPosition, availableZones);
+            }
+            
+            // Pick random neighbor as new target
+            _randomTargetZone = neighbors[_random.Next(neighbors.Count)];
+            _logger.LogDebug("AutoMove {EntityId}: Selected new random target zone ({X},{Y})", 
+                _entityId, _randomTargetZone.X, _randomTargetZone.Y);
         }
         
-        // Pick random neighbor
-        var targetZone = neighbors[_random.Next(neighbors.Count)];
-        var targetPos = targetZone.GetCenter();
+        // Move toward the persistent target zone
+        var targetPos = _randomTargetZone.GetCenter();
         var direction = (targetPos - currentPosition).Normalized() * 100f;
         
-        _logger.LogDebug("AutoMove {EntityId}: Moving to random neighbor zone ({X},{Y})", 
-            _entityId, targetZone.X, targetZone.Y);
+        _logger.LogDebug("AutoMove {EntityId}: Moving to target zone ({X},{Y})", 
+            _entityId, _randomTargetZone.X, _randomTargetZone.Y);
         
         return (direction, null);
     }
@@ -341,17 +371,47 @@ public class AutoMoveController
             }
             else
             {
-                // Normal strafing logic
-                // If near a border, strafe in the opposite direction
-                if (nearLeftBorder && strafeDir.X < 0 || nearRightBorder && strafeDir.X > 0 ||
-                    nearBottomBorder && strafeDir.Y < 0 || nearTopBorder && strafeDir.Y > 0)
+                // Normal strafing logic with persistent direction
+                // Calculate base strafe direction based on current persistent direction
+                strafeDir = _strafeClockwise ? 
+                    new Vector2(-direction.Y, direction.X) :   // Clockwise
+                    new Vector2(direction.Y, -direction.X);    // Counter-clockwise
+                
+                var now = DateTime.UtcNow;
+                var timeSinceLastStrafeChange = (now - _lastStrafeDirectionChange).TotalSeconds;
+                
+                // Only consider changing direction if cooldown has passed
+                if (timeSinceLastStrafeChange >= StrafeDirectionChangeCooldown)
                 {
-                    strafeDir = new Vector2(-strafeDir.X, -strafeDir.Y);
-                    _logger.LogDebug("AutoMove {EntityId}: Near zone border, reversing strafe direction", _entityId);
-                }
-                else if (_random.NextSingle() < 0.1f) // 10% chance to change direction
-                {
-                    strafeDir = new Vector2(-strafeDir.X, -strafeDir.Y);
+                    bool shouldChangeDirection = false;
+                    
+                    // Check if current strafe direction would hit a border
+                    if (nearLeftBorder && strafeDir.X < 0 || nearRightBorder && strafeDir.X > 0 ||
+                        nearBottomBorder && strafeDir.Y < 0 || nearTopBorder && strafeDir.Y > 0)
+                    {
+                        shouldChangeDirection = true;
+                        _logger.LogDebug("AutoMove {EntityId}: Near zone border, changing strafe direction from {OldDir} to {NewDir}", 
+                            _entityId, _strafeClockwise ? "clockwise" : "counter-clockwise", 
+                            _strafeClockwise ? "counter-clockwise" : "clockwise");
+                    }
+                    else if (_random.NextSingle() < 0.05f) // Reduced from 10% to 5% chance to change direction
+                    {
+                        shouldChangeDirection = true;
+                        _logger.LogDebug("AutoMove {EntityId}: Random strafe direction change from {OldDir} to {NewDir}", 
+                            _entityId, _strafeClockwise ? "clockwise" : "counter-clockwise", 
+                            _strafeClockwise ? "counter-clockwise" : "clockwise");
+                    }
+                    
+                    if (shouldChangeDirection)
+                    {
+                        _strafeClockwise = !_strafeClockwise;
+                        _lastStrafeDirectionChange = now;
+                        
+                        // Recalculate strafe direction with new persistent direction
+                        strafeDir = _strafeClockwise ? 
+                            new Vector2(-direction.Y, direction.X) :   // Clockwise
+                            new Vector2(direction.Y, -direction.X);    // Counter-clockwise
+                    }
                 }
                 
                 if (!veryNearBorder)
@@ -410,5 +470,21 @@ public class AutoMoveController
         _currentMoveDirection = Vector2.Zero;
         _lastDirectionChange = DateTime.UtcNow;
         _predictableZoneIndex = 0;
+        _randomTargetZone = null;
+        _strafeClockwise = true;
+        _lastStrafeDirectionChange = DateTime.UtcNow;
+    }
+    
+    private bool HasReachedTargetZone(Vector2 currentPosition, GridSquare targetZone)
+    {
+        // Check if we're close to the target zone center or already in the target zone
+        var targetCenter = targetZone.GetCenter();
+        var distanceToCenter = currentPosition.DistanceTo(targetCenter);
+        
+        // Consider reached if we're within 100 units of center or if we're in the target zone
+        var currentZoneFromPosition = GridSquare.FromPosition(currentPosition);
+        var inTargetZone = currentZoneFromPosition.X == targetZone.X && currentZoneFromPosition.Y == targetZone.Y;
+        
+        return inTargetZone || distanceToCenter < 100f;
     }
 }

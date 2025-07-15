@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Granville.Benchmarks.Core.Metrics;
 using Granville.Benchmarks.Core.Workloads;
+using Granville.Benchmarks.Core.Transport;
 using Microsoft.Extensions.Logging;
 
 namespace Granville.Benchmarks.EndToEnd.Workloads
@@ -14,9 +15,38 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
         public override string Description => "Simulates an FPS game with high-frequency position updates and low-latency requirements";
         
         private readonly Random _random = new();
+        private IRawTransport? _rawTransport;
         
         public FpsGameWorkload(ILogger<FpsGameWorkload> logger) : base(logger)
         {
+        }
+        
+        public override async Task InitializeAsync(WorkloadConfiguration configuration)
+        {
+            await base.InitializeAsync(configuration);
+            
+            // Initialize raw transport if enabled
+            if (configuration.UseRawTransport)
+            {
+                _rawTransport = TransportFactory.CreateTransport(new RawTransportConfig
+                {
+                    Host = configuration.ServerHost,
+                    Port = configuration.ServerPort,
+                    TransportType = configuration.TransportType,
+                    UseReliableTransport = configuration.UseReliableTransport
+                });
+                
+                await _rawTransport.InitializeAsync(new RawTransportConfig
+                {
+                    Host = configuration.ServerHost,
+                    Port = configuration.ServerPort,
+                    TransportType = configuration.TransportType,
+                    UseReliableTransport = configuration.UseReliableTransport
+                });
+                
+                _logger.LogInformation("Raw transport initialized: {TransportType} -> {Host}:{Port}", 
+                    configuration.TransportType, configuration.ServerHost, configuration.ServerPort);
+            }
         }
         
         protected override async Task RunClientAsync(int clientId, MetricsCollector metricsCollector, CancellationToken cancellationToken)
@@ -44,20 +74,45 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
                     // Update position
                     position = position.Add(velocity.Scale((float)updateInterval.TotalSeconds));
                     
-                    // Simulate sending position update
+                    // Send position update (simulation or raw transport)
                     var payload = SerializePositionUpdate(clientId, position, velocity);
                     metricsCollector.RecordBytesSent(payload.Length);
                     metricsCollector.RecordPacketSent();
                     
-                    // TODO: Actual RPC call here
-                    await SimulateNetworkCall(cancellationToken);
-                    
-                    metricsCollector.RecordSuccess();
-                    metricsCollector.RecordBytesReceived(64); // Simulated ACK
-                    metricsCollector.RecordPacketReceived();
-                    
-                    var latencyMicros = sw.Elapsed.TotalMicroseconds;
-                    metricsCollector.RecordLatency(latencyMicros);
+                    if (_configuration.UseRawTransport)
+                    {
+                        // Use raw transport for actual network calls
+                        var transportResult = await SendRawTransportCall(payload, _configuration.UseReliableTransport, cancellationToken);
+                        
+                        if (transportResult.Success)
+                        {
+                            metricsCollector.RecordSuccess();
+                            metricsCollector.RecordBytesReceived(transportResult.BytesReceived);
+                            metricsCollector.RecordPacketReceived();
+                            metricsCollector.RecordLatency(transportResult.LatencyMicroseconds);
+                        }
+                        else
+                        {
+                            if (transportResult.ErrorMessage == "Simulated packet loss")
+                            {
+                                metricsCollector.RecordTimeout();
+                            }
+                            else
+                            {
+                                metricsCollector.RecordFailure();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Use simulation (existing behavior)
+                        await SimulateNetworkCall(cancellationToken);
+                        metricsCollector.RecordSuccess();
+                        metricsCollector.RecordBytesReceived(64); // Simulated ACK
+                        metricsCollector.RecordPacketReceived();
+                        var latencyMicros = sw.Elapsed.TotalMicroseconds;
+                        metricsCollector.RecordLatency(latencyMicros);
+                    }
                     
                     // Occasionally change direction
                     if (_random.NextDouble() < 0.1)
@@ -87,18 +142,44 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
                 var elapsed = sw.Elapsed;
                 if (elapsed < updateInterval)
                 {
-                    await Task.Delay(updateInterval - elapsed, cancellationToken);
+                    try
+                    {
+                        await Task.Delay(updateInterval - elapsed, cancellationToken);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        // Expected when cancellation is requested - break out of loop
+                        break;
+                    }
                 }
             }
             
             _logger.LogDebug("Client {ClientId} stopped", clientId);
         }
         
+        private async Task<RawTransportResult> SendRawTransportCall(byte[] payload, bool reliable, CancellationToken cancellationToken)
+        {
+            if (_rawTransport == null)
+            {
+                throw new InvalidOperationException("Raw transport not initialized");
+            }
+            
+            return await _rawTransport.SendAsync(payload, reliable, cancellationToken);
+        }
+        
         private async Task SimulateNetworkCall(CancellationToken cancellationToken)
         {
             // TODO: Replace with actual RPC call
             var latency = _random.NextDouble() * 5 + 1; // 1-6ms latency
-            await Task.Delay(TimeSpan.FromMilliseconds(latency), cancellationToken);
+            try
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(latency), cancellationToken);
+            }
+            catch (TaskCanceledException)
+            {
+                // Re-throw cancellation exceptions so they can be handled by the caller
+                throw;
+            }
             
             // Simulate packet loss
             if (_random.NextDouble() < 0.01) // 1% packet loss
@@ -119,6 +200,18 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
             BitConverter.TryWriteBytes(buffer.AsSpan(20, 4), velocity.Y);
             BitConverter.TryWriteBytes(buffer.AsSpan(24, 4), velocity.Z);
             return buffer;
+        }
+        
+        public override async Task CleanupAsync()
+        {
+            if (_rawTransport != null)
+            {
+                await _rawTransport.CloseAsync();
+                _rawTransport.Dispose();
+                _rawTransport = null;
+            }
+            
+            await base.CleanupAsync();
         }
         
         private struct Vector3

@@ -13,6 +13,8 @@
 <div class="game-container">
     <div id="phaser-container" class="phaser-viewport"></div>
     
+    <StatusBar WarningMessage="@_warningMessage" />
+    
     <div class="chat-container mt-3">
         <div class="chat-history">
             @foreach (var message in _chatMessages)
@@ -121,6 +123,7 @@
 @code {
     private DotNetObjectReference<GamePhaser>? _dotNetRef;
     private string? _error;
+    private string? _warningMessage;
     private bool _isInitialized = false;
     private System.Timers.Timer? _updateTimer;
     private Dictionary<string, GridSquare> _serverZoneMap = new();
@@ -130,6 +133,7 @@
     private bool _isTestMode = false;
     private System.Timers.Timer? _autoMoveTimer;
     private System.Timers.Timer? _statsUpdateTimer;
+    private System.Timers.Timer? _warningClearTimer;
     private WorldState? _lastWorldState;
     private List<GridSquare> _availableZones = new();
     private bool _isProcessing = false;
@@ -369,6 +373,30 @@
     {
         Logger.LogWarning("[ZONE_MISMATCH] Player at position ({PlayerX:F1}, {PlayerY:F1}) is in zone ({PlayerZoneX}, {PlayerZoneY}) but server thinks they should be in zone ({ServerZoneX}, {ServerZoneY})",
             playerX, playerY, playerZoneX, playerZoneY, serverZoneX, serverZoneY);
+        
+        var isTransitioning = RpcGameClient.IsTransitioning;
+        var warningText = $"Player in zone ({playerZoneX},{playerZoneY}) but connected to server for zone ({serverZoneX},{serverZoneY})";
+        
+        if (isTransitioning)
+        {
+            warningText += " - Transitioning...";
+        }
+        
+        _warningMessage = warningText;
+        InvokeAsync(StateHasChanged);
+        
+        // Clear the warning after 15 seconds (longer for debugging)
+        _warningClearTimer?.Stop();
+        _warningClearTimer?.Dispose();
+        _warningClearTimer = new System.Timers.Timer(15000); // 15 seconds
+        _warningClearTimer.Elapsed += (sender, e) =>
+        {
+            _warningMessage = null;
+            InvokeAsync(StateHasChanged);
+            _warningClearTimer?.Dispose();
+            _warningClearTimer = null;
+        };
+        _warningClearTimer.Start();
     }
     
     [JSInvokable]
@@ -504,6 +532,7 @@
         _updateTimer?.Dispose();
         _autoMoveTimer?.Dispose();
         _statsUpdateTimer?.Dispose();
+        _warningClearTimer?.Dispose();
         
         if (_isInitialized)
         {
@@ -822,6 +851,7 @@
         _updateTimer?.Dispose();
         _autoMoveTimer?.Dispose();
         _statsUpdateTimer?.Dispose();
+        _warningClearTimer?.Dispose();
         _dotNetRef?.Dispose();
         
         // Unsubscribe from events
