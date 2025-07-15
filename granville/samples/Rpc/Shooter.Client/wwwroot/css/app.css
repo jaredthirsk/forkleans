@@ -49,11 +49,13 @@ html, body {
 .btn-primary {
     background-color: #2196F3;
     border-color: #1976D2;
+    color: #ffffff;
 }
 
 .btn-primary:hover {
     background-color: #1976D2;
     border-color: #1565C0;
+    color: #ffffff;
 }
 
 .btn-link {
@@ -168,15 +170,12 @@ h1:focus {
     outline: none;
 }
 
+/* Links and buttons - using dark theme colors */
 a, .btn-link {
-    color: #0071c1;
+    color: #2196F3;
 }
 
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-}
+/* Primary button styling already defined above in dark mode section */
 
 .content {
     padding-top: 1.1rem;
