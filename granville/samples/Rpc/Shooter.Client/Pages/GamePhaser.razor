@@ -160,6 +160,9 @@
         {
             try
             {
+                // Load saved settings from localStorage
+                await LoadSettings();
+                
                 // Get player ID from RPC client
                 var playerId = RpcGameClient.PlayerId;
                 Logger.LogInformation("[PHASER_INIT] RpcGameClient instance {InstanceId} - PlayerId: {PlayerId}", 
@@ -377,13 +380,14 @@
     }
     
     [JSInvokable]
-    public void OnKeyPress(string key)
+    public async Task OnKeyPress(string key)
     {
         switch (key.ToLower())
         {
             case "v":
                 _isAutoMoveEnabled = !_isAutoMoveEnabled;
                 Logger.LogInformation("Automove {State}", _isAutoMoveEnabled ? "enabled" : "disabled");
+                await SaveSettings();
                 StateHasChanged();
                 break;
             case "t":
@@ -398,26 +402,29 @@
                     }
                 }
                 Logger.LogInformation("Test mode {State}", _isTestMode ? "enabled" : "disabled");
+                await SaveSettings();
                 StateHasChanged();
                 break;
         }
     }
     
-    private void ToggleAutoMove()
+    private async Task ToggleAutoMove()
     {
         _isAutoMoveEnabled = !_isAutoMoveEnabled;
         Logger.LogInformation("Automove {State}", _isAutoMoveEnabled ? "enabled" : "disabled");
+        await SaveSettings();
         StateHasChanged();
     }
     
-    private void ToggleAutoShoot()
+    private async Task ToggleAutoShoot()
     {
         _isAutoShootEnabled = !_isAutoShootEnabled;
         Logger.LogInformation("Auto shoot {State}", _isAutoShootEnabled ? "enabled" : "disabled");
+        await SaveSettings();
         StateHasChanged();
     }
     
-    private void ToggleTestMode()
+    private async Task ToggleTestMode()
     {
         _isTestMode = !_isTestMode;
         if (_autoMoveController != null)
@@ -430,6 +437,7 @@
             }
         }
         Logger.LogInformation("Test mode {State}", _isTestMode ? "enabled" : "disabled");
+        await SaveSettings();
         StateHasChanged();
     }
 
@@ -837,4 +845,52 @@
     
     // DTOs for zone stats
     private record WorldZoneStats(GridSquare Zone, int PlayerCount, int FactoryCount, int EnemyCount);
+    
+    private async Task LoadSettings()
+    {
+        try
+        {
+            var autoMoveValue = await JS.InvokeAsync<string?>("localStorage.getItem", "autoMove");
+            if (bool.TryParse(autoMoveValue, out var autoMove))
+            {
+                _isAutoMoveEnabled = autoMove;
+            }
+            
+            var autoShootValue = await JS.InvokeAsync<string?>("localStorage.getItem", "autoShoot");
+            if (bool.TryParse(autoShootValue, out var autoShoot))
+            {
+                _isAutoShootEnabled = autoShoot;
+            }
+            
+            var testModeValue = await JS.InvokeAsync<string?>("localStorage.getItem", "testMode");
+            if (bool.TryParse(testModeValue, out var testMode))
+            {
+                _isTestMode = testMode;
+            }
+            
+            Logger.LogInformation("Settings loaded: AutoMove={AutoMove}, AutoShoot={AutoShoot}, TestMode={TestMode}", 
+                _isAutoMoveEnabled, _isAutoShootEnabled, _isTestMode);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load settings from localStorage");
+        }
+    }
+    
+    private async Task SaveSettings()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", "autoMove", _isAutoMoveEnabled.ToString());
+            await JS.InvokeVoidAsync("localStorage.setItem", "autoShoot", _isAutoShootEnabled.ToString());
+            await JS.InvokeVoidAsync("localStorage.setItem", "testMode", _isTestMode.ToString());
+            
+            Logger.LogInformation("Settings saved: AutoMove={AutoMove}, AutoShoot={AutoShoot}, TestMode={TestMode}", 
+                _isAutoMoveEnabled, _isAutoShootEnabled, _isTestMode);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to save settings to localStorage");
+        }
+    }
 }
