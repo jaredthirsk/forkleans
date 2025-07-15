@@ -20,4 +20,16 @@ public static class GameConstants
     /// Opacity for the grayed-out areas of adjacent zones (0-1).
     /// </summary>
     public const float AdjacentZoneDimOpacity = 0.3f;
+    
+    /// <summary>
+    /// Interval in seconds between zone boundary checks on the client.
+    /// Reduced from 1.0 to 0.1 seconds for more responsive zone transitions.
+    /// </summary>
+    public const double ZoneBoundaryCheckInterval = 0.1;
+    
+    /// <summary>
+    /// Interval in milliseconds between zone transfer checks on the server.
+    /// Reduced from 500ms to 100ms for faster server-side zone transition detection.
+    /// </summary>
+    public const int ZoneTransferCheckInterval = 100;
 }

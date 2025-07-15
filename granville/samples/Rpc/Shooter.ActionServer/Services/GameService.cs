@@ -257,7 +257,7 @@ public class GameService : IGameService, IHostedService
                 _logger.LogError(ex, "Error monitoring zone transitions");
             }
             
-            await Task.Delay(100, cancellationToken); // Check 10 times per second for faster transfers
+            await Task.Delay(Shooter.Shared.GameConstants.ZoneTransferCheckInterval, cancellationToken); // Check at configurable interval for faster transfers
         }
     }
     

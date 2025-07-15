@@ -571,9 +571,9 @@ public class GranvilleRpcGameClientService : IDisposable
                             
                             if (distToEdge < 50)
                             {
-                                // Throttle zone boundary checks to once per second
+                                // Throttle zone boundary checks using configurable interval
                                 var now = DateTime.UtcNow;
-                                if ((now - _lastZoneBoundaryCheck).TotalSeconds >= 1.0)
+                                if ((now - _lastZoneBoundaryCheck).TotalSeconds >= Shooter.Shared.GameConstants.ZoneBoundaryCheckInterval)
                                 {
                                     _lastZoneBoundaryCheck = now;
                                     _logger.LogDebug("Player {PlayerId} near zone boundary (distance: {Distance}) at position {Position}", 
