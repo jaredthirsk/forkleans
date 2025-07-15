@@ -36,7 +36,9 @@ namespace Granville.Benchmarks.Core.Transport
             IBenchmarkTransportServer server = transportType switch
             {
                 "LiteNetLib" => new LiteNetLibBenchmarkServer(_logger),
-                "Ruffles" => throw new NotImplementedException("Ruffles benchmark server not yet implemented"),
+                "Ruffles" => new RufflesBenchmarkServer(_logger),
+                "PureLiteNetLib" => new PureLiteNetLibBenchmarkServer(_logger),
+                "PureRuffles" => new PureRufflesBenchmarkServer(_logger),
                 _ => throw new ArgumentException($"Unsupported transport type: {transportType}")
             };
             

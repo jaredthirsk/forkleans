@@ -148,6 +148,14 @@ window.drawNetworkGraph = (canvas, clientSent, clientRecv, serverSent, serverRec
     ctx.lineTo(width - padding, padding);
     ctx.stroke();
     
+    // Top labels
+    ctx.fillStyle = '#888';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('Client', padding, padding - 10);
+    ctx.textAlign = 'right';
+    ctx.fillText('Server', width - padding, padding - 10);
+    
     // X-axis label
     ctx.fillStyle = '#666';
     ctx.font = '12px monospace';

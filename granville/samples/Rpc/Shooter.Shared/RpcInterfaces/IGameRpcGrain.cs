@@ -121,6 +121,12 @@ public interface IGameRpcGrain : Granville.Rpc.IRpcGrainInterfaceWithStringKey, 
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
     [OneWay]
     Task NotifyBulletDestroyed(string bulletId);
+    
+    /// <summary>
+    /// Gets the current network statistics for this server.
+    /// </summary>
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    Task<NetworkStatistics> GetNetworkStatistics();
 }
 
 /// <summary>

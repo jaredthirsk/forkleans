@@ -2,31 +2,30 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteNetLib;
+using LiteNetLib.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace Granville.Benchmarks.Core.Transport
 {
     /// <summary>
-    /// LiteNetLib implementation of IRawTransport for actual network benchmarking
+    /// Pure LiteNetLib transport with direct API usage - no Granville abstractions
+    /// This provides true baseline performance measurements for overhead analysis
     /// </summary>
-    public class LiteNetLibRawTransport : IRawTransport, INetEventListener
+    public class PureLiteNetLibTransport : IRawTransport, INetEventListener
     {
-        private readonly ILogger<LiteNetLibRawTransport> _logger;
+        private readonly ILogger<PureLiteNetLibTransport> _logger;
         private NetManager? _netManager;
         private NetPeer? _connectedPeer;
         private RawTransportConfig? _config;
-        private CancellationTokenSource? _cancellationTokenSource;
-        private Task? _pollingTask;
         private readonly TaskCompletionSource<bool> _connectionReady = new();
         private readonly ConcurrentDictionary<int, PendingRequest> _pendingRequests = new();
         private int _requestCounter = 0;
         private bool _disposed = false;
         
-        public LiteNetLibRawTransport(ILogger<LiteNetLibRawTransport> logger)
+        public PureLiteNetLibTransport(ILogger<PureLiteNetLibTransport> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -37,30 +36,24 @@ namespace Granville.Benchmarks.Core.Transport
                 throw new InvalidOperationException("Transport is already initialized");
             
             _config = config ?? throw new ArgumentNullException(nameof(config));
-            _cancellationTokenSource = new CancellationTokenSource();
             
             _netManager = new NetManager(this)
             {
-                AutoRecycle = true,
-                EnableStatistics = true,
                 UnconnectedMessagesEnabled = false,
-                NatPunchEnabled = false,
-                DisconnectTimeout = config.TimeoutMs
+                UpdateTime = 1, // 1ms polling for low latency
+                AutoRecycle = true,
+                IPv6Enabled = false
             };
             
-            if (!_netManager.Start())
-            {
-                throw new InvalidOperationException("Failed to start LiteNetLib client");
-            }
+            _logger.LogDebug("Pure LiteNetLib transport started, connecting to {Host}:{Port}", config.Host, config.Port);
             
-            _logger.LogDebug("LiteNetLib raw transport started, connecting to {Host}:{Port}", config.Host, config.Port);
-            
-            // Start polling task
-            _pollingTask = Task.Run(() => PollEventsAsync(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
+            _netManager.Start();
             
             // Connect to the server
-            var peer = _netManager.Connect(config.Host, config.Port, "benchmark");
-            if (peer == null)
+            var endpoint = new IPEndPoint(IPAddress.Parse(config.Host), config.Port);
+            _connectedPeer = _netManager.Connect(endpoint, "benchmark");
+            
+            if (_connectedPeer == null)
             {
                 throw new InvalidOperationException($"Failed to initiate connection to {config.Host}:{config.Port}");
             }
@@ -70,7 +63,7 @@ namespace Granville.Benchmarks.Core.Transport
             try
             {
                 await _connectionReady.Task.WaitAsync(connectionTimeout);
-                _logger.LogInformation("LiteNetLib raw transport connected to {Host}:{Port}", config.Host, config.Port);
+                _logger.LogInformation("Pure LiteNetLib transport connected to {Host}:{Port}", config.Host, config.Port);
             }
             catch (TimeoutException)
             {
@@ -81,7 +74,7 @@ namespace Granville.Benchmarks.Core.Transport
         public async Task<RawTransportResult> SendAsync(byte[] data, bool reliable, CancellationToken cancellationToken)
         {
             if (_disposed)
-                throw new ObjectDisposedException(nameof(LiteNetLibRawTransport));
+                throw new ObjectDisposedException(nameof(PureLiteNetLibTransport));
             
             if (_connectedPeer == null || _connectedPeer.ConnectionState != ConnectionState.Connected)
                 throw new InvalidOperationException("Not connected to server");
@@ -91,18 +84,20 @@ namespace Granville.Benchmarks.Core.Transport
             
             try
             {
-                // Create benchmark packet
-                var packet = BenchmarkProtocol.CreateRequest(requestId, data);
+                // Create simple message format: [4 bytes requestId][payload]
+                var message = new byte[4 + data.Length];
+                BitConverter.GetBytes(requestId).CopyTo(message, 0);
+                data.CopyTo(message, 4);
                 
                 // Create pending request tracker
                 var pendingRequest = new PendingRequest(requestId, stopwatch);
                 _pendingRequests[requestId] = pendingRequest;
                 
-                // Send packet
+                // Send directly using LiteNetLib API - no Granville abstractions
                 var deliveryMethod = reliable ? DeliveryMethod.ReliableOrdered : DeliveryMethod.Unreliable;
-                _connectedPeer.Send(packet, deliveryMethod);
+                _connectedPeer.Send(message, deliveryMethod);
                 
-                _logger.LogTrace("Sent benchmark request {RequestId}, PayloadSize={PayloadSize}, Reliable={Reliable}", 
+                _logger.LogTrace("Sent pure LiteNetLib request {RequestId}, PayloadSize={PayloadSize}, Reliable={Reliable}", 
                     requestId, data.Length, reliable);
                 
                 // Wait for response
@@ -110,9 +105,9 @@ namespace Granville.Benchmarks.Core.Transport
                 var result = await pendingRequest.CompletionSource.Task.WaitAsync(timeout, cancellationToken);
                 
                 result.LatencyMicroseconds = stopwatch.Elapsed.TotalMicroseconds;
-                result.BytesSent = packet.Length;
+                result.BytesSent = message.Length;
                 
-                _logger.LogTrace("Completed benchmark request {RequestId}, Latency={Latency}μs", 
+                _logger.LogTrace("Completed pure LiteNetLib request {RequestId}, Latency={Latency}μs", 
                     requestId, result.LatencyMicroseconds);
                 
                 return result;
@@ -156,36 +151,20 @@ namespace Granville.Benchmarks.Core.Transport
             }
         }
         
-        public async Task CloseAsync()
+        public Task CloseAsync()
         {
-            if (_netManager == null) return;
+            if (_netManager == null) return Task.CompletedTask;
             
-            _logger.LogDebug("Closing LiteNetLib raw transport...");
+            _logger.LogDebug("Closing pure LiteNetLib transport...");
             
-            // Disconnect if connected
+            // Disconnect
             if (_connectedPeer != null)
             {
                 _connectedPeer.Disconnect();
                 _connectedPeer = null;
             }
             
-            // Cancel polling
-            _cancellationTokenSource?.Cancel();
-            
-            // Wait for polling task
-            if (_pollingTask != null)
-            {
-                try
-                {
-                    await _pollingTask.WaitAsync(TimeSpan.FromSeconds(2));
-                }
-                catch (TimeoutException)
-                {
-                    _logger.LogWarning("Polling task did not complete within timeout");
-                }
-            }
-            
-            // Stop NetManager
+            // Stop manager
             _netManager.Stop();
             _netManager = null;
             
@@ -203,113 +182,86 @@ namespace Granville.Benchmarks.Core.Transport
             }
             _pendingRequests.Clear();
             
-            _logger.LogInformation("LiteNetLib raw transport closed");
+            _logger.LogInformation("Pure LiteNetLib transport closed");
+            return Task.CompletedTask;
         }
         
-        private async Task PollEventsAsync(CancellationToken cancellationToken)
-        {
-            _logger.LogTrace("Starting LiteNetLib polling loop");
-            
-            while (!cancellationToken.IsCancellationRequested && _netManager != null)
-            {
-                try
-                {
-                    _netManager.PollEvents();
-                    await Task.Delay(1, cancellationToken); // 1ms polling interval for low latency
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error in LiteNetLib polling loop");
-                }
-            }
-            
-            _logger.LogTrace("LiteNetLib polling loop stopped");
-        }
-        
-        #region INetEventListener Implementation
-        
+        // INetEventListener implementation
         public void OnPeerConnected(NetPeer peer)
         {
             _connectedPeer = peer;
             _connectionReady.TrySetResult(true);
-            _logger.LogDebug("Connected to benchmark server: {Address}", peer.Address);
+            _logger.LogDebug("Pure LiteNetLib connected to benchmark server: {EndPoint}", peer.Address);
         }
         
         public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             _connectedPeer = null;
-            _logger.LogDebug("Disconnected from benchmark server: {Address}, Reason: {Reason}", 
+            _logger.LogDebug("Pure LiteNetLib disconnected from benchmark server: {EndPoint}, Reason: {Reason}", 
                 peer.Address, disconnectInfo.Reason);
         }
         
-        public void OnNetworkError(IPEndPoint endPoint, SocketError socketError)
-        {
-            _logger.LogError("Network error from {EndPoint}: {Error}", endPoint, socketError);
-            _connectionReady.TrySetException(new SocketException((int)socketError));
-        }
-        
-        public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
+        public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
             try
             {
-                var data = new byte[reader.AvailableBytes];
-                reader.GetBytes(data, reader.AvailableBytes);
+                // Parse simple message format: [4 bytes requestId][payload]
+                if (reader.AvailableBytes < 4)
+                {
+                    _logger.LogWarning("Received message too short: {Bytes} bytes", reader.AvailableBytes);
+                    return;
+                }
                 
-                // Parse response packet
-                var packet = BenchmarkProtocol.ParsePacket(data);
+                var requestId = reader.GetInt();
+                var payloadSize = reader.AvailableBytes;
                 
                 // Find and complete the pending request
-                if (_pendingRequests.TryGetValue(packet.RequestId, out var pendingRequest))
+                if (_pendingRequests.TryGetValue(requestId, out var pendingRequest))
                 {
                     var result = new RawTransportResult
                     {
                         Success = true,
                         LatencyMicroseconds = 0, // Will be set by caller
                         BytesSent = 0, // Will be set by caller
-                        BytesReceived = data.Length
+                        BytesReceived = payloadSize + 4 // Include request ID
                     };
                     
                     pendingRequest.CompletionSource.TrySetResult(result);
                     
-                    _logger.LogTrace("Received benchmark response {RequestId}, PayloadSize={PayloadSize}", 
-                        packet.RequestId, packet.Payload.Length);
+                    _logger.LogTrace("Received pure LiteNetLib response {RequestId}, PayloadSize={PayloadSize}", 
+                        requestId, payloadSize);
                 }
                 else
                 {
-                    _logger.LogWarning("Received response for unknown request ID: {RequestId}", packet.RequestId);
+                    _logger.LogWarning("Received response for unknown request ID: {RequestId}", requestId);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing benchmark response");
-            }
-            finally
-            {
-                reader.Recycle();
+                _logger.LogError(ex, "Error processing pure LiteNetLib response from {EndPoint}", peer.Address);
             }
         }
         
-        public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
+        public void OnNetworkError(IPEndPoint endPoint, System.Net.Sockets.SocketError socketError)
         {
-            reader.Recycle();
+            _logger.LogError("Pure LiteNetLib network error from {EndPoint}: {Error}", endPoint, socketError);
         }
         
         public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
         {
-            _logger.LogTrace("Latency update: {Latency}ms", latency);
+            // Optional: could log network latency updates
         }
         
         public void OnConnectionRequest(ConnectionRequest request)
         {
-            // Client mode - should not receive connection requests
+            // Client doesn't handle incoming connections
             request.Reject();
         }
         
-        #endregion
+        public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
+        {
+            // Not used in benchmark client
+        }
         
         public void Dispose()
         {
@@ -321,10 +273,9 @@ namespace Granville.Benchmarks.Core.Transport
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error closing LiteNetLib raw transport during disposal");
+                    _logger.LogError(ex, "Error closing pure LiteNetLib transport during disposal");
                 }
                 
-                _cancellationTokenSource?.Dispose();
                 _disposed = true;
             }
         }

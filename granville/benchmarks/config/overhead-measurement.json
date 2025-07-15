@@ -1,0 +1,64 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "BenchmarkOptions": {
+    "ClientCount": 5,
+    "MessageSize": 256,
+    "MessagesPerSecond": 30,
+    "WarmupDuration": "00:00:02",
+    "TestDuration": "00:00:05",
+    "CooldownDuration": "00:00:01",
+    "UseRawTransport": true,
+    "UseActualTransport": true,
+    "ServerHost": "127.0.0.1",
+    "ServerPort": 12345,
+    "Transports": [
+      {
+        "Type": "PureLiteNetLib",
+        "Reliable": false,
+        "Settings": {
+          "disconnectTimeout": 5000,
+          "maxConnectAttempts": 10
+        }
+      },
+      {
+        "Type": "LiteNetLib",
+        "Reliable": false,
+        "Settings": {
+          "disconnectTimeout": 5000,
+          "maxConnectAttempts": 10
+        }
+      },
+      {
+        "Type": "PureRuffles",
+        "Reliable": false,
+        "Settings": {
+          "disconnectTimeout": 5000,
+          "maxConnectAttempts": 10
+        }
+      },
+      {
+        "Type": "Ruffles",
+        "Reliable": false,
+        "Settings": {
+          "disconnectTimeout": 5000,
+          "maxConnectAttempts": 10
+        }
+      }
+    ],
+    "NetworkConditions": [
+      {
+        "Name": "localhost",
+        "LatencyMs": 0,
+        "JitterMs": 0,
+        "PacketLoss": 0.0,
+        "Bandwidth": 0
+      }
+    ]
+  }
+}

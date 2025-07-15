@@ -6,13 +6,15 @@ Granville is a friendly fork of Microsoft Orleans, keeping the upstream codebase
 This benchmarking PRD focuses on evaluating the performance, efficiency, and suitability of Granville's UDP-based RPC for high-performance games. Since the core implementation is mostly complete (excluding security), benchmarking will validate whether this approach offers advantages in latency, throughput, and reliability over standard Orleans TCP, particularly under game-like workloads.
 
 ## 2. Goals and Objectives
-- **Primary Goal**: Quantify the performance benefits and trade-offs of Granville's UDP RPC compared to upstream Orleans, to determine its viability for real-time gaming applications.
+- **Primary Goal**: Quantify the performance overhead that Granville RPC adds on top of raw transport libraries (LiteNetLib, Ruffles) to ensure minimal abstraction cost while providing RPC features.
+- **Secondary Goal**: Compare Granville's UDP RPC against upstream Orleans TCP to determine viability for real-time gaming applications.
 - **Objectives**:
-  - Measure key metrics like latency, throughput, CPU/memory usage, and resilience to packet loss.
-  - Compare swappable UDP transports (LiteNetLib vs. Ruffles) for optimal selection in games.
-  - Simulate high-performance game scenarios to assess real-world efficiency.
-  - Identify bottlenecks and provide data for future optimizations or security integrations.
-  - Ensure benchmarks are reproducible, with clear documentation for developers.
+  - **Overhead Measurement**: Precisely measure latency/throughput overhead of Granville RPC vs. raw LiteNetLib/Ruffles usage
+  - **Transport Comparison**: Compare swappable UDP transports (LiteNetLib vs. Ruffles) for optimal selection in games
+  - **Abstraction Level Analysis**: Evaluate performance trade-offs between full RPC vs. lower-level transport abstractions
+  - **Hot Path Optimization**: Identify opportunities for direct transport API access in performance-critical scenarios
+  - **Game Scenario Validation**: Simulate high-performance game scenarios to assess real-world efficiency
+  - **Bottleneck Identification**: Provide data for future optimizations and minimal-overhead design decisions
 
 ## 3. Target Audience
 - Game developers evaluating Granville for multiplayer systems requiring low-latency RPC.
@@ -21,10 +23,18 @@ This benchmarking PRD focuses on evaluating the performance, efficiency, and sui
 
 ## 4. Features
 ### Core Benchmarking Features
-- **Workload Simulations**: Synthetic game traffic generators for player movements, entity synchronization, and event broadcasting.
-- **Comparison Modes**: Run tests in Granville UDP mode (with LiteNetLib or Ruffles), standard Orleans TCP mode, and hybrid modes.
-- **Configurable Parameters**: Vary connection counts, message frequencies, packet loss rates, and zone configurations.
-- **Metrics Collection**: Automated logging of latency (average, p99), throughput (messages/sec), error rates, and resource utilization.
+- **Overhead Measurement Suite**: Benchmarks comparing identical workloads across abstraction levels:
+  1. **Raw Transport**: Direct LiteNetLib/Ruffles API usage (baseline)
+  2. **Granville Raw Transport**: Granville's IRawTransport abstraction
+  3. **Granville RPC**: Full RPC with serialization and method calls
+- **Abstraction Level Testing**: Evaluate performance of different API layers:
+  - **Direct Transport Methods**: Raw "Unreliable", "Reliable Ordered", "Unreliable Ordered" calls
+  - **Transport Channel Access**: Multi-channel reliable ordering with direct channel APIs
+  - **Full RPC Stack**: Complete method invocation with serialization overhead
+- **Workload Simulations**: Synthetic game traffic generators for player movements, entity synchronization, and event broadcasting
+- **Comparison Modes**: Run tests across all abstraction levels with identical message patterns
+- **Configurable Parameters**: Vary connection counts, message frequencies, packet loss rates, and zone configurations
+- **Metrics Collection**: Automated logging of latency (average, p99), throughput (messages/sec), error rates, and resource utilization
 
 ### Additional Features
 - **Visualization Tools**: Generate charts/graphs for metric comparisons (e.g., latency histograms).
@@ -47,13 +57,16 @@ This benchmarking PRD focuses on evaluating the performance, efficiency, and sui
 
 ## 6. Non-Functional Requirements
 - **Performance Metrics Targets**:
-  - Latency: <5ms for local UDP RPC; <20ms under simulated WAN conditions.
-  - Throughput: >10,000 messages/sec per server.
-  - Resilience: Maintain <1% error rate with 5% packet loss.
-- **Scalability**: Test up to 100 servers/zones and 50,000 clients.
-- **Reproducibility**: All benchmarks scripted with seedable randomness.
-- **Duration**: Individual tests <30 minutes; full suite <4 hours.
-- **Data Integrity**: Collect at least 10 runs per configuration for statistical significance.
+  - **Overhead Target**: Granville RPC should add <2ms latency vs. raw transport usage
+  - **Raw Transport Latency**: <1ms for local UDP calls; <5ms under simulated WAN conditions
+  - **Full RPC Latency**: <5ms for local RPC calls; <20ms under simulated WAN conditions
+  - **Throughput**: >10,000 messages/sec per server at each abstraction level
+  - **Resilience**: Maintain <1% error rate with 5% packet loss across all abstraction levels
+- **Scalability**: Test up to 100 servers/zones and 50,000 clients
+- **Reproducibility**: All benchmarks scripted with seedable randomness
+- **Duration**: Individual tests <30 minutes; full suite <4 hours
+- **Data Integrity**: Collect at least 10 runs per configuration for statistical significance
+- **Overhead Precision**: Measure overhead with microsecond-level accuracy to detect sub-millisecond differences
 
 ## 7. Assumptions and Dependencies
 - Assumptions:
