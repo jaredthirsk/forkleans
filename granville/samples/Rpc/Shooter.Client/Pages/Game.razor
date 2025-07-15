@@ -8,7 +8,7 @@
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 @inject ILogger<Game> _logger
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
 @implements IDisposable
 
@@ -32,7 +32,7 @@
             <div class="auto-join-section">
                 <label class="auto-join-checkbox">
                     <input type="checkbox" @bind="_autoJoinEnabled" @bind:after="OnAutoJoinChanged" />
-                    <span>Auto-join in 5 seconds</span>
+                    <span>Auto-join</span>
                 </label>
                 @if (_autoJoinEnabled && _countdownSeconds > 0)
                 {
@@ -367,6 +367,7 @@
     private bool _isConnecting = false;
     private string _errorMessage = "";
     private WorldState? _currentWorldState;
+    private CancellationTokenSource _disposeCts = new();
     private int _fps = 0;
     private DateTime _lastFpsUpdate = DateTime.UtcNow;
     private int _frameCount = 0;
@@ -418,7 +419,13 @@
         
         // Set up timer to periodically refresh server zone mappings
         _serverMappingTimer = new System.Timers.Timer(5000); // Every 5 seconds
-        _serverMappingTimer.Elapsed += async (s, e) => await RefreshServerMappings();
+        _serverMappingTimer.Elapsed += async (s, e) => 
+        {
+            if (!_disposeCts.Token.IsCancellationRequested)
+            {
+                await RefreshServerMappings();
+            }
+        };
         _serverMappingTimer.Start();
     }
     
@@ -1162,10 +1169,15 @@
     {
         try
         {
+            // Check if component is being disposed
+            if (_disposeCts.Token.IsCancellationRequested)
+                return;
+                
             // Get all action servers from the silo
             var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
             if (!siloUrl.EndsWith("/")) siloUrl += "/";
-            var response = await Http.GetFromJsonAsync<List<Shooter.Shared.Models.ActionServerInfo>>($"{siloUrl}api/world/action-servers");
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.GetFromJsonAsync<List<Shooter.Shared.Models.ActionServerInfo>>($"{siloUrl}api/world/action-servers", _disposeCts.Token);
             if (response != null)
             {
                 _serverZoneMap.Clear();
@@ -1189,6 +1201,10 @@
                 }
             }
         }
+        catch (OperationCanceledException)
+        {
+            // Component is being disposed, ignore
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to fetch server zone mappings");
@@ -1197,7 +1213,7 @@
     
     private async Task RefreshServerMappings()
     {
-        if (_isConnected)
+        if (_isConnected && !_disposeCts.Token.IsCancellationRequested)
         {
             await InvokeAsync(async () =>
             {
@@ -1290,6 +1306,8 @@
     
     public void Dispose()
     {
+        _disposeCts.Cancel();
+        
         _serverMappingTimer?.Stop();
         _serverMappingTimer?.Dispose();
         
@@ -1310,5 +1328,7 @@
         
         // Disconnect SignalR
         _ = SignalRChat.DisconnectAsync();
+        
+        _disposeCts.Dispose();
     }
 }

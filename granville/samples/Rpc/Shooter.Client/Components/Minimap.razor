@@ -283,7 +283,7 @@
     [Parameter] public List<GridSquare>? AvailableZones { get; set; }
     [Parameter] public int TotalSilos { get; set; }
     [Inject] private GranvilleRpcGameClientService RpcGameClient { get; set; } = default!;
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IHttpClientFactory HttpClientFactory { get; set; } = default!;
     [Inject] private IConfiguration Configuration { get; set; } = default!;
     [Inject] private ILogger<Minimap> Logger { get; set; } = default!;
     
@@ -297,6 +297,7 @@
     private int _actualZoneCount = 0;
     private int _desiredSiloCount = 2; // Will be updated from TotalSilos
     private int _actualSiloCount => TotalSilos > 0 ? TotalSilos : 1;
+    private CancellationTokenSource _disposeCts = new();
     
     private class ZoneStats
     {
@@ -308,7 +309,13 @@
     protected override void OnInitialized()
     {
         // Update zone stats every second
-        _updateTimer = new Timer(async _ => await UpdateZoneStats(), null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+        _updateTimer = new Timer(async _ => 
+        {
+            if (!_disposeCts.Token.IsCancellationRequested)
+            {
+                await UpdateZoneStats();
+            }
+        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
     }
     
     protected override void OnParametersSet()
@@ -341,11 +348,16 @@
     {
         try
         {
+            // Check if component is being disposed
+            if (_disposeCts.Token.IsCancellationRequested)
+                return;
+                
             // Get all zone stats from the silo
             var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
             if (!siloUrl.EndsWith("/")) siloUrl += "/";
             
-            var response = await Http.GetFromJsonAsync<List<WorldZoneStats>>($"{siloUrl}api/world/zone-stats");
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.GetFromJsonAsync<List<WorldZoneStats>>($"{siloUrl}api/world/zone-stats", _disposeCts.Token);
             if (response != null)
             {
                 _zoneStats.Clear();
@@ -363,8 +375,15 @@
                 // Update the actual zone count
                 _actualZoneCount = response.Count;
                 
-                await InvokeAsync(StateHasChanged);
+                if (!_disposeCts.Token.IsCancellationRequested)
+                {
+                    await InvokeAsync(StateHasChanged);
+                }
             }
+        }
+        catch (OperationCanceledException)
+        {
+            // Component is being disposed, ignore
         }
         catch (Exception ex)
         {
@@ -385,7 +404,8 @@
             var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
             if (!siloUrl.EndsWith("/")) siloUrl += "/";
             
-            var response = await Http.PostAsync($"{siloUrl}api/world/action-servers/add", null);
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync($"{siloUrl}api/world/action-servers/add", null, _disposeCts.Token);
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<ActionServerInfo>();
@@ -408,6 +428,11 @@
                     Logger.LogWarning("Another zone addition is already in progress. Please wait and try again.");
                 }
             }
+        }
+        catch (OperationCanceledException)
+        {
+            // Component is being disposed, ignore
+            _desiredZoneCount--; // Revert on failure
         }
         catch (Exception ex)
         {
@@ -432,7 +457,8 @@
             var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
             if (!siloUrl.EndsWith("/")) siloUrl += "/";
             
-            var serversResponse = await Http.GetFromJsonAsync<List<ActionServerInfo>>($"{siloUrl}api/world/action-servers");
+            using var httpClient = HttpClientFactory.CreateClient();
+            var serversResponse = await httpClient.GetFromJsonAsync<List<ActionServerInfo>>($"{siloUrl}api/world/action-servers", _disposeCts.Token);
             if (serversResponse != null && serversResponse.Any())
             {
                 // Sort by zone coordinates to get the "last" zone
@@ -444,8 +470,8 @@
                 Logger.LogInformation("Removing zone at ({X}, {Y})...", 
                     lastServer.AssignedSquare.X, lastServer.AssignedSquare.Y);
                 
-                var response = await Http.PostAsync(
-                    $"{siloUrl}api/world/action-servers/{lastServer.ServerId}/remove", null);
+                var response = await httpClient.PostAsync(
+                    $"{siloUrl}api/world/action-servers/{lastServer.ServerId}/remove", null, _disposeCts.Token);
                     
                 if (response.IsSuccessStatusCode)
                 {
@@ -464,6 +490,10 @@
             {
                 Logger.LogWarning("No zones available to remove");
             }
+        }
+        catch (OperationCanceledException)
+        {
+            // Component is being disposed, ignore
         }
         catch (Exception ex)
         {
@@ -488,7 +518,8 @@
             var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
             if (!siloUrl.EndsWith("/")) siloUrl += "/";
             
-            var response = await Http.PostAsync($"{siloUrl}api/world/silos/add", null);
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync($"{siloUrl}api/world/silos/add", null, _disposeCts.Token);
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<Shooter.Shared.GrainInterfaces.SiloInfo>();
@@ -509,6 +540,11 @@
                     Logger.LogWarning("Silo addition not implemented in this environment");
                 }
             }
+        }
+        catch (OperationCanceledException)
+        {
+            // Component is being disposed, ignore
+            _desiredSiloCount--; // Revert on failure
         }
         catch (Exception ex)
         {
@@ -535,7 +571,8 @@
             var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
             if (!siloUrl.EndsWith("/")) siloUrl += "/";
             
-            var response = await Http.PostAsync($"{siloUrl}api/world/silos/remove", null);
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync($"{siloUrl}api/world/silos/remove", null, _disposeCts.Token);
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
@@ -556,6 +593,11 @@
                 }
             }
         }
+        catch (OperationCanceledException)
+        {
+            // Component is being disposed, ignore
+            _desiredSiloCount++; // Revert on failure
+        }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error removing silo");
@@ -570,7 +612,9 @@
     
     public void Dispose()
     {
+        _disposeCts.Cancel();
         _updateTimer?.Dispose();
+        _disposeCts.Dispose();
     }
     
     // DTOs for zone management

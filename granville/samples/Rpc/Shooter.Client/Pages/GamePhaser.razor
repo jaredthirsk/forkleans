@@ -6,7 +6,7 @@
 @inject GranvilleRpcGameClientService RpcGameClient
 @inject NavigationManager Navigation
 @inject ILogger<GamePhaser> Logger
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
 @implements IDisposable
 
@@ -127,6 +127,7 @@
     private bool _isInitialized = false;
     private System.Timers.Timer? _updateTimer;
     private Dictionary<string, GridSquare> _serverZoneMap = new();
+    private CancellationTokenSource _disposeCts = new();
     private AutoMoveController? _autoMoveController;
     private bool _isAutoMoveEnabled = false;
     private bool _isAutoShootEnabled = false;
@@ -199,7 +200,13 @@
                 
                 // Start auto features timer (automove and autoshoot)
                 _autoMoveTimer = new System.Timers.Timer(100); // 100ms update rate
-                _autoMoveTimer.Elapsed += async (sender, e) => await UpdateAutoFeatures();
+                _autoMoveTimer.Elapsed += async (sender, e) => 
+                {
+                    if (!_disposeCts.Token.IsCancellationRequested)
+                    {
+                        await UpdateAutoFeatures();
+                    }
+                };
                 _autoMoveTimer.Start();
                 
                 _isInitialized = true;
@@ -311,7 +318,7 @@
     
     private async Task UpdateStats()
     {
-        if (!_isInitialized) return;
+        if (!_isInitialized || _disposeCts.Token.IsCancellationRequested) return;
         
         try
         {
@@ -319,7 +326,8 @@
             if (!siloUrl.EndsWith("/")) siloUrl += "/";
             
             // Update zone count
-            var zonesResponse = await Http.GetFromJsonAsync<List<WorldZoneStats>>($"{siloUrl}api/world/zone-stats");
+            using var httpClient = HttpClientFactory.CreateClient();
+            var zonesResponse = await httpClient.GetFromJsonAsync<List<WorldZoneStats>>($"{siloUrl}api/world/zone-stats", _disposeCts.Token);
             if (zonesResponse != null)
             {
                 _actualZoneCount = zonesResponse.Count;
@@ -333,7 +341,14 @@
             }
             
             
-            await InvokeAsync(StateHasChanged);
+            if (!_disposeCts.Token.IsCancellationRequested)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Component is being disposed, ignore
         }
         catch (Exception ex)
         {
@@ -564,9 +579,14 @@
     {
         try
         {
+            // Check if component is being disposed
+            if (_disposeCts.Token.IsCancellationRequested)
+                return;
+                
             var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
             if (!siloUrl.EndsWith("/")) siloUrl += "/";
-            var response = await Http.GetFromJsonAsync<List<Shooter.Shared.Models.ActionServerInfo>>($"{siloUrl}api/world/action-servers");
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.GetFromJsonAsync<List<Shooter.Shared.Models.ActionServerInfo>>($"{siloUrl}api/world/action-servers", _disposeCts.Token);
             if (response != null)
             {
                 _serverZoneMap.Clear();
@@ -576,6 +596,10 @@
                 }
                 Logger.LogInformation("Fetched {Count} server zone mappings", _serverZoneMap.Count);
             }
+        }
+        catch (OperationCanceledException)
+        {
+            // Component is being disposed, ignore
         }
         catch (Exception ex)
         {
@@ -619,7 +643,8 @@
             var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
             if (!siloUrl.EndsWith("/")) siloUrl += "/";
             
-            var response = await Http.PostAsync($"{siloUrl}api/world/bots/add", null);
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync($"{siloUrl}api/world/bots/add", null, _disposeCts.Token);
             if (response.IsSuccessStatusCode)
             {
                 Logger.LogInformation("Successfully added new bot");
@@ -632,6 +657,11 @@
                 AddSystemMessage($"Failed to add bot: {response.StatusCode}");
                 _desiredBotCount--; // Revert on failure
             }
+        }
+        catch (OperationCanceledException)
+        {
+            // Component is being disposed, ignore
+            _desiredBotCount--; // Revert on failure
         }
         catch (Exception ex)
         {
@@ -659,7 +689,8 @@
             var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
             if (!siloUrl.EndsWith("/")) siloUrl += "/";
             
-            var response = await Http.PostAsync($"{siloUrl}api/world/bots/remove", null);
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync($"{siloUrl}api/world/bots/remove", null, _disposeCts.Token);
             if (response.IsSuccessStatusCode)
             {
                 Logger.LogInformation("Successfully removed bot");
@@ -672,6 +703,11 @@
                 AddSystemMessage($"Failed to remove bot: {response.StatusCode}");
                 _desiredBotCount++; // Revert on failure
             }
+        }
+        catch (OperationCanceledException)
+        {
+            // Component is being disposed, ignore
+            _desiredBotCount++; // Revert on failure
         }
         catch (Exception ex)
         {
@@ -699,7 +735,8 @@
             var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
             if (!siloUrl.EndsWith("/")) siloUrl += "/";
             
-            var response = await Http.PostAsync($"{siloUrl}api/world/action-servers/add", null);
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync($"{siloUrl}api/world/action-servers/add", null, _disposeCts.Token);
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<Shooter.Shared.Models.ActionServerInfo>();
@@ -724,6 +761,11 @@
                 
                 _desiredZoneCount--; // Revert on failure
             }
+        }
+        catch (OperationCanceledException)
+        {
+            // Component is being disposed, ignore
+            _desiredZoneCount--; // Revert on failure
         }
         catch (Exception ex)
         {
@@ -750,7 +792,8 @@
             var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
             if (!siloUrl.EndsWith("/")) siloUrl += "/";
             
-            var serversResponse = await Http.GetFromJsonAsync<List<Shooter.Shared.Models.ActionServerInfo>>($"{siloUrl}api/world/action-servers");
+            using var httpClient = HttpClientFactory.CreateClient();
+            var serversResponse = await httpClient.GetFromJsonAsync<List<Shooter.Shared.Models.ActionServerInfo>>($"{siloUrl}api/world/action-servers", _disposeCts.Token);
             if (serversResponse != null && serversResponse.Any())
             {
                 // Sort by zone coordinates to get the "last" zone
@@ -762,7 +805,7 @@
                 Logger.LogInformation("Removing zone at ({X}, {Y})...", 
                     lastServer.AssignedSquare.X, lastServer.AssignedSquare.Y);
                 
-                var response = await Http.PostAsync(
+                var response = await httpClient.PostAsync(
                     $"{siloUrl}api/world/action-servers/{lastServer.ServerId}/remove", null);
                     
                 if (response.IsSuccessStatusCode)
@@ -784,6 +827,11 @@
                 AddSystemMessage("No zones available to remove");
                 _desiredZoneCount++; // Revert if no zones to remove
             }
+        }
+        catch (OperationCanceledException)
+        {
+            // Component is being disposed, ignore
+            _desiredZoneCount++; // Revert on failure
         }
         catch (Exception ex)
         {
@@ -848,9 +896,15 @@
     
     public void Dispose()
     {
+        _disposeCts.Cancel();
+        
+        _updateTimer?.Stop();
         _updateTimer?.Dispose();
+        _autoMoveTimer?.Stop();
         _autoMoveTimer?.Dispose();
+        _statsUpdateTimer?.Stop();
         _statsUpdateTimer?.Dispose();
+        _warningClearTimer?.Stop();
         _warningClearTimer?.Dispose();
         _dotNetRef?.Dispose();
         
@@ -870,6 +924,8 @@
             }
             catch { }
         }
+        
+        _disposeCts.Dispose();
     }
     
     // DTOs for zone stats
