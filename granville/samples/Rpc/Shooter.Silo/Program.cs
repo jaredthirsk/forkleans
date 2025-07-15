@@ -159,7 +159,12 @@ builder.Host.UseOrleans(siloBuilder =>
         .AddMemoryGrainStorage("statsStore")  // Fix Issue 3: Add missing statsStore
         .AddMemoryGrainStorage(UFX.Orleans.SignalRBackplane.Constants.StorageName) // UFX SignalR backplane storage
         .UseInMemoryReminderService()
-        .AddSignalRBackplane()  // Enable SignalR backplane for multi-silo support
+        .AddSignalRBackplane();  // Enable SignalR backplane for multi-silo support
+        
+        // Orleans Dashboard is currently disabled due to compatibility issues with Orleans 9.1.2
+        // The dashboard package (8.2.0) is looking for GrainTimerCreationOptions.set_DueTime which doesn't exist in Orleans 9.x
+        // TODO: Re-enable when a compatible version is available
+        /*
         .UseDashboard(options =>
         {
             options.HostSelf = true;
@@ -178,6 +183,7 @@ builder.Host.UseOrleans(siloBuilder =>
             
             Console.WriteLine($"Orleans Dashboard will be available at http://localhost:{dashboardPort}/");
         });
+        */
 });
 
 // TODO: Configure RPC client so Silo can communicate with ActionServers
