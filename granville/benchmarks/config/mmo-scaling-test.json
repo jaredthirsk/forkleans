@@ -1,114 +1,99 @@
 {
-  "benchmarkName": "MMO Scaling Test",
-  "description": "Tests massive multiplayer scenarios with zone distribution and cross-zone interactions",
-  "outputPath": "./results/mmo-scaling",
-  "warmupDuration": "00:00:10",
-  "measurementDuration": "00:02:00",
-  "enableDetailedLogging": true,
-  "exportFormats": ["json", "csv", "markdown"],
-  
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning"
+    }
+  },
+  "BenchmarkOptions": {
+    "UseRawTransport": true,
+    "UseActualTransport": true,
+    "ServerHost": "127.0.0.1",
+    "ServerPort": 12345,
+    "WarmupDuration": "00:00:10",
+    "TestDuration": "00:02:00",
+    "CooldownDuration": "00:00:05",
+    "ClientCount": 100,
+    "MessageSize": 512,
+    "MessagesPerSecond": 30,
+    "Transports": [
+      {
+        "Type": "LiteNetLib",
+        "Reliable": false,
+        "Settings": {
+          "disconnectTimeout": 5000,
+          "maxConnectAttempts": 10
+        }
+      },
+      {
+        "Type": "LiteNetLib",
+        "Reliable": true,
+        "Settings": {
+          "disconnectTimeout": 5000,
+          "maxConnectAttempts": 10
+        }
+      },
+      {
+        "Type": "Ruffles",
+        "Reliable": false,
+        "Settings": {
+          "channelCount": 8,
+          "socketBufferSize": 16384,
+          "connectionTimeout": 5000
+        }
+      },
+      {
+        "Type": "Ruffles",
+        "Reliable": true,
+        "Settings": {
+          "channelCount": 8,
+          "socketBufferSize": 16384,
+          "connectionTimeout": 5000
+        }
+      }
+    ],
+    "NetworkConditions": [
+      {
+        "Name": "default",
+        "LatencyMs": 0,
+        "JitterMs": 0,
+        "PacketLoss": 0.0,
+        "Bandwidth": 0
+      }
+    ]
+  },
   "workloads": [
     {
       "name": "MMO-Small-Scale",
-      "type": "MmoGame",
+      "description": "Small MMO test with 100 players across 2 zones",
       "clientCount": 100,
-      "updateRateHz": 10,
-      "messageSizeBytes": 128,
-      "useRawTransport": true,
-      "customSettings": {
-        "ZoneCount": 2,
-        "GuildSize": 10,
-        "CrossZoneInteractionRate": 0.05,
-        "CombatPlayerRatio": 0.2,
-        "PlayerActivityCycle": "00:01:00"
-      }
+      "zoneCount": 2,
+      "messageSize": 512,
+      "messagesPerSecond": 30
     },
     {
       "name": "MMO-Medium-Scale",
-      "type": "MmoGame", 
+      "description": "Medium MMO test with 500 players across 5 zones",
       "clientCount": 500,
-      "updateRateHz": 8,
-      "messageSizeBytes": 128,
-      "useRawTransport": true,
-      "customSettings": {
-        "ZoneCount": 4,
-        "GuildSize": 20,
-        "CrossZoneInteractionRate": 0.08,
-        "CombatPlayerRatio": 0.3,
-        "PlayerActivityCycle": "00:01:30"
-      }
+      "zoneCount": 5,
+      "messageSize": 512,
+      "messagesPerSecond": 20
     },
     {
       "name": "MMO-Large-Scale",
-      "type": "MmoGame",
+      "description": "Large MMO test with 1000 players across 10 zones",
       "clientCount": 1000,
-      "updateRateHz": 5,
-      "messageSizeBytes": 128,
-      "useRawTransport": true,
-      "customSettings": {
-        "ZoneCount": 8,
-        "GuildSize": 25,
-        "CrossZoneInteractionRate": 0.1,
-        "CombatPlayerRatio": 0.4,
-        "PlayerActivityCycle": "00:02:00"
-      }
+      "zoneCount": 10,
+      "messageSize": 1024,
+      "messagesPerSecond": 10
     },
     {
       "name": "MMO-Massive-Scale",
-      "type": "MmoGame",
-      "clientCount": 2000,
-      "updateRateHz": 3,
-      "messageSizeBytes": 128,
-      "useRawTransport": true,
-      "customSettings": {
-        "ZoneCount": 10,
-        "GuildSize": 30,
-        "CrossZoneInteractionRate": 0.12,
-        "CombatPlayerRatio": 0.5,
-        "PlayerActivityCycle": "00:03:00"
-      }
-    }
-  ],
-  
-  "transports": [
-    {
-      "name": "LiteNetLib-Unreliable",
-      "type": "LiteNetLib",
-      "reliable": false
-    },
-    {
-      "name": "LiteNetLib-Reliable",
-      "type": "LiteNetLib", 
-      "reliable": true
-    },
-    {
-      "name": "Ruffles-Unreliable",
-      "type": "Ruffles",
-      "reliable": false
-    }
-  ],
-  
-  "networkConditions": [
-    {
-      "name": "perfect",
-      "latencyMs": 0,
-      "jitterMs": 0,
-      "packetLoss": 0.0,
-      "bandwidth": 0
-    },
-    {
-      "name": "lan", 
-      "latencyMs": 1,
-      "jitterMs": 0,
-      "packetLoss": 0.0,
-      "bandwidth": 1000000000
-    },
-    {
-      "name": "regional",
-      "latencyMs": 30,
-      "jitterMs": 5,
-      "packetLoss": 0.001,
-      "bandwidth": 100000000
+      "description": "Massive MMO test with 5000 players across 50 zones",
+      "clientCount": 5000,
+      "zoneCount": 50,
+      "messageSize": 1024,
+      "messagesPerSecond": 5
     }
   ]
 }
