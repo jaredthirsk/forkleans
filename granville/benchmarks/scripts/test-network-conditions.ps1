@@ -20,14 +20,14 @@ Write-Host ""
 
 # Build the project first
 Write-Host "Building benchmarks..." -ForegroundColor Yellow
-dotnet build ../src/Granville.Benchmarks.sln -c Release
+dotnet build ./src/Granville.Benchmarks.Runner/Granville.Benchmarks.Runner.csproj -c Release
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Build failed"
     exit 1
 }
 
 # Change to runner directory
-Push-Location ../src/Granville.Benchmarks.Runner
+Push-Location ./src/Granville.Benchmarks.Runner
 
 try {
     # Prepare network profiles

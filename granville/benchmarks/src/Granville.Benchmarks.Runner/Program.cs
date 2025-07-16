@@ -36,6 +36,8 @@ namespace Granville.Benchmarks.Runner
                     // Register workloads
                     services.AddTransient<IWorkload, FpsGameWorkload>();
                     services.AddTransient<IWorkload, MobaGameWorkload>();
+                    services.AddTransient<IWorkload, MmoGameWorkload>();
+                    services.AddTransient<IWorkload, StressTestWorkload>();
                     
                     // Configure options
                     services.Configure<BenchmarkOptions>(context.Configuration.GetSection("BenchmarkOptions"));
