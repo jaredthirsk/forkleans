@@ -80,7 +80,12 @@ try {
             Write-Host "  Running with $($step.Clients) clients for $($step.Duration)..." -ForegroundColor Cyan
             
             # Create modified config
-            $config = Get-Content $ConfigFile | ConvertFrom-Json
+            $configPath = if ([System.IO.Path]::IsPathRooted($ConfigFile)) {
+                $ConfigFile
+            } else {
+                Join-Path $PSScriptRoot ".." $ConfigFile
+            }
+            $config = Get-Content $configPath | ConvertFrom-Json
             
             # Find the appropriate workload scale
             $workloadScale = switch ($test.Name) {
@@ -117,16 +122,15 @@ try {
                     Select-Object -First 1
             }
             
-            # Set output path
-            $config.outputPath = "./results/mmo-scaling/$($test.Name)-$($step.Clients)clients"
-            $config.benchmarkName = "MMO-$($test.Name)-$($step.Clients)clients"
+            # Note: Output path is controlled by the runner based on its configuration
+            # We can't set arbitrary properties on the config object
             
-            if ($Quick) {
-                $config.warmupDuration = "00:00:05"
+            if ($Quick -and $config.BenchmarkOptions) {
+                $config.BenchmarkOptions.WarmupDuration = "00:00:05"
             }
             
             # Save temporary config
-            $tempConfig = "temp-mmo-$($test.Name)-$($step.Clients).json"
+            $tempConfig = Join-Path $PSScriptRoot "temp-mmo-$($test.Name)-$($step.Clients).json"
             $config | ConvertTo-Json -Depth 10 | Set-Content $tempConfig
             
             # Run benchmark
