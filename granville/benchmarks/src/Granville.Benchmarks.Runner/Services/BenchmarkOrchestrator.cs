@@ -260,54 +260,6 @@ namespace Granville.Benchmarks.Runner.Services
         }
     }
     
-    public class BenchmarkOptions
-    {
-        public int ClientCount { get; set; } = 100;
-        public int MessageSize { get; set; } = 256;
-        public int MessagesPerSecond { get; set; } = 60;
-        public TimeSpan WarmupDuration { get; set; } = TimeSpan.FromSeconds(10);
-        public TimeSpan TestDuration { get; set; } = TimeSpan.FromMinutes(1);
-        public TimeSpan CooldownDuration { get; set; } = TimeSpan.FromSeconds(5);
-        public List<TransportConfiguration> Transports { get; set; } = new();
-        public List<NetworkCondition> NetworkConditions { get; set; } = new();
-        
-        /// <summary>
-        /// When true, use actual network calls instead of simulation delays
-        /// </summary>
-        public bool UseRawTransport { get; set; } = false;
-        
-        /// <summary>
-        /// Server host for raw transport benchmarks
-        /// </summary>
-        public string ServerHost { get; set; } = "127.0.0.1";
-        
-        /// <summary>
-        /// Server port for raw transport benchmarks
-        /// </summary>
-        public int ServerPort { get; set; } = 12345;
-        
-        /// <summary>
-        /// When true, use actual network transport implementations instead of simulation
-        /// </summary>
-        public bool UseActualTransport { get; set; } = false;
-    }
-    
-    public class TransportConfiguration
-    {
-        public string Type { get; set; } = "";
-        public bool Reliable { get; set; }
-        public Dictionary<string, object> Settings { get; set; } = new();
-    }
-    
-    public class NetworkCondition
-    {
-        public string Name { get; set; } = "default";
-        public int LatencyMs { get; set; }
-        public int JitterMs { get; set; }
-        public double PacketLoss { get; set; }
-        public long Bandwidth { get; set; }
-    }
-    
     public class BenchmarkResult
     {
         public string TestName { get; set; } = "";

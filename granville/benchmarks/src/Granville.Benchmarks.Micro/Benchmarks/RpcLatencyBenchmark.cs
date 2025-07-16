@@ -35,10 +35,10 @@ namespace Granville.Benchmarks.Micro.Benchmarks
         }
         
         [Benchmark(Baseline = true)]
-        [OperationsPerInvoke(1000)] // Run 1,000 operations per invocation for async benchmarks
+        // [OperationsPerInvoke(1000)] // Run 1,000 operations per invocation for async benchmarks
         public async Task<byte[]> SmallPayload_Simulation()
         {
-            byte[] result = null;
+            byte[] result = _smallPayload;
             for (int i = 0; i < 1000; i++)
             {
                 // Simulate network round-trip with minimal overhead
@@ -49,10 +49,10 @@ namespace Granville.Benchmarks.Micro.Benchmarks
         }
         
         [Benchmark]
-        [OperationsPerInvoke(1000)] // Run 1,000 operations per invocation for async benchmarks
+        // [OperationsPerInvoke(1000)] // Run 1,000 operations per invocation for async benchmarks
         public async Task<byte[]> MediumPayload_Simulation()
         {
-            byte[] result = null;
+            byte[] result = _mediumPayload;
             for (int i = 0; i < 1000; i++)
             {
                 await Task.Yield();
@@ -62,10 +62,10 @@ namespace Granville.Benchmarks.Micro.Benchmarks
         }
         
         [Benchmark]
-        [OperationsPerInvoke(1000)] // Run 1,000 operations per invocation for async benchmarks
+        // [OperationsPerInvoke(1000)] // Run 1,000 operations per invocation for async benchmarks
         public async Task<byte[]> LargePayload_Simulation()
         {
-            byte[] result = null;
+            byte[] result = _largePayload;
             for (int i = 0; i < 1000; i++)
             {
                 await Task.Yield();
@@ -75,10 +75,10 @@ namespace Granville.Benchmarks.Micro.Benchmarks
         }
         
         [Benchmark]
-        [OperationsPerInvoke(10000)] // Run 10,000 operations per invocation to increase iteration time
+        // [OperationsPerInvoke(10000)] // Run 10,000 operations per invocation to increase iteration time
         public byte[] SmallPayload_SerializationOnly()
         {
-            byte[] result = null;
+            byte[] result = _smallPayload;
             for (int i = 0; i < 10000; i++)
             {
                 result = SimulateSerializationRoundtrip(_smallPayload);
@@ -87,10 +87,10 @@ namespace Granville.Benchmarks.Micro.Benchmarks
         }
         
         [Benchmark]
-        [OperationsPerInvoke(5000)] // Run 5,000 operations per invocation for medium payload
+        // [OperationsPerInvoke(5000)] // Run 5,000 operations per invocation for medium payload
         public byte[] MediumPayload_SerializationOnly()
         {
-            byte[] result = null;
+            byte[] result = _mediumPayload;
             for (int i = 0; i < 5000; i++)
             {
                 result = SimulateSerializationRoundtrip(_mediumPayload);
@@ -99,10 +99,10 @@ namespace Granville.Benchmarks.Micro.Benchmarks
         }
         
         [Benchmark]
-        [OperationsPerInvoke(1000)] // Run 1,000 operations per invocation for large payload
+        // [OperationsPerInvoke(1000)] // Run 1,000 operations per invocation for large payload
         public byte[] LargePayload_SerializationOnly()
         {
-            byte[] result = null;
+            byte[] result = _largePayload;
             for (int i = 0; i < 1000; i++)
             {
                 result = SimulateSerializationRoundtrip(_largePayload);

@@ -83,6 +83,34 @@ namespace Granville.Benchmarks.Core.Metrics
             Interlocked.Increment(ref _packetsLost);
         }
         
+        /// <summary>
+        /// Records an error occurrence (maps to RecordFailure)
+        /// </summary>
+        public void RecordError(string? errorMessage = null)
+        {
+            RecordFailure();
+        }
+        
+        /// <summary>
+        /// Records a successful message with latency (maps to RecordSuccess and RecordLatency)
+        /// </summary>
+        public void RecordMessage(double latencyMicros)
+        {
+            RecordSuccess();
+            RecordLatency(latencyMicros);
+        }
+        
+        /// <summary>
+        /// Records a successful message with latency and byte count
+        /// </summary>
+        public void RecordMessage(double latencyMicros, int byteCount)
+        {
+            RecordSuccess();
+            RecordLatency(latencyMicros);
+            RecordBytesSent(byteCount);
+            RecordPacketSent();
+        }
+        
         public BenchmarkMetrics GetMetrics(string testName, string transportType, bool isReliable, int messageSize, int concurrentClients)
         {
             _stopwatch.Stop();

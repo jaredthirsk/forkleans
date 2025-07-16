@@ -204,7 +204,7 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
                     }
                     else
                     {
-                        metricsCollector.RecordError($"Send failed: {result.Error}");
+                        metricsCollector.RecordError($"Send failed: {result.ErrorMessage}");
                     }
                 }
                 catch (Exception ex)
@@ -235,20 +235,20 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
             
             if (result.Success)
             {
-                metricsCollector.RecordMessage(result.LatencyMs, transitionData.Length);
+                metricsCollector.RecordMessage(result.LatencyMicroseconds, transitionData.Length);
             }
         }
         
         private async Task<RawTransportResult> SendToZone(ZoneInfo zone, byte[] data)
         {
-            return await zone.Transport.SendAsync(data, $"zone_{zone.ZoneId}");
+            return await zone.Transport.SendAsync(data, true, CancellationToken.None);
         }
         
         private async Task<RawTransportResult> SendToGuild(PlayerState player, byte[] data)
         {
             // For guild messages, use the zone transport but with guild targeting
             var zone = _zones[player.CurrentZone];
-            return await zone.Transport.SendAsync(data, $"guild_{player.GuildId}");
+            return await zone.Transport.SendAsync(data, true, CancellationToken.None);
         }
         
         private async Task<RawTransportResult> SendCrossZone(PlayerState player, byte[] data)
@@ -261,7 +261,7 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
             }
             
             var zone = _zones[targetZone];
-            return await zone.Transport.SendAsync(data, $"crosszone_{targetZone}");
+            return await zone.Transport.SendAsync(data, true, CancellationToken.None);
         }
         
         private async Task<IRawTransport> CreateTransportForZone(int zoneId, WorkloadConfiguration configuration)
@@ -283,7 +283,7 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
             var networkEmulator = _serviceProvider.GetService<NetworkEmulator>();
             var transport = TransportFactory.CreateTransport(transportConfig, _serviceProvider, configuration.UseActualTransport, networkEmulator);
             
-            await transport.ConnectAsync(transportConfig);
+            await transport.InitializeAsync(transportConfig);
             return transport;
         }
         

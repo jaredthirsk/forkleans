@@ -233,17 +233,17 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
                 {
                     try
                     {
-                        var result = await transport.SendAsync(messageData, $"burst_{client.ClientId}_{i}");
+                        var result = await transport.SendAsync(messageData, true, CancellationToken.None);
                         if (result.Success)
                         {
                             client.MessagesSent++;
                             client.CurrentBurstCount++;
-                            metricsCollector.RecordMessage(result.LatencyMs, messageData.Length);
+                            metricsCollector.RecordMessage(result.LatencyMicroseconds, messageData.Length);
                         }
                         else
                         {
                             client.ErrorsEncountered++;
-                            metricsCollector.RecordError($"Burst send failed: {result.Error}");
+                            metricsCollector.RecordError($"Burst send failed: {result.ErrorMessage}");
                         }
                     }
                     catch (Exception ex)
@@ -402,18 +402,18 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
             
             try
             {
-                var result = await transport.SendAsync(data, messageId);
+                var result = await transport.SendAsync(data, true, CancellationToken.None);
                 stopwatch.Stop();
                 
                 if (result.Success)
                 {
                     client.MessagesSent++;
-                    metricsCollector.RecordMessage(result.LatencyMs, data.Length);
+                    metricsCollector.RecordMessage(result.LatencyMicroseconds, data.Length);
                 }
                 else
                 {
                     client.ErrorsEncountered++;
-                    metricsCollector.RecordError($"Send failed: {result.Error}");
+                    metricsCollector.RecordError($"Send failed: {result.ErrorMessage}");
                 }
             }
             catch (Exception ex)
@@ -438,7 +438,7 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
             var networkEmulator = _serviceProvider.GetService<NetworkEmulator>();
             var transport = TransportFactory.CreateTransport(transportConfig, _serviceProvider, _configuration.UseActualTransport, networkEmulator);
             
-            await transport.ConnectAsync(transportConfig);
+            await transport.InitializeAsync(transportConfig);
             _transports.Add(transport);
             
             return transport;

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Granville.Benchmarks.Runner.Services;
 using Granville.Benchmarks.Core.Workloads;
+using Granville.Benchmarks.Core.Transport;
 using Granville.Benchmarks.EndToEnd.Workloads;
 
 namespace Granville.Benchmarks.Runner
