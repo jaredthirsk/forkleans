@@ -17,6 +17,18 @@ The Granville Orleans fork maintains a minimal set of changes to upstream Orlean
 2. **Granville RPC Integration**: Additional RPC functionality under `/src/Rpc/`
 3. **Compatibility Shims**: Type-forwarding for Microsoft.Orleans package compatibility
 
+### Minimal Impact Strategy
+
+The fork maintains minimal changes to upstream files by:
+1. Using separate `AssemblyInfo.Granville.cs` files for Granville-specific InternalsVisibleTo attributes
+2. Using `Directory.Build.targets` for build-time assembly renaming without modifying individual project files
+3. Keeping all Granville-specific tools and scripts in separate directories
+4. Using assembly redirects at runtime rather than modifying source code
+
+This strategy minimizes merge conflicts during upgrades and makes it easier to track our changes.
+
+**For detailed information on current modifications**, see [MODIFICATIONS-TO-UPSTREAM.md](../MODIFICATIONS-TO-UPSTREAM.md) which maintains a comprehensive inventory of all changes made to upstream Orleans files.
+
 ## Pre-Upgrade Assessment
 
 Before upgrading to a new Orleans version, perform these assessment steps:
@@ -33,6 +45,12 @@ cat /mnt/g/forks/orleans/granville/fork-maintenance/MODIFICATIONS-TO-UPSTREAM.md
 cd /mnt/g/forks/orleans
 ./granville/compatibility-tools/Assess-UpstreamChanges.ps1
 ```
+
+The assessment script will:
+1. Compare against the upstream Orleans repository
+2. Identify all added, modified, and deleted files in src/ (excluding src/Rpc)
+3. Generate a detailed markdown report
+4. Help track our minimal impact on the Orleans codebase
 
 ### 2. Check Orleans Release Notes
 
@@ -142,6 +160,9 @@ cd /mnt/g/forks/orleans/granville/scripts
 cd /mnt/g/forks/orleans/granville/scripts
 ./build-all-granville.ps1
 
+# Alternative: Build Orleans assemblies with Granville prefix
+./build-granville-orleans.ps1
+
 # Test core Orleans functionality
 cd /mnt/g/forks/orleans
 dotnet test Orleans.sln -c Release --no-build
@@ -150,6 +171,10 @@ dotnet test Orleans.sln -c Release --no-build
 cd /mnt/g/forks/orleans/granville/samples/Rpc
 ./test-multi-silo-chat.ps1
 ```
+
+**Build Script Options:**
+- `./build-all-granville.ps1` - Builds all Granville components (Orleans + RPC)
+- `./build-granville-orleans.ps1` - Builds only Orleans assemblies with Granville prefix
 
 ## Post-Upgrade Validation
 
@@ -189,8 +214,11 @@ cd /mnt/g/forks/orleans/granville/samples/Rpc
 
 ```bash
 # Update this document with any new findings
-# Update MODIFICATIONS-TO-UPSTREAM.md if needed
+# Update MODIFICATIONS-TO-UPSTREAM.md with new modifications inventory
 # Update any version-specific documentation
+# Re-run assessment to verify changes are properly tracked
+cd /mnt/g/forks/orleans
+./granville/compatibility-tools/Assess-UpstreamChanges.ps1
 ```
 
 ## Orleans 9.2.0 Specific Considerations
@@ -209,6 +237,14 @@ Based on Orleans release patterns, version 9.2.0 typically includes:
 2. **Breaking Changes**: Review release notes for any breaking changes
 3. **Code Generation Changes**: Ensure our custom code generation still works
 4. **Serialization Updates**: Verify compatibility with our serialization shims
+
+### Merge Conflict Expectations
+
+When syncing with upstream Orleans, expect conflicts in:
+1. Modified files listed in [MODIFICATIONS-TO-UPSTREAM.md](../MODIFICATIONS-TO-UPSTREAM.md) may have merge conflicts
+2. New files added by this fork will not conflict
+3. The assembly info files have been restored to their original state, reducing conflicts
+4. The main point of conflict will be `Directory.Build.targets` if upstream adds one
 
 ### Migration Strategy
 

@@ -11,6 +11,8 @@ This document tracks all modifications made to upstream Orleans files in the Gra
 
 Based on automated analysis using `/granville/compatibility-tools/Assess-UpstreamChanges.ps1`:
 
+**For upgrade procedures using this information**, see [Upstream Sync Procedures](procedures/SYNC-FROM-UPSTREAM.md).
+
 **Total changes (excluding granville/, src/Rpc/, and test/Rpc/):**
 - **Added files**: 20 (legitimate fork modifications after cleanup)
 - **Modified files**: 19 (5 in root directory, 14 in src/)
@@ -128,37 +130,9 @@ The fork maintains minimal changes to upstream files by:
 3. Keeping all Granville-specific tools and scripts in separate directories
 4. Using assembly redirects at runtime rather than modifying source code
 
-## Syncing with Upstream
+## References
 
-When syncing with upstream Orleans:
-1. The modified files listed above may have merge conflicts
-2. New files added by this fork will not conflict
-3. The assembly info files have been restored to their original state, reducing conflicts
-4. The main point of conflict will be `Directory.Build.targets` if upstream adds one
-
-## Assessing Upstream Changes
-
-To run the automated assessment of upstream changes:
-```powershell
-./granville/compatibility-tools/Assess-UpstreamChanges.ps1
-```
-
-This script will:
-1. Compare against the upstream Orleans repository
-2. Identify all added, modified, and deleted files in src/ (excluding src/Rpc)
-3. Generate a detailed markdown report
-4. Help track our minimal impact on the Orleans codebase
-
-## Building Granville Orleans
-
-To build Granville Orleans assemblies:
-```bash
-./granville/scripts/build-granville.sh
-```
-
-Or on Windows:
-```powershell
-./granville/scripts/build-granville-orleans.ps1
-```
-
-This will build all Orleans assemblies with the Granville.Orleans.* prefix while maintaining compatibility with code expecting Microsoft.Orleans.* assemblies.
+For procedural information on syncing with upstream Orleans, see:
+- [Upstream Sync Procedures](procedures/SYNC-FROM-UPSTREAM.md) - Complete upgrade procedures
+- [Repository Organization](../REPO-ORGANIZATION.md) - Repository structure guidelines
+- [Building Documentation](../../docs/BUILDING.md) - Build instructions
