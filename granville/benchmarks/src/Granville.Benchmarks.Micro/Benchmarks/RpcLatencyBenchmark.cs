@@ -35,11 +35,11 @@ namespace Granville.Benchmarks.Micro.Benchmarks
         }
         
         [Benchmark(Baseline = true)]
-        // [OperationsPerInvoke(1000)] // Run 1,000 operations per invocation for async benchmarks
+        // [OperationsPerInvoke(2000)] // Run 2,000 operations per invocation for async benchmarks
         public async Task<byte[]> SmallPayload_Simulation()
         {
             byte[] result = _smallPayload;
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 2000; i++)
             {
                 // Simulate network round-trip with minimal overhead
                 await Task.Yield();
