@@ -1,0 +1,34 @@
+info: Granville.Benchmarks.Runner.Program[0]
+      Granville RPC Benchmark Runner starting...
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark orchestration
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Found 4 workloads to run
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Running benchmarks for workload: FPS Game Simulation
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: FPS Game Simulation_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Initializing workload FPS Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Starting workload FPS Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload duration reached, stopping clients
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload FPS Game Simulation completed. Messages: 275248, Success rate: 100.00 %
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Cooling down for 00:00:05
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Cleaning up workload FPS Game Simulation
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Completed benchmark: FPS Game Simulation_LiteNetLib_default. Messages: 275248, Latency: 8.30ms
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: FPS Game Simulation_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Initializing workload FPS Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Starting workload FPS Game Simulation

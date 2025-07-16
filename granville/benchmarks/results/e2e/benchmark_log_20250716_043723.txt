@@ -1,0 +1,202 @@
+info: Granville.Benchmarks.Runner.Program[0]
+      Granville RPC Benchmark Runner starting...
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark orchestration
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Found 4 workloads to run
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Running benchmarks for workload: FPS Game Simulation
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: FPS Game Simulation_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Initializing workload FPS Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Starting workload FPS Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload duration reached, stopping clients
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload FPS Game Simulation completed. Messages: 271702, Success rate: 100.00 %
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Cooling down for 00:00:05
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Cleaning up workload FPS Game Simulation
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Completed benchmark: FPS Game Simulation_LiteNetLib_default. Messages: 271702, Latency: 7.93ms
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: FPS Game Simulation_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Initializing workload FPS Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Starting workload FPS Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload duration reached, stopping clients
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Workload FPS Game Simulation completed. Messages: 274344, Success rate: 100.00 %
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Cooling down for 00:00:05
+info: Granville.Benchmarks.EndToEnd.Workloads.FpsGameWorkload[0]
+      Cleaning up workload FPS Game Simulation
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Completed benchmark: FPS Game Simulation_LiteNetLib_default. Messages: 274344, Latency: 8.11ms
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Running benchmarks for workload: MOBA Game Simulation
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: MOBA Game Simulation_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Initializing workload MOBA Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Starting workload MOBA Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload duration reached, stopping clients
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload MOBA Game Simulation completed. Messages: 294541, Success rate: 100.00 %
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Cooling down for 00:00:05
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Cleaning up workload MOBA Game Simulation
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Completed benchmark: MOBA Game Simulation_LiteNetLib_default. Messages: 294541, Latency: 13.62ms
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: MOBA Game Simulation_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Initializing workload MOBA Game Simulation with 100 clients
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Starting workload MOBA Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload duration reached, stopping clients
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Workload MOBA Game Simulation completed. Messages: 294658, Success rate: 100.00 %
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Cooling down for 00:00:05
+info: Granville.Benchmarks.EndToEnd.Workloads.MobaGameWorkload[0]
+      Cleaning up workload MOBA Game Simulation
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Completed benchmark: MOBA Game Simulation_LiteNetLib_default. Messages: 294658, Latency: 13.62ms
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Running benchmarks for workload: MMO Game Simulation
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: MMO Game Simulation_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Initializing workload MMO Game Simulation with 100 clients
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      MMO Configuration: 4 zones, 25 players/zone, 20 guild size
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Initialized Zone_0 on port 12345
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Initialized Zone_1 on port 12346
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Initialized Zone_2 on port 12347
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Initialized Zone_3 on port 12348
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Initialized 100 players across 4 zones with 6 guilds
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Starting workload MMO Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Workload duration reached, stopping clients
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Workload MMO Game Simulation completed. Messages: 107339, Success rate: 0.00 %
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Cooling down for 00:00:05
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Cleaning up workload MMO Game Simulation
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Completed benchmark: MMO Game Simulation_LiteNetLib_default. Messages: 107339, Latency: 0.00ms
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: MMO Game Simulation_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Initializing workload MMO Game Simulation with 100 clients
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      MMO Configuration: 4 zones, 25 players/zone, 20 guild size
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Initialized Zone_0 on port 12345
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Initialized Zone_1 on port 12346
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Initialized Zone_2 on port 12347
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Initialized Zone_3 on port 12348
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Initialized 100 players across 4 zones with 6 guilds
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Starting workload MMO Game Simulation
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Workload duration reached, stopping clients
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Workload MMO Game Simulation completed. Messages: 55913, Success rate: 0.00 %
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Cooling down for 00:00:05
+info: Granville.Benchmarks.EndToEnd.Workloads.MmoGameWorkload[0]
+      Cleaning up workload MMO Game Simulation
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Completed benchmark: MMO Game Simulation_LiteNetLib_default. Messages: 55913, Latency: 0.00ms
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Running benchmarks for workload: Stress Test
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: Stress Test_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Initializing workload Stress Test with 100 clients
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Stress Test Configuration: Type=Mixed, Interval=30s, ErrorRate=5.00 %
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Starting workload Stress Test
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Workload duration reached, stopping clients
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Workload Stress Test completed. Messages: 35569, Success rate: 25.47 %
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Cooling down for 00:00:05
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Stress events summary: ErrorInjection: 27 (27 successful), BurstTraffic: 18 (18 successful), ConnectionStorm: 18 (18 successful), ResourceExhaustion: 21 (21 successful), NetworkPartition: 16 (16 successful)
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Cleaning up workload Stress Test
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Completed benchmark: Stress Test_LiteNetLib_default. Messages: 35569, Latency: 10.09ms
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Starting benchmark: Stress Test_LiteNetLib_default
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Initializing workload Stress Test with 100 clients
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Stress Test Configuration: Type=Mixed, Interval=30s, ErrorRate=5.00 %
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Warming up for 00:00:10
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Starting workload Stress Test
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Workload duration reached, stopping clients
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Workload Stress Test completed. Messages: 37335, Success rate: 26.99 %
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Cooling down for 00:00:05
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Stress events summary: BurstTraffic: 27 (27 successful), ErrorInjection: 18 (18 successful), ConnectionStorm: 18 (18 successful), ResourceExhaustion: 19 (19 successful), NetworkPartition: 18 (18 successful)
+info: Granville.Benchmarks.EndToEnd.Workloads.StressTestWorkload[0]
+      Cleaning up workload Stress Test
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Completed benchmark: Stress Test_LiteNetLib_default. Messages: 37335, Latency: 10.08ms
+info: Granville.Benchmarks.Runner.Services.ResultsExporter[0]
+      JSON results exported to /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Runner/bin/Release/net8.0/results/benchmark_results_20250716_044723.json
+info: Granville.Benchmarks.Runner.Services.ResultsExporter[0]
+      CSV results exported to /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Runner/bin/Release/net8.0/results/benchmark_results_20250716_044723.csv
+info: Granville.Benchmarks.Runner.Services.ResultsExporter[0]
+      Summary exported to /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Runner/bin/Release/net8.0/results/benchmark_results_20250716_044723_summary.md
+info: Granville.Benchmarks.Runner.Services.ResultsExporter[0]
+      Results exported to /mnt/g/forks/orleans/granville/benchmarks/src/Granville.Benchmarks.Runner/bin/Release/net8.0/results
+info: Granville.Benchmarks.Runner.Services.BenchmarkOrchestrator[0]
+      Benchmark orchestration completed. Total results: 8
+info: Granville.Benchmarks.Runner.Program[0]
+      All benchmarks completed successfully
