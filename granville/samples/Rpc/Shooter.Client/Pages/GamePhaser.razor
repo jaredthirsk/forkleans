@@ -202,9 +202,16 @@
                 _autoMoveTimer = new System.Timers.Timer(100); // 100ms update rate
                 _autoMoveTimer.Elapsed += async (sender, e) => 
                 {
-                    if (!_disposeCts.Token.IsCancellationRequested)
+                    try 
                     {
-                        await UpdateAutoFeatures();
+                        if (!_disposeCts.Token.IsCancellationRequested)
+                        {
+                            await UpdateAutoFeatures();
+                        }
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // CancellationTokenSource was disposed during component disposal
                     }
                 };
                 _autoMoveTimer.Start();
@@ -216,12 +223,32 @@
                 
                 // Start update timer for server info
                 _updateTimer = new System.Timers.Timer(1000);
-                _updateTimer.Elapsed += async (sender, e) => await UpdateServerInfo();
+                _updateTimer.Elapsed += async (sender, e) => 
+                {
+                    try 
+                    {
+                        await UpdateServerInfo();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // CancellationTokenSource was disposed during component disposal
+                    }
+                };
                 _updateTimer.Start();
                 
                 // Start stats update timer
                 _statsUpdateTimer = new System.Timers.Timer(2000); // Update every 2 seconds
-                _statsUpdateTimer.Elapsed += async (sender, e) => await UpdateStats();
+                _statsUpdateTimer.Elapsed += async (sender, e) => 
+                {
+                    try 
+                    {
+                        await UpdateStats();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // CancellationTokenSource was disposed during component disposal
+                    }
+                };
                 _statsUpdateTimer.Start();
             }
             catch (Exception ex)

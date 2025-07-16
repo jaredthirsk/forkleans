@@ -421,9 +421,16 @@
         _serverMappingTimer = new System.Timers.Timer(5000); // Every 5 seconds
         _serverMappingTimer.Elapsed += async (s, e) => 
         {
-            if (!_disposeCts.Token.IsCancellationRequested)
+            try 
             {
-                await RefreshServerMappings();
+                if (!_disposeCts.Token.IsCancellationRequested)
+                {
+                    await RefreshServerMappings();
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // CancellationTokenSource was disposed during component disposal
             }
         };
         _serverMappingTimer.Start();

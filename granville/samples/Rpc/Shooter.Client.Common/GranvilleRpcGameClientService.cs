@@ -32,7 +32,10 @@ public class GranvilleRpcGameClientService : IDisposable
     private Timer? _availableZonesTimer;
     private Timer? _chatPollingTimer;
     private Timer? _networkStatsTimer;
+    private Timer? _watchdogTimer;
     private DateTime _lastChatPollTime = DateTime.UtcNow;
+    private DateTime _lastWorldStatePollTime = DateTime.UtcNow;
+    private int _worldStatePollFailures = 0;
     private CancellationTokenSource? _cancellationTokenSource;
     private bool _isTransitioning = false;
     private DateTime _lastZoneBoundaryCheck = DateTime.MinValue;
@@ -307,6 +310,9 @@ public class GranvilleRpcGameClientService : IDisposable
             // Start polling for network stats (since observer might not be supported)
             _networkStatsTimer = new Timer(async _ => await PollNetworkStats(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
             
+            // Start watchdog timer to monitor polling health
+            _watchdogTimer = new Timer(_ => CheckPollingHealth(), null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
+            
             _logger.LogInformation("Connected to game via Orleans RPC");
             return true;
         }
@@ -457,11 +463,16 @@ public class GranvilleRpcGameClientService : IDisposable
     {
         if (_gameGrain == null || !IsConnected || _cancellationTokenSource?.Token.IsCancellationRequested == true || _isTransitioning)
         {
+            _logger.LogTrace("PollWorldState skipped: GameGrain={GameGrain}, IsConnected={IsConnected}, IsCancelled={IsCancelled}, IsTransitioning={IsTransitioning}",
+                _gameGrain != null, IsConnected, _cancellationTokenSource?.Token.IsCancellationRequested ?? true, _isTransitioning);
             return;
         }
         
+        _logger.LogTrace("PollWorldState executing for player {PlayerId}", PlayerId);
+        
         try
         {
+            _lastWorldStatePollTime = DateTime.UtcNow;
             var worldState = await _gameGrain.GetWorldState();
             if (worldState != null)
             {
@@ -607,20 +618,33 @@ public class GranvilleRpcGameClientService : IDisposable
                     
                     WorldStateUpdated?.Invoke(worldState);
                 }
+                
+                // Reset failure count on success
+                _worldStatePollFailures = 0;
             }
             else
             {
                 _logger.LogWarning("Received null world state from server");
+                _worldStatePollFailures++;
             }
         }
         catch (Exception ex)
         {
+            _worldStatePollFailures++;
+            
             // Throttle error logging to avoid spamming logs during connection issues
             if (!_worldStateErrorLogged || (DateTime.UtcNow - _lastWorldStateError).TotalSeconds > 5)
             {
-                _logger.LogError(ex, "Failed to get world state");
+                _logger.LogError(ex, "Failed to get world state (failure count: {FailureCount})", _worldStatePollFailures);
                 _worldStateErrorLogged = true;
                 _lastWorldStateError = DateTime.UtcNow;
+            }
+            
+            // If we have too many consecutive failures, attempt to reconnect
+            if (_worldStatePollFailures >= 10)
+            {
+                _logger.LogWarning("Too many consecutive world state poll failures ({Count}), attempting reconnection", _worldStatePollFailures);
+                _ = Task.Run(async () => await AttemptReconnection());
             }
         }
     }
@@ -640,6 +664,80 @@ public class GranvilleRpcGameClientService : IDisposable
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to send heartbeat");
+        }
+    }
+    
+    private Task CheckPollingHealth()
+    {
+        try
+        {
+            var timeSinceLastPoll = DateTime.UtcNow - _lastWorldStatePollTime;
+            
+            if (timeSinceLastPoll.TotalSeconds > 10)
+            {
+                _logger.LogWarning("World state polling appears to have stopped. Last poll was {Seconds:F1} seconds ago", timeSinceLastPoll.TotalSeconds);
+                
+                // Check if we're stuck in transitioning state
+                if (_isTransitioning && timeSinceLastPoll.TotalSeconds > 30)
+                {
+                    _logger.LogWarning("Stuck in transitioning state for {Seconds:F1} seconds, forcing reset", timeSinceLastPoll.TotalSeconds);
+                    _isTransitioning = false;
+                }
+                
+                // Attempt to restart polling if it's been too long
+                if (timeSinceLastPoll.TotalSeconds > 15 && IsConnected && !_isTransitioning)
+                {
+                    _logger.LogWarning("Attempting to restart world state polling");
+                    _worldStateTimer?.Dispose();
+                    _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(33));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in polling health check");
+        }
+        
+        return Task.CompletedTask;
+    }
+    
+    private async Task AttemptReconnection()
+    {
+        if (_isTransitioning)
+        {
+            _logger.LogInformation("Already transitioning, skipping reconnection attempt");
+            return;
+        }
+        
+        try
+        {
+            _logger.LogInformation("Attempting to reconnect to current server");
+            
+            // First try to test the current connection
+            if (_gameGrain != null)
+            {
+                try
+                {
+                    var testState = await _gameGrain.GetWorldState();
+                    if (testState != null)
+                    {
+                        _logger.LogInformation("Connection test successful, resetting failure count");
+                        _worldStatePollFailures = 0;
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Connection test failed, proceeding with reconnection");
+                }
+            }
+            
+            // Force a zone check to trigger proper reconnection
+            await CheckForServerTransition();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to attempt reconnection");
         }
     }
     
@@ -743,10 +841,13 @@ public class GranvilleRpcGameClientService : IDisposable
                 _worldStateTimer?.Dispose();
                 _heartbeatTimer?.Dispose();
                 _availableZonesTimer?.Dispose();
+                _networkStatsTimer?.Dispose();
+                _watchdogTimer?.Dispose();
                 _worldStateTimer = null;
                 _heartbeatTimer = null;
                 _availableZonesTimer = null;
                 _networkStatsTimer = null;
+                _watchdogTimer = null;
                 
                 // Explicitly disconnect player from old server before cleanup
                 if (_gameGrain != null && !string.IsNullOrEmpty(PlayerId))
@@ -1047,8 +1148,16 @@ public class GranvilleRpcGameClientService : IDisposable
             StartChatPolling();
         }
         
+        // Restart watchdog timer
+        _watchdogTimer?.Dispose();
+        _watchdogTimer = new Timer(_ => CheckPollingHealth(), null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
+        
         // Reset sequence number for new server
         _lastSequenceNumber = -1;
+        
+        // Reset polling health tracking
+        _worldStatePollFailures = 0;
+        _lastWorldStatePollTime = DateTime.UtcNow;
         
         // Notify about server change
         ServerChanged?.Invoke(CurrentServerId);
@@ -1770,11 +1879,13 @@ public class GranvilleRpcGameClientService : IDisposable
         _availableZonesTimer?.Dispose();
         _chatPollingTimer?.Dispose();
         _networkStatsTimer?.Dispose();
+        _watchdogTimer?.Dispose();
         _worldStateTimer = null;
         _heartbeatTimer = null;
         _availableZonesTimer = null;
         _chatPollingTimer = null;
         _networkStatsTimer = null;
+        _watchdogTimer = null;
         
         _gameGrain = null;
         _rpcClient = null;

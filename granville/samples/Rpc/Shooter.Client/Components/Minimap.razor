@@ -131,7 +131,7 @@
     
     .minimap-cell.active {
         background-color: #3a3a3a;
-        border-color: #555;
+        border-color: #3399ff;  /* Blue - matches connected zones in phaser */
     }
     
     .minimap-cell.inactive {
@@ -141,7 +141,7 @@
     
     .minimap-cell.current {
         background-color: #4a4a4a;
-        border: 2px solid #00ff00;
+        border: 2px solid #dddddd;  /* Bright gray/white - matches current server zone in phaser */
     }
     
     .player-count {
@@ -311,9 +311,16 @@
         // Update zone stats every second
         _updateTimer = new Timer(async _ => 
         {
-            if (!_disposeCts.Token.IsCancellationRequested)
+            try 
             {
-                await UpdateZoneStats();
+                if (!_disposeCts.Token.IsCancellationRequested)
+                {
+                    await UpdateZoneStats();
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // CancellationTokenSource was disposed during component disposal
             }
         }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
     }
