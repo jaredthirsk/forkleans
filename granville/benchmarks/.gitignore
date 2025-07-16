@@ -1,0 +1,24 @@
+# Benchmark results
+results/
+
+# BenchmarkDotNet artifacts
+BenchmarkDotNet.Artifacts/
+
+# Build output
+bin/
+obj/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+
+# VS Code
+.vscode/
+
+# JetBrains Rider
+.idea/
+*.iml
+
+# Mac
+.DS_Store
