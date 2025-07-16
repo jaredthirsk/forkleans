@@ -1,0 +1,95 @@
+{
+  "benchmarkName": "Network Condition Testing",
+  "description": "Tests transport performance under various network conditions",
+  "outputPath": "./results/network-conditions",
+  "warmupDuration": "00:00:05",
+  "measurementDuration": "00:00:30",
+  "enableDetailedLogging": true,
+  "exportFormats": ["json", "csv", "markdown"],
+  
+  "workloads": [
+    {
+      "name": "FPS-Network-Test",
+      "type": "FpsGame",
+      "clientCount": 50,
+      "updateRateHz": 30,
+      "messageSizeBytes": 128,
+      "useRawTransport": true
+    }
+  ],
+  
+  "transports": [
+    {
+      "name": "LiteNetLib-Reliable",
+      "type": "LiteNetLib",
+      "reliable": true
+    },
+    {
+      "name": "LiteNetLib-Unreliable",
+      "type": "LiteNetLib",
+      "reliable": false
+    },
+    {
+      "name": "Ruffles-Reliable",
+      "type": "Ruffles",
+      "reliable": true
+    },
+    {
+      "name": "Ruffles-Unreliable",
+      "type": "Ruffles",
+      "reliable": false
+    }
+  ],
+  
+  "networkConditions": [
+    {
+      "name": "perfect",
+      "latencyMs": 0,
+      "jitterMs": 0,
+      "packetLoss": 0.0,
+      "bandwidth": 0
+    },
+    {
+      "name": "lan",
+      "latencyMs": 1,
+      "jitterMs": 0,
+      "packetLoss": 0.0,
+      "bandwidth": 1000000000
+    },
+    {
+      "name": "wifi",
+      "latencyMs": 5,
+      "jitterMs": 2,
+      "packetLoss": 0.001,
+      "bandwidth": 100000000
+    },
+    {
+      "name": "regional",
+      "latencyMs": 30,
+      "jitterMs": 5,
+      "packetLoss": 0.001,
+      "bandwidth": 100000000
+    },
+    {
+      "name": "cross-country",
+      "latencyMs": 80,
+      "jitterMs": 10,
+      "packetLoss": 0.005,
+      "bandwidth": 50000000
+    },
+    {
+      "name": "mobile-4g",
+      "latencyMs": 50,
+      "jitterMs": 15,
+      "packetLoss": 0.02,
+      "bandwidth": 10000000
+    },
+    {
+      "name": "congested",
+      "latencyMs": 200,
+      "jitterMs": 50,
+      "packetLoss": 0.1,
+      "bandwidth": 1000000
+    }
+  ]
+}

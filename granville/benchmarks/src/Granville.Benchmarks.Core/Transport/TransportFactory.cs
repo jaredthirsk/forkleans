@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Granville.Benchmarks.Runner.Services;
 
 namespace Granville.Benchmarks.Core.Transport
 {
@@ -9,23 +10,36 @@ namespace Granville.Benchmarks.Core.Transport
     /// </summary>
     public static class TransportFactory
     {
-        public static IRawTransport CreateTransport(RawTransportConfig config, IServiceProvider serviceProvider, bool useActualTransport = false)
+        public static IRawTransport CreateTransport(RawTransportConfig config, IServiceProvider serviceProvider, bool useActualTransport = false, NetworkEmulator networkEmulator = null)
         {
+            IRawTransport transport;
+            
             if (!useActualTransport)
             {
                 // Use simulation transport for backward compatibility
-                return new SimulationTransport();
+                transport = new SimulationTransport();
+            }
+            else
+            {
+                transport = config.TransportType switch
+                {
+                    "LiteNetLib" => CreateLiteNetLibTransport(serviceProvider),
+                    "Ruffles" => CreateRufflesTransport(serviceProvider),
+                    "PureLiteNetLib" => CreatePureLiteNetLibTransport(serviceProvider),
+                    "PureRuffles" => CreatePureRufflesTransport(serviceProvider),
+                    "Orleans.TCP" => throw new NotImplementedException("Orleans.TCP raw transport not yet implemented"),
+                    _ => throw new ArgumentException($"Unsupported transport type: {config.TransportType}")
+                };
             }
             
-            return config.TransportType switch
+            // Wrap with network emulator if provided
+            if (networkEmulator?.GetCurrentCondition() != null)
             {
-                "LiteNetLib" => CreateLiteNetLibTransport(serviceProvider),
-                "Ruffles" => CreateRufflesTransport(serviceProvider),
-                "PureLiteNetLib" => CreatePureLiteNetLibTransport(serviceProvider),
-                "PureRuffles" => CreatePureRufflesTransport(serviceProvider),
-                "Orleans.TCP" => throw new NotImplementedException("Orleans.TCP raw transport not yet implemented"),
-                _ => throw new ArgumentException($"Unsupported transport type: {config.TransportType}")
-            };
+                var logger = serviceProvider.GetRequiredService<ILogger<NetworkAwareTransportWrapper>>();
+                transport = new NetworkAwareTransportWrapper(transport, networkEmulator, logger);
+            }
+            
+            return transport;
         }
         
         public static IRawTransport CreateSimulationTransport()
