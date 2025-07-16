@@ -56,6 +56,24 @@ $configContent = @"
           "disconnectTimeout": 5000,
           "maxConnectAttempts": 10
         }
+      },
+      {
+        "Type": "Ruffles",
+        "Reliable": false,
+        "Settings": {
+          "channelCount": 8,
+          "socketBufferSize": 16384,
+          "connectionTimeout": 5000
+        }
+      },
+      {
+        "Type": "Ruffles",
+        "Reliable": true,
+        "Settings": {
+          "channelCount": 8,
+          "socketBufferSize": 16384,
+          "connectionTimeout": 5000
+        }
       }
     ],
     "NetworkConditions": [
