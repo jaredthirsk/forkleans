@@ -46,6 +46,7 @@ public class GranvilleRpcGameClientService : IDisposable
     private readonly object _transitionLock = new object();
     private int _transitionAttempts = 0;
     private DateTime _lastTransitionAttempt = DateTime.MinValue;
+    private string? _currentTransitionTarget = null; // Track zone transition target for deduplication
     private long _lastSequenceNumber = -1;
     private readonly ConcurrentDictionary<string, PreEstablishedConnection> _preEstablishedConnections = new();
     private GridSquare? _currentZone = null;
@@ -884,6 +885,8 @@ public class GranvilleRpcGameClientService : IDisposable
         {
             if (string.IsNullOrEmpty(PlayerId) || _isTransitioning)
             {
+                _logger.LogTrace("[ZONE_TRANSITION] Skipping transition - already in progress. IsTransitioning={IsTransitioning}, PlayerId={PlayerId}", 
+                    _isTransitioning, string.IsNullOrEmpty(PlayerId) ? "NULL" : "SET");
                 return;
             }
             
@@ -905,7 +908,11 @@ public class GranvilleRpcGameClientService : IDisposable
         }
         finally
         {
-            _isTransitioning = false;
+            lock (_transitionLock)
+            {
+                _isTransitioning = false;
+                _currentTransitionTarget = null; // Clear transition target to allow new transitions
+            }
         }
     }
     
@@ -944,6 +951,19 @@ public class GranvilleRpcGameClientService : IDisposable
                 
             if (response != null && response.ServerId != CurrentServerId)
             {
+                // Check for transition target deduplication
+                var targetZoneKey = $"{response.AssignedSquare.X},{response.AssignedSquare.Y}";
+                
+                lock (_transitionLock)
+                {
+                    if (_currentTransitionTarget == targetZoneKey)
+                    {
+                        _logger.LogDebug("[ZONE_TRANSITION] Already transitioning to target zone {TargetZone}, skipping duplicate transition", targetZoneKey);
+                        return;
+                    }
+                    _currentTransitionTarget = targetZoneKey;
+                }
+                
                 _logger.LogInformation("[ZONE_TRANSITION] Player {PlayerId} needs to transition from server {OldServer} to {NewServer} for zone ({ZoneX},{ZoneY})", 
                     PlayerId, CurrentServerId, response.ServerId, response.AssignedSquare.X, response.AssignedSquare.Y);
                 
@@ -1063,9 +1083,132 @@ public class GranvilleRpcGameClientService : IDisposable
                 _logger.LogInformation("[ZONE_TRANSITION] Using pre-established connection for zone {Key}", connectionKey);
                 preEstablished.LastUsedTime = DateTime.UtcNow;
                 
-                _rpcHost = preEstablished.RpcHost;
-                _rpcClient = preEstablished.RpcClient;
-                _gameGrain = preEstablished.GameGrain;
+                // DON'T share RPC infrastructure - create independent connection
+                // This prevents Cleanup() from destroying pre-established connections
+                _logger.LogInformation("[ZONE_TRANSITION] Creating independent connection based on pre-established zone {Key}", connectionKey);
+                
+                // Create new independent RPC host for main connection
+                var serverHost = preEstablished.ServerInfo.IpAddress;
+                var rpcPort = preEstablished.ServerInfo.RpcPort;
+                
+                // Resolve hostname to IP address if needed
+                string resolvedHost = serverHost;
+                try
+                {
+                    if (!System.Net.IPAddress.TryParse(serverHost, out _))
+                    {
+                        var hostEntry = await System.Net.Dns.GetHostEntryAsync(serverHost);
+                        var ipAddress = hostEntry.AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                        if (ipAddress != null)
+                        {
+                            resolvedHost = ipAddress.ToString();
+                            _logger.LogInformation("Resolved hostname {Host} to IP {IP}", serverHost, resolvedHost);
+                        }
+                        else
+                        {
+                            resolvedHost = "127.0.0.1";
+                            _logger.LogWarning("Could not resolve {Host}, using localhost IP", serverHost);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to resolve hostname {Host}, using localhost IP", serverHost);
+                    resolvedHost = "127.0.0.1";
+                }
+                
+                // Create independent RPC host for main connection (don't share with pre-established)
+                var hostBuilder = Host.CreateDefaultBuilder()
+                    .UseOrleansRpcClient(rpcBuilder =>
+                    {
+                        rpcBuilder.ConnectTo(resolvedHost, rpcPort);
+                        var transportType = _configuration["RpcTransport"] ?? "litenetlib";
+                        switch (transportType.ToLowerInvariant())
+                        {
+                            case "ruffles":
+                                _logger.LogInformation("Using Ruffles UDP transport");
+                                rpcBuilder.UseRuffles();
+                                TransportType = "ruffles";
+                                break;
+                            case "litenetlib":
+                            default:
+                                _logger.LogInformation("Using LiteNetLib UDP transport");
+                                rpcBuilder.UseLiteNetLib();
+                                TransportType = "litenetlib";
+                                break;
+                        }
+                    })
+                    .ConfigureServices(services =>
+                    {
+                        services.AddSerializer(serializer =>
+                        {
+                            serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                        });
+                    })
+                    .Build();
+                
+                await hostBuilder.StartAsync();
+                _rpcHost = hostBuilder;
+                _rpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+                
+                // Get the game grain for the independent connection
+                _logger.LogInformation("[ZONE_TRANSITION] Waiting for RPC handshake on independent connection...");
+                
+                using var handshakeTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                using var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(
+                    handshakeTimeout.Token, 
+                    _cancellationTokenSource?.Token ?? CancellationToken.None);
+                
+                int retryCount = 0;
+                const int maxRetries = 5;
+                
+                while (retryCount < maxRetries)
+                {
+                    if (combinedCts.Token.IsCancellationRequested)
+                    {
+                        _logger.LogWarning("[ZONE_TRANSITION] Independent RPC handshake cancelled or timed out");
+                        throw new OperationCanceledException("Independent RPC handshake was cancelled or timed out");
+                    }
+                    
+                    try
+                    {
+                        if (retryCount > 0)
+                        {
+                            await Task.Delay(200 * retryCount, combinedCts.Token);
+                        }
+                        
+                        var getGrainTask = Task.Run(() => _rpcClient.GetGrain<IGameRpcGrain>("game"), combinedCts.Token);
+                        _gameGrain = await getGrainTask.WaitAsync(TimeSpan.FromSeconds(2), combinedCts.Token);
+                        _logger.LogInformation("[ZONE_TRANSITION] Successfully obtained game grain on independent connection (attempt {Attempt})", retryCount + 1);
+                        break;
+                    }
+                    catch (ArgumentException ex) when (ex.Message.Contains("Could not find an implementation"))
+                    {
+                        retryCount++;
+                        if (retryCount < maxRetries)
+                        {
+                            _logger.LogWarning("[ZONE_TRANSITION] Independent connection manifest not ready, retry {Retry}/{Max}: {Error}", retryCount, maxRetries, ex.Message);
+                        }
+                        else
+                        {
+                            _logger.LogError(ex, "[ZONE_TRANSITION] Failed to get game grain on independent connection after {Max} retries", maxRetries);
+                            throw;
+                        }
+                    }
+                    catch (TimeoutException)
+                    {
+                        retryCount++;
+                        if (retryCount < maxRetries)
+                        {
+                            _logger.LogWarning("[ZONE_TRANSITION] Independent GetGrain timed out, retry {Retry}/{Max}", retryCount, maxRetries);
+                        }
+                        else
+                        {
+                            _logger.LogError("[ZONE_TRANSITION] Independent GetGrain timed out after {Max} retries", maxRetries);
+                            throw new TimeoutException("Independent GetGrain timed out after retries");
+                        }
+                    }
+                }
                 
                 // Don't remove from pre-established connections yet - let the cleanup handle it
                 // This prevents race conditions where the connection might be needed again soon

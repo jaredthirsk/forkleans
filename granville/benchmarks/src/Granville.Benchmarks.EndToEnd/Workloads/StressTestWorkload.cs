@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Granville.Benchmarks.Core.Metrics;
 using Granville.Benchmarks.Core.Workloads;
 using Granville.Benchmarks.Core.Transport;
-using Granville.Benchmarks.Runner.Services;
+// NetworkEmulator moved to Core.Transport namespace
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
