@@ -92,20 +92,30 @@ try {
             }
             $workloadName = "MMO-$workloadScale"
             
-            # Filter to specific workload and modify
-            $config.workloads = $config.workloads | Where-Object { $_.name -eq $workloadName }
-            if ($config.workloads.Count -eq 0) {
-                Write-Warning "Workload $workloadName not found, using first workload"
-                $config.workloads = $config.workloads | Select-Object -First 1
+            # Override client count and duration in BenchmarkOptions
+            if ($config.BenchmarkOptions) {
+                $config.BenchmarkOptions.ClientCount = $step.Clients
+                $config.BenchmarkOptions.TestDuration = $step.Duration
+                
+                # Set appropriate message rate based on scale
+                $config.BenchmarkOptions.MessagesPerSecond = switch ($test.Name) {
+                    "small" { 30 }
+                    "medium" { 20 }
+                    "large" { 10 }
+                    "massive" { 5 }
+                    default { 30 }
+                }
             }
             
-            # Override client count and duration
-            $config.workloads[0].clientCount = $step.Clients
-            $config.measurementDuration = $step.Duration
-            $config.workloads[0].customSettings.ZoneCount = $test.ZoneCount
-            
-            # Filter to specific transport
-            $config.transports = $config.transports | Where-Object { $_.name -eq $Transport }
+            # Filter to specific transport (handle the nested BenchmarkOptions structure)
+            if ($config.BenchmarkOptions -and $config.BenchmarkOptions.Transports) {
+                # For now, just use the first transport that matches the type
+                $transportType = if ($Transport -match "LiteNetLib") { "LiteNetLib" } else { "Ruffles" }
+                $reliable = $Transport -match "Reliable"
+                $config.BenchmarkOptions.Transports = $config.BenchmarkOptions.Transports | 
+                    Where-Object { $_.Type -eq $transportType -and $_.Reliable -eq $reliable } |
+                    Select-Object -First 1
+            }
             
             # Set output path
             $config.outputPath = "./results/mmo-scaling/$($test.Name)-$($step.Clients)clients"
@@ -121,7 +131,8 @@ try {
             
             # Run benchmark
             $startTime = Get-Date
-            dotnet run -- -c $tempConfig
+            $runnerPath = Join-Path $PSScriptRoot "../src/Granville.Benchmarks.Runner/bin/Release/net8.0/Granville.Benchmarks.Runner.dll"
+            dotnet $runnerPath $tempConfig
             $endTime = Get-Date
             $duration = $endTime - $startTime
             
