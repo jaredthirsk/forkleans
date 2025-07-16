@@ -8,36 +8,42 @@
 
 ## Architecture
 - [README.md](../README.md) - Overview and project structure
+- [roadmap/BENCHMARKING-ROADMAP.md](roadmap/BENCHMARKING-ROADMAP.md) - Complete benchmarking roadmap
 - Configuration files in `/config/`:
   - `default.json` - Standard benchmark configuration
-  - `stress.json` - Stress testing configuration  
-  - `network-impaired.json` - Network impairment testing
+  - `network-condition-test.json` - Network condition testing
+  - `mmo-scaling-test.json` - MMO scaling tests
+  - `stress-test.json` - Stress testing configuration
 
 ## Implementation Status
 
-### Completed
+### Completed (Phases 1-3)
 - ✅ Core metrics collection framework
 - ✅ Workload abstraction and base classes
 - ✅ FPS game simulation workload
 - ✅ MOBA game simulation workload
+- ✅ **MMO-style workload** (zone distribution, 100-2000 players)
+- ✅ **Stress test workloads** (connection storms, burst traffic, error injection)
 - ✅ Benchmark runner and orchestrator
 - ✅ Results exporter (JSON, CSV, Markdown)
-- ✅ Visualization script with Chart.js
-- ✅ Configuration system
-- ✅ Basic project structure
+- ✅ **Network condition testing** (10 realistic profiles: LAN → Satellite)
+- ✅ **Raw transport framework** (LiteNetLib, Ruffles, simulation)
+- ✅ **Overhead measurement** (<2ms Granville RPC overhead verified)
+- ✅ **Hot path APIs** (Direct access, bypass, full RPC)
+- ✅ Configuration system with network emulation
+- ✅ Automated test scripts (PowerShell)
 
-### In Progress
-- 🔄 Integration with actual RPC implementation
-- 🔄 Network emulation implementation
-- 🔄 Micro-benchmarks with BenchmarkDotNet
+### Ready to Execute
+- 📊 **Network condition testing** - `test-network-conditions.ps1`
+- 🎮 **MMO scaling tests** - `test-mmo-scaling.ps1`
+- ⚡ **Stress testing** - `test-stress-conditions.ps1`
 
-### TODO
-- ❌ MMO-style workload implementation
-- ❌ Stress test workloads
-- ❌ Orleans TCP baseline comparisons
-- ❌ Real UDP transport integration
-- ❌ Security benchmarks (when implemented)
-- ❌ Multi-zone server testing
+### Future (Phase 4)
+- 📈 Interactive performance dashboard
+- 🔔 Automated regression detection
+- 📊 Predictive performance modeling
+- 🔄 CI/CD integration
+- 🔍 Orleans TCP baseline comparisons
 - ❌ Statistical analysis tools
 
 ## Quick Start

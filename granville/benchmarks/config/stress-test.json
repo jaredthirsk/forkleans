@@ -1,0 +1,132 @@
+{
+  "benchmarkName": "Stress Testing",
+  "description": "Tests transport behavior under extreme conditions including connection storms, burst traffic, and error injection",
+  "outputPath": "./results/stress-tests",
+  "warmupDuration": "00:00:05",
+  "measurementDuration": "00:01:30",
+  "enableDetailedLogging": true,
+  "exportFormats": ["json", "csv", "markdown"],
+  
+  "workloads": [
+    {
+      "name": "Connection-Storm",
+      "type": "StressTest",
+      "clientCount": 100,
+      "updateRateHz": 10,
+      "messageSizeBytes": 128,
+      "useRawTransport": true,
+      "customSettings": {
+        "TestType": "ConnectionStorm",
+        "StressInterval": "00:00:15",
+        "ErrorInjectionRate": 0.0,
+        "BurstSize": 50,
+        "ConnectionStormDuration": "00:00:10",
+        "MaxConcurrentConnections": 200
+      }
+    },
+    {
+      "name": "Burst-Traffic",
+      "type": "StressTest",
+      "clientCount": 50,
+      "updateRateHz": 5,
+      "messageSizeBytes": 256,
+      "useRawTransport": true,
+      "customSettings": {
+        "TestType": "BurstTraffic",
+        "StressInterval": "00:00:20",
+        "ErrorInjectionRate": 0.02,
+        "BurstSize": 200,
+        "ConnectionStormDuration": "00:00:05",
+        "MaxConcurrentConnections": 100
+      }
+    },
+    {
+      "name": "Error-Injection",
+      "type": "StressTest", 
+      "clientCount": 75,
+      "updateRateHz": 8,
+      "messageSizeBytes": 128,
+      "useRawTransport": true,
+      "customSettings": {
+        "TestType": "ErrorInjection",
+        "StressInterval": "00:00:10",
+        "ErrorInjectionRate": 0.15,
+        "BurstSize": 100,
+        "ConnectionStormDuration": "00:00:05",
+        "MaxConcurrentConnections": 150
+      }
+    },
+    {
+      "name": "Resource-Exhaustion",
+      "type": "StressTest",
+      "clientCount": 30,
+      "updateRateHz": 3,
+      "messageSizeBytes": 512,
+      "useRawTransport": true,
+      "customSettings": {
+        "TestType": "ResourceExhaustion",
+        "StressInterval": "00:00:30",
+        "ErrorInjectionRate": 0.05,
+        "BurstSize": 150,
+        "ConnectionStormDuration": "00:00:08",
+        "MaxConcurrentConnections": 50
+      }
+    },
+    {
+      "name": "Mixed-Stress",
+      "type": "StressTest",
+      "clientCount": 100,
+      "updateRateHz": 5,
+      "messageSizeBytes": 256,
+      "useRawTransport": true,
+      "customSettings": {
+        "TestType": "Mixed",
+        "StressInterval": "00:00:20",
+        "ErrorInjectionRate": 0.08,
+        "BurstSize": 120,
+        "ConnectionStormDuration": "00:00:08",
+        "MaxConcurrentConnections": 200
+      }
+    }
+  ],
+  
+  "transports": [
+    {
+      "name": "LiteNetLib-Unreliable",
+      "type": "LiteNetLib",
+      "reliable": false
+    },
+    {
+      "name": "LiteNetLib-Reliable",
+      "type": "LiteNetLib",
+      "reliable": true
+    },
+    {
+      "name": "Ruffles-Unreliable", 
+      "type": "Ruffles",
+      "reliable": false
+    },
+    {
+      "name": "Ruffles-Reliable",
+      "type": "Ruffles",
+      "reliable": true
+    }
+  ],
+  
+  "networkConditions": [
+    {
+      "name": "perfect",
+      "latencyMs": 0,
+      "jitterMs": 0,
+      "packetLoss": 0.0,
+      "bandwidth": 0
+    },
+    {
+      "name": "challenging",
+      "latencyMs": 50,
+      "jitterMs": 20,
+      "packetLoss": 0.02,
+      "bandwidth": 10000000
+    }
+  ]
+}
