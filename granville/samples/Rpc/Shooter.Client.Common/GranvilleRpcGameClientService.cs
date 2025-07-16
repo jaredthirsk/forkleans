@@ -1160,9 +1160,9 @@ public class GranvilleRpcGameClientService : IDisposable
                     _cancellationTokenSource?.Token ?? CancellationToken.None);
                 
                 int retryCount = 0;
-                const int maxRetries = 5;
+                const int maxHandshakeRetries = 5;
                 
-                while (retryCount < maxRetries)
+                while (retryCount < maxHandshakeRetries)
                 {
                     if (combinedCts.Token.IsCancellationRequested)
                     {
@@ -1185,26 +1185,26 @@ public class GranvilleRpcGameClientService : IDisposable
                     catch (ArgumentException ex) when (ex.Message.Contains("Could not find an implementation"))
                     {
                         retryCount++;
-                        if (retryCount < maxRetries)
+                        if (retryCount < maxHandshakeRetries)
                         {
-                            _logger.LogWarning("[ZONE_TRANSITION] Independent connection manifest not ready, retry {Retry}/{Max}: {Error}", retryCount, maxRetries, ex.Message);
+                            _logger.LogWarning("[ZONE_TRANSITION] Independent connection manifest not ready, retry {Retry}/{Max}: {Error}", retryCount, maxHandshakeRetries, ex.Message);
                         }
                         else
                         {
-                            _logger.LogError(ex, "[ZONE_TRANSITION] Failed to get game grain on independent connection after {Max} retries", maxRetries);
+                            _logger.LogError(ex, "[ZONE_TRANSITION] Failed to get game grain on independent connection after {Max} retries", maxHandshakeRetries);
                             throw;
                         }
                     }
                     catch (TimeoutException)
                     {
                         retryCount++;
-                        if (retryCount < maxRetries)
+                        if (retryCount < maxHandshakeRetries)
                         {
-                            _logger.LogWarning("[ZONE_TRANSITION] Independent GetGrain timed out, retry {Retry}/{Max}", retryCount, maxRetries);
+                            _logger.LogWarning("[ZONE_TRANSITION] Independent GetGrain timed out, retry {Retry}/{Max}", retryCount, maxHandshakeRetries);
                         }
                         else
                         {
-                            _logger.LogError("[ZONE_TRANSITION] Independent GetGrain timed out after {Max} retries", maxRetries);
+                            _logger.LogError("[ZONE_TRANSITION] Independent GetGrain timed out after {Max} retries", maxHandshakeRetries);
                             throw new TimeoutException("Independent GetGrain timed out after retries");
                         }
                     }
