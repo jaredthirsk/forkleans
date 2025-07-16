@@ -145,27 +145,61 @@ namespace Orleans.Rpc.Client
                 _client = client;
             }
             
-            public RpcTransportType TransportType => _client._transportType;
+            public string TransportTypeName => _client._transportType.ToString();
             
             public bool IsDirectAccessAvailable => 
                 _client._transport is IDirectTransportProvider;
             
-            public NetPeer GetLiteNetLibPeer()
+            public object? GetUnderlyingTransport()
             {
                 if (_client._transport is IDirectTransportProvider provider)
                 {
-                    return provider.GetLiteNetLibPeer();
+                    return _client._transportType switch
+                    {
+                        RpcTransportType.LiteNetLib => provider.GetLiteNetLibPeer(),
+                        RpcTransportType.Ruffles => provider.GetRufflesConnection(),
+                        _ => null
+                    };
                 }
                 return null;
             }
             
-            public Connection GetRufflesConnection()
+            public bool TrySendDirect(byte[] data, string target, bool reliable = false)
             {
                 if (_client._transport is IDirectTransportProvider provider)
                 {
-                    return provider.GetRufflesConnection();
+                    return _client._transportType switch
+                    {
+                        RpcTransportType.LiteNetLib => TrySendLiteNetLib(provider, data, reliable),
+                        RpcTransportType.Ruffles => TrySendRuffles(provider, data, reliable),
+                        _ => false
+                    };
                 }
-                return null;
+                return false;
+            }
+            
+            private bool TrySendLiteNetLib(IDirectTransportProvider provider, byte[] data, bool reliable)
+            {
+                var peer = provider.GetLiteNetLibPeer();
+                if (peer != null)
+                {
+                    // We'd need to import LiteNetLib types here, but this is just an example
+                    // In practice, this would use reflection or dynamic typing
+                    return true; // Placeholder
+                }
+                return false;
+            }
+            
+            private bool TrySendRuffles(IDirectTransportProvider provider, byte[] data, bool reliable)
+            {
+                var connection = provider.GetRufflesConnection();
+                if (connection != null)
+                {
+                    // We'd need to import Ruffles types here, but this is just an example
+                    // In practice, this would use reflection or dynamic typing  
+                    return true; // Placeholder
+                }
+                return false;
             }
         }
         

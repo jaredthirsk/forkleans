@@ -12,6 +12,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using System.Threading;
+using System.Collections.Concurrent;
 
 namespace Shooter.Client.Common;
 
@@ -45,7 +47,7 @@ public class GranvilleRpcGameClientService : IDisposable
     private int _transitionAttempts = 0;
     private DateTime _lastTransitionAttempt = DateTime.MinValue;
     private long _lastSequenceNumber = -1;
-    private readonly Dictionary<string, PreEstablishedConnection> _preEstablishedConnections = new();
+    private readonly ConcurrentDictionary<string, PreEstablishedConnection> _preEstablishedConnections = new();
     private GridSquare? _currentZone = null;
     private WorldState? _lastWorldState = null;
     private Vector2 _lastInputDirection = Vector2.Zero;
@@ -299,16 +301,57 @@ public class GranvilleRpcGameClientService : IDisposable
             }
             
             // Start polling for world state
-            _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(33)); // Reduced from 16ms to 33ms (30 FPS)
+            _worldStateTimer = new Timer(async _ => 
+            {
+                try
+                {
+                    await PollWorldState();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "[TIMER_CALLBACK] Unhandled exception in world state timer callback. ExceptionType={ExceptionType}, State: IsConnected={IsConnected}, IsTransitioning={IsTransitioning}, ThreadId={ThreadId}, GameGrainNull={GameGrainNull}, CancellationRequested={CancellationRequested}",
+                        ex.GetType().FullName, IsConnected, _isTransitioning, Thread.CurrentThread.ManagedThreadId, _gameGrain == null, _cancellationTokenSource?.Token.IsCancellationRequested ?? true);
+                }
+            }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(33)); // Reduced from 16ms to 33ms (30 FPS)
             
             // Start heartbeat
-            _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
+            _heartbeatTimer = new Timer(async _ => 
+            {
+                try
+                {
+                    await SendHeartbeat();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unhandled exception in heartbeat timer callback");
+                }
+            }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
             
             // Start polling for available zones - reduced frequency for better performance
-            _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+            _availableZonesTimer = new Timer(async _ => 
+            {
+                try
+                {
+                    await PollAvailableZones();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unhandled exception in available zones timer callback");
+                }
+            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
             
             // Start polling for network stats (since observer might not be supported)
-            _networkStatsTimer = new Timer(async _ => await PollNetworkStats(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+            _networkStatsTimer = new Timer(async _ => 
+            {
+                try
+                {
+                    await PollNetworkStats();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unhandled exception in network stats timer callback");
+                }
+            }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
             
             // Start watchdog timer to monitor polling health
             _watchdogTimer = new Timer(_ => CheckPollingHealth(), null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
@@ -635,7 +678,10 @@ public class GranvilleRpcGameClientService : IDisposable
             // Throttle error logging to avoid spamming logs during connection issues
             if (!_worldStateErrorLogged || (DateTime.UtcNow - _lastWorldStateError).TotalSeconds > 5)
             {
-                _logger.LogError(ex, "Failed to get world state (failure count: {FailureCount})", _worldStatePollFailures);
+                _logger.LogError(ex, "[WORLD_STATE] Failed to get world state (failure count: {FailureCount}). ExceptionType={ExceptionType}, State: IsConnected={IsConnected}, IsTransitioning={IsTransitioning}, ThreadId={ThreadId}, GameGrainNull={GameGrainNull}, RpcClientNull={RpcClientNull}, CancellationRequested={CancellationRequested}, TimeSinceLastPoll={TimeSinceLastPoll}ms",
+                    _worldStatePollFailures, ex.GetType().FullName, IsConnected, _isTransitioning, Thread.CurrentThread.ManagedThreadId, 
+                    _gameGrain == null, _rpcClient == null, _cancellationTokenSource?.Token.IsCancellationRequested ?? true, 
+                    (DateTime.UtcNow - _lastWorldStatePollTime).TotalMilliseconds);
                 _worldStateErrorLogged = true;
                 _lastWorldStateError = DateTime.UtcNow;
             }
@@ -678,18 +724,64 @@ public class GranvilleRpcGameClientService : IDisposable
                 _logger.LogWarning("World state polling appears to have stopped. Last poll was {Seconds:F1} seconds ago", timeSinceLastPoll.TotalSeconds);
                 
                 // Check if we're stuck in transitioning state
-                if (_isTransitioning && timeSinceLastPoll.TotalSeconds > 30)
+                lock (_transitionLock)
                 {
-                    _logger.LogWarning("Stuck in transitioning state for {Seconds:F1} seconds, forcing reset", timeSinceLastPoll.TotalSeconds);
-                    _isTransitioning = false;
+                    if (_isTransitioning && timeSinceLastPoll.TotalSeconds > 30)
+                    {
+                        _logger.LogWarning("[WATCHDOG] Stuck in transitioning state for {Seconds:F1} seconds, forcing reset. ThreadId={ThreadId}", 
+                            timeSinceLastPoll.TotalSeconds, Thread.CurrentThread.ManagedThreadId);
+                        _isTransitioning = false;
+                    }
                 }
                 
                 // Attempt to restart polling if it's been too long
-                if (timeSinceLastPoll.TotalSeconds > 15 && IsConnected && !_isTransitioning)
+                bool isCurrentlyTransitioning = false;
+                lock (_transitionLock)
                 {
-                    _logger.LogWarning("Attempting to restart world state polling");
-                    _worldStateTimer?.Dispose();
-                    _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(33));
+                    isCurrentlyTransitioning = _isTransitioning;
+                }
+                
+                if (timeSinceLastPoll.TotalSeconds > 15 && !isCurrentlyTransitioning)
+                {
+                    if (!IsConnected)
+                    {
+                        _logger.LogWarning("Polling stopped and client is disconnected. Attempting reconnection.");
+                        _ = Task.Run(async () => await AttemptReconnection());
+                    }
+                    else
+                    {
+                        _logger.LogWarning("[WATCHDOG] Attempting to restart world state polling. ThreadId={ThreadId}, CurrentTimer={TimerState}",
+                            Thread.CurrentThread.ManagedThreadId, _worldStateTimer != null ? "Active" : "Null");
+                        
+                        // Safe timer replacement using lock to prevent race conditions
+                        lock (_transitionLock)
+                        {
+                            var oldTimer = _worldStateTimer;
+                            _worldStateTimer = new Timer(async _ => 
+                            {
+                                try
+                                {
+                                    await PollWorldState();
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(ex, "[TIMER_CALLBACK] Unhandled exception in restarted world state timer callback. ThreadId={ThreadId}", Thread.CurrentThread.ManagedThreadId);
+                                }
+                            }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(33));
+                            
+                            // Dispose old timer after replacement to avoid race with active callbacks
+                            try
+                            {
+                                oldTimer?.Dispose();
+                            }
+                            catch (Exception disposeEx)
+                            {
+                                _logger.LogWarning(disposeEx, "[WATCHDOG] Error disposing old timer. ThreadId={ThreadId}", Thread.CurrentThread.ManagedThreadId);
+                            }
+                        }
+                        
+                        _logger.LogInformation("[WATCHDOG] World state timer restarted successfully");
+                    }
                 }
             }
         }
@@ -721,8 +813,28 @@ public class GranvilleRpcGameClientService : IDisposable
                     var testState = await _gameGrain.GetWorldState();
                     if (testState != null)
                     {
-                        _logger.LogInformation("Connection test successful, resetting failure count");
+                        _logger.LogInformation("Connection test successful, resetting failure count and restarting timers");
                         _worldStatePollFailures = 0;
+                        IsConnected = true;  // Fix: Set connection status to true since test succeeded
+                        
+                        // Restart the world state timer if it appears to have stopped
+                        if (_worldStateTimer != null)
+                        {
+                            _logger.LogInformation("Restarting world state timer after successful connection test");
+                            _worldStateTimer.Dispose();
+                            _worldStateTimer = new Timer(async _ => 
+                            {
+                                try
+                                {
+                                    await PollWorldState();
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(ex, "Unhandled exception in restarted world state timer callback");
+                                }
+                            }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(33));
+                        }
+                        
                         return;
                     }
                 }
@@ -905,6 +1017,9 @@ public class GranvilleRpcGameClientService : IDisposable
         // Create new cancellation token source for the new connection
         _cancellationTokenSource = new CancellationTokenSource();
         
+        try
+        {
+        
         // Check if we have a pre-established connection for this zone
         var connectionKey = $"{serverInfo.AssignedSquare.X},{serverInfo.AssignedSquare.Y}";
         _logger.LogInformation("[ZONE_TRANSITION] Checking for pre-established connection with key {Key}. Available keys: {Keys}", 
@@ -955,15 +1070,40 @@ public class GranvilleRpcGameClientService : IDisposable
                 // Don't remove from pre-established connections yet - let the cleanup handle it
                 // This prevents race conditions where the connection might be needed again soon
                 
-                // Reconnect player
+                // Reconnect player with timeout
                 _logger.LogInformation("Calling ConnectPlayer for {PlayerId} on pre-established connection", PlayerId);
-                var result = await _gameGrain!.ConnectPlayer(PlayerId!);
-                _logger.LogInformation("ConnectPlayer returned: {Result}", result);
                 
-                if (result != "SUCCESS")
+                using var preConnectTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                using var preConnectCts = CancellationTokenSource.CreateLinkedTokenSource(
+                    preConnectTimeout.Token,
+                    _cancellationTokenSource?.Token ?? CancellationToken.None);
+                
+                try
                 {
-                    _logger.LogError("Failed to reconnect player {PlayerId} to pre-established server", PlayerId);
-                    return;
+                    var connectTask = _gameGrain!.ConnectPlayer(PlayerId!);
+                    var result = await connectTask.WaitAsync(TimeSpan.FromSeconds(5), preConnectCts.Token);
+                    _logger.LogInformation("ConnectPlayer returned: {Result}", result);
+                    
+                    if (result != "SUCCESS")
+                    {
+                        _logger.LogError("Failed to reconnect player {PlayerId} to pre-established server", PlayerId);
+                        return;
+                    }
+                }
+                catch (TimeoutException)
+                {
+                    _logger.LogError("[ZONE_TRANSITION] ConnectPlayer on pre-established connection timed out after 5 seconds");
+                    // Mark this connection as invalid and fall through to create new one
+                    preEstablished.IsConnected = false;
+                    await CleanupPreEstablishedConnection(connectionKey);
+                    _preEstablishedConnections.TryRemove(connectionKey, out _);
+                    _rpcHost = null; // Force creation of new connection
+                    connectionStillValid = false;
+                }
+                catch (OperationCanceledException)
+                {
+                    _logger.LogError("[ZONE_TRANSITION] ConnectPlayer on pre-established connection was cancelled");
+                    throw;
                 }
             }
             else
@@ -971,7 +1111,7 @@ public class GranvilleRpcGameClientService : IDisposable
                 // Connection is dead, remove it and fall through to create a new one
                 _logger.LogInformation("[ZONE_TRANSITION] Removing dead pre-established connection for zone {Key}", connectionKey);
                 await CleanupPreEstablishedConnection(connectionKey);
-                _preEstablishedConnections.Remove(connectionKey);
+                _preEstablishedConnections.TryRemove(connectionKey, out _);
             }
         }
         
@@ -1053,21 +1193,37 @@ public class GranvilleRpcGameClientService : IDisposable
             // Initialize client-side network statistics tracker
             _clientNetworkTracker = new NetworkStatisticsTracker(PlayerId ?? "Unknown");
             
-            // Wait for handshake and manifest exchange to complete with retry logic
+            // Wait for handshake and manifest exchange to complete with timeout and retry logic
             _logger.LogInformation("[ZONE_TRANSITION] Waiting for RPC handshake...");
             
+            using var handshakeTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(10)); // 10 second overall timeout
+            using var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(
+                handshakeTimeout.Token, 
+                _cancellationTokenSource?.Token ?? CancellationToken.None);
+            
             int retryCount = 0;
-            const int maxRetries = 3;
+            const int maxRetries = 5;
             Exception? lastException = null;
             
             while (retryCount < maxRetries)
             {
-                await Task.Delay(500 + (300 * retryCount)); // Progressive delay: 500ms, 800ms, 1100ms
+                if (combinedCts.Token.IsCancellationRequested)
+                {
+                    _logger.LogWarning("[ZONE_TRANSITION] RPC handshake cancelled or timed out");
+                    throw new OperationCanceledException("RPC handshake was cancelled or timed out");
+                }
                 
                 try
                 {
-                    // Get the game grain
-                    _gameGrain = _rpcClient.GetGrain<IGameRpcGrain>("game");
+                    // Short delay before each attempt, but not on first attempt
+                    if (retryCount > 0)
+                    {
+                        await Task.Delay(200 * retryCount, combinedCts.Token); // Progressive delay: 0ms, 200ms, 400ms, 600ms, 800ms
+                    }
+                    
+                    // Get the game grain with timeout
+                    var getGrainTask = Task.Run(() => _rpcClient.GetGrain<IGameRpcGrain>("game"), combinedCts.Token);
+                    _gameGrain = await getGrainTask.WaitAsync(TimeSpan.FromSeconds(2), combinedCts.Token);
                     _logger.LogInformation("[ZONE_TRANSITION] Successfully obtained game grain on attempt {Attempt}", retryCount + 1);
                     break;
                 }
@@ -1077,13 +1233,32 @@ public class GranvilleRpcGameClientService : IDisposable
                     retryCount++;
                     if (retryCount < maxRetries)
                     {
-                        _logger.LogWarning("[ZONE_TRANSITION] Manifest not ready, retry {Retry}/{Max}", retryCount, maxRetries);
+                        _logger.LogWarning("[ZONE_TRANSITION] Manifest not ready, retry {Retry}/{Max}: {Error}", retryCount, maxRetries, ex.Message);
                     }
                     else
                     {
                         _logger.LogError(ex, "[ZONE_TRANSITION] Failed to get game grain after {Max} retries", maxRetries);
                         throw;
                     }
+                }
+                catch (TimeoutException)
+                {
+                    lastException = new TimeoutException($"GetGrain timed out on attempt {retryCount + 1}");
+                    retryCount++;
+                    if (retryCount < maxRetries)
+                    {
+                        _logger.LogWarning("[ZONE_TRANSITION] GetGrain timed out, retry {Retry}/{Max}", retryCount, maxRetries);
+                    }
+                    else
+                    {
+                        _logger.LogError(lastException, "[ZONE_TRANSITION] GetGrain timed out after {Max} retries", maxRetries);
+                        throw lastException;
+                    }
+                }
+                catch (OperationCanceledException) when (handshakeTimeout.Token.IsCancellationRequested)
+                {
+                    _logger.LogError("[ZONE_TRANSITION] RPC handshake timed out after {Timeout} seconds", 10);
+                    throw new TimeoutException("RPC handshake timed out after 10 seconds");
                 }
             }
             
@@ -1095,14 +1270,36 @@ public class GranvilleRpcGameClientService : IDisposable
             }
             
             _logger.LogInformation("Calling ConnectPlayer for {PlayerId} on new server", PlayerId);
-            var result = await _gameGrain.ConnectPlayer(PlayerId!);
-            _logger.LogInformation("ConnectPlayer returned: {Result}", result);
             
-            if (result != "SUCCESS")
+            // Add timeout to ConnectPlayer call as well
+            using var connectTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            using var connectCts = CancellationTokenSource.CreateLinkedTokenSource(
+                connectTimeout.Token,
+                _cancellationTokenSource?.Token ?? CancellationToken.None);
+            
+            try
             {
-                _logger.LogError("Failed to reconnect player {PlayerId} to new server", PlayerId);
-                return;
+                var connectTask = _gameGrain.ConnectPlayer(PlayerId!);
+                var result = await connectTask.WaitAsync(TimeSpan.FromSeconds(5), connectCts.Token);
+                _logger.LogInformation("ConnectPlayer returned: {Result}", result);
+                
+                if (result != "SUCCESS")
+                {
+                    _logger.LogError("Failed to reconnect player {PlayerId} to new server", PlayerId);
+                    return;
+                }
             }
+            catch (TimeoutException)
+            {
+                _logger.LogError("[ZONE_TRANSITION] ConnectPlayer timed out after 5 seconds");
+                throw;
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogError("[ZONE_TRANSITION] ConnectPlayer was cancelled");
+                throw;
+            }
+            
         }
         
         IsConnected = true;
@@ -1111,8 +1308,35 @@ public class GranvilleRpcGameClientService : IDisposable
         try
         {
             _logger.LogInformation("Testing connection with GetWorldState call");
-            var testState = _gameGrain != null ? await _gameGrain.GetWorldState() : null;
-            _logger.LogInformation("Test GetWorldState succeeded, got {Count} entities", testState?.Entities?.Count ?? 0);
+            using var testTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+            using var testCts = CancellationTokenSource.CreateLinkedTokenSource(
+                testTimeout.Token,
+                _cancellationTokenSource?.Token ?? CancellationToken.None);
+            
+            if (_gameGrain != null)
+            {
+                var testTask = _gameGrain.GetWorldState();
+                var testState = await testTask.WaitAsync(TimeSpan.FromSeconds(3), testCts.Token);
+                _logger.LogInformation("Test GetWorldState succeeded, got {Count} entities", testState?.Entities?.Count ?? 0);
+            }
+            else
+            {
+                _logger.LogError("Game grain is null, cannot test connection");
+                IsConnected = false;
+                return;
+            }
+        }
+        catch (TimeoutException)
+        {
+            _logger.LogError("Test GetWorldState timed out after 3 seconds");
+            IsConnected = false;
+            return;
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogError("Test GetWorldState was cancelled");
+            IsConnected = false;
+            return;
         }
         catch (Exception ex)
         {
@@ -1169,6 +1393,60 @@ public class GranvilleRpcGameClientService : IDisposable
         if (_preEstablishedConnections.TryGetValue(currentZoneKey, out var conn))
         {
             conn.EstablishedAt = DateTime.UtcNow; // Reset the timestamp to prevent immediate cleanup
+        }
+        }
+        catch (TimeoutException ex)
+        {
+            bool wasTransitioning;
+            lock (_transitionLock)
+            {
+                wasTransitioning = _isTransitioning;
+                _isTransitioning = false;
+            }
+            _logger.LogError(ex, "[ZONE_TRANSITION] Zone transition timed out. State: IsConnected={IsConnected}, WasTransitioning={WasTransitioning}, ServerId={ServerId}, ThreadId={ThreadId}, TimersActive={TimersActive}",
+                IsConnected, wasTransitioning, CurrentServerId, Thread.CurrentThread.ManagedThreadId, 
+                $"World:{_worldStateTimer != null}, Heart:{_heartbeatTimer != null}, Zones:{_availableZonesTimer != null}, Watchdog:{_watchdogTimer != null}");
+            IsConnected = false;
+            throw;
+        }
+        catch (OperationCanceledException ex)
+        {
+            bool wasTransitioning;
+            lock (_transitionLock)
+            {
+                wasTransitioning = _isTransitioning;
+                _isTransitioning = false;
+            }
+            _logger.LogError(ex, "[ZONE_TRANSITION] Zone transition was cancelled. State: IsConnected={IsConnected}, WasTransitioning={WasTransitioning}, ServerId={ServerId}, ThreadId={ThreadId}, CancellationRequested={CancellationRequested}",
+                IsConnected, wasTransitioning, CurrentServerId, Thread.CurrentThread.ManagedThreadId, _cancellationTokenSource?.Token.IsCancellationRequested ?? false);
+            IsConnected = false;
+            throw;
+        }
+        catch (Exception ex)
+        {
+            bool wasTransitioning;
+            lock (_transitionLock)
+            {
+                wasTransitioning = _isTransitioning;
+                _isTransitioning = false;
+            }
+            _logger.LogError(ex, "[ZONE_TRANSITION] Zone transition failed with unexpected error. ExceptionType={ExceptionType}, State: IsConnected={IsConnected}, WasTransitioning={WasTransitioning}, ServerId={ServerId}, ThreadId={ThreadId}, RpcHostState={RpcHostState}, GameGrainState={GameGrainState}",
+                ex.GetType().FullName, IsConnected, wasTransitioning, CurrentServerId, Thread.CurrentThread.ManagedThreadId, 
+                _rpcHost?.Services != null ? "Active" : "Null", _gameGrain != null ? "Active" : "Null");
+            IsConnected = false;
+            
+            // Clean up any partial state
+            try
+            {
+                Cleanup();
+            }
+            catch (Exception cleanupEx)
+            {
+                _logger.LogError(cleanupEx, "[ZONE_TRANSITION] Error during cleanup after failed zone transition. CleanupException={CleanupExceptionType}, ThreadId={ThreadId}",
+                    cleanupEx.GetType().FullName, Thread.CurrentThread.ManagedThreadId);
+            }
+            
+            throw;
         }
     }
     
@@ -1666,7 +1944,7 @@ public class GranvilleRpcGameClientService : IDisposable
                 _logger.LogError(ex, "Error disposing pre-established connection for zone {Key}", connectionKey);
             }
             
-            _preEstablishedConnections.Remove(connectionKey);
+            _preEstablishedConnections.TryRemove(connectionKey, out _);
         }
     }
     
@@ -2044,7 +2322,17 @@ public class GranvilleRpcGameClientService : IDisposable
         
         _logger.LogInformation("[CHAT_DEBUG] Starting chat polling fallback");
         _lastChatPollTime = DateTime.UtcNow;
-        _chatPollingTimer = new Timer(async _ => await PollChatMessages(), null, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(500));
+        _chatPollingTimer = new Timer(async _ => 
+        {
+            try
+            {
+                await PollChatMessages();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled exception in chat polling timer callback");
+            }
+        }, null, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(500));
     }
     
     private async Task PollChatMessages()

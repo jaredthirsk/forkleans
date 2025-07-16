@@ -553,7 +553,7 @@ class GamePhaser {
             if (!sprite) {
                 // Create new sprite
                 const spriteKey = this.getSpriteKey(entity);
-                console.log(`Creating sprite with key '${spriteKey}' for entity type ${entity.type}, subType ${entity.subType}`);
+                // Creating sprite for entity
                 
                 // Check if texture exists
                 if (!this.scene.textures.exists(spriteKey)) {
@@ -571,10 +571,10 @@ class GamePhaser {
                 if (entityType === 0) { // Player
                     const color = this.getEntityColor(entity);
                     sprite.setTint(color);
-                    console.log(`Applied team color tint ${color.toString(16)} to player ${entity.entityId} (team ${entity.team})`);
+                    // Applied team color tinting
                 }
                 
-                console.log(`Created sprite for ${this.getEntityTypeName(entity.type)} at (${entity.position.x}, ${entity.position.y})`);
+                // Created sprite at position
                 
                 // Make camera follow the player
                 if (entityType === 0 && entity.entityId === this.playerId) {
@@ -704,7 +704,7 @@ class GamePhaser {
 
     getSpriteKey(entity) {
         // Log the actual values to debug
-        console.log(`getSpriteKey: type=${entity.type}, subType=${entity.subType}, typeString=${typeof entity.type}`);
+        // Getting sprite key for entity
         
         // Check if type is a string and needs conversion
         const entityType = typeof entity.type === 'string' ? this.parseEntityType(entity.type) : entity.type;
@@ -1088,7 +1088,7 @@ class GamePhaser {
         if (length > 0) {
             const shootX = dx / length;
             const shootY = dy / length;
-            console.log(`[INPUT] Player ${this.playerId} shooting direction: (${shootX.toFixed(2)}, ${shootY.toFixed(2)})`);
+            // Player shooting input processed
             this.dotNetReference.invokeMethodAsync('OnShootInput', shootX, shootY);
         }
     }

@@ -4,7 +4,7 @@ using Aspire.Hosting.ApplicationModel;
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Configuration
-const int InitialActionServerCount = 4;
+const int InitialActionServerCount = 9;
 const int SiloCount = 2; // Number of silos to start
 var transportType = args.FirstOrDefault(arg => arg.StartsWith("--transport="))?.Replace("--transport=", "") ?? "litenetlib";
 

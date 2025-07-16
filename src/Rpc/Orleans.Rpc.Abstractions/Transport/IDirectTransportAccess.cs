@@ -1,6 +1,4 @@
 using System;
-using LiteNetLib;
-using Ruffles;
 
 namespace Orleans.Rpc.Transport
 {
@@ -12,59 +10,26 @@ namespace Orleans.Rpc.Transport
     public interface IDirectTransportAccess
     {
         /// <summary>
-        /// Gets the underlying LiteNetLib peer for direct API access.
-        /// Returns null if the current transport is not LiteNetLib.
+        /// Gets the underlying transport object for direct API access.
+        /// Returns null if direct access is not available.
+        /// The returned object must be cast to the appropriate transport type.
         /// </summary>
-        NetPeer GetLiteNetLibPeer();
+        object? GetUnderlyingTransport();
         
         /// <summary>
-        /// Gets the underlying Ruffles connection for direct API access.
-        /// Returns null if the current transport is not Ruffles.
+        /// Gets the current transport type name to help with transport-specific optimizations.
         /// </summary>
-        Connection GetRufflesConnection();
-        
-        /// <summary>
-        /// Gets the current transport type to help with transport-specific optimizations.
-        /// </summary>
-        RpcTransportType TransportType { get; }
+        string TransportTypeName { get; }
         
         /// <summary>
         /// Checks if direct access is available for the current transport.
         /// </summary>
         bool IsDirectAccessAvailable { get; }
-    }
-    
-    /// <summary>
-    /// Extension methods for safer direct transport access.
-    /// </summary>
-    public static class DirectTransportAccessExtensions
-    {
-        /// <summary>
-        /// Attempts to send data using direct LiteNetLib access.
-        /// </summary>
-        public static bool TrySendLiteNetLib(this IDirectTransportAccess access, byte[] data, DeliveryMethod deliveryMethod)
-        {
-            var peer = access.GetLiteNetLibPeer();
-            if (peer != null && peer.ConnectionState == ConnectionState.Connected)
-            {
-                peer.Send(data, deliveryMethod);
-                return true;
-            }
-            return false;
-        }
         
         /// <summary>
-        /// Attempts to send data using direct Ruffles access.
+        /// Attempts to send data directly through the underlying transport.
+        /// This is a generic method that works with any transport type.
         /// </summary>
-        public static bool TrySendRuffles(this IDirectTransportAccess access, byte[] data, byte channelId, bool reliable)
-        {
-            var connection = access.GetRufflesConnection();
-            if (connection != null && connection.State == ConnectionState.Connected)
-            {
-                connection.Send(new ArraySegment<byte>(data), channelId, reliable, 0);
-                return true;
-            }
-            return false;
-        }
+        bool TrySendDirect(byte[] data, string target, bool reliable = false);
     }
 }
