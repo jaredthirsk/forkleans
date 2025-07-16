@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Shooter.Shared.GrainInterfaces;
 using Orleans.Runtime;
-using Orleans.Runtime.MembershipService;
 
 namespace Shooter.Silo.Services;
 
@@ -72,9 +71,8 @@ public class WorldManagerInitializer : IHostedService
                 // Check if Orleans silo is ready by verifying key services
                 var grainFactory = _serviceProvider.GetService<Orleans.IGrainFactory>();
                 var siloStatusOracle = _serviceProvider.GetService<ISiloStatusOracle>();
-                var membershipService = _serviceProvider.GetService<IMembershipService>();
                 
-                if (grainFactory != null && siloStatusOracle != null && membershipService != null)
+                if (grainFactory != null && siloStatusOracle != null)
                 {
                     // Check if silo is active and membership service has active silos
                     var currentStatus = siloStatusOracle.CurrentStatus;
@@ -92,7 +90,7 @@ public class WorldManagerInitializer : IHostedService
                 }
                 
                 _logger.LogDebug("Orleans silo not ready yet (attempt {Attempt}/{MaxRetries}). Current status: {Status}", 
-                    attempt, maxRetries, siloStatusOracle?.CurrentStatus?.ToString() ?? "Unknown");
+                    attempt, maxRetries, siloStatusOracle?.CurrentStatus.ToString() ?? "Unknown");
                     
                 await Task.Delay(retryDelayMs, cancellationToken);
             }

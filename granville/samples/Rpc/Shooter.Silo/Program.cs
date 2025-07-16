@@ -301,30 +301,6 @@ app.MapGet("/orleans-ready", (Orleans.IGrainFactory grainFactory) =>
 
 app.Run();
 
-// Helper method to find an available port
-static int FindAvailablePort(int startPort, int blockSize = 10)
-{
-    var port = startPort;
-    while (port < 65535)
-    {
-        try
-        {
-            using var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, port);
-            listener.Start();
-            listener.Stop();
-            return port;
-        }
-        catch (System.Net.Sockets.SocketException)
-        {
-            // Port is in use, try next block
-            var currentBlock = (port - 7070) / blockSize;
-            var nextBlock = currentBlock + 1;
-            port = 7070 + (nextBlock * blockSize) + 3; // Jump to next block's dashboard port
-        }
-    }
-    throw new InvalidOperationException($"Could not find an available port starting from {startPort}");
-}
-
 // Service to cleanup console redirection on shutdown
 public class ConsoleRedirectorCleanupService : IHostedService
 {
