@@ -228,8 +228,8 @@ public class GranvilleRpcGameClientService : IDisposable
             
             // Wait for the handshake and manifest exchange to complete
             // Try to get the grain with retries to ensure manifest is ready
-            const int maxRetries = 10;
-            const int retryDelayMs = 500;
+            const int maxRetries = 15; // Increased for better manifest reliability
+            const int retryDelayMs = 50; // Reduced delay - manifest sync is usually very fast
             
             for (int i = 0; i < maxRetries; i++)
             {
@@ -1160,7 +1160,8 @@ public class GranvilleRpcGameClientService : IDisposable
                     _cancellationTokenSource?.Token ?? CancellationToken.None);
                 
                 int retryCount = 0;
-                const int maxHandshakeRetries = 5;
+                const int maxHandshakeRetries = 15; // Increased from 5 to 15 for better manifest reliability
+                const int retryDelayMs = 50; // Low retry delay - manifest sync is usually very fast
                 
                 while (retryCount < maxHandshakeRetries)
                 {
@@ -1174,7 +1175,7 @@ public class GranvilleRpcGameClientService : IDisposable
                     {
                         if (retryCount > 0)
                         {
-                            await Task.Delay(200 * retryCount, combinedCts.Token);
+                            await Task.Delay(retryDelayMs, combinedCts.Token); // Fixed 50ms delay instead of progressive
                         }
                         
                         var getGrainTask = Task.Run(() => _rpcClient.GetGrain<IGameRpcGrain>("game"), combinedCts.Token);
@@ -1345,7 +1346,8 @@ public class GranvilleRpcGameClientService : IDisposable
                 _cancellationTokenSource?.Token ?? CancellationToken.None);
             
             int retryCount = 0;
-            const int maxRetries = 5;
+            const int maxRetries = 15; // Increased for better manifest reliability
+            const int retryDelayMs = 50; // Low delay - manifest sync is usually very fast
             Exception? lastException = null;
             
             while (retryCount < maxRetries)
@@ -1361,7 +1363,7 @@ public class GranvilleRpcGameClientService : IDisposable
                     // Short delay before each attempt, but not on first attempt
                     if (retryCount > 0)
                     {
-                        await Task.Delay(200 * retryCount, combinedCts.Token); // Progressive delay: 0ms, 200ms, 400ms, 600ms, 800ms
+                        await Task.Delay(retryDelayMs, combinedCts.Token); // Fixed 50ms delay instead of progressive
                     }
                     
                     // Get the game grain with timeout
@@ -1992,7 +1994,7 @@ public class GranvilleRpcGameClientService : IDisposable
             
             // Retry logic for getting the game grain
             int retryCount = 0;
-            const int maxRetries = 3;
+            const int maxRetries = 15; // Increased for better manifest reliability
             
             while (retryCount < maxRetries)
             {
@@ -2015,7 +2017,7 @@ public class GranvilleRpcGameClientService : IDisposable
                     {
                         _logger.LogWarning("Pre-establish: Manifest not ready for zone {Key}, retry {Retry}/{Max}", 
                             connectionKey, retryCount, maxRetries);
-                        await Task.Delay(300 * retryCount); // Progressive delay
+                        await Task.Delay(50); // Fixed 50ms delay - manifest sync is usually very fast
                     }
                     else
                     {
