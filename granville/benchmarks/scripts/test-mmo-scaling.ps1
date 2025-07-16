@@ -83,13 +83,14 @@ try {
             $config = Get-Content $ConfigFile | ConvertFrom-Json
             
             # Find the appropriate workload scale
-            $workloadName = "MMO-" + (switch ($test.Name) {
+            $workloadScale = switch ($test.Name) {
                 "small" { "Small-Scale" }
                 "medium" { "Medium-Scale" } 
                 "large" { "Large-Scale" }
                 "massive" { "Massive-Scale" }
                 default { "Small-Scale" }
-            })
+            }
+            $workloadName = "MMO-$workloadScale"
             
             # Filter to specific workload and modify
             $config.workloads = $config.workloads | Where-Object { $_.name -eq $workloadName }
