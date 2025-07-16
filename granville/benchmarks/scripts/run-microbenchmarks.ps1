@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 
 param(
-    [string]$Filter = "*",
+    [string]$Filter = "*RpcLatencyBenchmark*",
     [string]$OutputPath = "../results/micro",
     [switch]$Quick
 )

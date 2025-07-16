@@ -98,9 +98,6 @@ builder.Services.AddSingleton<Shooter.Silo.Services.SiloManager>();
 builder.Services.AddHostedService<Shooter.Silo.Services.SiloManager>(provider => 
     provider.GetRequiredService<Shooter.Silo.Services.SiloManager>());
 
-// Add WorldManagerGrain initializer to ensure timer functionality works
-builder.Services.AddHostedService<Shooter.Silo.Services.WorldManagerInitializer>();
-
 // Add Silo registration service for multi-silo discovery
 builder.Services.AddHostedService<Shooter.Silo.Services.SiloRegistrationService>();
 
@@ -185,6 +182,9 @@ builder.Host.UseOrleans(siloBuilder =>
         });
         */
 });
+
+// Add WorldManagerGrain initializer after Orleans is configured to ensure proper startup order
+builder.Services.AddHostedService<Shooter.Silo.Services.WorldManagerInitializer>();
 
 // TODO: Configure RPC client so Silo can communicate with ActionServers
 // For now, commenting out complex RPC client configuration to fix build
