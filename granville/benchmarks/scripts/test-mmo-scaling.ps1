@@ -117,9 +117,16 @@ try {
                 # For now, just use the first transport that matches the type
                 $transportType = if ($Transport -match "LiteNetLib") { "LiteNetLib" } else { "Ruffles" }
                 $reliable = $Transport -match "Reliable"
-                $config.BenchmarkOptions.Transports = $config.BenchmarkOptions.Transports | 
-                    Where-Object { $_.Type -eq $transportType -and $_.Reliable -eq $reliable } |
-                    Select-Object -First 1
+                $filteredTransports = $config.BenchmarkOptions.Transports | 
+                    Where-Object { $_.Type -eq $transportType -and $_.Reliable -eq $reliable }
+                
+                if ($filteredTransports) {
+                    $config.BenchmarkOptions.Transports = @($filteredTransports | Select-Object -First 1)
+                } else {
+                    # Fallback to first available transport if no match
+                    Write-Warning "No transport matching '$Transport' found, using first available"
+                    $config.BenchmarkOptions.Transports = @($config.BenchmarkOptions.Transports | Select-Object -First 1)
+                }
             }
             
             # Note: Output path is controlled by the runner based on its configuration
@@ -238,6 +245,12 @@ Based on results:
 - **Scale characteristics**: [analyze how performance changes with scale]
 "@
 
+    # Ensure directory exists
+    $reportDir = Split-Path $reportPath
+    if (!(Test-Path $reportDir)) {
+        New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
+    }
+    
     $report | Set-Content $reportPath
     Write-Host "Scaling analysis saved to: $reportPath" -ForegroundColor Green
     
