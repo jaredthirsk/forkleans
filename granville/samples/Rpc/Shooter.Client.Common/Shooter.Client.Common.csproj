@@ -17,9 +17,12 @@
     <PackageReference Include="Granville.Rpc.Client" />
     <PackageReference Include="Granville.Rpc.Transport.LiteNetLib" />
     <PackageReference Include="Granville.Rpc.Transport.Ruffles" />
+    <!-- Add RPC Abstractions to ensure protocol types are available -->
+    <PackageReference Include="Granville.Rpc.Abstractions" />
     <!-- Granville Orleans packages -->
     <PackageReference Include="Granville.Orleans.Core" />
     <PackageReference Include="Granville.Orleans.Core.Abstractions" />
+    <PackageReference Include="Granville.Orleans.Sdk" />
     
     
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />

@@ -178,6 +178,8 @@ builder.UseOrleansClient((Orleans.Hosting.IClientBuilder clientBuilder) =>
 builder.Services.AddSerializer(serializerBuilder =>
 {
     serializerBuilder.AddAssembly(typeof(Shooter.Shared.GrainInterfaces.IWorldManagerGrain).Assembly);
+    // Add RPC protocol assembly for RPC message serialization
+    serializerBuilder.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
 });
 
 // Diagnostic: Check for generated proxy types

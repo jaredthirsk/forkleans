@@ -47,6 +47,7 @@ public class CrossZoneRpcService : IHostedService, IDisposable
         
         return Task.CompletedTask;
     }
+    
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
@@ -69,6 +70,11 @@ public class CrossZoneRpcService : IHostedService, IDisposable
 
     public async Task<IGameRpcGrain> GetGameGrainForServer(ActionServerInfo targetServer)
     {
+        return await GetGameGrainForZone(targetServer, null);
+    }
+    
+    public async Task<IGameRpcGrain> GetGameGrainForZone(ActionServerInfo targetServer, GridSquare? targetZone, bool bypassZoneCheck = false)
+    {
         var connectionKey = GetConnectionKey(targetServer);
         
         // Try to get existing connection
@@ -89,8 +95,9 @@ public class CrossZoneRpcService : IHostedService, IDisposable
                 return connectionInfo.Client.GetGrain<IGameRpcGrain>("game");
             }
 
-            _logger.LogInformation("Creating new RPC connection to server {ServerId} at {Host}:{Port}", 
-                targetServer.ServerId, targetServer.IpAddress, targetServer.RpcPort);
+            _logger.LogInformation("Creating new RPC connection to server {ServerId} at {Host}:{Port} for zone ({ZoneX},{ZoneY})", 
+                targetServer.ServerId, targetServer.IpAddress, targetServer.RpcPort, 
+                targetZone?.X ?? -1, targetZone?.Y ?? -1);
 
             var hostBuilder = Host.CreateDefaultBuilder()
                 .UseOrleansRpcClient(rpcBuilder =>
@@ -111,6 +118,8 @@ public class CrossZoneRpcService : IHostedService, IDisposable
                     services.AddSerializer(serializer =>
                     {
                         serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                        // Add RPC protocol assembly for RPC message serialization
+                        serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
                     });
                 })
                 .ConfigureLogging(logging =>
@@ -211,8 +220,8 @@ public class CrossZoneRpcService : IHostedService, IDisposable
                 return;
             }
             
-            // Get the game grain for the target server
-            var gameGrain = await GetGameGrainForServer(targetServer);
+            // Get the game grain for the target server (bypass zone check for bullet operations)
+            var gameGrain = await GetGameGrainForZone(targetServer, targetZone, bypassZoneCheck: true);
             
             // Notify about bullet destruction
             await gameGrain.NotifyBulletDestroyed(bulletId);

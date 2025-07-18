@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
     <!-- Disable Orleans code generation to prevent duplicate code generation -->
     <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
+    <!-- Enable Granville code generation for RPC serializers -->
+    <Granville_DesignTimeBuild>false</Granville_DesignTimeBuild>
+    <!-- Enable build-time code generation -->
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
   </PropertyGroup>
 
 
@@ -17,6 +21,9 @@
     <PackageReference Include="Granville.Orleans.Serialization.Abstractions" />
     <PackageReference Include="Granville.Orleans.Runtime" />
     <PackageReference Include="Granville.Orleans.Sdk" />
+    <!-- Explicitly add code generator and analyzers -->
+    <PackageReference Include="Granville.Orleans.CodeGenerator" OutputItemType="Analyzer" />
+    <PackageReference Include="Granville.Orleans.Analyzers" OutputItemType="Analyzer" />
 
     <!-- Granville RPC packages -->
     <PackageReference Include="Granville.Rpc.Abstractions" />
