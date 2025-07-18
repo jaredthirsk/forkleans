@@ -8,6 +8,7 @@ using LiteNetLib;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Granville.Rpc.Configuration;
+using Granville.Rpc.Telemetry;
 
 namespace Granville.Rpc.Transport.LiteNetLib
 {
@@ -18,6 +19,7 @@ namespace Granville.Rpc.Transport.LiteNetLib
     {
         private readonly ILogger<LiteNetLibTransport> _logger;
         private readonly RpcTransportOptions _options;
+        private readonly INetworkStatisticsTracker _networkStatisticsTracker;
         private NetManager _netManager;
         private bool _isServer;
         private bool _disposed;
@@ -29,10 +31,14 @@ namespace Granville.Rpc.Transport.LiteNetLib
         public event EventHandler<RpcConnectionEventArgs> ConnectionEstablished;
         public event EventHandler<RpcConnectionEventArgs> ConnectionClosed;
 
-        public LiteNetLibTransport(ILogger<LiteNetLibTransport> logger, IOptions<RpcTransportOptions> options)
+        public LiteNetLibTransport(
+            ILogger<LiteNetLibTransport> logger, 
+            IOptions<RpcTransportOptions> options,
+            INetworkStatisticsTracker networkStatisticsTracker = null)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+            _networkStatisticsTracker = networkStatisticsTracker;
         }
 
         public Task StartAsync(IPEndPoint endpoint, CancellationToken cancellationToken)
@@ -164,7 +170,11 @@ namespace Granville.Rpc.Transport.LiteNetLib
             }
 
             var deliveryMethod = _options.EnableReliableDelivery ? DeliveryMethod.ReliableOrdered : DeliveryMethod.Unreliable;
-            peer.Send(data.ToArray(), deliveryMethod);
+            var dataArray = data.ToArray();
+            peer.Send(dataArray, deliveryMethod);
+            
+            // Track statistics
+            _networkStatisticsTracker?.RecordPacketSent(dataArray.Length);
 
             return Task.CompletedTask;
         }
@@ -193,7 +203,11 @@ namespace Granville.Rpc.Transport.LiteNetLib
             }
 
             var deliveryMethod = _options.EnableReliableDelivery ? DeliveryMethod.ReliableOrdered : DeliveryMethod.Unreliable;
-            peer.Send(data.ToArray(), deliveryMethod);
+            var dataArray = data.ToArray();
+            peer.Send(dataArray, deliveryMethod);
+            
+            // Track statistics
+            _networkStatisticsTracker?.RecordPacketSent(dataArray.Length);
 
             return Task.CompletedTask;
         }
@@ -244,6 +258,9 @@ namespace Granville.Rpc.Transport.LiteNetLib
                 reader.GetBytes(data, reader.AvailableBytes);
                 var endpoint = _peerEndpoints.GetValueOrDefault(peer.Id, new IPEndPoint(peer.Address, 0));
                 
+                // Track statistics
+                _networkStatisticsTracker?.RecordPacketReceived(data.Length);
+                
                 var eventArgs = new RpcDataReceivedEventArgs(endpoint, data)
                 {
                     ConnectionId = peer.Id.ToString()
@@ -266,6 +283,9 @@ namespace Granville.Rpc.Transport.LiteNetLib
         public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
         {
             _logger.LogTrace("Latency update for peer {PeerId}: {Latency}ms", peer.Id, latency);
+            
+            // Track statistics
+            _networkStatisticsTracker?.RecordLatency(latency);
         }
 
         public void OnConnectionRequest(ConnectionRequest request)

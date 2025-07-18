@@ -7,12 +7,14 @@
     <Description>Orleans RPC SDK - attributes and interfaces for RPC-specific grain features</Description>
     <PackageTags>$(PackageTags);SDK;RPC</PackageTags>
     <Nullable>enable</Nullable>
+    <!-- Disable automatic project references from Directory.Build.targets -->
+    <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
-    <ProjectReference Include="..\..\Orleans.Sdk\Orleans.Sdk.csproj" />
-    <ProjectReference Include="..\..\Orleans.CodeGenerator\Orleans.CodeGenerator.csproj" PrivateAssets="None" />
+    <PackageReference Include="Granville.Orleans.Core.Abstractions" />
+    <PackageReference Include="Granville.Orleans.Sdk" />
+    <PackageReference Include="Granville.Orleans.CodeGenerator" PrivateAssets="None" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -13,7 +14,9 @@ using Orleans.GrainReferences;
 using Orleans.Messaging;
 using Orleans.Runtime;
 using Orleans.Serialization;
+using Orleans.Serialization.Buffers;
 using Orleans.Serialization.Invocation;
+using Orleans.Serialization.Session;
 
 namespace Granville.Rpc
 {
@@ -27,6 +30,7 @@ namespace Granville.Rpc
         private readonly TimeProvider _timeProvider;
         private readonly ILocalClientDetails _clientDetails;
         private readonly RpcClient _rpcClient;
+        private readonly Serializer _serializer;
         private TimeSpan _responseTimeout = TimeSpan.FromSeconds(30);
         private IInternalGrainFactory _internalGrainFactory;
 
@@ -42,6 +46,7 @@ namespace Granville.Rpc
             _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
             _clientDetails = clientDetails ?? throw new ArgumentNullException(nameof(clientDetails));
             _rpcClient = rpcClient ?? throw new ArgumentNullException(nameof(rpcClient));
+            _serializer = serviceProvider.GetRequiredService<Serializer>();
         }
 
         public TimeProvider TimeProvider => _timeProvider;
@@ -131,9 +136,9 @@ namespace Granville.Rpc
                         object result = null;
                         if (response.Payload != null && response.Payload.Length > 0)
                         {
-                            var json = System.Text.Encoding.UTF8.GetString(response.Payload);
-                            _logger.LogTrace("Deserializing response payload: '{Json}' (length: {Length} bytes)", json, response.Payload.Length);
+                            _logger.LogTrace("Deserializing response payload (length: {Length} bytes)", response.Payload.Length);
                             
+                            // Use Orleans binary deserialization
                             // Try to deserialize using the return type information if available
                             if (!string.IsNullOrEmpty(rpcRequest.ReturnTypeName))
                             {
@@ -142,12 +147,12 @@ namespace Granville.Rpc
                                     var returnType = Type.GetType(rpcRequest.ReturnTypeName);
                                     if (returnType != null)
                                     {
-                                        result = System.Text.Json.JsonSerializer.Deserialize(json, returnType);
+                                        result = DeserializePayload(response.Payload, returnType);
                                     }
                                     else
                                     {
                                         _logger.LogWarning("Could not load return type {ReturnTypeName}", rpcRequest.ReturnTypeName);
-                                        result = System.Text.Json.JsonSerializer.Deserialize<object>(json);
+                                        result = _serializer.Deserialize<object>(new ReadOnlyMemory<byte>(response.Payload));
                                         
                                         // Handle JsonElement conversion for primitive types
                                         if (result is System.Text.Json.JsonElement element)
@@ -171,47 +176,13 @@ namespace Granville.Rpc
                                 {
                                     _logger.LogError(ex, "Error deserializing result of type {ReturnTypeName}", rpcRequest.ReturnTypeName);
                                     // Fall back to object deserialization
-                                    result = System.Text.Json.JsonSerializer.Deserialize<object>(json);
-                                    
-                                    // Handle JsonElement conversion for primitive types
-                                    if (result is System.Text.Json.JsonElement element)
-                                    {
-                                        result = element.ValueKind switch
-                                        {
-                                            System.Text.Json.JsonValueKind.True => true,
-                                            System.Text.Json.JsonValueKind.False => false,
-                                            System.Text.Json.JsonValueKind.Number => element.TryGetInt32(out var intValue) ? intValue : element.GetDouble(),
-                                            System.Text.Json.JsonValueKind.String => element.GetString(),
-                                            System.Text.Json.JsonValueKind.Null => null,
-                                            _ => result // Keep as JsonElement for complex types
-                                        };
-                                        
-                                        _logger.LogDebug("Converted JsonElement of kind {Kind} to {Type}: {Value} (in fallback)", 
-                                            element.ValueKind, result?.GetType().Name ?? "null", result);
-                                    }
+                                    result = _serializer.Deserialize<object>(new ReadOnlyMemory<byte>(response.Payload));
                                 }
                             }
                             else
                             {
                                 // No type information available, deserialize as object
-                                result = System.Text.Json.JsonSerializer.Deserialize<object>(json);
-                                
-                                // Handle JsonElement conversion for primitive types
-                                if (result is System.Text.Json.JsonElement element)
-                                {
-                                    result = element.ValueKind switch
-                                    {
-                                        System.Text.Json.JsonValueKind.True => true,
-                                        System.Text.Json.JsonValueKind.False => false,
-                                        System.Text.Json.JsonValueKind.Number => element.TryGetInt32(out var intValue) ? intValue : element.GetDouble(),
-                                        System.Text.Json.JsonValueKind.String => element.GetString(),
-                                        System.Text.Json.JsonValueKind.Null => null,
-                                        _ => result // Keep as JsonElement for complex types
-                                    };
-                                    
-                                    _logger.LogDebug("Converted JsonElement of kind {Kind} to {Type}: {Value}", 
-                                        element.ValueKind, result?.GetType().Name ?? "null", result);
-                                }
+                                result = _serializer.Deserialize<object>(new ReadOnlyMemory<byte>(response.Payload));
                             }
                         }
                         
@@ -253,8 +224,10 @@ namespace Granville.Rpc
                 args[i] = request.GetArgument(i);
             }
             
-            var json = System.Text.Json.JsonSerializer.Serialize(args);
-            return System.Text.Encoding.UTF8.GetBytes(json);
+            // Use Orleans binary serialization
+            var writer = new ArrayBufferWriter<byte>();
+            _serializer.Serialize(args, writer);
+            return writer.WrittenMemory.ToArray();
         }
         
         private int GetMethodId(GrainInterfaceType interfaceType, string methodName)
@@ -346,6 +319,14 @@ namespace Granville.Rpc
         {
             // For testing purposes - always return 0
             return 0;
+        }
+        
+        private object DeserializePayload(byte[] payload, Type returnType)
+        {
+            using var stream = new System.IO.MemoryStream(payload);
+            // Use reflection to call the non-generic Deserialize(Stream, Type) overload
+            var method = typeof(Serializer).GetMethod("Deserialize", new[] { typeof(System.IO.Stream), typeof(Type) });
+            return method.Invoke(_serializer, new object[] { stream, returnType });
         }
     }
 }

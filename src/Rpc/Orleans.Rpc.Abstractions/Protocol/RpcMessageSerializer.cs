@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Orleans.Serialization;
+using Orleans.Serialization.Buffers;
+using Orleans.Serialization.Session;
 
 namespace Granville.Rpc.Protocol
 {
@@ -21,7 +23,7 @@ namespace Granville.Rpc.Protocol
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             
-            // Configure JSON serialization options
+            // Configure JSON serialization options (kept for backward compatibility)
             _jsonOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -46,10 +48,8 @@ namespace Granville.Rpc.Protocol
                 // Write message type byte
                 writer.Write(new[] { GetMessageTypeByte(message) });
                 
-                // Serialize to JSON
-                var json = JsonSerializer.Serialize(message, message.GetType(), _jsonOptions);
-                var jsonBytes = System.Text.Encoding.UTF8.GetBytes(json);
-                writer.Write(jsonBytes);
+                // Use Orleans binary serialization
+                _serializer.Serialize(message, writer);
                 
                 return writer.WrittenMemory.ToArray();
             }
@@ -75,19 +75,17 @@ namespace Granville.Rpc.Protocol
                 var messageType = data.Span[0];
                 var messageData = data.Slice(1);
                 
-                // Deserialize from JSON
-                var json = System.Text.Encoding.UTF8.GetString(messageData.Span);
-
+                // Use Orleans binary deserialization
                 return messageType switch
                 {
-                    1 => JsonSerializer.Deserialize<RpcRequest>(json!, _jsonOptions)!,
-                    2 => JsonSerializer.Deserialize<RpcResponse>(json!, _jsonOptions)!,
-                    3 => JsonSerializer.Deserialize<RpcHeartbeat>(json!, _jsonOptions)!,
-                    4 => JsonSerializer.Deserialize<RpcHandshake>(json!, _jsonOptions)!,
-                    5 => JsonSerializer.Deserialize<RpcHandshakeAck>(json!, _jsonOptions)!,
-                    6 => JsonSerializer.Deserialize<RpcAsyncEnumerableRequest>(json!, _jsonOptions)!,
-                    7 => JsonSerializer.Deserialize<RpcAsyncEnumerableItem>(json!, _jsonOptions)!,
-                    8 => JsonSerializer.Deserialize<RpcAsyncEnumerableCancel>(json!, _jsonOptions)!,
+                    1 => _serializer.Deserialize<RpcRequest>(messageData),
+                    2 => _serializer.Deserialize<RpcResponse>(messageData),
+                    3 => _serializer.Deserialize<RpcHeartbeat>(messageData),
+                    4 => _serializer.Deserialize<RpcHandshake>(messageData),
+                    5 => _serializer.Deserialize<RpcHandshakeAck>(messageData),
+                    6 => _serializer.Deserialize<RpcAsyncEnumerableRequest>(messageData),
+                    7 => _serializer.Deserialize<RpcAsyncEnumerableItem>(messageData),
+                    8 => _serializer.Deserialize<RpcAsyncEnumerableCancel>(messageData),
                     _ => throw new NotSupportedException($"Unknown message type: {messageType}")
                 };
             }

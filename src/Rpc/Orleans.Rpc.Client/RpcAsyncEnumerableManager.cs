@@ -7,6 +7,8 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Orleans.Serialization;
+using Orleans.Serialization.Buffers;
+using Orleans.Serialization.Session;
 
 namespace Granville.Rpc
 {
@@ -93,9 +95,8 @@ namespace Granville.Rpc
                 else if (item.ItemData != null && item.ItemData.Length > 0)
                 {
                     // Process stream item
-                    // Deserialize using JSON for now (matching server-side serialization)
-                    var json = System.Text.Encoding.UTF8.GetString(item.ItemData);
-                    var value = System.Text.Json.JsonSerializer.Deserialize(json, operation.ItemType);
+                    // Use Orleans binary deserialization
+                    var value = DeserializeItemData(item.ItemData, operation.ItemType);
                     await operation.AddItem(value);
                     
                     _logger.LogTrace("Processed item {SequenceNumber} for stream {StreamId}", 
@@ -185,6 +186,14 @@ namespace Granville.Rpc
             {
                 Channel.Writer.TryComplete(new OperationCanceledException());
             }
+        }
+        
+        private object DeserializeItemData(byte[] itemData, Type itemType)
+        {
+            using var stream = new System.IO.MemoryStream(itemData);
+            // Use reflection to call the non-generic Deserialize(Stream, Type) overload
+            var method = typeof(Serializer).GetMethod("Deserialize", new[] { typeof(System.IO.Stream), typeof(Type) });
+            return method.Invoke(_serializer, new object[] { stream, itemType });
         }
     }
 }

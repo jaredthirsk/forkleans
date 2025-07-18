@@ -407,6 +407,7 @@ namespace Granville.Rpc
                     _messageFactory,
                     _messagingOptions,
                     interfaceToImplementationMapping,
+                    _serializer,
                     connectionLogger);
             });
         }

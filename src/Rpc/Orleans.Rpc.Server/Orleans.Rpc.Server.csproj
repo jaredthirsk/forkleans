@@ -7,12 +7,14 @@
     <Description>Orleans RPC Server - simplified RPC-only server without clustering</Description>
     <PackageTags>$(PackageTags);Server;RPC</PackageTags>
     <Nullable>enable</Nullable>
+    <!-- Disable automatic project references from Directory.Build.targets -->
+    <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Orleans.Runtime\Orleans.Runtime.csproj" />
-    <ProjectReference Include="..\..\Orleans.Core\Orleans.Core.csproj" />
-    <ProjectReference Include="..\..\Orleans.Serialization\Orleans.Serialization.csproj" />
+    <PackageReference Include="Granville.Orleans.Runtime" />
+    <PackageReference Include="Granville.Orleans.Core" />
+    <PackageReference Include="Granville.Orleans.Serialization" />
     <ProjectReference Include="..\Orleans.Rpc.Abstractions\Orleans.Rpc.Abstractions.csproj" />
   </ItemGroup>
 
