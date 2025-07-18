@@ -42,7 +42,6 @@ $nuspecContent = @"
     <owners>Microsoft,Granville</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
-    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
     <description>Granville shim package for Microsoft.Orleans.CodeGenerator - forwards to Granville.Orleans.CodeGenerator</description>
     <tags>Orleans Cloud-Computing Actor-Model Actors Distributed-Systems C# .NET</tags>
     <dependencies>

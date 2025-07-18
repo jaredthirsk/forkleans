@@ -57,7 +57,7 @@ try {
     <authors>Granville RPC Contributors</authors>
     <owners>Granville RPC Contributors</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <license type="expression">MIT</license>
     <projectUrl>https://github.com/jaredthirsk/orleans</projectUrl>
     <description>Shim package that redirects to Granville.Orleans.CodeGenerator</description>
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
@@ -106,7 +106,7 @@ try {
     <authors>Granville RPC Contributors</authors>
     <owners>Granville RPC Contributors</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <license type="expression">MIT</license>
     <projectUrl>https://github.com/jaredthirsk/orleans</projectUrl>
     <description>Shim package that redirects to Granville.Orleans.Analyzers</description>
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>

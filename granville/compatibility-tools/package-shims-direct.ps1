@@ -88,7 +88,7 @@ $($depItems -join "`n")
     <authors>Granville Orleans Fork</authors>
     <description>COMPATIBILITY SHIM: Type forwarding assembly that redirects $packageName types to Granville.Orleans. This package enables third-party Orleans packages to work with Granville.Orleans. Only use this if you're using Granville.Orleans and need compatibility with packages that depend on Microsoft.Orleans.</description>
     <projectUrl>https://github.com/jaredthirsk/orleans</projectUrl>
-    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <license type="expression">MIT</license>
     <tags>Orleans Granville Compatibility TypeForwarding Shim</tags>
 $depXml
   </metadata>
