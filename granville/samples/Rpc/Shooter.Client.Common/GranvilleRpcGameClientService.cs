@@ -175,45 +175,14 @@ public class GranvilleRpcGameClientService : IDisposable
             
             _logger.LogInformation("Connecting to Orleans RPC server at {Host}:{Port}", resolvedHost, rpcPort);
             
-            // Create RPC client
-            var hostBuilder = Host.CreateDefaultBuilder()
-                .UseOrleansRpcClient(rpcBuilder =>
-                {
-                    rpcBuilder.ConnectTo(resolvedHost, rpcPort);
-                    // Configure transport based on configuration
-                    var transportType = _configuration["RpcTransport"] ?? "litenetlib";
-                    TransportType = transportType.ToLowerInvariant();
-                    switch (TransportType)
-                    {
-                        case "ruffles":
-                            _logger.LogInformation("Using Ruffles UDP transport");
-                            rpcBuilder.UseRuffles();
-                            break;
-                        case "litenetlib":
-                        default:
-                            _logger.LogInformation("Using LiteNetLib UDP transport");
-                            rpcBuilder.UseLiteNetLib();
-                            TransportType = "litenetlib"; // Ensure we always have a value
-                            break;
-                    }
-                })
-                .ConfigureServices(services =>
-                {
-                    // Add serialization for the grain interfaces and shared models
-                    services.AddSerializer(serializer =>
-                    {
-                        serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
-                    });
-                })
-                .Build();
+            // Create RPC client using helper method
+            var hostBuilder = BuildRpcHost(resolvedHost, rpcPort, PlayerId);
                 
             await hostBuilder.StartAsync();
             
             _rpcHost = hostBuilder;
             _rpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
             
-            // Initialize client-side network statistics tracker
-            _clientNetworkTracker = new NetworkStatisticsTracker(PlayerId ?? "Unknown");
             
             // Debug: check what manifest provider we have
             try
@@ -1143,6 +1112,8 @@ public class GranvilleRpcGameClientService : IDisposable
                         services.AddSerializer(serializer =>
                         {
                             serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                            // Add RPC protocol assembly for RPC message serialization
+                            serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
                         });
                     })
                     .Build();
@@ -1325,6 +1296,8 @@ public class GranvilleRpcGameClientService : IDisposable
                     services.AddSerializer(serializer =>
                     {
                         serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                        // Add RPC protocol assembly for RPC message serialization
+                        serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
                     });
                 })
                 .Build();
@@ -1334,8 +1307,6 @@ public class GranvilleRpcGameClientService : IDisposable
             _rpcHost = hostBuilder;
             _rpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
             
-            // Initialize client-side network statistics tracker
-            _clientNetworkTracker = new NetworkStatisticsTracker(PlayerId ?? "Unknown");
             
             // Wait for handshake and manifest exchange to complete with timeout and retry logic
             _logger.LogInformation("[ZONE_TRANSITION] Waiting for RPC handshake...");
@@ -1980,6 +1951,8 @@ public class GranvilleRpcGameClientService : IDisposable
                     services.AddSerializer(serializer =>
                     {
                         serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                        // Add RPC protocol assembly for RPC message serialization
+                        serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
                     });
                 })
                 .Build();
@@ -2377,6 +2350,55 @@ public class GranvilleRpcGameClientService : IDisposable
             _logger.LogDebug(ex, "Error getting server FPS");
             return 0;
         }
+    }
+    
+    private IHost BuildRpcHost(string resolvedHost, int rpcPort, string? playerId = null)
+    {
+        var hostBuilder = Host.CreateDefaultBuilder()
+            .UseOrleansRpcClient(rpcBuilder =>
+            {
+                rpcBuilder.ConnectTo(resolvedHost, rpcPort);
+                // Configure transport based on configuration
+                var transportType = _configuration["RpcTransport"] ?? "litenetlib";
+                TransportType = transportType.ToLowerInvariant();
+                switch (TransportType)
+                {
+                    case "ruffles":
+                        _logger.LogInformation("Using Ruffles UDP transport");
+                        rpcBuilder.UseRuffles();
+                        break;
+                    case "litenetlib":
+                    default:
+                        _logger.LogInformation("Using LiteNetLib UDP transport");
+                        rpcBuilder.UseLiteNetLib();
+                        TransportType = "litenetlib"; // Ensure we always have a value
+                        break;
+                }
+            })
+            .ConfigureServices(services =>
+            {
+                // Add serialization for the grain interfaces and shared models
+                services.AddSerializer(serializer =>
+                {
+                    serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                    // Add RPC protocol assembly for RPC message serialization
+                    serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
+                });
+                
+                // Register the network statistics tracker as a singleton
+                // Only for the main connection, not pre-established connections
+                if (playerId != null && _clientNetworkTracker == null)
+                {
+                    services.AddSingleton<Granville.Rpc.Telemetry.INetworkStatisticsTracker>(sp =>
+                    {
+                        _clientNetworkTracker = new NetworkStatisticsTracker(playerId);
+                        return _clientNetworkTracker;
+                    });
+                }
+            })
+            .Build();
+            
+        return hostBuilder;
     }
     
     public void Dispose()

@@ -1,28 +1,28 @@
 @using Shooter.Shared.RpcInterfaces
 @using Shooter.Client.Common
 @using System.Collections.Generic
+@using System.Linq
 @inject IJSRuntime JS
 @implements IDisposable
 
 <div class="network-stats-graph">
-    <h4>RPC Statistics</h4>
+    <h4>RPC Messages (60s) - Pending Integration</h4>
     <canvas @ref="_canvasElement" width="280" height="150"></canvas>
-    <div class="stats-legend">
-        <div class="legend-item">
-            <span class="legend-color client-sent"></span>
-            <span>Client Sent: @(_clientStats?.PacketsSent ?? 0)</span>
+    <div class="stats-table">
+        <div class="stats-row">
+            <div class="stat-value client-sent">@GetLast60SecondsSum(_clientSentHistory)</div>
+            <div class="arrow">→</div>
+            <div class="stat-value server-recv">@GetLast60SecondsSum(_serverRecvHistory)</div>
         </div>
-        <div class="legend-item">
-            <span class="legend-color client-recv"></span>
-            <span>Client Recv: @(_clientStats?.PacketsReceived ?? 0)</span>
+        <div class="stats-row">
+            <div class="stat-value client-recv">@GetLast60SecondsSum(_clientRecvHistory)</div>
+            <div class="arrow">←</div>
+            <div class="stat-value server-sent">@GetLast60SecondsSum(_serverSentHistory)</div>
         </div>
-        <div class="legend-item">
-            <span class="legend-color server-sent"></span>
-            <span>Server Sent: @(_serverStats?.PacketsSent ?? 0)</span>
-        </div>
-        <div class="legend-item">
-            <span class="legend-color server-recv"></span>
-            <span>Server Recv: @(_serverStats?.PacketsReceived ?? 0)</span>
+        <div class="stats-header">
+            <div>Client</div>
+            <div></div>
+            <div>Server</div>
         </div>
     </div>
 </div>
@@ -50,39 +50,68 @@
         height: auto;
     }
     
-    .stats-legend {
+    .stats-table {
         margin-top: 10px;
         font-size: 12px;
         font-family: monospace;
     }
     
-    .legend-item {
+    .stats-row {
         display: flex;
         align-items: center;
         margin-bottom: 5px;
-        gap: 8px;
+        gap: 10px;
     }
     
-    .legend-color {
-        width: 12px;
-        height: 12px;
-        border-radius: 2px;
+    .stats-header {
+        display: flex;
+        margin-top: 8px;
+        font-size: 11px;
+        color: #888;
+        border-top: 1px solid #444;
+        padding-top: 5px;
     }
     
-    .legend-color.client-sent {
-        background-color: #2196F3;
+    .stats-header > div {
+        flex: 1;
+        text-align: center;
     }
     
-    .legend-color.client-recv {
-        background-color: #4CAF50;
+    .stat-value {
+        flex: 1;
+        text-align: center;
+        padding: 4px 8px;
+        background-color: #1a1a1a;
+        border: 1px solid #444;
+        border-radius: 4px;
+        min-width: 60px;
     }
     
-    .legend-color.server-sent {
-        background-color: #FF9800;
+    .stat-value.client-sent {
+        border-color: #2196F3;
+        color: #2196F3;
     }
     
-    .legend-color.server-recv {
-        background-color: #F44336;
+    .stat-value.client-recv {
+        border-color: #4CAF50;
+        color: #4CAF50;
+    }
+    
+    .stat-value.server-sent {
+        border-color: #FF9800;
+        color: #FF9800;
+    }
+    
+    .stat-value.server-recv {
+        border-color: #F44336;
+        color: #F44336;
+    }
+    
+    .arrow {
+        flex: 0 0 auto;
+        color: #666;
+        font-size: 16px;
+        font-weight: bold;
     }
 </style>
 
@@ -206,6 +235,11 @@
             // Initialize the canvas
             await DrawGraph();
         }
+    }
+    
+    private long GetLast60SecondsSum(Queue<long> history)
+    {
+        return history.Sum();
     }
     
     public void Dispose()

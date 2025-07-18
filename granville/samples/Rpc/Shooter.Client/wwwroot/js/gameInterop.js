@@ -182,3 +182,139 @@ window.drawNetworkGraph = (canvas, clientSent, clientRecv, serverSent, serverRec
     ctx.fillText('Sent', -20, 0);
     ctx.restore();
 };
+
+// Draw network bandwidth graph
+window.drawNetworkBandwidthGraph = (canvas, clientSentBytes, clientRecvBytes, serverSentBytes, serverRecvBytes) => {
+    if (!canvas || !canvas.getContext) return;
+    
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    const padding = 40; // Increased for byte labels
+    const graphWidth = width - padding * 2;
+    const graphHeight = height - padding * 2;
+    
+    // Clear canvas
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, 0, width, height);
+    
+    // Find max values for left and right axes
+    // Left axis: client sent & server received
+    const leftValues = [...clientSentBytes, ...serverRecvBytes];
+    const maxLeftValue = Math.max(...leftValues, 1024); // At least 1KB for scale
+    
+    // Right axis: client received & server sent
+    const rightValues = [...clientRecvBytes, ...serverSentBytes];
+    const maxRightValue = Math.max(...rightValues, 1024); // At least 1KB for scale
+    
+    // Function to format bytes
+    const formatBytes = (bytes) => {
+        if (bytes < 1024) return bytes + ' B';
+        else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        else if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        else return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
+    };
+    
+    // Draw grid lines
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+    
+    // Horizontal grid lines
+    for (let i = 0; i <= 5; i++) {
+        const y = padding + (graphHeight / 5) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(width - padding, y);
+        ctx.stroke();
+        
+        // Left Y-axis labels (bytes)
+        const leftValue = Math.round((maxLeftValue * (5 - i)) / 5);
+        ctx.fillStyle = '#666';
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText(formatBytes(leftValue), padding - 5, y + 3);
+        
+        // Right Y-axis labels (bytes)
+        const rightValue = Math.round((maxRightValue * (5 - i)) / 5);
+        ctx.textAlign = 'left';
+        ctx.fillText(formatBytes(rightValue), width - padding + 5, y + 3);
+    }
+    
+    // Draw data lines
+    const dataArrays = [
+        { data: clientSentBytes, color: '#2196F3', label: 'Client Sent', axis: 'left', maxValue: maxLeftValue },
+        { data: clientRecvBytes, color: '#4CAF50', label: 'Client Recv', axis: 'right', maxValue: maxRightValue },
+        { data: serverSentBytes, color: '#FF9800', label: 'Server Sent', axis: 'right', maxValue: maxRightValue },
+        { data: serverRecvBytes, color: '#F44336', label: 'Server Recv', axis: 'left', maxValue: maxLeftValue }
+    ];
+    
+    dataArrays.forEach(({ data, color, maxValue }) => {
+        if (data.length < 2) return;
+        
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        const xStep = graphWidth / (data.length - 1);
+        
+        for (let i = 0; i < data.length; i++) {
+            const x = padding + xStep * i;
+            const y = padding + graphHeight - (data[i] / maxValue) * graphHeight;
+            
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        
+        ctx.stroke();
+    });
+    
+    // Draw axes
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    // Left axis
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, height - padding);
+    // Bottom axis
+    ctx.lineTo(width - padding, height - padding);
+    // Right axis
+    ctx.lineTo(width - padding, padding);
+    ctx.stroke();
+    
+    // Top labels
+    ctx.fillStyle = '#888';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('Client', padding, padding - 10);
+    ctx.textAlign = 'right';
+    ctx.fillText('Server', width - padding, padding - 10);
+    
+    // X-axis label
+    ctx.fillStyle = '#666';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Last 60 seconds', width / 2, height - 5);
+    
+    // Left Y-axis label (rotated)
+    ctx.save();
+    ctx.translate(10, height / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#2196F3';
+    ctx.fillText('Sent', 20, 0);
+    ctx.fillStyle = '#F44336';
+    ctx.fillText('Recv', -20, 0);
+    ctx.restore();
+    
+    // Right Y-axis label (rotated)
+    ctx.save();
+    ctx.translate(width - 10, height / 2);
+    ctx.rotate(Math.PI / 2);
+    ctx.fillStyle = '#4CAF50';
+    ctx.fillText('Recv', 20, 0);
+    ctx.fillStyle = '#FF9800';
+    ctx.fillText('Sent', -20, 0);
+    ctx.restore();
+};

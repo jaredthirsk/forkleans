@@ -4,42 +4,42 @@
 <div class="game-stats">
     <h4>Game Stats</h4>
     <div class="stat-item">
-        <span class="stat-label">Client FPS:</span>
+        <span class="stat-label">Client FPS</span>
         <span class="stat-value">@Fps</span>
     </div>
     <div class="stat-item">
-        <span class="stat-label">Server FPS:</span>
+        <span class="stat-label">Server FPS</span>
         <span class="stat-value">@((int)ServerFps)</span>
     </div>
     <div class="stat-item">
-        <span class="stat-label">Players:</span>
+        <span class="stat-label">Players</span>
         <span class="stat-value">@PlayerCount</span>
     </div>
     <div class="stat-item">
-        <span class="stat-label">Enemies:</span>
+        <span class="stat-label">Enemies</span>
         <span class="stat-value">@EnemyCount</span>
     </div>
     <div class="stat-item">
-        <span class="stat-label">Bullets:</span>
+        <span class="stat-label">Bullets</span>
         <span class="stat-value">@BulletCount</span>
     </div>
     <div class="stat-item">
-        <span class="stat-label">Server Zone:</span>
+        <span class="stat-label">Server Zone</span>
         <span class="stat-value">@ServerZone</span>
     </div>
     <div class="stat-item">
-        <span class="stat-label">Transport:</span>
+        <span class="stat-label">Transport</span>
         <span class="stat-value">@TransportType</span>
     </div>
     <div class="stat-item">
-        <span class="stat-label">Servers connected:</span>
+        <span class="stat-label">Servers connected</span>
         <span class="stat-value">@ActionServersConnected</span>
     </div>
     
     @if (CurrentSilo != null)
     {
         <div class="stat-item silo-item">
-            <span class="stat-label">Silo:</span>
+            <span class="stat-label">Silo</span>
             <div class="silo-value-container">
                 <span class="stat-value">@($"{CurrentSilo.IpAddress}:{CurrentSilo.HttpsPort}")</span>
                 @if (OnSwitchSilo.HasDelegate)
@@ -78,9 +78,11 @@
     .stat-item {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         margin-bottom: 8px;
         font-family: monospace;
         font-size: 14px;
+        gap: 8px;
     }
     
     .stat-label {

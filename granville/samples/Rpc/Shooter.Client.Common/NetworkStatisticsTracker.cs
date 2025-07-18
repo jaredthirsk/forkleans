@@ -1,12 +1,13 @@
 using Shooter.Shared.RpcInterfaces;
 using System.Diagnostics;
+using Granville.Rpc.Telemetry;
 
 namespace Shooter.Client.Common;
 
 /// <summary>
 /// Tracks network statistics for the client-side RPC connection.
 /// </summary>
-public class NetworkStatisticsTracker
+public class NetworkStatisticsTracker : Granville.Rpc.Telemetry.INetworkStatisticsTracker
 {
     private readonly string _clientId;
     private long _packetsSent;
@@ -21,29 +22,8 @@ public class NetworkStatisticsTracker
     {
         _clientId = clientId;
         
-        // Simulate some initial activity for demo purposes
-        // TODO: Remove this when we integrate with actual RPC transport
-        SimulateNetworkActivity();
-    }
-    
-    private async void SimulateNetworkActivity()
-    {
-        var random = new Random();
-        while (true)
-        {
-            await Task.Delay(100);
-            
-            // Simulate packet activity (client sends less than server)
-            if (random.Next(100) < 60) // 60% chance of activity
-            {
-                RecordPacketSent(random.Next(30, 150));
-                if (random.Next(100) < 95) // 95% chance of response
-                {
-                    RecordPacketReceived(random.Next(150, 400));
-                    RecordLatency(random.Next(10, 40));
-                }
-            }
-        }
+        // TODO: Wire up to actual RPC transport once Granville packages are built
+        // For now, this uses real tracking methods but no data is sent from transport
     }
     
     public void RecordPacketSent(int bytes)

@@ -312,6 +312,8 @@ public class GameService : IGameService, IHostedService
                     services.AddSerializer(serializer =>
                     {
                         serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                        // Add RPC protocol assembly for RPC message serialization
+                        serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
                     });
                 })
                 .Build();

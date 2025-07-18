@@ -94,6 +94,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             var playerGrain = _orleansClient.GetGrain<IPlayerGrain>(playerId);
             _logger.LogInformation("Got player grain reference for {PlayerId}", playerId);
             
+            
             // Retry up to 3 times with delays to ensure position is updated
             PlayerInfo? playerInfo = null;
             for (int i = 0; i < 3; i++)
@@ -1515,7 +1516,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     if (targetServer != null)
                     {
                         // Fire and forget - don't await scout alerts
-                        _ = SendScoutAlert(targetServer, _assignedSquare, playerPosition)
+                        _ = SendScoutAlert(targetServer, _assignedSquare, playerPosition, targetZone)
                             .ContinueWith(t => 
                             {
                                 if (t.IsFaulted)
@@ -1549,16 +1550,18 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         }
     }
     
-    private async Task SendScoutAlert(ActionServerInfo targetServer, GridSquare playerZone, Vector2 playerPosition)
+    private async Task SendScoutAlert(ActionServerInfo targetServer, GridSquare playerZone, Vector2 playerPosition, GridSquare targetZone)
     {
         try
         {
-            var gameGrain = await _crossZoneRpc.GetGameGrainForServer(targetServer);
+            // Use the zone-aware method to check if connection should be allowed
+            var gameGrain = await _crossZoneRpc.GetGameGrainForZone(targetServer, targetZone);
             await gameGrain.ReceiveScoutAlert(playerZone, playerPosition);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send RPC scout alert to server {ServerId}", targetServer.ServerId);
+            _logger.LogError(ex, "Failed to send RPC scout alert to server {ServerId} for zone ({X},{Y}): {Message}", 
+                targetServer.ServerId, targetZone.X, targetZone.Y, ex.Message);
         }
     }
 
@@ -2109,7 +2112,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     if (targetServer != null && targetServer.RpcPort > 0)
                     {
                         // Send trajectory to this server
-                        await SendBulletTrajectoryToServer(targetServer, bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId, team);
+                        await SendBulletTrajectoryToServer(targetServer, bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId, team, targetZone);
                         _logger.LogDebug("Sent bullet trajectory {BulletId} to zone ({X},{Y})", 
                             bulletId, targetZone.X, targetZone.Y);
                     }
@@ -2128,11 +2131,11 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     }
     
     private async Task SendBulletTrajectoryToServer(ActionServerInfo targetServer, string bulletId, int subType, 
-        Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId, int team = 0)
+        Vector2 origin, Vector2 velocity, float spawnTime, float lifespan, string? ownerId, int team = 0, GridSquare? targetZone = null)
     {
         try
         {
-            var gameGrain = await _crossZoneRpc.GetGameGrainForServer(targetServer);
+            var gameGrain = await _crossZoneRpc.GetGameGrainForZone(targetServer, targetZone, bypassZoneCheck: true);
             // Fire and forget - bullet transfers don't need confirmation
             _ = gameGrain.TransferBulletTrajectory(bulletId, subType, origin, velocity, spawnTime, lifespan, ownerId, team)
                 .ContinueWith(t =>
