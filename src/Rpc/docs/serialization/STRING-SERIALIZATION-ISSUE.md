@@ -26,5 +26,14 @@ Need to ensure that:
 2. String parameters are correctly serialized/deserialized
 3. The serializer configuration includes the Shooter.Shared assembly types
 
+## Root Cause Found
+The `DeserializeArguments` method in `RpcConnection.cs` was not implemented - it was returning an empty array instead of deserializing the arguments. This caused all method parameters to be null.
+
+## Fix Applied
+1. Implemented proper argument deserialization using Orleans serializer
+2. Fixed double deserialization issue in `InvokeGrainMethodAsync`
+3. Added debug logging to trace argument values
+4. Added Shooter.Shared assembly to RPC configuration in ActionServer
+
 ## Temporary Workaround
-The defensive null checks we added will prevent crashes, but the root serialization issue needs to be fixed for the game to work properly.
+The defensive null checks we added will prevent crashes while testing the serialization fix.
