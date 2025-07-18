@@ -145,13 +145,19 @@
     
     <Message Text="PostProcessGranvilleNuspec: Looking for nuspec at $(_NuspecFilePath)" Importance="high" />
     
-    <!-- Read and modify the nuspec file if it exists -->
+    <!-- Read the nuspec file to check if it needs processing -->
     <ReadLinesFromFile File="$(_NuspecFilePath)" Condition="Exists('$(_NuspecFilePath)')">
       <Output TaskParameter="Lines" ItemName="NuspecLines" />
     </ReadLinesFromFile>
     
-    <!-- Process each line to modify Microsoft.Orleans.* dependencies -->
-    <ItemGroup Condition="Exists('$(_NuspecFilePath)')">
+    <!-- Check if file has already been processed (contains Granville.Orleans) -->
+    <PropertyGroup>
+      <_NuspecContent>@(NuspecLines, '%0A')</_NuspecContent>
+      <_AlreadyProcessed>$([System.String]::Copy('$(_NuspecContent)').Contains('Granville.Orleans'))</_AlreadyProcessed>
+    </PropertyGroup>
+    
+    <!-- Process each line to modify Microsoft.Orleans.* dependencies only if not already processed -->
+    <ItemGroup Condition="Exists('$(_NuspecFilePath)') and '$(_AlreadyProcessed)' != 'true'">
       <ModifiedNuspecLines Include="@(NuspecLines)">
         <!-- For Granville packages with our version, change Microsoft.Orleans.* to Granville.Orleans.* -->
         <Text Condition="$([System.String]::Copy('%(Identity)').Contains('&lt;dependency id=&quot;Microsoft.Orleans.')) and $([System.String]::Copy('%(Identity)').Contains('version=&quot;$(PackageVersion)&quot;'))">$([System.Text.RegularExpressions.Regex]::Replace('%(Identity)', 'id=&quot;Microsoft\.Orleans\.', 'id=&quot;Granville.Orleans.'))</Text>
@@ -160,10 +166,11 @@
       </ModifiedNuspecLines>
     </ItemGroup>
     
-    <!-- Write the modified nuspec back -->
-    <WriteLinesToFile File="$(_NuspecFilePath)" Lines="@(ModifiedNuspecLines->'%(Text)')" Overwrite="true" Condition="Exists('$(_NuspecFilePath)')" />
+    <!-- Write the modified nuspec back only if it needs processing -->
+    <WriteLinesToFile File="$(_NuspecFilePath)" Lines="@(ModifiedNuspecLines->'%(Text)')" Overwrite="true" Condition="Exists('$(_NuspecFilePath)') and '$(_AlreadyProcessed)' != 'true'" />
     
-    <Message Text="PostProcessGranvilleNuspec completed for $(_NuspecFilePath)" Importance="high" Condition="Exists('$(_NuspecFilePath)')" />
+    <Message Text="PostProcessGranvilleNuspec completed for $(_NuspecFilePath)" Importance="high" Condition="Exists('$(_NuspecFilePath)') and '$(_AlreadyProcessed)' != 'true'" />
+    <Message Text="PostProcessGranvilleNuspec skipped - already processed $(_NuspecFilePath)" Importance="high" Condition="Exists('$(_NuspecFilePath)') and '$(_AlreadyProcessed)' == 'true'" />
   </Target>
 
   <!-- Import Granville-specific build properties -->
