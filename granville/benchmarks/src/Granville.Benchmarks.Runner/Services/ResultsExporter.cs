@@ -20,7 +20,7 @@ namespace Granville.Benchmarks.Runner.Services
         {
             _logger = logger;
             _resultsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "results");
-            Directory.CreateDirectory(_resultsPath);
+            EnsureDirectoryExists(_resultsPath);
         }
         
         public async Task ExportResultsAsync(List<BenchmarkResult> results, CancellationToken cancellationToken)
@@ -45,6 +45,11 @@ namespace Granville.Benchmarks.Runner.Services
         private async Task ExportJsonAsync(List<BenchmarkResult> results, string baseFileName, CancellationToken cancellationToken)
         {
             var jsonPath = Path.Combine(_resultsPath, $"{baseFileName}.json");
+            var directory = Path.GetDirectoryName(jsonPath);
+            if (directory != null)
+            {
+                EnsureDirectoryExists(directory);
+            }
             var json = JsonConvert.SerializeObject(results, Formatting.Indented);
             await File.WriteAllTextAsync(jsonPath, json, cancellationToken);
             _logger.LogInformation("JSON results exported to {Path}", jsonPath);
@@ -53,6 +58,11 @@ namespace Granville.Benchmarks.Runner.Services
         private async Task ExportCsvAsync(List<BenchmarkResult> results, string baseFileName, CancellationToken cancellationToken)
         {
             var csvPath = Path.Combine(_resultsPath, $"{baseFileName}.csv");
+            var directory = Path.GetDirectoryName(csvPath);
+            if (directory != null)
+            {
+                EnsureDirectoryExists(directory);
+            }
             
             using var writer = new StreamWriter(csvPath);
             using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
@@ -93,6 +103,11 @@ namespace Granville.Benchmarks.Runner.Services
         private async Task ExportSummaryAsync(List<BenchmarkResult> results, string baseFileName, CancellationToken cancellationToken)
         {
             var summaryPath = Path.Combine(_resultsPath, $"{baseFileName}_summary.md");
+            var directory = Path.GetDirectoryName(summaryPath);
+            if (directory != null)
+            {
+                EnsureDirectoryExists(directory);
+            }
             
             using var writer = new StreamWriter(summaryPath);
             
@@ -155,6 +170,15 @@ namespace Granville.Benchmarks.Runner.Services
             }
             
             _logger.LogInformation("Summary exported to {Path}", summaryPath);
+        }
+        
+        private void EnsureDirectoryExists(string path)
+        {
+            if (!string.IsNullOrEmpty(path) && !Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+                _logger.LogDebug("Created directory: {Path}", path);
+            }
         }
     }
 }

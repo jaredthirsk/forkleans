@@ -1,0 +1,73 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning"
+    }
+  },
+  "BenchmarkOptions": {
+    "UseRawTransport": true,
+    "UseActualTransport": true,
+    "ServerHost": "127.0.0.1",
+    "ServerPort": 12345,
+    "WarmupDuration": "00:00:10",
+    "TestDuration": "00:02:00",
+    "CooldownDuration": "00:00:05",
+    "ClientCount": 1000,
+    "MessageSize": 512,
+    "MessagesPerSecond": 10,
+    "Transports": [
+      {
+        "Type": "LiteNetLib",
+        "Reliable": true,
+        "Settings": {
+          "disconnectTimeout": 5000,
+          "maxConnectAttempts": 10
+        }
+      }
+    ],
+    "NetworkConditions": [
+      {
+        "Name": "default",
+        "LatencyMs": 0,
+        "JitterMs": 0,
+        "PacketLoss": 0.0,
+        "Bandwidth": 0
+      }
+    ]
+  },
+  "workloads": [
+    {
+      "name": "MMO-Small-Scale",
+      "description": "Small MMO test with 100 players across 2 zones",
+      "clientCount": 100,
+      "zoneCount": 2,
+      "messageSize": 512,
+      "messagesPerSecond": 30
+    },
+    {
+      "name": "MMO-Medium-Scale",
+      "description": "Medium MMO test with 500 players across 5 zones",
+      "clientCount": 500,
+      "zoneCount": 5,
+      "messageSize": 512,
+      "messagesPerSecond": 20
+    },
+    {
+      "name": "MMO-Large-Scale",
+      "description": "Large MMO test with 1000 players across 10 zones",
+      "clientCount": 1000,
+      "zoneCount": 10,
+      "messageSize": 1024,
+      "messagesPerSecond": 10
+    },
+    {
+      "name": "MMO-Massive-Scale",
+      "description": "Massive MMO test with 5000 players across 50 zones",
+      "clientCount": 5000,
+      "zoneCount": 50,
+      "messageSize": 1024,
+      "messagesPerSecond": 5
+    }
+  ]
+}
