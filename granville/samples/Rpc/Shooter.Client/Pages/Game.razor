@@ -95,13 +95,13 @@
                                OnMouseClick="HandleMouseClick"
                                OnMouseRightClick="HandleMouseRightClick"
                                OnMouseRelease="HandleMouseRelease" />
+                    
+                    <StatusBar WarningMessage="@_debugInfo" />
+                    
+                    <div class="game-bottom-panel">
+                        <GameChat Messages="@_chatMessages" OnSendMessage="HandleChatMessage" />
+                    </div>
                 }
-                
-                <StatusBar WarningMessage="@_debugInfo" />
-                
-                <div class="game-bottom-panel">
-                    <GameChat Messages="@_chatMessages" OnSendMessage="HandleChatMessage" />
-                </div>
             </div>
             <div class="game-sidebar">
                 <Minimap
@@ -120,6 +120,8 @@
                     OnSwitchSilo="@HandleSwitchSilo" />
                 
                 <NetworkStatsGraph RpcGameClient="@RpcGameClient" />
+                
+                <NetworkBandwidthGraph RpcGameClient="@RpcGameClient" />
                 
                 <button class="disconnect-btn" @onclick="Disconnect">Disconnect</button>
                 <button class="toggle-btn" @onclick="ToggleRenderer">Switch to @(_usePhaser ? "Canvas" : "Phaser")</button>

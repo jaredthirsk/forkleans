@@ -10,7 +10,7 @@
 @inject IConfiguration Configuration
 @implements IDisposable
 
-<div class="game-container">
+<div class="phaser-game-container">
     <div id="phaser-container" class="phaser-viewport"></div>
     
     <StatusBar WarningMessage="@_warningMessage" />
@@ -1006,3 +1006,141 @@
         }
     }
 }
+
+<style>
+    .phaser-game-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+        height: 100%;
+        background-color: #1a1a1a;
+    }
+    
+    .phaser-viewport {
+        flex-shrink: 0;
+        width: 800px;
+        height: 600px;
+        margin: 0 auto;
+        background-color: #000;
+        border: 1px solid #333;
+    }
+    
+    .chat-container {
+        width: 800px;
+        margin: 0 auto;
+        background-color: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 4px;
+        padding: 10px;
+        max-height: 200px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .chat-history {
+        flex: 1;
+        overflow-y: auto;
+        max-height: 120px;
+        padding: 5px;
+        background-color: #1a1a1a;
+        border-radius: 4px;
+        border: 1px solid #333;
+    }
+    
+    .chat-message {
+        margin-bottom: 4px;
+        font-size: 12px;
+        line-height: 1.2;
+    }
+    
+    .chat-message .timestamp {
+        color: #666;
+        font-size: 11px;
+    }
+    
+    .chat-message .sender {
+        font-weight: bold;
+        margin-left: 5px;
+    }
+    
+    .chat-message .text {
+        margin-left: 5px;
+    }
+    
+    .chat-input {
+        flex-shrink: 0;
+    }
+    
+    .chat-input .input-group {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .chat-input .form-control {
+        flex: 1;
+        padding: 6px 10px;
+        background-color: #333;
+        border: 1px solid #555;
+        color: white;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .chat-input .form-control:focus {
+        outline: none;
+        border-color: #9C27B0;
+    }
+    
+    .chat-input .btn {
+        padding: 6px 12px;
+        background-color: #9C27B0;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    
+    .chat-input .btn:hover:not(:disabled) {
+        background-color: #7B1FA2;
+    }
+    
+    .chat-input .btn:disabled {
+        background-color: #666;
+        cursor: not-allowed;
+    }
+    
+    .compact-controls {
+        width: 800px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 10px;
+        background-color: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 4px;
+    }
+    
+    .game-info {
+        width: 800px;
+        margin: 0 auto;
+        padding: 10px;
+        background-color: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 4px;
+        color: #e0e0e0;
+        font-size: 14px;
+    }
+    
+    .game-info .alert {
+        margin-top: 10px;
+        padding: 8px 12px;
+        border-radius: 4px;
+        background-color: #d32f2f;
+        color: white;
+        border: none;
+    }
+</style>
