@@ -19,6 +19,10 @@
     Whether to run the AppHost after building
     Default: false
 
+.PARAMETER SkipClean
+    Skip cleaning previous builds
+    Default: false
+
 .EXAMPLE
     ./build-shooter-sample.ps1
     Builds the Shooter sample using local packages
@@ -30,7 +34,8 @@
 param(
     [string]$Configuration = "Release",
     [bool]$SetupLocalFeed = $false,
-    [switch]$RunAfterBuild = $false
+    [switch]$RunAfterBuild = $false,
+    [switch]$SkipClean = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -70,8 +75,12 @@ try {
     
     try {
         # Clean previous builds
-        Write-Host "`nCleaning previous builds..." -ForegroundColor Yellow
-        & $dotnetCmd clean GranvilleSamples.sln -c $Configuration -v minimal
+        if (-not $SkipClean) {
+            Write-Host "`nCleaning previous builds..." -ForegroundColor Yellow
+            & $dotnetCmd clean GranvilleSamples.sln -c $Configuration -v minimal
+        } else {
+            Write-Host "`nSkipping clean step" -ForegroundColor Cyan
+        }
         
         # Note: NuGet cache clearing disabled - relying on version bumping instead
         # Write-Host "`nClearing NuGet cache for Granville packages..." -ForegroundColor Yellow

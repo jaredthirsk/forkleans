@@ -1,10 +1,15 @@
 #!/usr/bin/env pwsh
 # PowerShell script to build ALL Granville Orleans assemblies needed by Shooter sample
 param(
-    [string]$Configuration = "Release"
+    [string]$Configuration = "Release",
+    [switch]$SkipClean = $false
 )
 
 $ErrorActionPreference = "Stop"
+
+# Ensure we're in the repository root
+$repoRoot = (Get-Item $PSScriptRoot).Parent.Parent.FullName
+Push-Location $repoRoot
 
 Write-Host "Building ALL Granville Orleans assemblies..." -ForegroundColor Green
 
@@ -21,8 +26,12 @@ if (Test-Path "/proc/version") {
 $dotnetCmd = if ($isWSL) { "dotnet-win" } else { "dotnet" }
 
 # Clean previous builds
-Write-Host "Cleaning previous builds..." -ForegroundColor Yellow
-Get-ChildItem -Path "src" -Include "bin","obj" -Recurse -Directory | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+if (-not $SkipClean) {
+    Write-Host "Cleaning previous builds..." -ForegroundColor Yellow
+    Get-ChildItem -Path "src" -Include "bin","obj" -Recurse -Directory | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+} else {
+    Write-Host "Skipping clean step" -ForegroundColor Cyan
+}
 
 # Build projects in dependency order
 $projects = @(
@@ -116,3 +125,6 @@ Write-Host "`nBuilt assemblies:" -ForegroundColor Yellow
 Get-ChildItem -Path "src" -Filter "Granville.Orleans.*.dll" -Recurse | Where-Object { $_.DirectoryName -like "*\bin\*" } | ForEach-Object {
     Write-Host "  $($_.FullName)" -ForegroundColor Gray
 }
+
+# Restore original location
+Pop-Location

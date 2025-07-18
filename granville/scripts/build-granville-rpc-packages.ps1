@@ -2,7 +2,8 @@
 # Build and package Granville.Rpc packages
 param(
     [string]$Configuration = "Release",
-    [string]$OutputPath = ".\Artifacts\Release"
+    [string]$OutputPath = ".\Artifacts\Release",
+    [switch]$SkipClean = $false
 )
 
 Write-Host "Building Granville.Rpc packages..." -ForegroundColor Green
@@ -13,7 +14,12 @@ if (!(Test-Path $OutputPath)) {
 }
 
 # Clean only Granville.Rpc.* packages from output directory to preserve other packages
-Remove-Item "$OutputPath\Granville.Rpc.*.nupkg" -Force -ErrorAction SilentlyContinue
+if (-not $SkipClean) {
+    Write-Host "Cleaning existing Granville.Rpc packages..." -ForegroundColor Yellow
+    Remove-Item "$OutputPath\Granville.Rpc.*.nupkg" -Force -ErrorAction SilentlyContinue
+} else {
+    Write-Host "Skipping cleanup of existing Granville.Rpc packages" -ForegroundColor Cyan
+}
 
 # RPC projects to build and package
 $rpcProjects = @(

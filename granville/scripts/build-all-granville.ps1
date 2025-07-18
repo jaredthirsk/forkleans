@@ -149,7 +149,11 @@ $buildScript = if (Test-Path "$PSScriptRoot/build-granville-full.ps1") {
 } else { 
     "$PSScriptRoot/build-granville-minimal.ps1" 
 }
-& $buildScript -Configuration $Configuration
+if ($SkipClean) {
+    & $buildScript -Configuration $Configuration -SkipClean
+} else {
+    & $buildScript -Configuration $Configuration
+}
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Failed to build Granville Orleans assemblies"
     exit 1
@@ -159,7 +163,11 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "`nPackaging Granville Orleans assemblies..." -ForegroundColor Yellow
 $packageScript = "$PSScriptRoot/build-granville-orleans-packages.ps1"
 if (Test-Path $packageScript) {
-    & $packageScript -Configuration $Configuration
+    if ($SkipClean) {
+        & $packageScript -Configuration $Configuration -SkipClean
+    } else {
+        & $packageScript -Configuration $Configuration
+    }
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Failed to package Granville Orleans assemblies"
         exit 1
@@ -186,7 +194,11 @@ else {
 Write-Host "`n[3/5] Building Granville RPC packages..." -ForegroundColor Yellow
 $rpcScript = "$PSScriptRoot/build-granville-rpc-packages.ps1"
 if (Test-Path $rpcScript) {
-    & $rpcScript -Configuration $Configuration
+    if ($SkipClean) {
+        & $rpcScript -Configuration $Configuration -SkipClean
+    } else {
+        & $rpcScript -Configuration $Configuration
+    }
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Failed to build Granville RPC packages"
         exit 1
@@ -212,7 +224,11 @@ else {
 # Step 5: Build Shooter sample
 if (-not $SkipSample) {
     Write-Host "`n[5/5] Building Shooter sample..." -ForegroundColor Yellow
-    & "$PSScriptRoot/build-shooter-sample.ps1" -Configuration $Configuration -SetupLocalFeed $false -RunAfterBuild:$RunSample
+    if ($SkipClean) {
+        & "$PSScriptRoot/build-shooter-sample.ps1" -Configuration $Configuration -SetupLocalFeed $false -RunAfterBuild:$RunSample -SkipClean
+    } else {
+        & "$PSScriptRoot/build-shooter-sample.ps1" -Configuration $Configuration -SetupLocalFeed $false -RunAfterBuild:$RunSample
+    }
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Failed to build Shooter sample"
         exit 1

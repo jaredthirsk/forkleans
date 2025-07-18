@@ -20,6 +20,10 @@
     Output directory for NuGet packages
     Default: ./Artifacts/Release
 
+.PARAMETER SkipClean
+    Skip cleaning previous builds
+    Default: false
+
 .EXAMPLE
     ./build-granville-minimal.ps1
     Builds and packages all Granville assemblies
@@ -31,7 +35,8 @@
 param(
     [string]$Configuration = "Release",
     [switch]$SkipPackaging = $false,
-    [string]$OutputPath = "./Artifacts/Release"
+    [string]$OutputPath = "./Artifacts/Release",
+    [switch]$SkipClean = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -47,12 +52,16 @@ if (!(Test-Path $OutputPath)) {
 }
 
 # Clean previous builds
-Write-Host "`nCleaning previous builds..." -ForegroundColor Yellow
-dotnet clean Granville.Minimal.sln -c $Configuration -v minimal
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Clean failed, likely due to missing packages. Skipping clean..." -ForegroundColor Yellow
-    # Note: NuGet cache clearing disabled - relying on version bumping instead
-    # dotnet nuget locals all --clear
+if (-not $SkipClean) {
+    Write-Host "`nCleaning previous builds..." -ForegroundColor Yellow
+    dotnet clean Granville.Minimal.sln -c $Configuration -v minimal
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Clean failed, likely due to missing packages. Skipping clean..." -ForegroundColor Yellow
+        # Note: NuGet cache clearing disabled - relying on version bumping instead
+        # dotnet nuget locals all --clear
+    }
+} else {
+    Write-Host "`nSkipping clean step" -ForegroundColor Cyan
 }
 
 # Restore packages explicitly

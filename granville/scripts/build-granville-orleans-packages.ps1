@@ -3,7 +3,8 @@
 
 param(
     [string]$Configuration = "Release",
-    [string]$Version = ""
+    [string]$Version = "",
+    [switch]$SkipClean = $false
 )
 
 Write-Host "Building and packaging Granville.Orleans packages..." -ForegroundColor Green
@@ -88,15 +89,19 @@ foreach ($project in $projects) {
 Write-Host "`nGranville.Orleans packages created successfully!" -ForegroundColor Green
 
 # Clean up any Microsoft.Orleans packages that shouldn't exist
-Write-Host "`nCleaning up Microsoft.Orleans packages..." -ForegroundColor Yellow
-$microsoftPackages = Get-ChildItem "Artifacts/Release/Microsoft.Orleans.*.nupkg" -ErrorAction SilentlyContinue
-if ($microsoftPackages) {
-    foreach ($package in $microsoftPackages) {
-        if ($package.Name -notmatch "-granville-shim") {
-            Write-Host "  Removing: $($package.Name)" -ForegroundColor Red
-            Remove-Item $package.FullName -Force
+if (-not $SkipClean) {
+    Write-Host "`nCleaning up Microsoft.Orleans packages..." -ForegroundColor Yellow
+    $microsoftPackages = Get-ChildItem "Artifacts/Release/Microsoft.Orleans.*.nupkg" -ErrorAction SilentlyContinue
+    if ($microsoftPackages) {
+        foreach ($package in $microsoftPackages) {
+            if ($package.Name -notmatch "-granville-shim") {
+                Write-Host "  Removing: $($package.Name)" -ForegroundColor Red
+                Remove-Item $package.FullName -Force
+            }
         }
     }
+} else {
+    Write-Host "`nSkipping Microsoft.Orleans packages cleanup" -ForegroundColor Cyan
 }
 
 Write-Host "Packages are in: Artifacts/Release" -ForegroundColor Yellow
