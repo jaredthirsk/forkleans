@@ -114,12 +114,11 @@ namespace Granville.Benchmarks.Runner
         private readonly string _categoryName;
         private readonly string _filePath;
         private readonly object _lock = new();
-        private StreamWriter? _writer;
         
         public FileLogger(string categoryName, string pathFormat)
         {
             _categoryName = categoryName;
-            _filePath = pathFormat.Replace("{Date}", DateTime.Now.ToString("yyyyMMdd"));
+            _filePath = pathFormat.Replace("{Date}", DateTime.Now.ToString("yyyyMMdd-HHmmss-fff"));
             
             var directory = Path.GetDirectoryName(_filePath);
             if (!string.IsNullOrEmpty(directory))
@@ -139,26 +138,34 @@ namespace Granville.Benchmarks.Runner
                 
             lock (_lock)
             {
-                _writer ??= new StreamWriter(_filePath, append: true) { AutoFlush = true };
-                
-                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-                var message = formatter(state, exception);
-                _writer.WriteLine($"[{timestamp}] [{logLevel}] [{_categoryName}] {message}");
-                
-                if (exception != null)
+                try
                 {
-                    _writer.WriteLine($"Exception: {exception}");
+                    // Use FileShare.ReadWrite to allow multiple processes to write to the same file
+                    using var fileStream = new FileStream(_filePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+                    using var writer = new StreamWriter(fileStream) { AutoFlush = true };
+                    
+                    var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                    var message = formatter(state, exception);
+                    writer.WriteLine($"[{timestamp}] [{logLevel}] [{_categoryName}] {message}");
+                    
+                    if (exception != null)
+                    {
+                        writer.WriteLine($"Exception: {exception}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Fallback to console if file logging fails
+                    Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [ERROR] [FileLogger] Failed to write to log file: {ex.Message}");
+                    Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [{logLevel}] [{_categoryName}] {formatter(state, exception)}");
                 }
             }
         }
         
         public void Dispose()
         {
-            lock (_lock)
-            {
-                _writer?.Dispose();
-                _writer = null;
-            }
+            // No longer need to dispose anything since we're using 'using' statements
+            // for file access on each log write
         }
     }
 }

@@ -439,7 +439,12 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
             var transport = TransportFactory.CreateTransport(transportConfig, _serviceProvider, _configuration.UseActualTransport, networkEmulator);
             
             await transport.InitializeAsync(transportConfig);
-            _transports.Add(transport);
+            
+            // Thread-safe addition to transport list
+            lock (_transports)
+            {
+                _transports.Add(transport);
+            }
             
             return transport;
         }
@@ -536,11 +541,28 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
         
         public override async Task CleanupAsync()
         {
-            foreach (var transport in _transports)
+            // Create a copy of the transport list to avoid collection modification during iteration
+            var transportsToDispose = new List<IRawTransport>();
+            lock (_transports)
             {
-                transport.Dispose();
+                transportsToDispose.AddRange(_transports);
+                _transports.Clear();
             }
-            _transports.Clear();
+            
+            // Dispose transports outside the lock to avoid potential deadlocks
+            foreach (var transport in transportsToDispose)
+            {
+                try
+                {
+                    transport.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    // Log but don't rethrow - we want to continue cleaning up other transports
+                    Console.WriteLine($"Error disposing transport: {ex.Message}");
+                }
+            }
+            
             _clients.Clear();
             
             // Log stress event summary

@@ -30,7 +30,7 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
         private readonly Random _random = new();
         private readonly ConcurrentDictionary<int, PlayerState> _players = new();
         private readonly ConcurrentDictionary<int, ZoneInfo> _zones = new();
-        private readonly List<IRawTransport> _transports = new();
+        private IRawTransport? _sharedTransport;
         
         // MMO-specific configuration
         private int _zoneCount;
@@ -60,7 +60,12 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
             _logger.LogInformation("MMO Configuration: {ZoneCount} zones, {PlayersPerZone} players/zone, {GuildSize} guild size",
                 _zoneCount, _playersPerZone, _guildSize);
             
-            // Initialize zones
+            // Create a single shared transport for all zones to avoid multiple connection conflicts
+            _sharedTransport = await CreateSharedTransport(configuration);
+            _logger.LogInformation("Created shared transport for all zones on port {Port}", configuration.ServerPort);
+            
+            // Initialize zones - all zones share the same transport
+            // Zones are differentiated logically in the message payload
             for (int i = 0; i < _zoneCount; i++)
             {
                 var zoneInfo = new ZoneInfo
@@ -68,14 +73,13 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
                     ZoneId = i,
                     Name = $"Zone_{i}",
                     PlayerCount = 0,
-                    ServerPort = configuration.ServerPort + i, // Each zone gets its own port
-                    Transport = await CreateTransportForZone(i, configuration)
+                    ServerPort = configuration.ServerPort,
+                    Transport = _sharedTransport // All zones share the same transport instance
                 };
                 
                 _zones[i] = zoneInfo;
-                _transports.Add(zoneInfo.Transport);
                 
-                _logger.LogInformation("Initialized {ZoneName} on port {Port}", zoneInfo.Name, zoneInfo.ServerPort);
+                _logger.LogInformation("Initialized {ZoneName} using shared transport", zoneInfo.Name);
             }
             
             // Initialize players and assign to zones
@@ -264,7 +268,7 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
             return await zone.Transport.SendAsync(data, true, CancellationToken.None);
         }
         
-        private async Task<IRawTransport> CreateTransportForZone(int zoneId, WorkloadConfiguration configuration)
+        private async Task<IRawTransport> CreateSharedTransport(WorkloadConfiguration configuration)
         {
             if (!configuration.UseRawTransport)
             {
@@ -274,7 +278,7 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
             var transportConfig = new RawTransportConfig
             {
                 Host = configuration.ServerHost,
-                Port = configuration.ServerPort + zoneId,
+                Port = configuration.ServerPort,
                 TransportType = configuration.TransportType,
                 UseReliableTransport = configuration.UseReliableTransport,
                 UseActualTransport = configuration.UseActualTransport
@@ -359,16 +363,19 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
             var data = new byte[size];
             _random.NextBytes(data);
             
-            // Add some structure (player ID, message type, timestamp)
+            // Add some structure (player ID, zone ID, message type, timestamp)
             var playerId = BitConverter.GetBytes(player.PlayerId);
+            var zoneId = BitConverter.GetBytes(player.CurrentZone);
             var timestamp = BitConverter.GetBytes(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
             var messageTypeId = (byte)type;
             
             Array.Copy(playerId, 0, data, 0, Math.Min(4, data.Length));
             if (data.Length > 4)
-                Array.Copy(timestamp, 0, data, 4, Math.Min(8, data.Length - 4));
-            if (data.Length > 12)
-                data[12] = messageTypeId;
+                Array.Copy(zoneId, 0, data, 4, Math.Min(4, data.Length - 4));
+            if (data.Length > 8)
+                Array.Copy(timestamp, 0, data, 8, Math.Min(8, data.Length - 8));
+            if (data.Length > 16)
+                data[16] = messageTypeId;
             
             return data;
         }
@@ -401,11 +408,8 @@ namespace Granville.Benchmarks.EndToEnd.Workloads
         
         public override async Task CleanupAsync()
         {
-            foreach (var transport in _transports)
-            {
-                transport.Dispose();
-            }
-            _transports.Clear();
+            _sharedTransport?.Dispose();
+            _sharedTransport = null;
             _zones.Clear();
             _players.Clear();
             

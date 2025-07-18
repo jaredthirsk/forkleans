@@ -84,6 +84,9 @@ namespace Granville.Benchmarks.Core.Transport
             // Start polling task
             _pollingTask = Task.Run(() => PollEventsAsync(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
             
+            // Give the polling task a moment to start
+            await Task.Delay(10, _cancellationTokenSource.Token);
+            
             // Connect to the server
             var endPoint = new IPEndPoint(IPAddress.Parse(config.Host), config.Port);
             var connection = _socket.Connect(endPoint);

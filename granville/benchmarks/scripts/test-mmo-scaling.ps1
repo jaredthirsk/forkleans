@@ -158,6 +158,12 @@ try {
             }
         }
         
+        # Sleep between scale tests to avoid log file conflicts
+        if ($scaleTests.IndexOf($test) -lt $scaleTests.Count - 1) {
+            Write-Host "  Waiting 2 seconds before next scale test..." -ForegroundColor Gray
+            Start-Sleep -Seconds 2
+        }
+        
         # Analyze results for this scale
         $resultPath = "./results/mmo-scaling/$($test.Name)-$($test.ClientCount)clients"
         if (Test-Path "$resultPath/summary.json") {

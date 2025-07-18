@@ -1,0 +1,41 @@
+{
+  "benchmarkSettings": {
+    "warmupDuration": "00:00:02",
+    "testDuration": "00:00:10",
+    "cooldownDuration": "00:00:01",
+    "iterations": 1
+  },
+  "workloads": {
+    "mmo": {
+      "clientCount": 20,
+      "messageSize": 256,
+      "messagesPerSecond": 30,
+      "useReliableTransport": false,
+      "description": "MMO-style game with zone distribution",
+      "customSettings": {
+        "ZoneCount": 2,
+        "GuildSize": 10,
+        "CrossZoneInteractionRate": 0.1,
+        "CombatPlayerRatio": 0.3
+      }
+    }
+  },
+  "transports": [
+    {
+      "type": "LiteNetLib",
+      "reliable": false,
+      "settings": {
+        "disconnectTimeout": 5000,
+        "maxConnectAttempts": 10
+      }
+    }
+  ],
+  "networkConditions": {
+    "default": {
+      "latencyMs": 0,
+      "jitterMs": 0,
+      "packetLoss": 0.0,
+      "bandwidth": 0
+    }
+  }
+}
