@@ -31,4 +31,9 @@
     <Orleans_GenerateSerializerAttributes>$(OrleansGenerateSerializerAttributes)</Orleans_GenerateSerializerAttributes>
     <Orleans_ConstructorAttributes>$(OrleansConstructorAttributes)</Orleans_ConstructorAttributes>
   </PropertyGroup>
+
+  <!-- Add the Orleans.CodeGenerator analyzer to enable code generation -->
+  <ItemGroup Condition="'$(Granville_DesignTimeBuild)' != 'true'">
+    <Analyzer Include="$(MSBuildThisFileDirectory)../analyzers/dotnet/cs/Orleans.CodeGenerator.dll" />
+  </ItemGroup>
 </Project>

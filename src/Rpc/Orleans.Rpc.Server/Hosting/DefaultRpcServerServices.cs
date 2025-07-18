@@ -18,6 +18,7 @@ using Granville.Rpc.Configuration;
 using Granville.Rpc.Transport;
 using Orleans.Serialization;
 using Orleans.Serialization.Cloning;
+using Orleans.Serialization.Configuration;
 using Orleans.Serialization.Internal;
 using Orleans.Serialization.Serializers;
 using Orleans.Serialization.TypeSystem;
@@ -179,6 +180,13 @@ namespace Granville.Rpc.Hosting
             {
                 // Add the RPC abstractions assembly for protocol messages
                 serializer.AddAssembly(typeof(Protocol.RpcMessage).Assembly);
+                
+                // Force load the metadata provider
+                var metadataProviderType = typeof(Protocol.RpcMessage).Assembly.GetType("OrleansCodeGen.GranvilleRpcAbstractions.Metadata_GranvilleRpcAbstractions");
+                if (metadataProviderType != null)
+                {
+                    serializer.Services.AddSingleton(typeof(IConfigureOptions<TypeManifestOptions>), metadataProviderType);
+                }
             });
             services.AddSingleton<ITypeNameFilter, AllowGranvilleTypes>();
             // Note: GrainReferenceCodecProvider and GrainReferenceCopierProvider are internal types

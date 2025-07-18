@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,10 @@ using Orleans.Configuration;
 using Granville.Rpc.Transport;
 using Orleans.Runtime;
 using Orleans.Runtime.Messaging;
+using Orleans.Serialization;
+using Orleans.Serialization.Buffers;
 using Orleans.Serialization.Invocation;
+using Orleans.Serialization.Session;
 using Orleans.Utilities;
 
 namespace Granville.Rpc
@@ -40,6 +44,7 @@ namespace Granville.Rpc
         private readonly ConcurrentDictionary<Guid, Protocol.RpcRequest> _pendingRequests = new();
         private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _activeAsyncEnumerables = new();
         private readonly InterfaceToImplementationMappingCache _interfaceToImplementationMapping;
+        private readonly Serializer _serializer;
 
         private int _disposed;
 
@@ -51,6 +56,7 @@ namespace Granville.Rpc
             MessageFactory messageFactory,
             MessagingOptions messagingOptions,
             InterfaceToImplementationMappingCache interfaceToImplementationMapping,
+            Serializer serializer,
             ILogger<RpcConnection> logger)
         {
             _connectionId = connectionId ?? throw new ArgumentNullException(nameof(connectionId));
@@ -60,6 +66,7 @@ namespace Granville.Rpc
             _messageFactory = messageFactory ?? throw new ArgumentNullException(nameof(messageFactory));
             _messagingOptions = messagingOptions ?? throw new ArgumentNullException(nameof(messagingOptions));
             _interfaceToImplementationMapping = interfaceToImplementationMapping ?? throw new ArgumentNullException(nameof(interfaceToImplementationMapping));
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _cancellationTokenSource = new CancellationTokenSource();
         }
@@ -251,15 +258,13 @@ namespace Granville.Rpc
             {
                 try
                 {
-                    var jsonString = System.Text.Encoding.UTF8.GetString(request.Arguments);
-
-                    var jsonArray = JsonSerializer.Deserialize<JsonElement[]>(request.Arguments);
-                    arguments = new object[parameters.Length];
-
-                    for (int i = 0; i < Math.Min(jsonArray.Length, parameters.Length); i++)
+                    // Use Orleans binary deserialization
+                    arguments = _serializer.Deserialize<object[]>(request.Arguments);
+                    
+                    // Ensure we have the right number of arguments
+                    if (arguments == null || arguments.Length != parameters.Length)
                     {
-                        var paramType = parameters[i].ParameterType;
-                        arguments[i] = JsonSerializer.Deserialize(jsonArray[i].GetRawText(), paramType);
+                        arguments = new object[parameters.Length];
                     }
                 }
                 catch (Exception ex)
@@ -300,18 +305,23 @@ namespace Granville.Rpc
                 {
                     await task;
 
-                    // Get the result from Task<T>
-                    // Check if this task has a result (is Task<T> or derived from it)
+                    // Check if this is a Task<T> by looking at the exact type
                     var taskType = task.GetType();
-                    Type currentType = taskType;
-
-                    // Walk up the inheritance chain to find Task<T>
-                    while (currentType != null && currentType != typeof(object))
+                    
+                    // If it's exactly Task (not Task<T>), return null
+                    if (taskType == typeof(Task))
                     {
-                        if (currentType.IsGenericType && currentType.GetGenericTypeDefinition() == typeof(Task<>))
+                        return null;
+                    }
+                    
+                    // Check if the type is generic and derives from Task<T>
+                    if (taskType.IsGenericType)
+                    {
+                        var genericDefinition = taskType.GetGenericTypeDefinition();
+                        if (genericDefinition == typeof(Task<>))
                         {
-                            // Found Task<T>, get the result
-                            var resultProperty = currentType.GetProperty("Result");
+                            // This is Task<T>, get the result
+                            var resultProperty = taskType.GetProperty("Result");
                             if (resultProperty != null)
                             {
                                 var taskResult = resultProperty.GetValue(task);
@@ -319,12 +329,11 @@ namespace Granville.Rpc
                                     taskResult?.GetType().Name ?? "null", taskResult);
                                 return taskResult;
                             }
-                            break;
                         }
-                        currentType = currentType.BaseType;
                     }
-
-                    return null; // Task without result
+                    
+                    // For any other Task type that's not Task<T>, return null
+                    return null;
                 }
                 else if (result != null && result.GetType().IsGenericType &&
                          result.GetType().GetGenericTypeDefinition() == typeof(ValueTask<>))
@@ -354,9 +363,10 @@ namespace Granville.Rpc
                 return Array.Empty<byte>();
             }
 
-            // For now, use JSON serialization for results
-            var json = System.Text.Json.JsonSerializer.Serialize(result);
-            return System.Text.Encoding.UTF8.GetBytes(json);
+            // Use Orleans binary serialization
+            var writer = new ArrayBufferWriter<byte>();
+            _serializer.Serialize(result, writer);
+            return writer.WrittenMemory.ToArray();
         }
 
         /// <summary>
@@ -507,10 +517,12 @@ namespace Granville.Rpc
 
                 if (request.Arguments != null && request.Arguments.Length > 0)
                 {
-                    var jsonArray = JsonSerializer.Deserialize<JsonElement[]>(request.Arguments);
+                    // Use Orleans binary deserialization
+                    var deserializedArgs = _serializer.Deserialize<object[]>(request.Arguments);
+                    
                     arguments = new object[parameters.Length];
-
-                    for (int i = 0; i < Math.Min(jsonArray.Length, parameters.Length); i++)
+                    
+                    for (int i = 0; i < Math.Min(deserializedArgs?.Length ?? 0, parameters.Length); i++)
                     {
                         var paramType = parameters[i].ParameterType;
                         if (paramType == typeof(CancellationToken))
@@ -519,7 +531,7 @@ namespace Granville.Rpc
                         }
                         else
                         {
-                            arguments[i] = JsonSerializer.Deserialize(jsonArray[i].GetRawText(), paramType);
+                            arguments[i] = deserializedArgs[i];
                         }
                     }
                 }

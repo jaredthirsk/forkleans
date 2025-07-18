@@ -7,13 +7,22 @@
     <Description>Orleans RPC abstractions - core interfaces and types for RPC functionality</Description>
     <PackageTags>$(PackageTags);RPC;Abstractions</PackageTags>
     <Nullable>enable</Nullable>
+    <!-- Disable automatic project references from Directory.Build.targets -->
+    <IsOrleansFrameworkPart>false</IsOrleansFrameworkPart>
+    <!-- Enable code generation through package reference instead -->
+    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <Orleans_EnableAutoCodeGen>true</Orleans_EnableAutoCodeGen>
+    <OrleansGenerateFieldIds>true</OrleansGenerateFieldIds>
+    <OrleansGenerateSerializerAttributes>true</OrleansGenerateSerializerAttributes>
+    <!-- Ensure Granville properties don't override Orleans ones -->
+    <Granville_DesignTimeBuild>false</Granville_DesignTimeBuild>
+    <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Orleans.CodeGenerator\Orleans.CodeGenerator.csproj" />
-    <ProjectReference Include="..\..\Orleans.Core.Abstractions\Orleans.Core.Abstractions.csproj" />
-    <ProjectReference Include="..\..\Orleans.Sdk\Orleans.Sdk.csproj" />
-    <ProjectReference Include="..\..\Orleans.Serialization.Abstractions\Orleans.Serialization.Abstractions.csproj" />
+    <PackageReference Include="Granville.Orleans.Core.Abstractions" />
+    <PackageReference Include="Granville.Orleans.Sdk" />
+    <PackageReference Include="Granville.Orleans.Serialization.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
