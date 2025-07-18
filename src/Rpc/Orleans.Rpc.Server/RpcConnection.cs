@@ -186,9 +186,28 @@ namespace Granville.Rpc
                 return Array.Empty<object>();
             }
 
-            // TODO: Implement proper deserialization
-            // For now, assume the arguments are already deserialized or empty
-            return Array.Empty<object>();
+            try
+            {
+                // Use Orleans binary deserialization to match the client serialization
+                var result = _serializer.Deserialize<object[]>(serializedArguments);
+                
+                // Log deserialized arguments for debugging
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    for (int i = 0; i < result.Length; i++)
+                    {
+                        _logger.LogDebug("[RPC_SERVER] Deserialized argument[{Index}]: Type={Type}, Value={Value}",
+                            i, result[i]?.GetType()?.Name ?? "null", result[i]?.ToString() ?? "null");
+                    }
+                }
+                
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[RPC_SERVER] Failed to deserialize arguments. Length: {Length} bytes", serializedArguments.Length);
+                throw new InvalidOperationException($"Failed to deserialize RPC arguments: {ex.Message}", ex);
+            }
         }
 
         private async Task<object> InvokeGrainMethodAsync(Protocol.RpcRequest request)
@@ -258,12 +277,18 @@ namespace Granville.Rpc
             {
                 try
                 {
-                    // Use Orleans binary deserialization
-                    arguments = _serializer.Deserialize<object[]>(request.Arguments);
+                    // Use the DeserializeArguments method to avoid duplication
+                    arguments = DeserializeArguments(request.Arguments);
+                    
+                    // Log method invocation details
+                    _logger.LogDebug("[RPC_SERVER] Invoking method {Method} on grain {GrainId} with {ArgCount} arguments",
+                        method.Name, request.GrainId, arguments?.Length ?? 0);
                     
                     // Ensure we have the right number of arguments
                     if (arguments == null || arguments.Length != parameters.Length)
                     {
+                        _logger.LogWarning("[RPC_SERVER] Argument count mismatch: expected {Expected}, got {Actual}",
+                            parameters.Length, arguments?.Length ?? 0);
                         arguments = new object[parameters.Length];
                     }
                 }
