@@ -18,7 +18,7 @@
     <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.1.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
-    <PackageReference Include="Granville.Orleans.Serialization" Version="9.1.2.84" />
-    <PackageReference Include="Granville.Orleans.Serialization.Abstractions" Version="9.1.2.84" />
+    <PackageReference Include="Granville.Orleans.Serialization" Version="9.1.2.85" />
+    <PackageReference Include="Granville.Orleans.Serialization.Abstractions" Version="9.1.2.85" />
   </ItemGroup>
 </Project>

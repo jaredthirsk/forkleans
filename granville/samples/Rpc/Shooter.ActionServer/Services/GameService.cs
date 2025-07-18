@@ -44,6 +44,13 @@ public class GameService : IGameService, IHostedService
 
     public async Task<bool> ConnectPlayer(string playerId)
     {
+        // Validate input
+        if (string.IsNullOrEmpty(playerId))
+        {
+            _logger.LogError("ConnectPlayer called with null or empty playerId");
+            return false;
+        }
+        
         using var activity = ActionServerTelemetry.ActivitySource.StartActivity(ActionServerTelemetry.PlayerConnectionActivity);
         activity?.SetTag("player.id", playerId);
         activity?.SetTag("zone.x", _simulation.GetAssignedSquare().X);

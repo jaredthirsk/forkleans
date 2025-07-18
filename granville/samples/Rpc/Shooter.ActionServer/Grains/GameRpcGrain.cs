@@ -57,6 +57,13 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
 
     public async Task<string> ConnectPlayer(string playerId)
     {
+        // Validate input
+        if (string.IsNullOrEmpty(playerId))
+        {
+            _logger.LogError("RPC: ConnectPlayer called with null or empty playerId");
+            return "FAILED";
+        }
+        
         _logger.LogInformation("RPC: Player {PlayerId} connecting via Orleans RPC", playerId);
         var result = await _gameService.ConnectPlayer(playerId);
         _logger.LogInformation("RPC: ConnectPlayer returning {Result} for player {PlayerId}", result, playerId);

@@ -16,6 +16,7 @@ using Granville.Rpc.Configuration;
 using Granville.Rpc.Transport;
 using Orleans.Serialization;
 using Orleans.Serialization.Cloning;
+using Orleans.Serialization.Codecs;
 using Orleans.Serialization.Configuration;
 using Orleans.Serialization.Internal;
 using Orleans.Serialization.Serializers;
@@ -193,6 +194,9 @@ namespace Granville.Rpc.Hosting
                 {
                     serializer.Services.AddSingleton(typeof(IConfigureOptions<TypeManifestOptions>), metadataProviderType);
                 }
+                
+                // Register VoidTaskResult codec as a safety net
+                serializer.Services.AddSingleton<IFieldCodec<object>, Granville.Rpc.Serialization.VoidTaskResultCodec>();
             });
             services.AddSingleton<ITypeNameFilter, AllowGranvilleTypes>();
             // Note: GrainReferenceCodecProvider and GrainReferenceCopierProvider are internal

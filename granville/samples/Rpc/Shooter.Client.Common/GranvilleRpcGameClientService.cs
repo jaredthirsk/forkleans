@@ -112,10 +112,17 @@ public class GranvilleRpcGameClientService : IDisposable
             var registrationResponse = await RegisterWithHttpAsync(playerName);
             if (registrationResponse == null) return false;
             
-            PlayerId = registrationResponse.PlayerInfo?.PlayerId ?? string.Empty;
+            PlayerId = registrationResponse.PlayerInfo?.PlayerId;
             PlayerName = registrationResponse.PlayerInfo?.Name ?? playerName;
             CurrentServerId = registrationResponse.ActionServer?.ServerId ?? "Unknown";
             _currentZone = registrationResponse.ActionServer?.AssignedSquare;
+            
+            // Validate PlayerId
+            if (string.IsNullOrEmpty(PlayerId))
+            {
+                _logger.LogError("Registration failed: PlayerId is null or empty");
+                return false;
+            }
             
             // Mark initial zone as visited
             if (_currentZone != null)
@@ -233,7 +240,15 @@ public class GranvilleRpcGameClientService : IDisposable
             
             // Connect via RPC
             _logger.LogInformation("Connecting player {PlayerId} via RPC", PlayerId);
-            var result = await _gameGrain.ConnectPlayer(PlayerId!);
+            
+            // Extra safety check - should never happen after validation above
+            if (string.IsNullOrEmpty(PlayerId))
+            {
+                _logger.LogError("Cannot connect: PlayerId is null or empty");
+                return false;
+            }
+            
+            var result = await _gameGrain.ConnectPlayer(PlayerId);
             _logger.LogInformation("RPC ConnectPlayer returned: {Result}", result);
             
             if (result != "SUCCESS")
@@ -1195,7 +1210,13 @@ public class GranvilleRpcGameClientService : IDisposable
                 
                 try
                 {
-                    var connectTask = _gameGrain!.ConnectPlayer(PlayerId!);
+                    if (string.IsNullOrEmpty(PlayerId))
+                    {
+                        _logger.LogError("[ZONE_TRANSITION] Cannot reconnect: PlayerId is null or empty");
+                        return;
+                    }
+                    
+                    var connectTask = _gameGrain!.ConnectPlayer(PlayerId);
                     var result = await connectTask.WaitAsync(TimeSpan.FromSeconds(5), preConnectCts.Token);
                     _logger.LogInformation("ConnectPlayer returned: {Result}", result);
                     
@@ -1395,7 +1416,13 @@ public class GranvilleRpcGameClientService : IDisposable
             
             try
             {
-                var connectTask = _gameGrain.ConnectPlayer(PlayerId!);
+                if (string.IsNullOrEmpty(PlayerId))
+                {
+                    _logger.LogError("[ZONE_TRANSITION] Cannot connect to new server: PlayerId is null or empty");
+                    return;
+                }
+                
+                var connectTask = _gameGrain.ConnectPlayer(PlayerId);
                 var result = await connectTask.WaitAsync(TimeSpan.FromSeconds(5), connectCts.Token);
                 _logger.LogInformation("ConnectPlayer returned: {Result}", result);
                 

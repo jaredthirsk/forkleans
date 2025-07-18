@@ -57,6 +57,7 @@ Key principles:
 ## Building Granville Orleans
 
 See `/granville/docs/BUILDING.md` for build approaches.
+- When building new versions of nupkg packages, always bump the revision part of the version first using the `granville/scripts/bump-granville-version.ps1` script
 
 ## Working with the Fork
 

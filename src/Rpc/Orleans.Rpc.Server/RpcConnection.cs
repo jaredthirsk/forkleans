@@ -308,9 +308,15 @@ namespace Granville.Rpc
                     // Check if this is a Task<T> by looking at the exact type
                     var taskType = task.GetType();
                     
+                    _logger.LogDebug("Task type detected: {TaskType}, IsGenericType: {IsGeneric}, GenericTypeDefinition: {GenericDef}", 
+                        taskType.FullName, 
+                        taskType.IsGenericType, 
+                        taskType.IsGenericType ? taskType.GetGenericTypeDefinition().FullName : "N/A");
+                    
                     // If it's exactly Task (not Task<T>), return null
                     if (taskType == typeof(Task))
                     {
+                        _logger.LogDebug("Detected non-generic Task, returning null to avoid VoidTaskResult serialization");
                         return null;
                     }
                     
@@ -360,6 +366,15 @@ namespace Granville.Rpc
         {
             if (result == null)
             {
+                return Array.Empty<byte>();
+            }
+
+            // Debug logging for VoidTaskResult issue
+            if (result.GetType().FullName == "System.Threading.Tasks.VoidTaskResult")
+            {
+                _logger.LogError("CRITICAL: Attempting to serialize VoidTaskResult! This should have been caught earlier. Stack trace: {StackTrace}", 
+                    Environment.StackTrace);
+                // Return empty array instead of throwing
                 return Array.Empty<byte>();
             }
 

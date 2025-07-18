@@ -4,10 +4,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageVersion Include="Granville.Orleans.Sdk" Version="9.1.2.84" />
-    <PackageVersion Include="Granville.Orleans.Core" Version="9.1.2.84" />
-    <PackageVersion Include="Granville.Orleans.Core.Abstractions" Version="9.1.2.84" />
-    <PackageVersion Include="Granville.Orleans.Serialization" Version="9.1.2.84" />
-    <PackageVersion Include="Granville.Orleans.Serialization.Abstractions" Version="9.1.2.84" />
+    <PackageVersion Include="Granville.Orleans.Sdk" Version="9.1.2.85" />
+    <PackageVersion Include="Granville.Orleans.Core" Version="9.1.2.85" />
+    <PackageVersion Include="Granville.Orleans.Core.Abstractions" Version="9.1.2.85" />
+    <PackageVersion Include="Granville.Orleans.Serialization" Version="9.1.2.85" />
+    <PackageVersion Include="Granville.Orleans.Serialization.Abstractions" Version="9.1.2.85" />
   </ItemGroup>
 </Project>
