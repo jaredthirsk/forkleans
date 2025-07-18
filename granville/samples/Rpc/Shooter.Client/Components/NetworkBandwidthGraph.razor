@@ -1,0 +1,266 @@
+@using Shooter.Shared.RpcInterfaces
+@using Shooter.Client.Common
+@using System.Collections.Generic
+@using System.Linq
+@inject IJSRuntime JS
+@implements IDisposable
+
+<div class="network-stats-graph">
+    <h4>RPC Bandwidth (60s)</h4>
+    <canvas @ref="_canvasElement" width="280" height="150"></canvas>
+    <div class="stats-table">
+        <div class="stats-row">
+            <div class="stat-value client-sent">@FormatBytes(GetLast60SecondsSum(_clientSentBytesHistory))</div>
+            <div class="arrow">→</div>
+            <div class="stat-value server-recv">@FormatBytes(GetLast60SecondsSum(_serverRecvBytesHistory))</div>
+        </div>
+        <div class="stats-row">
+            <div class="stat-value client-recv">@FormatBytes(GetLast60SecondsSum(_clientRecvBytesHistory))</div>
+            <div class="arrow">←</div>
+            <div class="stat-value server-sent">@FormatBytes(GetLast60SecondsSum(_serverSentBytesHistory))</div>
+        </div>
+        <div class="stats-header">
+            <div>Client</div>
+            <div></div>
+            <div>Server</div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .network-stats-graph {
+        background-color: #2a2a2a;
+        padding: 20px;
+        border-radius: 8px;
+        color: white;
+    }
+    
+    .network-stats-graph h4 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #888;
+        font-size: 18px;
+    }
+    
+    .network-stats-graph canvas {
+        background-color: #1a1a1a;
+        border: 1px solid #444;
+        border-radius: 4px;
+        width: 100%;
+        height: auto;
+    }
+    
+    .stats-table {
+        margin-top: 10px;
+        font-size: 12px;
+        font-family: monospace;
+    }
+    
+    .stats-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        gap: 10px;
+    }
+    
+    .stats-header {
+        display: flex;
+        margin-top: 8px;
+        font-size: 11px;
+        color: #888;
+        border-top: 1px solid #444;
+        padding-top: 5px;
+    }
+    
+    .stats-header > div {
+        flex: 1;
+        text-align: center;
+    }
+    
+    .stat-value {
+        flex: 1;
+        text-align: center;
+        padding: 4px 8px;
+        background-color: #1a1a1a;
+        border: 1px solid #444;
+        border-radius: 4px;
+        min-width: 60px;
+    }
+    
+    .stat-value.client-sent {
+        border-color: #2196F3;
+        color: #2196F3;
+    }
+    
+    .stat-value.client-recv {
+        border-color: #4CAF50;
+        color: #4CAF50;
+    }
+    
+    .stat-value.server-sent {
+        border-color: #FF9800;
+        color: #FF9800;
+    }
+    
+    .stat-value.server-recv {
+        border-color: #F44336;
+        color: #F44336;
+    }
+    
+    .arrow {
+        flex: 0 0 auto;
+        color: #666;
+        font-size: 16px;
+        font-weight: bold;
+    }
+</style>
+
+@code {
+    [Parameter] public GranvilleRpcGameClientService? RpcGameClient { get; set; }
+    
+    private ElementReference _canvasElement;
+    private Timer? _updateTimer;
+    private NetworkStatistics? _clientStats;
+    private NetworkStatistics? _serverStats;
+    
+    // Data history for graph
+    private readonly int _maxDataPoints = 60; // 60 seconds of data
+    private readonly Queue<long> _clientSentBytesHistory = new();
+    private readonly Queue<long> _clientRecvBytesHistory = new();
+    private readonly Queue<long> _serverSentBytesHistory = new();
+    private readonly Queue<long> _serverRecvBytesHistory = new();
+    
+    // For calculating bytes per second
+    private long _lastClientSentBytes = 0;
+    private long _lastClientRecvBytes = 0;
+    private long _lastServerSentBytes = 0;
+    private long _lastServerRecvBytes = 0;
+    
+    protected override Task OnInitializedAsync()
+    {
+        if (RpcGameClient != null)
+        {
+            RpcGameClient.NetworkStatsUpdated += OnServerNetworkStatsUpdated;
+        }
+        
+        // Start update timer
+        _updateTimer = new Timer(async _ => await UpdateGraph(), null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+        
+        return Task.CompletedTask;
+    }
+    
+    private void OnServerNetworkStatsUpdated(NetworkStatistics stats)
+    {
+        _serverStats = stats;
+    }
+    
+    private async Task UpdateGraph()
+    {
+        try
+        {
+            // Get client stats
+            if (RpcGameClient != null)
+            {
+                _clientStats = RpcGameClient.GetClientNetworkStats();
+            }
+            
+            // Calculate bytes per second
+            long clientSentBytesPerSec = 0;
+            long clientRecvBytesPerSec = 0;
+            long serverSentBytesPerSec = 0;
+            long serverRecvBytesPerSec = 0;
+            
+            if (_clientStats != null)
+            {
+                clientSentBytesPerSec = Math.Max(0, _clientStats.BytesSent - _lastClientSentBytes);
+                clientRecvBytesPerSec = Math.Max(0, _clientStats.BytesReceived - _lastClientRecvBytes);
+                _lastClientSentBytes = _clientStats.BytesSent;
+                _lastClientRecvBytes = _clientStats.BytesReceived;
+            }
+            
+            if (_serverStats != null)
+            {
+                serverSentBytesPerSec = Math.Max(0, _serverStats.BytesSent - _lastServerSentBytes);
+                serverRecvBytesPerSec = Math.Max(0, _serverStats.BytesReceived - _lastServerRecvBytes);
+                _lastServerSentBytes = _serverStats.BytesSent;
+                _lastServerRecvBytes = _serverStats.BytesReceived;
+            }
+            
+            // Add to history
+            _clientSentBytesHistory.Enqueue(clientSentBytesPerSec);
+            _clientRecvBytesHistory.Enqueue(clientRecvBytesPerSec);
+            _serverSentBytesHistory.Enqueue(serverSentBytesPerSec);
+            _serverRecvBytesHistory.Enqueue(serverRecvBytesPerSec);
+            
+            // Keep only recent history
+            while (_clientSentBytesHistory.Count > _maxDataPoints) _clientSentBytesHistory.Dequeue();
+            while (_clientRecvBytesHistory.Count > _maxDataPoints) _clientRecvBytesHistory.Dequeue();
+            while (_serverSentBytesHistory.Count > _maxDataPoints) _serverSentBytesHistory.Dequeue();
+            while (_serverRecvBytesHistory.Count > _maxDataPoints) _serverRecvBytesHistory.Dequeue();
+            
+            // Update the graph
+            await InvokeAsync(async () =>
+            {
+                await DrawGraph();
+                StateHasChanged();
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating network stats graph: {ex.Message}");
+        }
+    }
+    
+    private async Task DrawGraph()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("drawNetworkBandwidthGraph", 
+                _canvasElement,
+                _clientSentBytesHistory.ToArray(),
+                _clientRecvBytesHistory.ToArray(),
+                _serverSentBytesHistory.ToArray(),
+                _serverRecvBytesHistory.ToArray());
+        }
+        catch
+        {
+            // Ignore JS interop errors during disposal
+        }
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Initialize the canvas
+            await DrawGraph();
+        }
+    }
+    
+    private long GetLast60SecondsSum(Queue<long> history)
+    {
+        return history.Sum();
+    }
+    
+    private string FormatBytes(long bytes)
+    {
+        if (bytes < 1024)
+            return $"{bytes} B";
+        else if (bytes < 1024 * 1024)
+            return $"{bytes / 1024.0:F1} KB";
+        else if (bytes < 1024 * 1024 * 1024)
+            return $"{bytes / (1024.0 * 1024.0):F1} MB";
+        else
+            return $"{bytes / (1024.0 * 1024.0 * 1024.0):F1} GB";
+    }
+    
+    public void Dispose()
+    {
+        _updateTimer?.Dispose();
+        
+        if (RpcGameClient != null)
+        {
+            RpcGameClient.NetworkStatsUpdated -= OnServerNetworkStatsUpdated;
+        }
+    }
+}

@@ -1,0 +1,316 @@
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Engines;
+using System.Diagnostics;
+using System.Text.Json;
+using System.Buffers;
+using Granville.Rpc.Protocol;
+using Orleans.Serialization;
+using Orleans.Runtime;
+using Orleans;
+using Microsoft.Extensions.Logging;
+
+namespace Granville.Benchmarks.Micro.Benchmarks
+{
+    /// <summary>
+    /// Focused benchmarks for memory allocation patterns in Granville RPC
+    /// </summary>
+    [SimpleJob(RuntimeMoniker.Net80)]
+    [MemoryDiagnoser]
+    [ThreadingDiagnoser]
+    [MinIterationTime(100)]
+    [Config(typeof(CustomConfig))]
+    public class RpcMemoryBenchmark
+    {
+        private readonly byte[] _smallPayload = new byte[100];
+        private readonly byte[] _mediumPayload = new byte[1024];
+        private readonly byte[] _largePayload = new byte[10240];
+        
+        private RpcMessageSerializer _serializer;
+        private RpcRequest _smallRequest;
+        private RpcRequest _mediumRequest;
+        private RpcRequest _largeRequest;
+        
+        public class CustomConfig : ManualConfig
+        {
+            public CustomConfig()
+            {
+                AddLogger(ConsoleLogger.Default);
+                WithOption(ConfigOptions.DisableOptimizationsValidator, true);
+            }
+        }
+
+        [GlobalSetup]
+        public void Setup()
+        {
+            // Initialize payloads
+            Random.Shared.NextBytes(_smallPayload);
+            Random.Shared.NextBytes(_mediumPayload);
+            Random.Shared.NextBytes(_largePayload);
+            
+            // Mock serializer setup - in a real scenario this would be properly configured
+            var mockLogger = new MockLogger();
+            var mockSerializer = new MockSerializer();
+            _serializer = new RpcMessageSerializer(mockSerializer, mockLogger);
+            
+            // Create test requests
+            _smallRequest = CreateRequest(_smallPayload);
+            _mediumRequest = CreateRequest(_mediumPayload);
+            _largeRequest = CreateRequest(_largePayload);
+        }
+
+        private RpcRequest CreateRequest(byte[] payload)
+        {
+            return new RpcRequest
+            {
+                MessageId = Guid.NewGuid(),
+                Timestamp = DateTime.UtcNow,
+                GrainId = GrainId.Create("test", "test-key"),
+                InterfaceType = GrainInterfaceType.Create("test-interface"),
+                MethodId = 1,
+                Arguments = payload,
+                TimeoutMs = 30000,
+                ReturnTypeName = "string"
+            };
+        }
+
+        [Benchmark(Baseline = true)]
+        public void MessageCreation_Small()
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                var msg = CreateRequest(_smallPayload);
+                // Simulate usage to prevent optimization
+                _ = msg.MessageId;
+            }
+        }
+
+        [Benchmark]
+        public void MessageCreation_Medium()
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                var msg = CreateRequest(_mediumPayload);
+                _ = msg.MessageId;
+            }
+        }
+
+        [Benchmark]
+        public void MessageCreation_Large()
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                var msg = CreateRequest(_largePayload);
+                _ = msg.MessageId;
+            }
+        }
+
+        [Benchmark]
+        public void Serialization_Small()
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                var serialized = _serializer.SerializeMessage(_smallRequest);
+                // Simulate usage to prevent optimization
+                _ = serialized.Length;
+            }
+        }
+
+        [Benchmark]
+        public void Serialization_Medium()
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                var serialized = _serializer.SerializeMessage(_mediumRequest);
+                _ = serialized.Length;
+            }
+        }
+
+        [Benchmark]
+        public void Serialization_Large()
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                var serialized = _serializer.SerializeMessage(_largeRequest);
+                _ = serialized.Length;
+            }
+        }
+
+        [Benchmark]
+        public void SerializationRoundtrip_Small()
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                var serialized = _serializer.SerializeMessage(_smallRequest);
+                var deserialized = _serializer.DeserializeMessage(serialized);
+                _ = deserialized.MessageId;
+            }
+        }
+
+        [Benchmark]
+        public void SerializationRoundtrip_Medium()
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                var serialized = _serializer.SerializeMessage(_mediumRequest);
+                var deserialized = _serializer.DeserializeMessage(serialized);
+                _ = deserialized.MessageId;
+            }
+        }
+
+        [Benchmark]
+        public void SerializationRoundtrip_Large()
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                var serialized = _serializer.SerializeMessage(_largeRequest);
+                var deserialized = _serializer.DeserializeMessage(serialized);
+                _ = deserialized.MessageId;
+            }
+        }
+
+        [Benchmark]
+        public void ByteArrayAllocations_Small()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                var buffer = new byte[100];
+                Buffer.BlockCopy(_smallPayload, 0, buffer, 0, 100);
+                _ = buffer.Length;
+            }
+        }
+
+        [Benchmark]
+        public void ByteArrayAllocations_Medium()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                var buffer = new byte[1024];
+                Buffer.BlockCopy(_mediumPayload, 0, buffer, 0, 1024);
+                _ = buffer.Length;
+            }
+        }
+
+        [Benchmark]
+        public void ByteArrayAllocations_Large()
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                var buffer = new byte[10240];
+                Buffer.BlockCopy(_largePayload, 0, buffer, 0, 10240);
+                _ = buffer.Length;
+            }
+        }
+
+        [Benchmark]
+        public void ArrayBufferWriter_Reuse()
+        {
+            var writer = new ArrayBufferWriter<byte>();
+            for (int i = 0; i < 10000; i++)
+            {
+                writer.Clear();
+                var span = writer.GetSpan(100);
+                _smallPayload.AsSpan().CopyTo(span);
+                writer.Advance(100);
+                _ = writer.WrittenMemory.Length;
+            }
+        }
+
+        [Benchmark]
+        public void ArrayBufferWriter_NewEach()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                var writer = new ArrayBufferWriter<byte>();
+                var span = writer.GetSpan(100);
+                _smallPayload.AsSpan().CopyTo(span);
+                writer.Advance(100);
+                _ = writer.WrittenMemory.Length;
+            }
+        }
+
+        [Benchmark]
+        public void ArrayPool_Usage()
+        {
+            var pool = ArrayPool<byte>.Shared;
+            for (int i = 0; i < 10000; i++)
+            {
+                var buffer = pool.Rent(100);
+                try
+                {
+                    Buffer.BlockCopy(_smallPayload, 0, buffer, 0, 100);
+                    _ = buffer.Length;
+                }
+                finally
+                {
+                    pool.Return(buffer);
+                }
+            }
+        }
+
+        [Benchmark]
+        public void GuidGeneration()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                var guid = Guid.NewGuid();
+                _ = guid.ToString();
+            }
+        }
+
+        [Benchmark]
+        public void DateTimeUtcNow()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                var now = DateTime.UtcNow;
+                _ = now.Ticks;
+            }
+        }
+
+        [Benchmark]
+        public void StringConcatenation()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                var result = "Connection-" + i.ToString();
+                _ = result.Length;
+            }
+        }
+
+        [Benchmark]
+        public void StringInterpolation()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                var result = $"Connection-{i}";
+                _ = result.Length;
+            }
+        }
+
+        [GlobalCleanup]
+        public void Cleanup()
+        {
+            // Cleanup resources
+        }
+
+        // Mock implementations for testing
+        private class MockLogger : ILogger<RpcMessageSerializer>
+        {
+            public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+            public bool IsEnabled(LogLevel logLevel) => false;
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) { }
+        }
+
+        private class MockSerializer
+        {
+            public MockSerializer() { }
+        }
+
+        private class MockServiceProvider : IServiceProvider
+        {
+            public object GetService(Type serviceType) => null;
+        }
+    }
+}
