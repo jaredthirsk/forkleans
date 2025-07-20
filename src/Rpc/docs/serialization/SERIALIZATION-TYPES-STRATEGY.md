@@ -1,4 +1,4 @@
-# Granville RPC Serialization Strategy
+# Granville RPC Serialization Types Strategy 
 
 ## Overview
 

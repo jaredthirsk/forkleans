@@ -45,6 +45,7 @@ namespace Granville.Rpc
         private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _activeAsyncEnumerables = new();
         private readonly InterfaceToImplementationMappingCache _interfaceToImplementationMapping;
         private readonly Serializer _serializer;
+        private readonly RpcSerializationSessionFactory _sessionFactory;
 
         private int _disposed;
 
@@ -57,6 +58,7 @@ namespace Granville.Rpc
             MessagingOptions messagingOptions,
             InterfaceToImplementationMappingCache interfaceToImplementationMapping,
             Serializer serializer,
+            RpcSerializationSessionFactory sessionFactory,
             ILogger<RpcConnection> logger)
         {
             _connectionId = connectionId ?? throw new ArgumentNullException(nameof(connectionId));
@@ -67,6 +69,7 @@ namespace Granville.Rpc
             _messagingOptions = messagingOptions ?? throw new ArgumentNullException(nameof(messagingOptions));
             _interfaceToImplementationMapping = interfaceToImplementationMapping ?? throw new ArgumentNullException(nameof(interfaceToImplementationMapping));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _sessionFactory = sessionFactory ?? throw new ArgumentNullException(nameof(sessionFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _cancellationTokenSource = new CancellationTokenSource();
         }
@@ -107,8 +110,8 @@ namespace Granville.Rpc
                     Payload = SerializeResult(result)
                 };
 
-                _logger.LogDebug("RPC Connection: Sending success response for request {MessageId}, payload size: {PayloadSize} bytes", 
-                    request.MessageId, response.Payload?.Length ?? 0);
+                _logger.LogDebug("RPC Connection: Sending success response for request {MessageId}, result type: {ResultType}, result value: {ResultValue}, payload size: {PayloadSize} bytes", 
+                    request.MessageId, result?.GetType()?.FullName ?? "null", result?.ToString() ?? "null", response.Payload?.Length ?? 0);
                 await SendResponseAsync(response);
             }
             catch (Exception ex)
@@ -183,17 +186,26 @@ namespace Granville.Rpc
         {
             if (serializedArguments == null || serializedArguments.Length == 0)
             {
+                _logger.LogDebug("[RPC_SERVER] No serialized arguments provided (null or empty)");
                 return Array.Empty<object>();
             }
 
             try
             {
-                // Use Orleans binary deserialization to match the client serialization
-                var result = _serializer.Deserialize<object[]>(serializedArguments);
+                // Log the raw bytes for debugging
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    var bytesHex = Convert.ToHexString(serializedArguments);
+                    _logger.LogDebug("[RPC_SERVER] Raw argument bytes ({Length}): {Bytes}", serializedArguments.Length, bytesHex);
+                }
+
+                // Use isolated session for value-based deserialization
+                var result = _sessionFactory.DeserializeWithIsolatedSession<object[]>(_serializer, serializedArguments);
                 
                 // Log deserialized arguments for debugging
                 if (_logger.IsEnabled(LogLevel.Debug))
                 {
+                    _logger.LogDebug("[RPC_SERVER] Deserialized {Count} arguments", result.Length);
                     for (int i = 0; i < result.Length; i++)
                     {
                         _logger.LogDebug("[RPC_SERVER] Deserialized argument[{Index}]: Type={Type}, Value={Value}",
@@ -268,6 +280,9 @@ namespace Granville.Rpc
             }
 
             var method = methods[request.MethodId];
+            
+            _logger.LogInformation("[RPC_SERVER] Method mapping - MethodId: {MethodId}, Method: {MethodName}, Interface: {InterfaceType}",
+                request.MethodId, method.Name, interfaceType.Name);
 
             // Deserialize arguments
             object[] arguments = null;

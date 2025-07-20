@@ -31,6 +31,7 @@ namespace Granville.Rpc
         private readonly ILocalClientDetails _clientDetails;
         private readonly RpcClient _rpcClient;
         private readonly Serializer _serializer;
+        private readonly RpcSerializationSessionFactory _sessionFactory;
         private TimeSpan _responseTimeout = TimeSpan.FromSeconds(30);
         private IInternalGrainFactory _internalGrainFactory;
 
@@ -39,13 +40,15 @@ namespace Granville.Rpc
             ILogger<OutsideRpcRuntimeClient> logger,
             TimeProvider timeProvider,
             ILocalClientDetails clientDetails,
-            RpcClient rpcClient)
+            RpcClient rpcClient,
+            RpcSerializationSessionFactory sessionFactory)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
             _clientDetails = clientDetails ?? throw new ArgumentNullException(nameof(clientDetails));
             _rpcClient = rpcClient ?? throw new ArgumentNullException(nameof(rpcClient));
+            _sessionFactory = sessionFactory ?? throw new ArgumentNullException(nameof(sessionFactory));
             _serializer = serviceProvider.GetRequiredService<Serializer>();
         }
 
@@ -215,6 +218,7 @@ namespace Granville.Rpc
             var argCount = request.GetArgumentCount();
             if (argCount == 0)
             {
+                _logger.LogDebug("[RPC_CLIENT] SerializeArguments: No arguments to serialize");
                 return Array.Empty<byte>();
             }
             
@@ -222,12 +226,24 @@ namespace Granville.Rpc
             for (int i = 0; i < argCount; i++)
             {
                 args[i] = request.GetArgument(i);
+                _logger.LogDebug("[RPC_CLIENT] SerializeArguments: arg[{Index}] = {Type}: {Value}", 
+                    i, args[i]?.GetType()?.Name ?? "null", args[i]?.ToString() ?? "null");
             }
             
-            // Use Orleans binary serialization
-            var writer = new ArrayBufferWriter<byte>();
-            _serializer.Serialize(args, writer);
-            return writer.WrittenMemory.ToArray();
+            // Use isolated session for value-based serialization
+            var result = _sessionFactory.SerializeArgumentsWithIsolatedSession(_serializer, args);
+            
+            _logger.LogDebug("[RPC_CLIENT] SerializeArguments: Serialized {ArgCount} arguments to {ByteCount} bytes", 
+                argCount, result.Length);
+            
+            // Log the raw bytes for debugging
+            if (_logger.IsEnabled(LogLevel.Debug))
+            {
+                var bytesHex = Convert.ToHexString(result);
+                _logger.LogDebug("[RPC_CLIENT] Serialized argument bytes ({Length}): {Bytes}", result.Length, bytesHex);
+            }
+            
+            return result;
         }
         
         private int GetMethodId(GrainInterfaceType interfaceType, string methodName)
@@ -323,10 +339,41 @@ namespace Granville.Rpc
         
         private object DeserializePayload(byte[] payload, Type returnType)
         {
-            using var stream = new System.IO.MemoryStream(payload);
-            // Use reflection to call the non-generic Deserialize(Stream, Type) overload
-            var method = typeof(Serializer).GetMethod("Deserialize", new[] { typeof(System.IO.Stream), typeof(Type) });
-            return method.Invoke(_serializer, new object[] { stream, returnType });
+            if (payload == null || payload.Length == 0)
+            {
+                // Handle void/null returns
+                if (returnType == typeof(void) || returnType == typeof(Task))
+                {
+                    return null;
+                }
+                
+                // For empty payload, return default value
+                return returnType.IsValueType ? Activator.CreateInstance(returnType) : null;
+            }
+
+            try
+            {
+                // Use the generic Deserialize method with reflection
+                var deserializeMethod = typeof(Serializer)
+                    .GetMethods()
+                    .Where(m => m.Name == "Deserialize" && m.IsGenericMethodDefinition && m.GetParameters().Length == 1)
+                    .FirstOrDefault();
+                    
+                if (deserializeMethod == null)
+                {
+                    throw new InvalidOperationException("Could not find Deserialize method on Serializer");
+                }
+                
+                var genericMethod = deserializeMethod.MakeGenericMethod(returnType);
+                var memory = new ReadOnlyMemory<byte>(payload);
+                return genericMethod.Invoke(_serializer, new object[] { memory });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to deserialize payload of type {ReturnType}. Payload length: {Length} bytes", 
+                    returnType.FullName, payload.Length);
+                throw new InvalidOperationException($"Failed to deserialize response of type {returnType.FullName}", ex);
+            }
         }
     }
 }

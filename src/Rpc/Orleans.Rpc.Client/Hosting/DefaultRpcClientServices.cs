@@ -207,6 +207,9 @@ namespace Granville.Rpc.Hosting
             services.AddSingleton<IPostConfigureOptions<OrleansJsonSerializerOptions>, ConfigureOrleansJsonSerializerOptions>();
             services.AddSingleton<OrleansJsonSerializer>();
 
+            // RPC Session Factory for isolated serialization
+            services.TryAddSingleton<RpcSerializationSessionFactory>();
+
             // RPC Transport
             //services.TryAddSingleton<IRpcTransportFactory, DefaultRpcTransportFactory>();  // We don't have a default factory, so the user needs to add this in their application.
 
