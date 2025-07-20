@@ -1,0 +1,25 @@
+<Project>
+  <!-- Import parent directory build targets if exists -->
+  <Import Project="../../../Directory.Build.targets" Condition="Exists('../../../Directory.Build.targets')" />
+
+  <!-- Disable Orleans code generation for Shooter.Shared to avoid duplicate generation issues -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Shooter.Shared' Or '$(MSBuildProjectName)' == 'Shooter.Shared.Granville'">
+    <OrleansGenerateCodeOnBuild>false</OrleansGenerateCodeOnBuild>
+    <EnableBuildTimeCodeGen>false</EnableBuildTimeCodeGen>
+  </PropertyGroup>
+
+  <!-- Configure to use Granville Orleans assemblies -->
+  <PropertyGroup>
+    <UseGranvilleOrleans>true</UseGranvilleOrleans>
+  </PropertyGroup>
+
+  <!-- Assembly redirect helper is now in Shooter.Shared project only -->
+  <!-- Removed automatic inclusion to avoid duplication conflicts -->
+
+  <!-- Assembly binding redirects for Granville Orleans -->
+  <Target Name="AddGranvilleOrleansBindingRedirects" BeforeTargets="CoreCompile" Condition="'$(UseGranvilleOrleans)' == 'true'">
+    <PropertyGroup>
+      <DefineConstants>$(DefineConstants);USE_GRANVILLE_ORLEANS</DefineConstants>
+    </PropertyGroup>
+  </Target>
+</Project>

@@ -1129,6 +1129,8 @@ public class GranvilleRpcGameClientService : IDisposable
                             serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
                             // Add RPC protocol assembly for RPC message serialization
                             serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
+                            // Add Shooter.Shared assembly for game models (Player, WorldState, etc.)
+                            serializer.AddAssembly(typeof(PlayerInfo).Assembly);
                         });
                     })
                     .Build();
@@ -1319,6 +1321,8 @@ public class GranvilleRpcGameClientService : IDisposable
                         serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
                         // Add RPC protocol assembly for RPC message serialization
                         serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
+                        // Add Shooter.Shared assembly for game models (Player, WorldState, etc.)
+                        serializer.AddAssembly(typeof(PlayerInfo).Assembly);
                     });
                 })
                 .Build();
@@ -1980,6 +1984,8 @@ public class GranvilleRpcGameClientService : IDisposable
                         serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
                         // Add RPC protocol assembly for RPC message serialization
                         serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
+                        // Add Shooter.Shared assembly for game models (Player, WorldState, etc.)
+                        serializer.AddAssembly(typeof(PlayerInfo).Assembly);
                     });
                 })
                 .Build();
@@ -2410,6 +2416,8 @@ public class GranvilleRpcGameClientService : IDisposable
                     serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
                     // Add RPC protocol assembly for RPC message serialization
                     serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
+                    // Add Shooter.Shared assembly for game models (PlayerInfo, WorldState, etc.)
+                    serializer.AddAssembly(typeof(PlayerInfo).Assembly);
                 });
                 
                 // Register the network statistics tracker as a singleton

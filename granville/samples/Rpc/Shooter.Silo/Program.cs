@@ -2,7 +2,7 @@ using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Serialization;
-using Orleans.Reminders;
+// using Orleans.Reminders; // Not available in Granville packages
 using Shooter.Silo;
 using Shooter.Silo.Configuration;
 using Shooter.Silo.Controllers;
@@ -17,7 +17,8 @@ using System.Linq;
 using Orleans.Serialization.Configuration;
 // TODO: Uncomment when Granville.Orleans.Shims package is available
 // using Granville.Orleans.Shims;
-using UFX.Orleans.SignalRBackplane;
+// UFX disabled due to Orleans version conflicts
+// using UFX.Orleans.SignalRBackplane;
 
 // Assembly redirect system disabled - relying on proper shim compilation instead
 // Shooter.Shared.AssemblyRedirectHelper.Initialize();
@@ -151,12 +152,15 @@ builder.Host.UseOrleans(siloBuilder =>
         {
             options.AdvertisedIPAddress = IPAddress.Loopback;
         })
+        // Memory storage using Microsoft.Orleans.Persistence.Memory package
         .AddMemoryGrainStorage("worldStore")
         .AddMemoryGrainStorage("playerStore")
-        .AddMemoryGrainStorage("statsStore")  // Fix Issue 3: Add missing statsStore
-        .AddMemoryGrainStorage(UFX.Orleans.SignalRBackplane.Constants.StorageName) // UFX SignalR backplane storage
-        .UseInMemoryReminderService()
-        .AddSignalRBackplane();  // Enable SignalR backplane for multi-silo support
+        .AddMemoryGrainStorage("statsStore")
+        // UFX SignalR disabled due to Orleans version conflicts
+        // .AddMemoryGrainStorage(UFX.Orleans.SignalRBackplane.Constants.StorageName)
+        // .UseInMemoryReminderService()
+        // .AddSignalRBackplane()
+        ;
         
         // Orleans Dashboard is currently disabled due to compatibility issues with Orleans 9.1.2
         // The dashboard package (8.2.0) is looking for GrainTimerCreationOptions.set_DueTime which doesn't exist in Orleans 9.x

@@ -398,6 +398,7 @@ namespace Granville.Rpc
                 
                 var connectionLogger = _loggerFactory.CreateLogger<RpcConnection>();
                 var interfaceToImplementationMapping = _catalog.ServiceProvider.GetRequiredService<InterfaceToImplementationMappingCache>();
+                var sessionFactory = _serviceProvider.GetRequiredService<RpcSerializationSessionFactory>();
                 
                 return new RpcConnection(
                     id,
@@ -408,6 +409,7 @@ namespace Granville.Rpc
                     _messagingOptions,
                     interfaceToImplementationMapping,
                     _serializer,
+                    sessionFactory,
                     connectionLogger);
             });
         }
