@@ -92,11 +92,11 @@ namespace Granville.Rpc
                     _logger.LogDebug("[RPC_SESSION_FACTORY] JSON serialized to {Length} bytes with guaranteed value semantics", jsonBytes.Length);
                     
                     // Wrap with a marker byte to indicate JSON serialization
-                    var result = new byte[jsonBytes.Length + 1];
-                    result[0] = 0xFF; // JSON marker
-                    Array.Copy(jsonBytes, 0, result, 1, jsonBytes.Length);
+                    var jsonResult = new byte[jsonBytes.Length + 1];
+                    jsonResult[0] = 0xFF; // JSON marker
+                    Array.Copy(jsonBytes, 0, jsonResult, 1, jsonBytes.Length);
                     
-                    return result;
+                    return jsonResult;
                 }
                 catch (Exception ex)
                 {
