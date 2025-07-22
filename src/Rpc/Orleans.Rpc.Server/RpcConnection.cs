@@ -373,12 +373,21 @@ namespace Granville.Rpc
                                 var taskResult = resultProperty.GetValue(task);
                                 _logger.LogDebug("Successfully extracted Task<T> result of type {ResultType}: {Result}",
                                     taskResult?.GetType().Name ?? "null", taskResult);
+                                
+                                // Additional safety check: ensure we're not returning VoidTaskResult
+                                if (taskResult != null && taskResult.GetType().FullName == "System.Threading.Tasks.VoidTaskResult")
+                                {
+                                    _logger.LogWarning("Task<T> result is VoidTaskResult, returning null instead");
+                                    return null;
+                                }
+                                
                                 return taskResult;
                             }
                         }
                     }
                     
                     // For any other Task type that's not Task<T>, return null
+                    _logger.LogDebug("Non-generic or unknown Task type, returning null");
                     return null;
                 }
                 else if (result != null && result.GetType().IsGenericType &&
@@ -406,22 +415,39 @@ namespace Granville.Rpc
         {
             if (result == null)
             {
+                _logger.LogDebug("[RPC_SERVER] SerializeResult: result is null, returning empty array");
                 return Array.Empty<byte>();
             }
 
+            var resultType = result.GetType();
+            _logger.LogDebug("[RPC_SERVER] SerializeResult: attempting to serialize type {ResultType}", resultType.FullName);
+
             // Debug logging for VoidTaskResult issue
-            if (result.GetType().FullName == "System.Threading.Tasks.VoidTaskResult")
+            if (resultType.FullName == "System.Threading.Tasks.VoidTaskResult")
             {
-                _logger.LogError("CRITICAL: Attempting to serialize VoidTaskResult! This should have been caught earlier. Stack trace: {StackTrace}", 
-                    Environment.StackTrace);
+                _logger.LogError("CRITICAL: Attempting to serialize VoidTaskResult! This should have been caught earlier. " +
+                    "Result type: {ResultType}, Result value: {ResultValue}. Stack trace: {StackTrace}", 
+                    resultType.FullName, result?.ToString() ?? "null", Environment.StackTrace);
                 // Return empty array instead of throwing
                 return Array.Empty<byte>();
             }
 
-            // Use Orleans binary serialization
-            var writer = new ArrayBufferWriter<byte>();
-            _serializer.Serialize(result, writer);
-            return writer.WrittenMemory.ToArray();
+            try
+            {
+                // Use Orleans binary serialization
+                var writer = new ArrayBufferWriter<byte>();
+                _serializer.Serialize(result, writer);
+                var serializedBytes = writer.WrittenMemory.ToArray();
+                _logger.LogDebug("[RPC_SERVER] Successfully serialized {ResultType} to {ByteCount} bytes", 
+                    resultType.FullName, serializedBytes.Length);
+                return serializedBytes;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[RPC_SERVER] Failed to serialize result of type {ResultType}: {Error}", 
+                    resultType.FullName, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
