@@ -353,11 +353,22 @@ namespace Granville.Rpc
                         taskType.IsGenericType, 
                         taskType.IsGenericType ? taskType.GetGenericTypeDefinition().FullName : "N/A");
                     
-                    // If it's exactly Task (not Task<T>), return null
+                    // Check if it's a non-generic Task or a Task with VoidTaskResult
                     if (taskType == typeof(Task))
                     {
                         _logger.LogDebug("Detected non-generic Task, returning null to avoid VoidTaskResult serialization");
                         return null;
+                    }
+                    
+                    // Additional check for Task<VoidTaskResult> which can happen in some cases
+                    if (taskType.IsGenericType && taskType.GetGenericTypeDefinition() == typeof(Task<>))
+                    {
+                        var genericArg = taskType.GetGenericArguments()[0];
+                        if (genericArg.FullName == "System.Threading.Tasks.VoidTaskResult")
+                        {
+                            _logger.LogDebug("Detected Task<VoidTaskResult>, returning null to avoid VoidTaskResult serialization");
+                            return null;
+                        }
                     }
                     
                     // Check if the type is generic and derives from Task<T>
