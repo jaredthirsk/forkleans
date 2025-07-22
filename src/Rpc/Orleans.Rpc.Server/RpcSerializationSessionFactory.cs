@@ -89,18 +89,59 @@ namespace Granville.Rpc
 
         /// <summary>
         /// Deserializes arguments using an isolated session to handle value-based deserialization.
+        /// Supports both JSON and Orleans binary formats based on marker byte.
         /// </summary>
         public T DeserializeWithIsolatedSession<T>(Serializer serializer, ReadOnlyMemory<byte> data)
         {
-            using var session = CreateServerSession();
+            if (data.Length == 0)
+            {
+                _logger.LogDebug("[RPC_SESSION_FACTORY] Empty data, returning default");
+                return default(T);
+            }
             
             _logger.LogDebug("[RPC_SESSION_FACTORY] Deserializing {Length} bytes with isolated session", data.Length);
             
-            var result = serializer.Deserialize<T>(data, session);
+            var dataSpan = data.Span;
+            var marker = dataSpan[0];
+            var actualData = data.Slice(1);
             
-            _logger.LogDebug("[RPC_SESSION_FACTORY] Deserialized with isolated session");
-            
-            return result;
+            if (marker == 0xFF) // JSON marker
+            {
+                _logger.LogDebug("[RPC_SESSION_FACTORY] Detected JSON serialization, using System.Text.Json deserializer");
+                
+                try
+                {
+                    var result = System.Text.Json.JsonSerializer.Deserialize<T>(actualData);
+                    _logger.LogDebug("[RPC_SESSION_FACTORY] JSON deserialized successfully");
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "[RPC_SESSION_FACTORY] JSON deserialization failed");
+                    throw;
+                }
+            }
+            else if (marker == 0x00) // Orleans binary marker
+            {
+                _logger.LogDebug("[RPC_SESSION_FACTORY] Detected Orleans binary serialization, using isolated session");
+                
+                using var session = CreateServerSession();
+                var result = serializer.Deserialize<T>(actualData, session);
+                
+                _logger.LogDebug("[RPC_SESSION_FACTORY] Orleans binary deserialized with isolated session");
+                return result;
+            }
+            else
+            {
+                // Backward compatibility: no marker byte, assume Orleans binary
+                _logger.LogDebug("[RPC_SESSION_FACTORY] No marker detected, assuming Orleans binary format for backward compatibility");
+                
+                using var session = CreateServerSession();
+                var result = serializer.Deserialize<T>(data, session);
+                
+                _logger.LogDebug("[RPC_SESSION_FACTORY] Legacy Orleans binary deserialized with isolated session");
+                return result;
+            }
         }
     }
 }
