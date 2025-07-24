@@ -155,7 +155,7 @@ namespace Granville.Rpc
                                     else
                                     {
                                         _logger.LogWarning("Could not load return type {ReturnTypeName}", rpcRequest.ReturnTypeName);
-                                        result = _serializer.Deserialize<object>(new ReadOnlyMemory<byte>(response.Payload));
+                                        result = _sessionFactory.DeserializeWithIsolatedSession<object>(_serializer, new ReadOnlyMemory<byte>(response.Payload));
                                         
                                         // Handle JsonElement conversion for primitive types
                                         if (result is System.Text.Json.JsonElement element)
@@ -179,13 +179,13 @@ namespace Granville.Rpc
                                 {
                                     _logger.LogError(ex, "Error deserializing result of type {ReturnTypeName}", rpcRequest.ReturnTypeName);
                                     // Fall back to object deserialization
-                                    result = _serializer.Deserialize<object>(new ReadOnlyMemory<byte>(response.Payload));
+                                    result = _sessionFactory.DeserializeWithIsolatedSession<object>(_serializer, new ReadOnlyMemory<byte>(response.Payload));
                                 }
                             }
                             else
                             {
                                 // No type information available, deserialize as object
-                                result = _serializer.Deserialize<object>(new ReadOnlyMemory<byte>(response.Payload));
+                                result = _sessionFactory.DeserializeWithIsolatedSession<object>(_serializer, new ReadOnlyMemory<byte>(response.Payload));
                             }
                         }
                         
@@ -353,20 +353,41 @@ namespace Granville.Rpc
 
             try
             {
-                // Use the generic Deserialize method with reflection
-                var deserializeMethod = typeof(Serializer)
-                    .GetMethods()
-                    .Where(m => m.Name == "Deserialize" && m.IsGenericMethodDefinition && m.GetParameters().Length == 1)
-                    .FirstOrDefault();
+                // Check for marker byte and remove it
+                if (payload.Length > 0 && (payload[0] == 0x00 || payload[0] == 0xFE || payload[0] == 0xFF))
+                {
+                    _logger.LogDebug("Removing marker byte {MarkerByte:X2} from payload", payload[0]);
+                    // Skip the marker byte
+                    var dataWithoutMarker = new byte[payload.Length - 1];
+                    Array.Copy(payload, 1, dataWithoutMarker, 0, dataWithoutMarker.Length);
+                    payload = dataWithoutMarker;
+                }
+
+                // Use the session factory to deserialize with isolated session
+                var deserializeMethod = typeof(RpcSerializationSessionFactory)
+                    .GetMethod("DeserializeWithIsolatedSession", BindingFlags.Public | BindingFlags.Instance)
+                    ?.MakeGenericMethod(returnType);
                     
                 if (deserializeMethod == null)
                 {
-                    throw new InvalidOperationException("Could not find Deserialize method on Serializer");
+                    throw new InvalidOperationException("Could not find DeserializeWithIsolatedSession method on RpcSerializationSessionFactory");
                 }
                 
-                var genericMethod = deserializeMethod.MakeGenericMethod(returnType);
                 var memory = new ReadOnlyMemory<byte>(payload);
-                return genericMethod.Invoke(_serializer, new object[] { memory });
+                
+                // Invoke with proper parameters: instance, serializer, memory
+                var result = deserializeMethod.Invoke(_sessionFactory, new object[] { _serializer, memory });
+                
+                _logger.LogDebug("Successfully deserialized payload of type {ReturnType}", returnType.FullName);
+                
+                return result;
+            }
+            catch (TargetInvocationException tie) when (tie.InnerException != null)
+            {
+                // Unwrap the inner exception from reflection
+                _logger.LogError(tie.InnerException, "Failed to deserialize payload of type {ReturnType}. Payload length: {Length} bytes", 
+                    returnType.FullName, payload.Length);
+                throw new InvalidOperationException($"Failed to deserialize response of type {returnType.FullName}", tie.InnerException);
             }
             catch (Exception ex)
             {

@@ -8,8 +8,8 @@
     <Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
     <!-- Enable Granville code generation for RPC serializers -->
     <Granville_DesignTimeBuild>false</Granville_DesignTimeBuild>
-    <!-- Enable build-time code generation -->
-    <OrleansBuildTimeCodeGen>true</OrleansBuildTimeCodeGen>
+    <!-- Disable Orleans build-time code generation (using Granville instead) -->
+    <OrleansBuildTimeCodeGen>false</OrleansBuildTimeCodeGen>
   </PropertyGroup>
 
 

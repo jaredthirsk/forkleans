@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,7 @@ namespace Granville.Rpc
     internal sealed class RpcGrainReferenceActivatorProvider : IGrainReferenceActivatorProvider
     {
         private readonly IServiceProvider _services;
-        private readonly RpcProvider _rpcProvider;
+        private readonly RpcProxyProvider _rpcProxyProvider;
         private readonly GrainPropertiesResolver _propertiesResolver;
         private readonly GrainVersionManifest _grainVersionManifest;
         private readonly CodecProvider _codecProvider;
@@ -29,14 +30,14 @@ namespace Granville.Rpc
 
         public RpcGrainReferenceActivatorProvider(
             IServiceProvider services,
-            RpcProvider rpcProvider,
+            RpcProxyProvider rpcProxyProvider,
             [FromKeyedServices("rpc")] GrainPropertiesResolver propertiesResolver,
             GrainVersionManifest grainVersionManifest,
             CodecProvider codecProvider,
             CopyContextPool copyContextPool)
         {
             _services = services ?? throw new ArgumentNullException(nameof(services));
-            _rpcProvider = rpcProvider ?? throw new ArgumentNullException(nameof(rpcProvider));
+            _rpcProxyProvider = rpcProxyProvider ?? throw new ArgumentNullException(nameof(rpcProxyProvider));
             _propertiesResolver = propertiesResolver ?? throw new ArgumentNullException(nameof(propertiesResolver));
             _grainVersionManifest = grainVersionManifest ?? throw new ArgumentNullException(nameof(grainVersionManifest));
             _codecProvider = codecProvider ?? throw new ArgumentNullException(nameof(codecProvider));
@@ -45,44 +46,19 @@ namespace Granville.Rpc
 
         public bool TryGet(GrainType grainType, GrainInterfaceType interfaceType, out IGrainReferenceActivator activator)
         {
-            var logger = _services.GetRequiredService<ILogger<RpcGrainReferenceActivatorProvider>>();
-            logger.LogDebug("RpcGrainReferenceActivatorProvider.TryGet called for grainType: {GrainType}, interfaceType: {InterfaceType}", grainType, interfaceType);
-            
-            // Only handle grains that have RPC proxy types
-            // This prevents RPC from intercepting Orleans grain creation
-            if (_rpcProvider.TryGet(interfaceType, out var proxyType))
+            // For RPC grains, we need to create our own proxy wrapper
+            // Check if this is an RPC interface (by convention or configuration)
+            // Convert interface type to string for checking
+            var interfaceTypeStr = interfaceType.ToString();
+            if (interfaceTypeStr.Contains("Rpc", StringComparison.Ordinal) || 
+                interfaceTypeStr.StartsWith("Shooter.", StringComparison.Ordinal))
             {
-                logger.LogDebug("Found RPC proxy type {ProxyType} for interface {InterfaceType}", proxyType.FullName, interfaceType);
-                
-                // Use the generated proxy type
-                var runtime = _grainReferenceRuntime ??= _services.GetRequiredService<IGrainReferenceRuntime>();
-                var interfaceVersion = _grainVersionManifest.GetLocalVersion(interfaceType);
-                
-                var unordered = false;
-                var properties = _propertiesResolver.GetGrainProperties(grainType);
-                if (properties.Properties.TryGetValue(WellKnownGrainTypeProperties.Unordered, out var unorderedString)
-                    && string.Equals("true", unorderedString, StringComparison.OrdinalIgnoreCase))
-                {
-                    unordered = true;
-                }
-                
-                var invokeMethodOptions = unordered ? InvokeMethodOptions.Unordered : InvokeMethodOptions.None;
-                var shared = new GrainReferenceShared(
-                    grainType,
-                    interfaceType,
-                    interfaceVersion,
-                    runtime,
-                    invokeMethodOptions,
-                    _codecProvider,
-                    _copyContextPool,
-                    _services);
-                activator = new ProxyGrainReferenceActivator(proxyType, shared);
+                activator = new RpcInterfaceProxyActivator(_services, grainType, interfaceType);
                 return true;
             }
-            
-            // No RPC proxy type found - let other providers handle this grain
-            logger.LogTrace("No RPC proxy type found for interface {InterfaceType}, deferring to other providers", interfaceType);
-            activator = null;
+
+            // Not an RPC interface - let Orleans handle it
+            activator = null!;
             return false;
         }
 
@@ -112,6 +88,77 @@ namespace Granville.Rpc
             }
 
             public GrainReference CreateReference(GrainId grainId) => _create(_shared, grainId.Key);
+        }
+
+        /// <summary>
+        /// Activator that creates proxy wrappers around RpcGrainReference for interface implementation.
+        /// </summary>
+        private sealed class RpcInterfaceProxyActivator : IGrainReferenceActivator
+        {
+            private readonly IServiceProvider _services;
+            private readonly GrainType _grainType;
+            private readonly GrainInterfaceType _interfaceType;
+            private readonly Type _proxyType;
+            private readonly ConstructorInfo _proxyCtor;
+
+            public RpcInterfaceProxyActivator(IServiceProvider services, GrainType grainType, GrainInterfaceType interfaceType)
+            {
+                _services = services;
+                _grainType = grainType;
+                _interfaceType = interfaceType;
+
+                // Get the actual interface type by convention
+                // GrainInterfaceType typically contains the full type name
+                var interfaceTypeName = interfaceType.ToString();
+                Type actualInterfaceType = null;
+                
+                // Try to find the interface type in loaded assemblies
+                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    actualInterfaceType = assembly.GetTypes()
+                        .FirstOrDefault(t => t.IsInterface && (t.FullName == interfaceTypeName || t.Name == interfaceTypeName));
+                    if (actualInterfaceType != null) break;
+                }
+                
+                if (actualInterfaceType == null)
+                {
+                    throw new InvalidOperationException($"Cannot find interface type for {interfaceType}");
+                }
+                
+                // Create proxy type
+                _proxyType = RpcInterfaceProxyFactory.GetOrCreateProxyType(actualInterfaceType);
+                _proxyCtor = _proxyType.GetConstructor(new[] { typeof(RpcGrainReference) })
+                    ?? throw new InvalidOperationException($"Proxy type {_proxyType} missing expected constructor");
+            }
+
+            public GrainReference CreateReference(GrainId grainId)
+            {
+                // Create the underlying RpcGrainReference
+                var grainReferenceRuntime = _services.GetRequiredService<IGrainReferenceRuntime>();
+                var versionManifest = _services.GetRequiredService<GrainVersionManifest>();
+                var codecProvider = _services.GetRequiredService<CodecProvider>();
+                var copyContextPool = _services.GetRequiredService<CopyContextPool>();
+                var rpcClient = _services.GetRequiredService<RpcClient>();
+                var serializer = _services.GetRequiredService<Serializer>();
+                var referenceLogger = _services.GetRequiredService<ILogger<RpcGrainReference>>();
+
+                var interfaceVersion = versionManifest.GetLocalVersion(_interfaceType);
+                var shared = new GrainReferenceShared(
+                    _grainType,
+                    _interfaceType,
+                    interfaceVersion,
+                    grainReferenceRuntime,
+                    InvokeMethodOptions.None,
+                    codecProvider,
+                    copyContextPool,
+                    _services);
+
+                var rpcGrainRef = new RpcGrainReference(shared, grainId.Key, referenceLogger, rpcClient, serializer,
+                    rpcClient.AsyncEnumerableManager);
+
+                // Wrap it in the proxy
+                return (GrainReference)_proxyCtor.Invoke(new object[] { rpcGrainRef });
+            }
         }
 
         /// <summary>

@@ -57,7 +57,7 @@ foreach ($shim in $shimPackages) {
     <authors>Granville</authors>
     <description>$($shim.Description)</description>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <license type="expression">MIT</license>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
         <dependency id="$($shim.TargetPackage)" version="$Version" />
@@ -74,7 +74,19 @@ foreach ($shim in $shimPackages) {
     Set-Content -Path $nuspecPath -Value $nuspecContent -NoNewline
     
     # Pack the shim
-    & "C:\ProgramData\chocolatey\lib\cs-script\tools\cs-script\lib\nuget.exe" pack $nuspecPath -OutputDirectory "../../Artifacts/Release" -NoPackageAnalysis
+    # Use Windows-style paths for nuget_win
+    $windowsNuspecPath = $nuspecPath -replace '/mnt/c/', 'C:/' -replace '/', '\'
+    $windowsOutputDir = "C:\forks\orleans\Artifacts\Release"
+    
+    # Try to use nuget_win if available, otherwise use nuget command
+    $nugetCommand = if (Get-Command "nuget_win" -ErrorAction SilentlyContinue) {
+        & nuget_win pack $windowsNuspecPath -OutputDirectory $windowsOutputDir -NoPackageAnalysis
+    } elseif (Get-Command "nuget" -ErrorAction SilentlyContinue) {
+        & nuget pack $nuspecPath -OutputDirectory "../../Artifacts/Release" -NoPackageAnalysis
+    } else {
+        Write-Error "Neither nuget_win nor nuget command found"
+        continue
+    }
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host "  ✓ Created $($shim.PackageId).$Version-granville-shim.nupkg" -ForegroundColor Green

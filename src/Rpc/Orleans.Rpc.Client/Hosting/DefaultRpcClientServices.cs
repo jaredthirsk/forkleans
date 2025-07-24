@@ -108,7 +108,12 @@ namespace Granville.Rpc.Hosting
             services.AddSingleton<IGrainReferenceActivatorProvider, RpcGrainReferenceActivatorProvider>();
             services.AddSingleton<IGrainReferenceActivatorProvider, GrainReferenceActivatorProvider>();
             services.AddSingleton<IGrainReferenceActivatorProvider, UntypedGrainReferenceActivatorProvider>();
-            services.TryAddSingleton<RpcProvider>();
+            // Register Orleans RpcProvider first
+            services.TryAddSingleton<Orleans.GrainReferences.RpcProvider, OrleansRpcProviderAdapter>();
+            // Then register RpcProxyProvider that delegates to it
+            services.TryAddSingleton<RpcProxyProvider>(sp => new RpcProxyProvider(
+                sp.GetRequiredService<Orleans.GrainReferences.RpcProvider>()));
+            
             services.TryAddSingleton<IGrainReferenceRuntime, GrainReferenceRuntime>();
             // Register GrainPropertiesResolver as keyed service for RPC
             services.AddKeyedSingleton<GrainPropertiesResolver>("rpc", (sp, key) => 
