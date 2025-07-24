@@ -155,9 +155,9 @@ namespace Granville.Rpc.Hosting
                 return new GrainFactory(runtimeClient, referenceActivator, interfaceTypeResolver, interfaceToTypeResolver);
             });
             
-            // Register interface mappings as keyed services for RPC
-            services.AddKeyedSingleton<IGrainFactory>("rpc", (sp, key) => sp.GetRequiredKeyedService<GrainFactory>("rpc"));
-            services.AddKeyedSingleton<IInternalGrainFactory>("rpc", (sp, key) => sp.GetRequiredKeyedService<GrainFactory>("rpc"));
+            // Register interface mappings as keyed services for RPC - use RpcGrainFactory
+            services.AddKeyedSingleton<IGrainFactory>("rpc", (sp, key) => sp.GetRequiredService<RpcGrainFactory>());
+            services.AddKeyedSingleton<IInternalGrainFactory>("rpc", (sp, key) => sp.GetRequiredService<RpcGrainFactory>());
             
             // For standalone RPC client, register as unkeyed (Orleans client takes precedence when both are present)
             services.TryAddFromExisting<IGrainFactory, GrainFactory>();

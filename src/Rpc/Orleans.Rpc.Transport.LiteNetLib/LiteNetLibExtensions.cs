@@ -46,7 +46,7 @@ namespace Granville.Rpc.Transport.LiteNetLib
             builder.Services.RemoveAll<IRpcTransportFactory>();
             builder.Services.AddSingleton<IRpcTransportFactory>(_ => new LiteNetLibTransportFactory(isServer: false));
 
-            // Register default LiteNetLib options
+            // Register default LiteNetLib options with proper IOptions<T> pattern
             builder.Services.TryAddSingleton<IOptions<LiteNetLibOptions>>(sp =>
                 Microsoft.Extensions.Options.Options.Create(new LiteNetLibOptions()));
 

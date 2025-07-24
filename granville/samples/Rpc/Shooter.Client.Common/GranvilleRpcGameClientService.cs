@@ -202,30 +202,45 @@ public class GranvilleRpcGameClientService : IDisposable
                 _logger.LogWarning("Could not get keyed manifest provider: {Error}", ex.Message);
             }
             
+            // Enhanced debugging: Check RPC client state
+            _logger.LogInformation("RPC client started, beginning grain acquisition process");
+            _logger.LogInformation("RPC client type: {Type}", _rpcClient?.GetType().FullName ?? "NULL");
+            
             // Wait for the handshake and manifest exchange to complete
             // Try to get the grain with retries to ensure manifest is ready
             const int maxRetries = 15; // Increased for better manifest reliability
-            const int retryDelayMs = 50; // Reduced delay - manifest sync is usually very fast
+            const int retryDelayMs = 200; // Increased delay for better debugging
+            
+            var startTime = DateTime.UtcNow;
+            _logger.LogInformation("Starting grain acquisition retry loop at {StartTime}", startTime);
             
             for (int i = 0; i < maxRetries; i++)
             {
                 try
                 {
+                    _logger.LogDebug("Attempting to get IGameRpcGrain, attempt {Attempt}/{MaxRetries}", i + 1, maxRetries);
+                    
                     // Get the game grain - use a fixed key since this represents the server itself
                     // In RPC, grains are essentially singleton services per server
-                    _gameGrain = _rpcClient.GetGrain<IGameRpcGrain>("game");
-                    _logger.LogInformation("Successfully obtained game grain on attempt {Attempt}", i + 1);
+                    _gameGrain = _rpcClient?.GetGrain<IGameRpcGrain>("game");
+                    
+                    var elapsed = DateTime.UtcNow - startTime;
+                    _logger.LogInformation("✅ Successfully obtained game grain on attempt {Attempt} after {ElapsedMs}ms", i + 1, elapsed.TotalMilliseconds);
                     break;
                 }
                 catch (ArgumentException ex) when (ex.Message.Contains("Could not find an implementation"))
                 {
+                    _logger.LogWarning("❌ Grain acquisition attempt {Attempt}/{MaxRetries} failed: {Error}", i + 1, maxRetries, ex.Message);
+                    
                     if (i < maxRetries - 1)
                     {
-                        _logger.LogDebug("Waiting for manifest update, attempt {Attempt}/{MaxRetries}", i + 1, maxRetries);
+                        _logger.LogDebug("Waiting {DelayMs}ms before next attempt...", retryDelayMs);
                         await Task.Delay(retryDelayMs);
                     }
                     else
                     {
+                        var totalElapsed = DateTime.UtcNow - startTime;
+                        _logger.LogError("🚨 All grain acquisition attempts failed after {TotalMs}ms. ActionServer may not be running or may not have registered IGameRpcGrain implementation.", totalElapsed.TotalMilliseconds);
                         throw new InvalidOperationException(
                             $"Failed to get game grain after {maxRetries} attempts. " +
                             "The RPC server may not have registered the grain implementation.", ex);
@@ -267,8 +282,11 @@ public class GranvilleRpcGameClientService : IDisposable
                 _observer = new GameRpcObserver(loggerFactory.CreateLogger<GameRpcObserver>(), this);
                 
                 // Create an observer reference
-                var observerRef = _rpcClient.CreateObjectReference<IGameRpcObserver>(_observer);
-                await _gameGrain.Subscribe(observerRef);
+                var observerRef = _rpcClient?.CreateObjectReference<IGameRpcObserver>(_observer);
+                if (observerRef != null && _gameGrain != null)
+                {
+                    await _gameGrain.Subscribe(observerRef);
+                }
                 
                 _logger.LogInformation("[CHAT_DEBUG] Successfully subscribed to game updates via observer. Observer created: {ObserverCreated}", _observer != null);
             }
@@ -2390,6 +2408,23 @@ public class GranvilleRpcGameClientService : IDisposable
     private IHost BuildRpcHost(string resolvedHost, int rpcPort, string? playerId = null)
     {
         var hostBuilder = Host.CreateDefaultBuilder()
+            .ConfigureLogging(logging =>
+            {
+                // Clear default providers to avoid duplicate logs
+                logging.ClearProviders();
+                
+                // Configure logging to match parent application settings
+                logging.SetMinimumLevel(LogLevel.Debug);
+                logging.AddFilter("Granville.Rpc", LogLevel.Debug);
+                logging.AddFilter("Orleans", LogLevel.Information);
+                logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
+                
+                // Add console logging for immediate visibility
+                logging.AddConsole();
+                
+                // Add debug logging for development
+                logging.AddDebug();
+            })
             .UseOrleansRpcClient(rpcBuilder =>
             {
                 rpcBuilder.ConnectTo(resolvedHost, rpcPort);

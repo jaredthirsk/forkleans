@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Orleans;
@@ -54,7 +56,7 @@ namespace Granville.Rpc.Runtime
             try
             {
                 // Extract method info from the invokable
-                var methodId = GetMethodId(request);
+                var methodId = GetMethodId(rpcRef.InterfaceType, request.GetMethodName());
                 var arguments = GetMethodArguments(request);
 
                 // Route through RPC transport
@@ -83,7 +85,7 @@ namespace Granville.Rpc.Runtime
             try
             {
                 // Extract method info from the invokable
-                var methodId = GetMethodId(request);
+                var methodId = GetMethodId(rpcRef.InterfaceType, request.GetMethodName());
                 var arguments = GetMethodArguments(request);
 
                 // Route through RPC transport (void return)
@@ -111,7 +113,7 @@ namespace Granville.Rpc.Runtime
             try
             {
                 // Extract method info from the invokable
-                var methodId = GetMethodId(request);
+                var methodId = GetMethodId(rpcRef.InterfaceType, request.GetMethodName());
                 var arguments = GetMethodArguments(request);
 
                 // For one-way calls, fire and forget
@@ -154,14 +156,64 @@ namespace Granville.Rpc.Runtime
             return _runtimeClient.GrainReferenceRuntime.Cast(grain, interfaceType);
         }
 
-        private int GetMethodId(IInvokable invokable)
+        private int GetMethodId(GrainInterfaceType interfaceType, string methodName)
         {
-            // Get method name from the invokable
-            var methodName = invokable.GetMethodName();
+            // Find the actual interface type
+            // This is a simplified approach - in production, you'd want to cache this
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            Type interfaceClrType = null;
             
-            // For now, use a simple hash of the method name as the method ID
-            // In a production system, this should match how the server identifies methods
-            return methodName.GetHashCode();
+            // GrainInterfaceType.Value is an IdSpan, convert to string
+            var typeName = interfaceType.Value.ToString();
+            
+            foreach (var assembly in assemblies)
+            {
+                try
+                {
+                    var types = assembly.GetTypes();
+                    foreach (var type in types)
+                    {
+                        if (type.IsInterface && 
+                            (type.Name == typeName || 
+                             type.FullName == typeName ||
+                             type.FullName.EndsWith("." + typeName)))
+                        {
+                            interfaceClrType = type;
+                            break;
+                        }
+                    }
+                    if (interfaceClrType != null) break;
+                }
+                catch (Exception ex)
+                {
+                    // Some assemblies might not be loadable
+                    _logger.LogTrace(ex, "Could not load types from assembly {Assembly}", assembly.FullName);
+                }
+            }
+            
+            if (interfaceClrType == null)
+            {
+                _logger.LogWarning("Could not find interface type {InterfaceType}, using method name hash", interfaceType);
+                return Math.Abs(methodName.GetHashCode()) % 100; // Fallback
+            }
+            
+            // Get methods sorted alphabetically (same as server)
+            var methods = interfaceClrType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Where(m => !m.IsSpecialName)
+                .OrderBy(m => m.Name, StringComparer.Ordinal)
+                .ToArray();
+            
+            
+            for (int i = 0; i < methods.Length; i++)
+            {
+                if (methods[i].Name == methodName)
+                {
+                    _logger.LogTrace("Method {MethodName} on {Interface} has ID {MethodId}", methodName, interfaceType, i);
+                    return i;
+                }
+            }
+            
+            throw new InvalidOperationException($"Method {methodName} not found on interface {interfaceType}");
         }
 
         private object[] GetMethodArguments(IInvokable invokable)

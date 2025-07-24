@@ -58,6 +58,9 @@ namespace Granville.Rpc
             _lifecycle = lifecycle ?? throw new ArgumentNullException(nameof(lifecycle));
             _manifestProvider = manifestProvider ?? throw new ArgumentNullException(nameof(manifestProvider));
             
+            _logger.LogInformation("RpcClient constructor called. ClientId: {ClientId}, Endpoints: {EndpointCount}", 
+                _clientOptions.ClientId, _clientOptions.ServerEndpoints.Count);
+            
             _logger.LogInformation("RpcClient created with manifest provider: {ManifestProviderType}", 
                 _manifestProvider.GetType().FullName);
             
@@ -74,16 +77,51 @@ namespace Granville.Rpc
             
             try
             {
-                // Call ConsumeServices on the runtime client to break circular dependencies
-                var runtimeClient = _serviceProvider.GetService<IRuntimeClient>() as OutsideRpcRuntimeClient;
+                // Break circular dependencies by consuming services after DI container is built
+                _logger.LogDebug("Consuming services to break circular dependencies");
+                var runtimeClient = _serviceProvider.GetService<OutsideRpcRuntimeClient>();
                 if (runtimeClient != null)
                 {
-                    runtimeClient.ConsumeServices();
-                    _logger.LogDebug("ConsumeServices called on OutsideRpcRuntimeClient");
+                    try
+                    {
+                        _logger.LogDebug("About to call ConsumeServices on runtime client");
+                        runtimeClient.ConsumeServices();
+                        _logger.LogDebug("Services consumed successfully");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to consume services - might be circular dependency issue. Continuing anyway.");
+                    }
+                }
+                else
+                {
+                    _logger.LogDebug("OutsideRpcRuntimeClient not found in service provider");
                 }
                 
-                await (_lifecycle as ILifecycleSubject)?.OnStart(cancellationToken);
+                // Start lifecycle if available
+                var lifecycleSubject = _lifecycle as ILifecycleSubject;
+                if (lifecycleSubject != null)
+                {
+                    _logger.LogDebug("Lifecycle subject found, calling OnStart");
+                    await lifecycleSubject.OnStart(cancellationToken);
+                    _logger.LogDebug("Lifecycle OnStart completed");
+                }
+                else
+                {
+                    _logger.LogDebug("No lifecycle subject found");
+                }
+                
+                // Check if we have any configured endpoints
+                if (_clientOptions.ServerEndpoints.Count == 0)
+                {
+                    _logger.LogWarning("RPC client started but no server endpoints configured. Client will not connect to any servers.");
+                    return;
+                }
+                
+                _logger.LogDebug("Connecting to {EndpointCount} initial servers", _clientOptions.ServerEndpoints.Count);
+                _logger.LogDebug("RPC Client: About to call ConnectToInitialServersAsync");
                 await ConnectToInitialServersAsync(cancellationToken);
+                _logger.LogDebug("RPC Client: ConnectToInitialServersAsync completed successfully");
                 _logger.LogInformation("RPC client started successfully");
             }
             catch (Exception ex)
@@ -276,18 +314,25 @@ namespace Granville.Rpc
             try
             {
                 // Connect to the server
+                _logger.LogDebug("RPC Client: About to call transport.ConnectAsync for {ServerId} at {Endpoint}", serverId, endpoint);
                 await transport.ConnectAsync(endpoint, cancellationToken);
+                _logger.LogDebug("RPC Client: transport.ConnectAsync completed successfully for {ServerId}", serverId);
                 
                 stopwatch.Stop();
                 
                 // Track the transport so we can dispose it later
+                _logger.LogDebug("RPC Client: Tracking transport for {ServerId}", serverId);
                 _transports[serverId] = transport;
                 
                 // Add to connection manager
+                _logger.LogDebug("RPC Client: Adding connection to manager for {ServerId}", serverId);
                 await _connectionManager.AddConnectionAsync(serverId, connection);
+                _logger.LogDebug("RPC Client: Connection added to manager successfully for {ServerId}", serverId);
                 
                 // Send handshake
+                _logger.LogDebug("RPC Client: About to send handshake to {ServerId}", serverId);
                 await SendHandshake(connection);
+                _logger.LogDebug("RPC Client: Handshake sent successfully to {ServerId}", serverId);
                 
                 _logger.LogInformation("Successfully connected to RPC server {ServerId}", serverId);
                 
@@ -461,6 +506,7 @@ namespace Granville.Rpc
 
         private Task SendHandshake(RpcConnection connection)
         {
+            _logger.LogDebug("RPC Client SendHandshake: Creating handshake message for {ServerId}", connection.ServerId);
             var handshake = new Protocol.RpcHandshake
             {
                 ClientId = _clientOptions.ClientId,
@@ -468,11 +514,17 @@ namespace Granville.Rpc
                 Features = new[] { "basic-rpc" }
             };
 
+            _logger.LogDebug("RPC Client SendHandshake: Getting message serializer");
             var messageSerializer = _serviceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
+            _logger.LogDebug("RPC Client SendHandshake: Serializing handshake message");
             var data = messageSerializer.SerializeMessage(handshake);
+            _logger.LogDebug("RPC Client SendHandshake: Handshake serialized to {ByteCount} bytes", data.Length);
             
             _logger.LogInformation("Sent handshake to server {ServerId}", connection.ServerId);
-            return connection.SendAsync(data, CancellationToken.None);
+            _logger.LogDebug("RPC Client SendHandshake: About to call connection.SendAsync");
+            var sendTask = connection.SendAsync(data, CancellationToken.None);
+            _logger.LogDebug("RPC Client SendHandshake: connection.SendAsync call initiated");
+            return sendTask;
         }
 
         private void OnConnectionEstablished(object sender, RpcConnectionEventArgs e)

@@ -73,12 +73,15 @@ namespace Granville.Rpc.Transport.LiteNetLib
 
         public async Task ConnectAsync(IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
         {
+            _logger.LogDebug("ConnectAsync called for endpoint {Endpoint}", remoteEndpoint);
+            
             if (_netManager != null)
             {
                 throw new InvalidOperationException("Transport is already started.");
             }
 
             _isServer = false;
+            _logger.LogDebug("Creating NetManager for client mode");
             _netManager = new NetManager(this)
             {
                 AutoRecycle = true,
@@ -87,37 +90,55 @@ namespace Granville.Rpc.Transport.LiteNetLib
                 NatPunchEnabled = false
             };
 
+            _logger.LogDebug("Starting NetManager in client mode");
             if (!_netManager.Start())
             {
+                _logger.LogError("Failed to start NetManager in client mode");
                 throw new InvalidOperationException("Failed to start LiteNetLib in client mode");
             }
+            _logger.LogDebug("NetManager started successfully in client mode");
 
             // Start polling thread
+            _logger.LogDebug("Starting event polling thread");
             _ = Task.Run(() => PollEvents(cancellationToken), cancellationToken);
 
             // Connect to the server
-            var peer = _netManager.Connect(remoteEndpoint.Address.ToString(), remoteEndpoint.Port, string.Empty);
+            _logger.LogDebug("Initiating connection to {Address}:{Port}", remoteEndpoint.Address, remoteEndpoint.Port);
+            var peer = _netManager.Connect(remoteEndpoint.Address.ToString(), remoteEndpoint.Port, "RpcConnection");
             if (peer == null)
             {
+                _logger.LogError("NetManager.Connect returned null for {Endpoint}", remoteEndpoint);
                 throw new InvalidOperationException($"Failed to connect to server at {remoteEndpoint}");
             }
 
-            _logger.LogInformation("LiteNetLib transport connecting to {Endpoint}", remoteEndpoint);
+            _logger.LogInformation("LiteNetLib transport connecting to {Endpoint}, initial peer state: {State}", remoteEndpoint, peer.ConnectionState);
 
             // Wait for connection to be established (with timeout)
             var connectionTimeout = TimeSpan.FromSeconds(5);
             var startTime = DateTime.UtcNow;
+            int loopCount = 0;
             while (peer.ConnectionState != ConnectionState.Connected && DateTime.UtcNow - startTime < connectionTimeout)
             {
+                loopCount++;
+                if (loopCount % 100 == 0) // Log every second
+                {
+                    var elapsed = DateTime.UtcNow - startTime;
+                    _logger.LogDebug("Connection wait loop iteration {LoopCount}, peer state: {State}, elapsed: {Elapsed}ms", 
+                        loopCount, peer.ConnectionState, elapsed.TotalMilliseconds);
+                }
                 await Task.Delay(10, cancellationToken);
             }
 
+            var finalElapsed = DateTime.UtcNow - startTime;
             if (peer.ConnectionState != ConnectionState.Connected)
             {
-                throw new TimeoutException($"Failed to connect to server at {remoteEndpoint} within {connectionTimeout.TotalSeconds} seconds");
+                _logger.LogError("Connection timed out after {Elapsed}ms. Final peer state: {State}, Loop iterations: {LoopCount}", 
+                    finalElapsed.TotalMilliseconds, peer.ConnectionState, loopCount);
+                throw new TimeoutException($"Failed to connect to server at {remoteEndpoint} within {connectionTimeout.TotalSeconds} seconds. Final state: {peer.ConnectionState}");
             }
 
-            _logger.LogInformation("Successfully connected to {Endpoint}", remoteEndpoint);
+            _logger.LogInformation("Successfully connected to {Endpoint} after {Elapsed}ms, {LoopCount} iterations", 
+                remoteEndpoint, finalElapsed.TotalMilliseconds, loopCount);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
@@ -290,11 +311,29 @@ namespace Granville.Rpc.Transport.LiteNetLib
 
         public void OnConnectionRequest(ConnectionRequest request)
         {
+            var connectionKey = request.Data.GetString();
+            _logger.LogInformation("Connection request received from {Endpoint} with key '{Key}' (server mode: {IsServer})", 
+                request.RemoteEndPoint, connectionKey, _isServer);
+            
             if (_isServer)
             {
-                // Accept all connections for now
-                // TODO: Add authentication/validation
-                request.Accept();
+                // Accept connections with proper key or empty key for backward compatibility
+                if (string.IsNullOrEmpty(connectionKey) || connectionKey == "RpcConnection")
+                {
+                    _logger.LogDebug("Accepting connection request from {Endpoint} with key '{Key}'", request.RemoteEndPoint, connectionKey);
+                    request.Accept();
+                    _logger.LogDebug("Connection request accepted from {Endpoint}", request.RemoteEndPoint);
+                }
+                else
+                {
+                    _logger.LogWarning("Rejecting connection request from {Endpoint} with invalid key '{Key}'", request.RemoteEndPoint, connectionKey);
+                    request.Reject();
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Connection request received in client mode from {Endpoint} - rejecting", request.RemoteEndPoint);
+                request.Reject();
             }
         }
 

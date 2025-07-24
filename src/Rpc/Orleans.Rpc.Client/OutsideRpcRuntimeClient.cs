@@ -60,7 +60,22 @@ namespace Granville.Rpc
 
         public IServiceProvider ServiceProvider => _serviceProvider;
 
-        public IGrainReferenceRuntime GrainReferenceRuntime { get; private set; }
+        private IGrainReferenceRuntime _grainReferenceRuntime;
+        public IGrainReferenceRuntime GrainReferenceRuntime 
+        { 
+            get 
+            {
+                if (_grainReferenceRuntime == null)
+                {
+                    _grainReferenceRuntime = _serviceProvider.GetRequiredService<IGrainReferenceRuntime>();
+                }
+                return _grainReferenceRuntime;
+            }
+            private set
+            {
+                _grainReferenceRuntime = value;
+            }
+        }
 
         public TimeSpan GetResponseTimeout() => _responseTimeout;
 
@@ -72,7 +87,8 @@ namespace Granville.Rpc
         /// </summary>
         public void ConsumeServices()
         {
-            this.GrainReferenceRuntime = this.ServiceProvider.GetRequiredService<IGrainReferenceRuntime>();
+            // Force initialization of the lazy property
+            _ = this.GrainReferenceRuntime;
         }
 
         public void SendRequest(GrainReference target, IInvokable request, IResponseCompletionSource context, InvokeMethodOptions options)

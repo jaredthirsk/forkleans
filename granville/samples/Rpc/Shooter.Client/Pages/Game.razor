@@ -536,11 +536,15 @@
             await JS.InvokeVoidAsync("localStorage.setItem", "playerName", _playerName);
             
             // Connect using Granville RPC
+            _logger.LogInformation("[GAME_CONNECT] Attempting to connect for player: {PlayerName}", _playerName);
             var connected = await RpcGameClient.ConnectAsync(_playerName);
+            _logger.LogInformation("[GAME_CONNECT] ConnectAsync returned: {Connected}", connected);
+            
             if (connected)
             {
                 _playerId = RpcGameClient.PlayerId ?? string.Empty;
                 _currentServerId = RpcGameClient.CurrentServerId ?? "Unknown";
+                _logger.LogInformation("[GAME_CONNECT] Setting _isConnected = true. PlayerId: {PlayerId}, ServerId: {ServerId}", _playerId, _currentServerId);
                 _isConnected = true;
                 
                 // Stop auto-join retry on successful connection
@@ -563,6 +567,9 @@
                 
                 // Fetch server zone mappings
                 await FetchServerZoneMappings();
+                
+                // Update UI to show game
+                StateHasChanged();
             }
             else
             {

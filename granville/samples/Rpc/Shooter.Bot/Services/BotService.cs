@@ -149,6 +149,12 @@ public class BotService : BackgroundService
                 
                 try
                 {
+                    // Enhanced logging for first game loop entry
+                    if (loopCount == 0)
+                    {
+                        _logger.LogInformation("🎮 Bot {BotName} entering game loop! PlayerId: {PlayerId}", _botName, _gameClient.PlayerId);
+                    }
+                    
                     await RunAutoMove(stoppingToken);
                     await Task.Delay(100, stoppingToken); // Update rate
                     
@@ -156,8 +162,10 @@ public class BotService : BackgroundService
                     loopCount++;
                     if (loopCount % 50 == 0)
                     {
-                        _logger.LogInformation("Bot {BotName} status - Connected: {Connected}, WorldState: {HasWorldState}, Entities: {EntityCount}",
-                            _botName, _gameClient.IsConnected, _lastWorldState != null, _lastWorldState?.Entities?.Count ?? 0);
+                        var player = _lastWorldState?.Entities?.FirstOrDefault(e => e.EntityId == _gameClient.PlayerId);
+                        _logger.LogInformation("🤖 Bot {BotName} status - Connected: {Connected}, WorldState: {HasWorldState}, Entities: {EntityCount}, Position: {Position}",
+                            _botName, _gameClient.IsConnected, _lastWorldState != null, _lastWorldState?.Entities?.Count ?? 0, 
+                            player?.Position.ToString() ?? "Unknown");
                     }
                 }
                 catch (Exception ex)
@@ -208,23 +216,43 @@ public class BotService : BackgroundService
             _availableZones,
             player.Position);
         
+        // Enhanced logging for actions
+        var hasMove = moveDirection != null;
+        var hasShoot = shootDirection != null;
+        
+        if (hasMove || hasShoot)
+        {
+            _logger.LogDebug("📤 Bot {BotName}: Sending actions - Move: {MoveDirection}, Shoot: {ShootDirection}, Position: {Position}",
+                _botName, 
+                hasMove ? $"({moveDirection?.X:F2}, {moveDirection?.Y:F2})" : "None",
+                hasShoot ? $"({shootDirection?.X:F2}, {shootDirection?.Y:F2})" : "None",
+                $"({player.Position.X:F1}, {player.Position.Y:F1})");
+        }
+        
         // Send input to server
         await _gameClient.SendPlayerInputEx(moveDirection, shootDirection);
         
         // Log mode changes
         var currentMode = _autoMoveController.CurrentMode;
-        _logger.LogDebug("Bot {BotName} in mode {Mode}, move: {Move}, shoot: {Shoot}",
-            _botName, currentMode, moveDirection != null, shootDirection != null);
+        _logger.LogDebug("Bot {BotName} in mode {Mode}, actions sent successfully",
+            _botName, currentMode);
     }
 
     private void OnWorldStateUpdated(WorldState worldState)
     {
         _lastWorldState = worldState;
         
+        // Enhanced logging for world state updates
+        var playerEntity = worldState?.Entities?.FirstOrDefault(e => e.EntityId == _gameClient.PlayerId);
+        _logger.LogDebug("📥 Bot {BotName}: World state updated - Entities: {EntityCount}, Player Position: {Position}, Sequence: {Sequence}",
+            _botName, worldState?.Entities?.Count ?? 0, 
+            playerEntity?.Position.ToString() ?? "Unknown",
+            worldState?.SequenceNumber ?? -1);
+        
         // Check for position jumps
         if (_gameClient.PlayerId != null)
         {
-            var player = worldState.Entities.FirstOrDefault(e => e.EntityId == _gameClient.PlayerId);
+            var player = worldState?.Entities?.FirstOrDefault(e => e.EntityId == _gameClient.PlayerId);
             if (player != null)
             {
                 if (_lastPlayerPosition.HasValue)
