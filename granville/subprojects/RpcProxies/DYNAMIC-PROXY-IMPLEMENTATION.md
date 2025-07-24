@@ -1,37 +1,11 @@
 # Dynamic Proxy Implementation (v128)
 
-## Overview
+## Current Implementation
 
-This document describes the dynamic proxy wrapper solution implemented in v128 to fix the `InvalidCastException` when RPC grain references are cast to their interfaces.
-
-## The Problem
-
-When Granville RPC creates a grain reference, it returns an `RpcGrainReference` instance. However, when code tries to cast this to the grain interface (e.g., `IGameRpcGrain`), it fails because `RpcGrainReference` doesn't implement the interface:
-
-```csharp
-var grain = grainFactory.GetGrain<IGameRpcGrain>(grainId);
-// InvalidCastException: Unable to cast object of type 'RpcGrainReference' to type 'IGameRpcGrain'
-```
-
-## Why Dynamic Generation Was Necessary
-
-### 1. Orleans Code Generation Disabled
-The Shooter sample has Orleans code generation disabled to avoid conflicts:
-```xml
-<Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>
-```
-
-This prevents duplicate type generation but also means Orleans-generated proxies aren't available.
-
-### 2. Proxy Registration Failure
-Even when Orleans proxy classes exist (e.g., `Proxy_IGameRpcGrain`), they aren't registered in `TypeManifestOptions.InterfaceProxies` when code generation is disabled. This causes Orleans' `RpcProvider.TryGet()` to return false.
-
-### 3. RPC-Specific Requirements
-RPC needs its own grain reference type (`RpcGrainReference`) to:
-- Route calls through UDP transport
-- Use RPC-specific serialization with marker bytes
-- Maintain isolated serialization sessions
-- Handle distributed server routing
+Uses Reflection.Emit to generate proxy classes at runtime that:
+1. Implement the grain interface (e.g., `IGameRpcGrain`)
+2. Wrap an `RpcGrainReference` instance
+3. Forward all method calls to `RpcGrainReference.InvokeRpcMethodAsync`
 
 ## The Solution
 

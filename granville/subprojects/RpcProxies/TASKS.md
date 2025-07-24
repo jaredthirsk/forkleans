@@ -1,40 +1,21 @@
 # RPC Proxies - Implementation Tasks
 
-## Phase 1: Research and Design
+## Phase 1: Design Decision
 
-### 1.1 Analyze Orleans Proxy Generation
-- [ ] Study Orleans.CodeGenerator implementation
-  - [ ] Understand how Orleans identifies interfaces to generate
-  - [ ] Learn how Orleans generates proxy classes
-  - [ ] Document Orleans' proxy registration mechanism
-- [ ] Identify what we can reuse vs what needs custom implementation
-- [ ] Document findings in `docs/orleans-proxy-analysis.md`
+### Choose Code Generation Approach
+- [ ] **Option A: Roslyn Source Generators** (Recommended)
+  - Modern, incremental compilation
+  - Better IDE integration
+  - .NET 6+ requirement
+- [ ] **Option B: MSBuild Code Generation**
+  - Traditional approach like Orleans
+  - More complex build integration
+  - Works with older .NET versions
 
-### 1.2 Evaluate Code Generation Approaches
-- [ ] Traditional MSBuild Code Generation
-  - [ ] Pros/cons analysis
-  - [ ] Integration complexity
-  - [ ] Build performance impact
-- [ ] Roslyn Source Generators
-  - [ ] Pros/cons analysis
-  - [ ] .NET version requirements
-  - [ ] Incremental compilation support
-- [ ] Hybrid approach feasibility
-- [ ] Make recommendation in `docs/codegen-approach-recommendation.md`
-
-### 1.3 Design RPC Proxy Generation
-- [ ] Define RPC interface detection strategy
-  - [ ] Attribute-based marking (e.g., `[RpcGrainInterface]`)
-  - [ ] Naming convention (e.g., `*RpcGrain`)
-  - [ ] Configuration-based selection
-- [ ] Design proxy class structure
-  - [ ] Base class (inherit from GrainReference or custom)
-  - [ ] Interface implementation pattern
-  - [ ] Method forwarding mechanism
-- [ ] Plan registration and discovery
-  - [ ] Compile-time manifest generation
-  - [ ] Runtime registration API
-  - [ ] Integration with RpcProxyProvider
+### Define Interface Detection
+- [ ] Use `[RpcGrainInterface]` attribute
+- [ ] Fall back to naming convention (`*RpcGrain`)
+- [ ] Document decision in `DESIGN.md`
 
 ## Phase 2: Prototype Implementation
 

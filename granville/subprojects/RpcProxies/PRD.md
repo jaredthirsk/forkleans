@@ -2,31 +2,14 @@
 
 ## Executive Summary
 
-This project aims to migrate Granville RPC's dynamic proxy generation (using Reflection.Emit) to compile-time generated proxies, aligning with Orleans' code generation approach while maintaining RPC's unique requirements.
+Implement compile-time proxy generation for Granville RPC to replace the current dynamic (Reflection.Emit) solution.
 
-## Problem Statement
+## Project Goals
 
-### Current Situation
-When Granville RPC creates grain references, it uses `RpcGrainReference` which inherits from Orleans' `GrainReference` but doesn't implement the grain interfaces (e.g., `IGameRpcGrain`). This causes `InvalidCastException` when trying to cast the reference to the interface type.
-
-### Why Dynamic Generation Was Needed
-1. **Orleans Code Generation Disabled**: The Shooter sample has Orleans code generation disabled (`<Orleans_DesignTimeBuild>true</Orleans_DesignTimeBuild>`) to avoid conflicts with Granville's code generation
-2. **No Proxy Registration**: Even when Orleans proxies exist, they aren't registered in `TypeManifestOptions.InterfaceProxies` when code generation is disabled
-3. **RPC-Specific Requirements**: RPC needs its own proxy behavior to:
-   - Route calls through UDP transport instead of Orleans' TCP
-   - Use RPC's serialization with marker bytes
-   - Maintain isolated serialization sessions
-
-### Orleans' Expectation vs RPC Reality
-Orleans expects:
-- Grain references implement the grain interface
-- Proxies are generated at compile-time and registered during startup
-- All RPC calls go through Orleans' transport layer
-
-RPC needs:
-- Its own transport (UDP via LiteNetLib)
-- Custom serialization handling
-- Ability to coexist with Orleans grains in the same application
+1. **Generate RPC proxies at compile-time** (not runtime)
+2. **Maintain complete separation** from Orleans proxy system
+3. **Enable seamless coexistence** of RPC and Orleans grains
+4. **Optimize for performance** - zero runtime reflection
 
 ## Requirements
 
