@@ -1554,9 +1554,33 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     {
         try
         {
+            _logger.LogDebug("Sending scout alert to server {ServerId} for zone ({TargetX},{TargetY}) about player in zone ({PlayerX},{PlayerY})", 
+                targetServer.ServerId, targetZone.X, targetZone.Y, playerZone.X, playerZone.Y);
+
             // Use the zone-aware method to check if connection should be allowed
             var gameGrain = await _crossZoneRpc.GetGameGrainForZone(targetServer, targetZone);
+            
+            if (gameGrain == null)
+            {
+                _logger.LogError("Failed to get game grain for server {ServerId} zone ({X},{Y})", 
+                    targetServer.ServerId, targetZone.X, targetZone.Y);
+                return;
+            }
+
+            _logger.LogDebug("Got game grain for server {ServerId}, sending scout alert", targetServer.ServerId);
             await gameGrain.ReceiveScoutAlert(playerZone, playerPosition);
+            
+            _logger.LogDebug("Successfully sent scout alert to server {ServerId}", targetServer.ServerId);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not connected"))
+        {
+            _logger.LogWarning("RPC connection not available for scout alert to server {ServerId}: {Message}", 
+                targetServer.ServerId, ex.Message);
+        }
+        catch (TimeoutException ex)
+        {
+            _logger.LogWarning("Timeout sending scout alert to server {ServerId}: {Message}", 
+                targetServer.ServerId, ex.Message);
         }
         catch (Exception ex)
         {

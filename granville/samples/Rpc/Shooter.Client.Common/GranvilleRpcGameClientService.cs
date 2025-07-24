@@ -466,6 +466,8 @@ public class GranvilleRpcGameClientService : IDisposable
                     this.GetHashCode(), PlayerId, moveDirection.HasValue, shootDirection.HasValue);
             }
             
+            // Now that Vector2 is supported in secure binary serialization,
+            // we can use the original method
             await _gameGrain.UpdatePlayerInputEx(PlayerId, moveDirection, shootDirection).WaitAsync(cts.Token);
         }
         catch (OperationCanceledException)

@@ -41,6 +41,9 @@ public interface IGameRpcGrain : Granville.Rpc.IRpcGrainInterfaceWithStringKey, 
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Unreliable)]
     Task UpdatePlayerInputEx(string playerId, Vector2? moveDirection, Vector2? shootDirection);
     
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Unreliable)]
+    Task UpdatePlayerInputSimple(string playerId, double moveX, double moveY, bool isShooting);
+    
     [RpcMethod(DeliveryMode = RpcDeliveryMode.ReliableOrdered)]
     Task<bool> TransferEntityIn(string entityId, EntityType type, int subType, Vector2 position, Vector2 velocity, float health);
     

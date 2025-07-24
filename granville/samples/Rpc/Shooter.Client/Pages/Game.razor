@@ -29,23 +29,6 @@
                 </select>
             </div>
             
-            <div class="auto-join-section">
-                <label class="auto-join-checkbox">
-                    <input type="checkbox" @bind="_autoJoinEnabled" @bind:after="OnAutoJoinChanged" />
-                    <span>Auto-join</span>
-                </label>
-                @if (_autoJoinEnabled && _countdownSeconds > 0)
-                {
-                    <div class="countdown">Auto-joining in @_countdownSeconds seconds...</div>
-                }
-                @if (_autoJoinRetrying)
-                {
-                    <div class="retry-status">
-                        Retry #@_autoJoinRetryCount - @((int)(120 - (DateTime.UtcNow - _autoJoinRetryStartTime).TotalSeconds))s remaining
-                    </div>
-                }
-            </div>
-            
             <div class="join-button-section">
                 <button @onclick="JoinGame" disabled="@_isConnecting" class="engine-btn join-btn">
                     @if (_isConnecting)
@@ -65,6 +48,23 @@
                         <span>Join Game</span>
                     }
                 </button>
+            </div>
+            
+            <div class="auto-join-section">
+                <label class="auto-join-checkbox">
+                    <input type="checkbox" @bind="_autoJoinEnabled" @bind:after="OnAutoJoinChanged" />
+                    <span>Auto-join</span>
+                </label>
+                @if (_autoJoinEnabled && _countdownSeconds > 0)
+                {
+                    <div class="countdown">Auto-joining in @_countdownSeconds seconds...</div>
+                }
+                @if (_autoJoinRetrying)
+                {
+                    <div class="retry-status">
+                        Retry #@_autoJoinRetryCount - @((int)(120 - (DateTime.UtcNow - _autoJoinRetryStartTime).TotalSeconds))s remaining
+                    </div>
+                }
             </div>
             
             @if (!string.IsNullOrEmpty(_errorMessage))

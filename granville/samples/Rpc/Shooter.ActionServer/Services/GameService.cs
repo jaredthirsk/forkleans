@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Orleans;
+using Orleans.Hosting;
 using Granville.Rpc;
 using Granville.Rpc.Hosting;
 using Granville.Rpc.Transport.LiteNetLib;

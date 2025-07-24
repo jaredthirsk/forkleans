@@ -57,17 +57,27 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
 
     public async Task<string> ConnectPlayer(string playerId)
     {
-        // Validate input
-        if (string.IsNullOrEmpty(playerId))
+        try
         {
-            _logger.LogError("RPC: ConnectPlayer called with null or empty playerId");
+            // Validate input
+            if (string.IsNullOrEmpty(playerId))
+            {
+                _logger.LogError("RPC: ConnectPlayer called with null or empty playerId");
+                return "FAILED";
+            }
+            
+            _logger.LogInformation("RPC: Player {PlayerId} connecting via Orleans RPC", playerId);
+            
+            var result = await _gameService.ConnectPlayer(playerId);
+            
+            _logger.LogInformation("RPC: ConnectPlayer returning {Result} for player {PlayerId}", result, playerId);
+            return result ? "SUCCESS" : "FAILED";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "RPC: Exception in ConnectPlayer for player {PlayerId}: {Message}", playerId, ex.Message);
             return "FAILED";
         }
-        
-        _logger.LogInformation("RPC: Player {PlayerId} connecting via Orleans RPC", playerId);
-        var result = await _gameService.ConnectPlayer(playerId);
-        _logger.LogInformation("RPC: ConnectPlayer returning {Result} for player {PlayerId}", result, playerId);
-        return result ? "SUCCESS" : "FAILED";
     }
 
     public async Task DisconnectPlayer(string playerId)
@@ -96,6 +106,17 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
         }
         
         await _gameService.UpdatePlayerInputEx(playerId, moveDirection, shootDirection);
+    }
+    
+    public async Task UpdatePlayerInputSimple(string playerId, double moveX, double moveY, bool isShooting)
+    {
+        // Convert simple doubles to Vector2 for game service
+        var moveDirection = (moveX != 0 || moveY != 0) ? new Vector2((float)moveX, (float)moveY) : Vector2.Zero;
+        
+        _logger.LogDebug("[RPC_INPUT_SIMPLE] Received simple input for player {PlayerId} - Move: ({X}, {Y}), Shoot: {Shoot}", 
+            playerId, moveX, moveY, isShooting);
+        
+        await _gameService.UpdatePlayerInput(playerId, moveDirection, isShooting);
     }
 
     public async Task<bool> TransferEntityIn(string entityId, EntityType type, int subType, Vector2 position, Vector2 velocity, float health)
