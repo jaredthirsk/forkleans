@@ -1,9 +1,8 @@
 #!/bin/bash
 ./k.sh
-rm ../logs/*.log -f
+rm /mnt/c/forks/orleans/granville/samples/Rpc/logs/*.log -f
 
 dotnet clean
 dotnet run -c Release -- "$@"
-
 
 

@@ -4,8 +4,9 @@ using Aspire.Hosting.ApplicationModel;
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Configuration
-const int InitialActionServerCount = 9;
-const int SiloCount = 2; // Number of silos to start
+const int InitialActionServerCount = 4;
+const int BotCount = 1; // Number of bots to start
+const int SiloCount = 1; // Number of silos to start
 var transportType = args.FirstOrDefault(arg => arg.StartsWith("--transport="))?.Replace("--transport=", "") ?? "litenetlib";
 
 // Pass environment from parent if available
@@ -142,7 +143,7 @@ builder.AddProject<Projects.Shooter_Client>("shooter-client")
     .WaitFor(primarySilo!);
 
 // Add bot instances for testing - wait for at least one action server to be ready
-for (int i = 0; i < 3; i++)
+for (int i = 0; i < BotCount; i++)
 {
     // Distribute bots across silos
     var targetSilo = silos[i % silos.Count];
