@@ -6,12 +6,12 @@ $spec = @'
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>Microsoft.Orleans.CodeGenerator</id>
-    <version>9.1.2.126-granville-shim</version>
+    <version>9.1.2.130-granville-shim</version>
     <title>Microsoft Orleans - Code Generator [Granville Shim]</title>
     <authors>Microsoft</authors>
     <description>Type-forwarding shim package that redirects to Granville.Orleans.CodeGenerator. This is not an official Microsoft package.</description>
     <dependencies>
-      <dependency id="Granville.Orleans.CodeGenerator" version="9.1.2.126" />
+      <dependency id="Granville.Orleans.CodeGenerator" version="9.1.2.130" />
     </dependencies>
   </metadata>
   <files>

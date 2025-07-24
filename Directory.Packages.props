@@ -51,13 +51,13 @@
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
     <!-- Microsoft Orleans shim packages for Granville.Rpc -->
-    <PackageVersion Include="Microsoft.Orleans.CodeGenerator" Version="9.1.2.129-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.129-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2.129-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Runtime" Version="9.1.2.129-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.CodeGenerator" Version="9.1.2.130-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="9.1.2.130-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Core" Version="9.1.2.130-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Runtime" Version="9.1.2.130-granville-shim" />
     <PackageVersion Include="Microsoft.Orleans.Sdk" Version="9.1.2" />
-    <PackageVersion Include="Microsoft.Orleans.Serialization.Abstractions" Version="9.1.2.129-granville-shim" />
-    <PackageVersion Include="Microsoft.Orleans.Serialization" Version="9.1.2.129-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Serialization.Abstractions" Version="9.1.2.130-granville-shim" />
+    <PackageVersion Include="Microsoft.Orleans.Serialization" Version="9.1.2.130-granville-shim" />
     <PackageVersion Include="Azure.Data.Tables" Version="12.9.1" />
     <PackageVersion Include="Azure.Core" Version="1.44.1" />
     <PackageVersion Include="Azure.Messaging.EventHubs" Version="5.11.5" />
@@ -133,16 +133,16 @@
     <PackageVersion Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <!-- Granville Orleans packages -->
-    <PackageVersion Include="Granville.Orleans.Core" Version="9.1.2.129" />
-    <PackageVersion Include="Granville.Orleans.Core.Abstractions" Version="9.1.2.129" />
-    <PackageVersion Include="Granville.Orleans.Runtime" Version="9.1.2.129" />
-    <PackageVersion Include="Granville.Orleans.Serialization" Version="9.1.2.129" />
-    <PackageVersion Include="Granville.Orleans.Serialization.Abstractions" Version="9.1.2.129" />
-    <PackageVersion Include="Microsoft.Orleans.Serialization.SystemTextJson" Version="9.1.2.129-granville-shim" />
-    <PackageVersion Include="Granville.Orleans.CodeGenerator" Version="9.1.2.129" />
-    <PackageVersion Include="Granville.Orleans.Sdk" Version="9.1.2.129" />
-    <PackageVersion Include="Granville.Orleans.Server" Version="9.1.2.129" />
-    <PackageVersion Include="Granville.Orleans.Client" Version="9.1.2.129" />
-    <PackageVersion Include="Granville.Orleans.Analyzers" Version="9.1.2.129" />
+    <PackageVersion Include="Granville.Orleans.Core" Version="9.1.2.130" />
+    <PackageVersion Include="Granville.Orleans.Core.Abstractions" Version="9.1.2.130" />
+    <PackageVersion Include="Granville.Orleans.Runtime" Version="9.1.2.130" />
+    <PackageVersion Include="Granville.Orleans.Serialization" Version="9.1.2.130" />
+    <PackageVersion Include="Granville.Orleans.Serialization.Abstractions" Version="9.1.2.130" />
+    <PackageVersion Include="Microsoft.Orleans.Serialization.SystemTextJson" Version="9.1.2.130-granville-shim" />
+    <PackageVersion Include="Granville.Orleans.CodeGenerator" Version="9.1.2.130" />
+    <PackageVersion Include="Granville.Orleans.Sdk" Version="9.1.2.130" />
+    <PackageVersion Include="Granville.Orleans.Server" Version="9.1.2.130" />
+    <PackageVersion Include="Granville.Orleans.Client" Version="9.1.2.130" />
+    <PackageVersion Include="Granville.Orleans.Analyzers" Version="9.1.2.130" />
   </ItemGroup>
 </Project>

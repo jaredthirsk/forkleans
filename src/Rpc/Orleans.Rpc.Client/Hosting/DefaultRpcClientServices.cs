@@ -75,12 +75,16 @@ namespace Granville.Rpc.Hosting
             services.TryAddSingleton<ClientGrainContext>();
             services.AddFromExisting<IGrainContextAccessor, ClientGrainContext>();
             
-            // RPC runtime client
+            // RPC runtime client (keep Orleans' OutsideRuntimeClient but wrap with RPC functionality)
             services.TryAddSingleton<OutsideRpcRuntimeClient>();
-            services.TryAddFromExisting<IRuntimeClient, OutsideRpcRuntimeClient>();
             
-            // Local client details
-            services.TryAddSingleton<ILocalClientDetails, LocalRpcClientDetails>();
+            // Register IRuntimeClient to use RPC wrapper when accessing through DI
+            services.TryAddSingleton<IRuntimeClient>(sp =>
+            {
+                var orleansRuntimeClient = sp.GetRequiredService<OutsideRpcRuntimeClient>() as IRuntimeClient;
+                var rpcGrainReferenceRuntime = sp.GetRequiredService<Granville.Rpc.Runtime.RpcGrainReferenceRuntime>();
+                return new Granville.Rpc.Runtime.RpcRuntimeClient(orleansRuntimeClient, rpcGrainReferenceRuntime);
+            });
             
             // Grain factory and references
             // RpcGrainFactory is RPC-specific, no conflict with Orleans
@@ -114,7 +118,22 @@ namespace Granville.Rpc.Hosting
             services.TryAddSingleton<RpcProxyProvider>(sp => new RpcProxyProvider(
                 sp.GetRequiredService<Orleans.GrainReferences.RpcProvider>()));
             
-            services.TryAddSingleton<IGrainReferenceRuntime, GrainReferenceRuntime>();
+            // Register RPC runtime components
+            services.TryAddSingleton<Granville.Rpc.Runtime.RpcGrainReferenceRuntime>();
+            services.TryAddSingleton<Granville.Rpc.Runtime.RpcRuntimeClient>();
+            
+            // Register the composite grain reference runtime that routes RPC calls through RPC transport
+            services.TryAddSingleton<IGrainReferenceRuntime>(sp =>
+            {
+                var orleansRuntime = new GrainReferenceRuntime(
+                    sp.GetRequiredService<IRuntimeClient>(),
+                    sp.GetRequiredService<IGrainCancellationTokenRuntime>(),
+                    sp.GetServices<IOutgoingGrainCallFilter>(),
+                    sp.GetRequiredService<GrainReferenceActivator>(),
+                    sp.GetRequiredService<GrainInterfaceTypeResolver>());
+                
+                return sp.GetRequiredService<Granville.Rpc.Runtime.RpcGrainReferenceRuntime>();
+            });
             // Register GrainPropertiesResolver as keyed service for RPC
             services.AddKeyedSingleton<GrainPropertiesResolver>("rpc", (sp, key) => 
                 new GrainPropertiesResolver(
@@ -183,9 +202,6 @@ namespace Granville.Rpc.Hosting
             
             // Add grain cancellation token runtime
             services.TryAddSingleton<IGrainCancellationTokenRuntime, GrainCancellationTokenRuntime>();
-            
-            // Add the standard Orleans grain reference runtime
-            services.TryAddSingleton<IGrainReferenceRuntime, GrainReferenceRuntime>();
 
             // Serialization
             services.AddSerializer(serializer =>
