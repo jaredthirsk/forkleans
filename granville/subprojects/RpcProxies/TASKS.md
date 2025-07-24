@@ -2,24 +2,59 @@
 
 ## Phase 1: Design Decision
 
-### Choose Code Generation Approach
-- [ ] **Option A: Roslyn Source Generators** (Recommended)
-  - Modern, incremental compilation
-  - Better IDE integration
-  - .NET 6+ requirement
-- [ ] **Option B: MSBuild Code Generation**
-  - Traditional approach like Orleans
-  - More complex build integration
-  - Works with older .NET versions
+### Choose Implementation Approach
+- [ ] **Option A: Custom IGrainReferenceRuntime** (NEW - Recommended)
+  - Reuse Orleans-generated proxies
+  - Implement RpcGrainReferenceRuntime
+  - Route calls through RPC UDP transport
+  - Simpler, less code duplication
+- [ ] **Option B: Compile-Time Code Generation**
+  - Create Granville.Rpc.CodeGenerator
+  - Generate RPC-specific proxies
+  - More complex but fully independent
 
-### Define Interface Detection
-- [ ] Use `[RpcGrainInterface]` attribute
-- [ ] Fall back to naming convention (`*RpcGrain`)
-- [ ] Document decision in `DESIGN.md`
+### If Option A is chosen:
+- [ ] Verify RpcGrainReference can extend GrainReference
+- [ ] Design RpcRuntimeClient interface
+- [ ] Plan DI configuration for runtime selection
+- [ ] Ensure Orleans proxy generation is enabled
 
-## Phase 2: Prototype Implementation
+## Phase 2A: Implement Custom IGrainReferenceRuntime (If Option A)
 
-### 2.1 Create Granville.Rpc.CodeGenerator Project
+### 2A.1 Create RpcGrainReferenceRuntime
+- [ ] Implement IGrainReferenceRuntime interface
+  - [ ] InvokeMethodAsync<T> - route to RPC transport
+  - [ ] InvokeMethodAsync - for void returns
+  - [ ] InvokeMethod - for one-way calls
+  - [ ] Cast - handle interface casting
+- [ ] Integration with RPC transport
+  - [ ] Convert IInvokable to RPC message format
+  - [ ] Handle response deserialization
+  - [ ] Error handling and timeouts
+
+### 2A.2 Create RpcRuntimeClient
+- [ ] Implement IRuntimeClient interface
+  - [ ] SendRequest methods for RPC
+  - [ ] GrainReferenceRuntime property
+  - [ ] Service provider integration
+- [ ] RPC-specific implementations
+  - [ ] UDP transport integration
+  - [ ] Server selection logic
+  - [ ] Connection management
+
+### 2A.3 Modify RpcGrainReference
+- [ ] Extend GrainReference instead of custom base
+- [ ] Ensure compatibility with Orleans proxies
+- [ ] Maintain RPC-specific functionality
+
+### 2A.4 Configure Dependency Injection
+- [ ] Register RpcGrainReferenceRuntime
+- [ ] Configure runtime selection based on interface
+- [ ] Ensure Orleans proxies use RPC runtime for RPC grains
+
+## Phase 2B: Prototype Code Generation (If Option B)
+
+### 2B.1 Create Granville.Rpc.CodeGenerator Project
 - [ ] Set up project structure
   - [ ] Create Orleans.Rpc.CodeGenerator project
   - [ ] Configure as MSBuild task or source generator

@@ -46,7 +46,7 @@ $assemblies = @(
     @{PackageName="Microsoft.Orleans.Serialization.SystemTextJson"; DllName="Orleans.Serialization.SystemTextJson"; Deps=@("Microsoft.Orleans.Serialization")},
     @{PackageName="Microsoft.Orleans.Reminders"; DllName="Orleans.Reminders"; Deps=@("Microsoft.Orleans.Core")},
     @{PackageName="Microsoft.Orleans.Persistence.Memory"; DllName="Orleans.Persistence.Memory"; Deps=@("Microsoft.Orleans.Core")},
-    @{PackageName="Microsoft.Orleans.Sdk"; DllName="Orleans.Sdk"; Deps=@("Microsoft.Orleans.Core")},
+    @{PackageName="Microsoft.Orleans.Sdk"; DllName="Orleans.Sdk"; Deps=@("Microsoft.Orleans.Core", "Microsoft.Orleans.Analyzers", "Microsoft.Orleans.CodeGenerator")},
     @{PackageName="Microsoft.Orleans.Client"; DllName="Orleans.Client"; Deps=@("Microsoft.Orleans.Core")},
     @{PackageName="Microsoft.Orleans.CodeGenerator"; DllName="Orleans.CodeGenerator"; Deps=@()},
     @{PackageName="Microsoft.Orleans.Analyzers"; DllName="Orleans.Analyzers"; Deps=@()}

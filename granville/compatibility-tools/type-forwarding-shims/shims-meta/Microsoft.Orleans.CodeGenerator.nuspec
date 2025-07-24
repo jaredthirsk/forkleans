@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.Orleans.CodeGenerator</id>
+    <version>9.1.2.127-granville-shim</version>
+    <title>Microsoft.Orleans.CodeGenerator (Granville Shim)</title>
+    <authors>Granville</authors>
+    <description>Type-forwarding shim for Granville.Orleans.CodeGenerator. This package provides compatibility for projects expecting Microsoft.Orleans.CodeGenerator.</description>
+    <projectUrl>https://github.com/dotnet/orleans</projectUrl>
+    <dependencies>
+      <group targetFramework="netstandard2.0">
+        <dependency id="Granville.Orleans.CodeGenerator" version="9.1.2.127" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

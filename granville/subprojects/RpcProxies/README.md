@@ -55,27 +55,58 @@ This works but has issues:
 
 ## What We Want To Do
 
-**Compile-Time RPC Proxy Generation** - The proper solution:
+### Option 1: Compile-Time RPC Proxy Generation
 
-1. **Create Granville.Rpc.CodeGenerator**
+**Create Granville.Rpc.CodeGenerator** - A separate code generator:
+
+1. **Generate RPC-specific proxies at build time**
    - Separate from Orleans code generation
-   - Generate RPC-specific proxies at build time
    - Register in RPC's own type system
+   - Direct integration with RPC transport
 
-2. **Key Design Principles**
-   - RPC and Orleans are parallel systems, not one unified system
-   - Each has its own transport (UDP vs TCP)
-   - Each has its own proxy generation
-   - They can coexist in the same application
-
-3. **Generated Proxy Pattern**
+2. **Generated Proxy Pattern**
    ```csharp
    [GeneratedCode("Granville.Rpc.CodeGenerator", "1.0")]
-   public class RpcProxy_IGameRpcGrain : GrainReference, IGameRpcGrain
+   public class RpcProxy_IGameRpcGrain : RpcGrainReference, IGameRpcGrain
    {
        // Compile-time generated, optimized for RPC transport
    }
    ```
+
+### Option 2: Custom IGrainReferenceRuntime (NEW - Promising Approach)
+
+**Implement RpcGrainReferenceRuntime** - Reuse Orleans-generated proxies:
+
+1. **How Orleans Proxies Work**
+   - Orleans generates: `IProxy_IGameRpcGrain : GrainReference, IGameRpcGrain`
+   - Proxy calls: `base.InvokeAsync<T>(request)` 
+   - GrainReference delegates to: `IGrainReferenceRuntime.InvokeMethodAsync()`
+   - Runtime routes through TCP transport
+
+2. **RPC Can Intercept at Runtime Level**
+   ```csharp
+   public class RpcGrainReferenceRuntime : IGrainReferenceRuntime
+   {
+       public ValueTask<T> InvokeMethodAsync<T>(GrainReference reference, IInvokable request, InvokeMethodOptions options)
+       {
+           // Route to RPC UDP transport instead of Orleans TCP
+           var rpcRef = reference as RpcGrainReference;
+           return rpcRef.InvokeRpcMethodAsync<T>(request);
+       }
+   }
+   ```
+
+3. **Key Advantages**
+   - Reuse Orleans' existing proxy generation
+   - No need for separate code generator
+   - Orleans and RPC proxies can coexist
+   - Simpler implementation
+
+4. **Implementation Requirements**
+   - Create RpcRuntimeClient implementing IRuntimeClient
+   - Register RpcGrainReferenceRuntime for RPC grains
+   - Ensure RpcGrainReference extends GrainReference
+   - Configure DI to use RPC runtime for RPC interfaces
 
 ## Why RPC Needs Its Own Proxy System
 
@@ -97,3 +128,5 @@ This works but has issues:
 ## Key Insight
 
 RPC isn't trying to replace Orleans' proxy system - it needs its own parallel implementation. Just as RPC has its own transport layer, it needs its own proxy generation that integrates with that transport. The two systems share grain concepts but diverge in implementation by necessity.
+
+**Update**: Option 2 (Custom IGrainReferenceRuntime) offers a simpler path forward by reusing Orleans' proxy generation while routing calls through RPC's UDP transport. This approach better aligns with Orleans' architecture and reduces code duplication.

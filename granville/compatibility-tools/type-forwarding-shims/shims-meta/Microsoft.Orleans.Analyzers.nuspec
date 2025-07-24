@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.Orleans.Analyzers</id>
+    <version>9.1.2.127-granville-shim</version>
+    <title>Microsoft.Orleans.Analyzers (Granville Shim)</title>
+    <authors>Granville</authors>
+    <description>Type-forwarding shim for Granville.Orleans.Analyzers. This package provides compatibility for projects expecting Microsoft.Orleans.Analyzers.</description>
+    <projectUrl>https://github.com/dotnet/orleans</projectUrl>
+    <dependencies>
+      <group targetFramework="netstandard2.0">
+        <dependency id="Granville.Orleans.Analyzers" version="9.1.2.127" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

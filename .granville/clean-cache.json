@@ -1,8 +1,5 @@
 {
-  "ProjectCount": 143,
-  "LastScan": "2025-07-24T08:57:36.2038658-06:00",
   "Paths": {
-    "LogFiles": null,
     "TempDirs": {
       "Name": "DistributedTests",
       "FullName": "/mnt/c/forks/orleans/Artifacts/DistributedTests"
@@ -17,10 +14,6 @@
         "FullName": "/mnt/c/forks/orleans/granville/compatibility-tools/type-forwarding-generator/obj"
       },
       {
-        "Name": "bin",
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.ActionServer/bin"
-      },
-      {
         "Name": "obj",
         "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.ActionServer/obj"
       },
@@ -31,10 +24,6 @@
       {
         "Name": "obj",
         "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.AppHost/obj"
-      },
-      {
-        "Name": "bin",
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Bot/bin"
       },
       {
         "Name": "obj",
@@ -95,14 +84,6 @@
       {
         "Name": "obj",
         "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Silo/obj"
-      },
-      {
-        "Name": "bin",
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/test/Shooter.Tests/bin"
-      },
-      {
-        "Name": "obj",
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/test/Shooter.Tests/obj"
       },
       {
         "Name": "bin",
@@ -960,6 +941,9 @@
         "Name": "obj",
         "FullName": "/mnt/c/forks/orleans/test/Orleans.Serialization.FSharp.Tests/obj"
       }
-    ]
-  }
+    ],
+    "LogFiles": null
+  },
+  "ProjectCount": 143,
+  "LastScan": "2025-07-24T10:40:47.2305919-06:00"
 }

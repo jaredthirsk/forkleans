@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.Orleans.CodeGenerator</id>
+    <version>9.1.2</version>
+    <authors>Granville</authors>
+    <description>Shim package that redirects to Granville.Orleans.CodeGenerator</description>
+    <dependencies>
+      <group targetFramework="netstandard2.0">
+        <dependency id="Granville.Orleans.CodeGenerator" version="9.1.2.124" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="content\_._" target="analyzers/dotnet/cs/_._" />
+  </files>
+</package>

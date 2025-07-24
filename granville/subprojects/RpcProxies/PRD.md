@@ -2,14 +2,14 @@
 
 ## Executive Summary
 
-Implement compile-time proxy generation for Granville RPC to replace the current dynamic (Reflection.Emit) solution.
+Enable RPC grain references to be cast to their interfaces, replacing the current dynamic (Reflection.Emit) solution with a sustainable approach.
 
 ## Project Goals
 
-1. **Generate RPC proxies at compile-time** (not runtime)
-2. **Maintain complete separation** from Orleans proxy system
-3. **Enable seamless coexistence** of RPC and Orleans grains
-4. **Optimize for performance** - zero runtime reflection
+1. **Enable interface casting** for RPC grain references
+2. **Reuse existing infrastructure** where possible
+3. **Maintain separation** between RPC and Orleans transport layers
+4. **Optimize for simplicity** - minimize new code and complexity
 
 ## Requirements
 
@@ -55,21 +55,22 @@ Implement compile-time proxy generation for Granville RPC to replace the current
 
 ## Design Considerations
 
-### Option 1: Extend Orleans Code Generator
-- Modify Orleans' code generator to understand RPC attributes
-- Generate proxies that inherit from RPC base classes
-- Challenges: Tight coupling, upstream maintenance burden
+### Option 1: Custom IGrainReferenceRuntime (NEW - Recommended)
+- Implement RpcGrainReferenceRuntime to intercept proxy calls
+- Reuse Orleans-generated proxies completely
+- Route calls through RPC UDP transport instead of Orleans TCP
+- Benefits: Minimal code, reuses Orleans infrastructure, simpler maintenance
 
-### Option 2: Separate RPC Code Generator (Recommended)
+### Option 2: Separate RPC Code Generator
 - Create Granville.Rpc.CodeGenerator package
 - Generate proxies specifically for RPC interfaces
 - Use similar patterns to Orleans but independent implementation
-- Benefits: Full control, no Orleans conflicts, cleaner separation
+- Challenges: Code duplication, maintenance burden, complexity
 
-### Option 3: Source Generators
-- Use Roslyn source generators for proxy generation
-- More modern approach than traditional code generation
-- Benefits: Better IDE integration, incremental compilation
+### Option 3: Extend Orleans Code Generator
+- Modify Orleans' code generator to understand RPC attributes
+- Generate proxies that inherit from RPC base classes
+- Challenges: Tight coupling, upstream maintenance burden, fork divergence
 
 ## Success Criteria
 
@@ -79,16 +80,26 @@ Implement compile-time proxy generation for Granville RPC to replace the current
 4. Generated code is debuggable and readable
 5. Clear migration path from current dynamic generation
 
-## Migration Strategy
+## Migration Strategy (Option 1 - Recommended)
 
-1. **Phase 1**: Implement compile-time generator alongside dynamic generation
-2. **Phase 2**: Update RpcProxyProvider to prefer compile-time proxies
-3. **Phase 3**: Remove dynamic generation code
-4. **Phase 4**: Optimize and document the new system
+1. **Phase 1**: Enable Orleans code generation in RPC projects
+2. **Phase 2**: Implement RpcGrainReferenceRuntime 
+3. **Phase 3**: Configure DI to use RPC runtime for RPC interfaces
+4. **Phase 4**: Remove dynamic proxy generation code
+5. **Phase 5**: Document and optimize
 
 ## Open Questions
 
-1. Should we use traditional code generation or Roslyn source generators?
-2. How do we handle versioning of generated proxies?
-3. Should generated proxies be in a separate assembly or embedded?
-4. How do we ensure compatibility with future Orleans versions?
+1. How do we detect RPC interfaces vs Orleans interfaces at runtime?
+2. Should RpcGrainReference continue to extend GrainReference?
+3. How do we handle mixed RPC/Orleans scenarios in the same app?
+4. Can we maintain backward compatibility during migration?
+
+## Implementation Notes
+
+The key insight is that Orleans proxies already do exactly what we need - they implement the grain interface and forward calls to the runtime. By implementing our own IGrainReferenceRuntime, we can intercept these calls and route them through RPC's UDP transport instead of Orleans' TCP transport. This approach:
+
+- Eliminates need for separate proxy generation
+- Reuses Orleans' battle-tested proxy code
+- Maintains clean separation of transport concerns
+- Simplifies our codebase significantly
