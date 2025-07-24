@@ -225,14 +225,26 @@ namespace Granville.Rpc
         private async Task<object> InvokeGrainMethodAsync(Protocol.RpcRequest request)
         {
             // Get or create the grain activation
+            _logger.LogDebug("[RPC_SERVER] Getting grain activation for GrainId: {GrainId}", request.GrainId);
             var grainContext = await _catalog.GetOrCreateActivationAsync(request.GrainId);
 
+            if (grainContext == null)
+            {
+                _logger.LogError("[RPC_SERVER] GrainContext is null for GrainId: {GrainId}", request.GrainId);
+                throw new InvalidOperationException($"Grain context not found for {request.GrainId}");
+            }
+
+            _logger.LogDebug("[RPC_SERVER] Got grain context, getting grain instance");
             var grain = grainContext.GrainInstance;
 
             if (grain == null)
             {
+                _logger.LogError("[RPC_SERVER] Grain instance is null for GrainId: {GrainId}, GrainContext type: {ContextType}", 
+                    request.GrainId, grainContext.GetType().Name);
                 throw new InvalidOperationException($"Grain instance not found for {request.GrainId}");
             }
+
+            _logger.LogDebug("[RPC_SERVER] Successfully retrieved grain instance of type: {GrainType}", grain.GetType().Name);
 
             // For a simplified RPC approach, we'll use reflection to invoke the method
             // In a production system, you'd want to use the generated invokables
@@ -329,6 +341,22 @@ namespace Granville.Rpc
 
                 // Invoke the method
 
+                // Add null checks before invocation
+                if (methodEntry.ImplementationMethod == null)
+                {
+                    _logger.LogError("[RPC_SERVER] ImplementationMethod is null for method {Method}", method.Name);
+                    throw new InvalidOperationException($"Implementation method is null for method {method.Name}");
+                }
+
+                if (grain == null)
+                {
+                    _logger.LogError("[RPC_SERVER] Grain is null for method {Method}", method.Name);
+                    throw new InvalidOperationException($"Grain is null for method {method.Name}");
+                }
+
+                _logger.LogDebug("[RPC_SERVER] About to invoke method {Method} on grain {GrainType} with implementation method {ImplMethod}",
+                    method.Name, grain.GetType().Name, methodEntry.ImplementationMethod.Name);
+
                 object result = null;
                 try
                 {
@@ -336,7 +364,8 @@ namespace Granville.Rpc
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Exception during method.Invoke");
+                    _logger.LogError(ex, "[RPC_SERVER] Exception during method.Invoke for method {Method} on grain {GrainType}: {ErrorMessage}", 
+                        method.Name, grain?.GetType().Name ?? "null", ex.Message);
                     throw;
                 }
 
@@ -345,60 +374,49 @@ namespace Granville.Rpc
                 {
                     await task;
 
-                    // Check if this is a Task<T> by looking at the exact type
+                    // Check if this is a Task<T> by looking at the type hierarchy
                     var taskType = task.GetType();
+                    var hasResultProperty = taskType.GetProperty("Result") != null;
+                    var isTaskWithResult = IsTaskWithResult(task);
                     
-                    _logger.LogDebug("Task type detected: {TaskType}, IsGenericType: {IsGeneric}, GenericTypeDefinition: {GenericDef}", 
-                        taskType.FullName, 
-                        taskType.IsGenericType, 
-                        taskType.IsGenericType ? taskType.GetGenericTypeDefinition().FullName : "N/A");
+                    _logger.LogDebug("Task type detected: {TaskType}, IsGenericType: {IsGeneric}, HasResult: {HasResult}, IsTaskWithResult: {IsTaskWithResult}", 
+                        taskType.FullName, taskType.IsGenericType, hasResultProperty, isTaskWithResult);
                     
-                    // Check if it's a non-generic Task or a Task with VoidTaskResult
-                    if (taskType == typeof(Task))
+                    // Check if it's a non-generic Task
+                    if (task is Task && !(task.GetType().IsGenericType && task.GetType().GetGenericTypeDefinition() == typeof(Task<>)) &&
+                        !IsTaskWithResult(task))
                     {
                         _logger.LogDebug("Detected non-generic Task, returning null to avoid VoidTaskResult serialization");
                         return null;
                     }
                     
-                    // Additional check for Task<VoidTaskResult> which can happen in some cases
-                    if (taskType.IsGenericType && taskType.GetGenericTypeDefinition() == typeof(Task<>))
+                    // Try to extract result from Task<T> or any task that has a Result property
+                    var resultProperty = taskType.GetProperty("Result");
+                    if (resultProperty != null)
                     {
-                        var genericArg = taskType.GetGenericArguments()[0];
-                        if (genericArg.FullName == "System.Threading.Tasks.VoidTaskResult")
+                        try
                         {
-                            _logger.LogDebug("Detected Task<VoidTaskResult>, returning null to avoid VoidTaskResult serialization");
-                            return null;
-                        }
-                    }
-                    
-                    // Check if the type is generic and derives from Task<T>
-                    if (taskType.IsGenericType)
-                    {
-                        var genericDefinition = taskType.GetGenericTypeDefinition();
-                        if (genericDefinition == typeof(Task<>))
-                        {
-                            // This is Task<T>, get the result
-                            var resultProperty = taskType.GetProperty("Result");
-                            if (resultProperty != null)
+                            var taskResult = resultProperty.GetValue(task);
+                            _logger.LogDebug("Successfully extracted task result of type {ResultType}: {Result}",
+                                taskResult?.GetType().Name ?? "null", taskResult);
+                            
+                            // Additional safety check: ensure we're not returning VoidTaskResult
+                            if (taskResult != null && taskResult.GetType().FullName == "System.Threading.Tasks.VoidTaskResult")
                             {
-                                var taskResult = resultProperty.GetValue(task);
-                                _logger.LogDebug("Successfully extracted Task<T> result of type {ResultType}: {Result}",
-                                    taskResult?.GetType().Name ?? "null", taskResult);
-                                
-                                // Additional safety check: ensure we're not returning VoidTaskResult
-                                if (taskResult != null && taskResult.GetType().FullName == "System.Threading.Tasks.VoidTaskResult")
-                                {
-                                    _logger.LogWarning("Task<T> result is VoidTaskResult, returning null instead");
-                                    return null;
-                                }
-                                
-                                return taskResult;
+                                _logger.LogDebug("Task result is VoidTaskResult, returning null instead");
+                                return null;
                             }
+                            
+                            return taskResult;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to extract result from task of type {TaskType}", taskType.FullName);
                         }
                     }
                     
-                    // For any other Task type that's not Task<T>, return null
-                    _logger.LogDebug("Non-generic or unknown Task type, returning null");
+                    // For any other Task type that doesn't have a Result, return null
+                    _logger.LogDebug("Task type {TaskType} has no Result property, returning null", taskType.FullName);
                     return null;
                 }
                 else if (result != null && result.GetType().IsGenericType &&
@@ -445,13 +463,23 @@ namespace Granville.Rpc
 
             try
             {
-                // Use Orleans binary serialization
+                // Use Orleans binary serialization with isolated session
+                using var session = _sessionFactory.CreateServerSession();
                 var writer = new ArrayBufferWriter<byte>();
-                _serializer.Serialize(result, writer);
+                _serializer.Serialize(result, writer, session);
                 var serializedBytes = writer.WrittenMemory.ToArray();
-                _logger.LogDebug("[RPC_SERVER] Successfully serialized {ResultType} to {ByteCount} bytes", 
+                
+                _logger.LogDebug("[RPC_SERVER] Successfully serialized {ResultType} to {ByteCount} bytes with isolated session", 
                     resultType.FullName, serializedBytes.Length);
-                return serializedBytes;
+                
+                // Add Orleans binary marker byte (0x00) to match client expectations
+                var finalResult = new byte[serializedBytes.Length + 1];
+                finalResult[0] = 0x00; // Orleans binary marker
+                Array.Copy(serializedBytes, 0, finalResult, 1, serializedBytes.Length);
+                
+                _logger.LogDebug("[RPC_SERVER] Added Orleans binary marker, final size: {ByteCount} bytes", finalResult.Length);
+                
+                return finalResult;
             }
             catch (Exception ex)
             {
@@ -547,13 +575,26 @@ namespace Granville.Rpc
             try
             {
                 // Get or create the grain activation
+                _logger.LogDebug("[RPC_SERVER] Getting grain activation for streaming GrainId: {GrainId}", request.GrainId);
                 var grainContext = await _catalog.GetOrCreateActivationAsync(request.GrainId);
+
+                if (grainContext == null)
+                {
+                    _logger.LogError("[RPC_SERVER] GrainContext is null for streaming GrainId: {GrainId}", request.GrainId);
+                    throw new InvalidOperationException($"Grain context not found for {request.GrainId}");
+                }
+
+                _logger.LogDebug("[RPC_SERVER] Got grain context for streaming, getting grain instance");
                 var grain = grainContext.GrainInstance;
 
                 if (grain == null)
                 {
+                    _logger.LogError("[RPC_SERVER] Grain instance is null for streaming GrainId: {GrainId}, GrainContext type: {ContextType}", 
+                        request.GrainId, grainContext.GetType().Name);
                     throw new InvalidOperationException($"Grain instance not found for {request.GrainId}");
                 }
+
+                _logger.LogDebug("[RPC_SERVER] Successfully retrieved grain instance for streaming, type: {GrainType}", grain.GetType().Name);
 
                 // Find the method to invoke
                 var grainType = grain.GetType();
@@ -722,6 +763,16 @@ namespace Granville.Rpc
             {
                 await _transport.SendAsync(_remoteEndPoint, messageData, CancellationToken.None);
             }
+        }
+
+        private static bool IsTaskWithResult(Task task)
+        {
+            // Check if the task has a Result property that's not of type VoidTaskResult
+            var resultProperty = task.GetType().GetProperty("Result");
+            if (resultProperty == null) return false;
+            
+            var resultType = resultProperty.PropertyType;
+            return resultType != typeof(void) && resultType.FullName != "System.Threading.Tasks.VoidTaskResult";
         }
 
         public void Dispose()

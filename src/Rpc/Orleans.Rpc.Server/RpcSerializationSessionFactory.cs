@@ -4,7 +4,6 @@ using Orleans.Serialization.Serializers;
 using Orleans.Serialization.TypeSystem;
 using Microsoft.Extensions.Logging;
 using System;
-using System.IO;
 
 namespace Granville.Rpc
 {
@@ -90,69 +89,47 @@ namespace Granville.Rpc
 
         /// <summary>
         /// Deserializes arguments using an isolated session to handle value-based deserialization.
-        /// Supports both JSON and Orleans binary formats based on marker byte.
+        /// Always expects Orleans binary format for consistency.
         /// </summary>
         public T DeserializeWithIsolatedSession<T>(Serializer serializer, ReadOnlyMemory<byte> data)
         {
             if (data.Length == 0)
             {
                 _logger.LogDebug("[RPC_SESSION_FACTORY] Empty data, returning default");
-                return default(T);
+                return default(T)!;
             }
             
             _logger.LogDebug("[RPC_SESSION_FACTORY] Deserializing {Length} bytes with isolated session", data.Length);
             
             var dataSpan = data.Span;
             var marker = dataSpan[0];
-            var actualData = data.Slice(1);
             
-            if (marker == 0xFE) // Secure binary marker
+            if (marker == 0x00) // Orleans binary marker
             {
-                _logger.LogDebug("[RPC_SESSION_FACTORY] Detected secure binary serialization, using type-safe deserializer");
+                _logger.LogDebug("[RPC_SESSION_FACTORY] Detected Orleans binary serialization, using isolated session for type {Type}", typeof(T).Name);
+                
+                // Skip the marker byte - Orleans deserializer expects the raw serialized data without the marker
+                var orleansData = data.Slice(1);
                 
                 try
                 {
-                    var args = DeserializeSimpleTypesBinary(actualData);
-                    var result = (T)(object)args; // Cast array back to T
-                    _logger.LogDebug("[RPC_SESSION_FACTORY] Secure binary deserialized successfully");
+                    using var session = CreateServerSession();
+                    var result = serializer.Deserialize<T>(orleansData, session);
+                    
+                    _logger.LogDebug("[RPC_SESSION_FACTORY] Orleans binary deserialized with isolated session");
                     return result;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "[RPC_SESSION_FACTORY] Secure binary deserialization failed");
+                    _logger.LogError(ex, "[RPC_SESSION_FACTORY] Orleans deserialization failed for type {Type}. Data length: {Length}, First 20 bytes: {Bytes}", 
+                        typeof(T).Name, orleansData.Length, Convert.ToHexString(orleansData.Slice(0, Math.Min(20, orleansData.Length)).ToArray()));
                     throw;
                 }
-            }
-            else if (marker == 0xFF) // Legacy JSON marker (deprecated)
-            {
-                _logger.LogWarning("[RPC_SESSION_FACTORY] Detected deprecated JSON serialization format");
-                
-                try
-                {
-                    var result = System.Text.Json.JsonSerializer.Deserialize<T>(actualData.Span);
-                    _logger.LogDebug("[RPC_SESSION_FACTORY] JSON deserialized successfully");
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "[RPC_SESSION_FACTORY] JSON deserialization failed");
-                    throw;
-                }
-            }
-            else if (marker == 0x00) // Orleans binary marker
-            {
-                _logger.LogDebug("[RPC_SESSION_FACTORY] Detected Orleans binary serialization, using isolated session");
-                
-                using var session = CreateServerSession();
-                var result = serializer.Deserialize<T>(actualData, session);
-                
-                _logger.LogDebug("[RPC_SESSION_FACTORY] Orleans binary deserialized with isolated session");
-                return result;
             }
             else
             {
                 // Backward compatibility: no marker byte, assume Orleans binary
-                _logger.LogDebug("[RPC_SESSION_FACTORY] No marker detected, assuming Orleans binary format for backward compatibility");
+                _logger.LogDebug("[RPC_SESSION_FACTORY] No marker detected (marker: 0x{Marker:X2}), assuming Orleans binary format for backward compatibility", marker);
                 
                 using var session = CreateServerSession();
                 var result = serializer.Deserialize<T>(data, session);
@@ -160,38 +137,6 @@ namespace Granville.Rpc
                 _logger.LogDebug("[RPC_SESSION_FACTORY] Legacy Orleans binary deserialized with isolated session");
                 return result;
             }
-        }
-        
-        /// <summary>
-        /// Deserializes an array of simple types from secure binary format.
-        /// </summary>
-        private object[] DeserializeSimpleTypesBinary(ReadOnlyMemory<byte> data)
-        {
-            using var stream = new MemoryStream(data.ToArray());
-            using var reader = new BinaryReader(stream, System.Text.Encoding.UTF8);
-            
-            var length = reader.ReadInt32();
-            var result = new object[length];
-            
-            for (int i = 0; i < length; i++)
-            {
-                var typeMarker = reader.ReadByte();
-                
-                result[i] = typeMarker switch
-                {
-                    0 => null, // Null
-                    1 => reader.ReadString(), // String
-                    2 => new Guid(reader.ReadBytes(16)), // Guid
-                    3 => reader.ReadInt32(), // Int32
-                    4 => reader.ReadBoolean(), // Boolean
-                    5 => reader.ReadDouble(), // Double
-                    6 => DateTime.FromBinary(reader.ReadInt64()), // DateTime
-                    7 => new decimal(new int[] { reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32() }), // Decimal
-                    _ => throw new InvalidOperationException($"Unknown type marker: {typeMarker}")
-                };
-            }
-            
-            return result;
         }
     }
 }

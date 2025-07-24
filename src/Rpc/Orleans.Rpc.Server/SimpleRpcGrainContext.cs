@@ -25,37 +25,51 @@ namespace Granville.Rpc
             _logger = logger;
             _grainClassMap = serviceProvider.GetRequiredService<GrainClassMap>();
 
+            _logger.LogDebug("[SimpleRpcGrainContext] Creating grain context for GrainType: {GrainType}", grainType);
 
             // Get the grain class for this type
             if (!_grainClassMap.TryGetGrainClass(grainType, out var grainClass))
             {
+                _logger.LogError("[SimpleRpcGrainContext] Could not find grain class for grain type {GrainType}", grainType);
                 throw new InvalidOperationException($"Could not find grain class for grain type {grainType}");
             }
 
+            _logger.LogDebug("[SimpleRpcGrainContext] Found grain class: {GrainClass}", grainClass.Name);
 
             // Create the grain instance using dependency injection
             try
             {
+                _logger.LogDebug("[SimpleRpcGrainContext] Creating instance of grain class {GrainClass}", grainClass.Name);
                 GrainInstance = ActivatorUtilities.CreateInstance(serviceProvider, grainClass);
+                
+                if (GrainInstance == null)
+                {
+                    _logger.LogError("[SimpleRpcGrainContext] ActivatorUtilities.CreateInstance returned null for {GrainClass}", grainClass.Name);
+                    throw new InvalidOperationException($"Failed to create grain instance - ActivatorUtilities returned null for {grainClass.Name}");
+                }
+
+                _logger.LogDebug("[SimpleRpcGrainContext] Successfully created grain instance of type: {InstanceType}", GrainInstance.GetType().Name);
                 
                 // If the grain derives from Grain, we need to set its GrainContext property
                 if (GrainInstance is Orleans.Grain grain)
                 {
+                    _logger.LogDebug("[SimpleRpcGrainContext] Setting GrainContext property on Orleans.Grain");
                     // Use reflection to set the GrainContext property since it has a private setter
                     var grainContextProperty = typeof(Orleans.Grain).GetProperty("GrainContext", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     if (grainContextProperty != null)
                     {
                         grainContextProperty.SetValue(grain, this);
+                        _logger.LogDebug("[SimpleRpcGrainContext] Successfully set GrainContext property");
                     }
                     else
                     {
-                        _logger.LogError("SimpleRpcGrainContext: Could not find GrainContext property on Grain type");
+                        _logger.LogError("[SimpleRpcGrainContext] Could not find GrainContext property on Grain type");
                     }
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "SimpleRpcGrainContext: Failed to create grain instance of type {GrainClass}", grainClass.Name);
+                _logger.LogError(ex, "[SimpleRpcGrainContext] Failed to create grain instance of type {GrainClass}: {ErrorMessage}", grainClass?.Name ?? "unknown", ex.Message);
                 throw;
             }
         }
