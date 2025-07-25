@@ -111,6 +111,9 @@ builder.Services.AddSingleton<IWorldSimulation>(provider => provider.GetRequired
 builder.Services.AddHostedService(provider => provider.GetRequiredService<WorldSimulation>()); // Use same instance as hosted service
 builder.Services.AddSingleton<GameService>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<GameService>()); // GameService is also a hosted service
+
+// Register RPC grain for dependency injection
+builder.Services.AddSingleton<GameRpcGrain>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<RpcServerPortProvider>();
 
