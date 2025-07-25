@@ -55,10 +55,7 @@ $projects = @(
     
     # Client and Server
     "src/Orleans.Client/Orleans.Client.csproj",
-    "src/Orleans.Server/Orleans.Server.csproj",
-    
-    # Extensions
-    "src/Orleans.Persistence.Memory/Orleans.Persistence.Memory.csproj"
+    "src/Orleans.Server/Orleans.Server.csproj"
 )
 
 # Function to create compatibility symlinks

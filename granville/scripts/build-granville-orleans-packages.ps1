@@ -60,8 +60,7 @@ $projects = @(
     "src/Orleans.Sdk/Orleans.Sdk.csproj",
     "src/Orleans.Runtime/Orleans.Runtime.csproj",
     "src/Orleans.Server/Orleans.Server.csproj",
-    "src/Orleans.Client/Orleans.Client.csproj",
-    "src/Orleans.Persistence.Memory/Orleans.Persistence.Memory.csproj"
+    "src/Orleans.Client/Orleans.Client.csproj"
 )
 
 # First build all dependencies

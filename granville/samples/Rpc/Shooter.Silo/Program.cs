@@ -360,7 +360,6 @@ public static class GranvilleShimExtensions
             "Granville.Orleans.Runtime",
             "Granville.Orleans.Client",
             "Granville.Orleans.Server",
-            "Granville.Orleans.Persistence.Memory",
             "Granville.Orleans.Reminders"
         };
         
@@ -451,17 +450,7 @@ public static class GranvilleShimExtensions
             }
             else
             {
-                // Try Granville version
-                memoryStorageType = Type.GetType("Orleans.Storage.MemoryGrainStorage, Granville.Orleans.Persistence.Memory");
-                if (memoryStorageType != null)
-                {
-                    Console.WriteLine($"✓ Found Granville Memory storage assembly: {memoryStorageType.Assembly.FullName}");
-                    serializerBuilder.AddAssembly(memoryStorageType.Assembly);
-                }
-                else
-                {
-                    Console.WriteLine("✗ Orleans.Storage.MemoryGrainStorage not found in either Orleans or Granville assemblies");
-                }
+                Console.WriteLine("✗ Orleans.Storage.MemoryGrainStorage not found in Orleans.Persistence.Memory");
             }
         }
         catch (Exception ex)

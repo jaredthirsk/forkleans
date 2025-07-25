@@ -15,7 +15,6 @@ public static class AssemblyRedirectHelper
         ["Orleans.Serialization.Abstractions"] = "Orleans.Serialization.Abstractions",
         ["Orleans.Server"] = "Orleans.Server",
         ["Orleans.Sdk"] = "Orleans.Sdk",
-        ["Orleans.Persistence.Memory"] = "Orleans.Persistence.Memory",
         ["Orleans.Reminders"] = "Orleans.Reminders",
         ["Orleans.CodeGenerator"] = "Orleans.CodeGenerator",
         ["Orleans.Analyzers"] = "Orleans.Analyzers"
