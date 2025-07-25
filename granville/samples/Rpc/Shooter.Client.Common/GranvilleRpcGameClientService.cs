@@ -210,42 +210,79 @@ public class GranvilleRpcGameClientService : IDisposable
             // Try to get the grain with retries to ensure manifest is ready
             const int maxRetries = 15; // Increased for better manifest reliability
             const int retryDelayMs = 200; // Increased delay for better debugging
+            const int grainAcquisitionTimeoutSeconds = 30; // Overall timeout for grain acquisition
             
             var startTime = DateTime.UtcNow;
             _logger.LogInformation("Starting grain acquisition retry loop at {StartTime}", startTime);
             
-            for (int i = 0; i < maxRetries; i++)
+            using var grainAcquisitionCts = new CancellationTokenSource(TimeSpan.FromSeconds(grainAcquisitionTimeoutSeconds));
+            
+            try
             {
-                try
+                for (int i = 0; i < maxRetries; i++)
                 {
-                    _logger.LogDebug("Attempting to get IGameRpcGrain, attempt {Attempt}/{MaxRetries}", i + 1, maxRetries);
-                    
-                    // Get the game grain - use a fixed key since this represents the server itself
-                    // In RPC, grains are essentially singleton services per server
-                    _gameGrain = _rpcClient?.GetGrain<IGameRpcGrain>("game");
-                    
-                    var elapsed = DateTime.UtcNow - startTime;
-                    _logger.LogInformation("✅ Successfully obtained game grain on attempt {Attempt} after {ElapsedMs}ms", i + 1, elapsed.TotalMilliseconds);
-                    break;
-                }
-                catch (ArgumentException ex) when (ex.Message.Contains("Could not find an implementation"))
-                {
-                    _logger.LogWarning("❌ Grain acquisition attempt {Attempt}/{MaxRetries} failed: {Error}", i + 1, maxRetries, ex.Message);
-                    
-                    if (i < maxRetries - 1)
+                    if (grainAcquisitionCts.Token.IsCancellationRequested)
                     {
-                        _logger.LogDebug("Waiting {DelayMs}ms before next attempt...", retryDelayMs);
-                        await Task.Delay(retryDelayMs);
+                        _logger.LogError("Grain acquisition timed out after {Seconds} seconds", grainAcquisitionTimeoutSeconds);
+                        throw new TimeoutException($"Grain acquisition timed out after {grainAcquisitionTimeoutSeconds} seconds");
                     }
-                    else
+                    
+                    try
                     {
-                        var totalElapsed = DateTime.UtcNow - startTime;
-                        _logger.LogError("🚨 All grain acquisition attempts failed after {TotalMs}ms. ActionServer may not be running or may not have registered IGameRpcGrain implementation.", totalElapsed.TotalMilliseconds);
-                        throw new InvalidOperationException(
-                            $"Failed to get game grain after {maxRetries} attempts. " +
-                            "The RPC server may not have registered the grain implementation.", ex);
+                        _logger.LogInformation("Attempting to get IGameRpcGrain, attempt {Attempt}/{MaxRetries}", i + 1, maxRetries);
+                        
+                        // Wrap GetGrain in a task with timeout
+                        var getGrainTask = Task.Run(() => 
+                        {
+                            _logger.LogDebug("Inside Task.Run, about to call GetGrain");
+                            var grain = _rpcClient?.GetGrain<IGameRpcGrain>("game");
+                            _logger.LogDebug("GetGrain returned: {GrainType}", grain?.GetType().Name ?? "null");
+                            return grain;
+                        }, grainAcquisitionCts.Token);
+                        
+                        _logger.LogDebug("Waiting for GetGrain task with 2 second timeout...");
+                        _gameGrain = await getGrainTask.WaitAsync(TimeSpan.FromSeconds(2), grainAcquisitionCts.Token);
+                        
+                        var elapsed = DateTime.UtcNow - startTime;
+                        _logger.LogInformation("✅ Successfully obtained game grain on attempt {Attempt} after {ElapsedMs}ms", i + 1, elapsed.TotalMilliseconds);
+                        break;
+                    }
+                    catch (ArgumentException ex) when (ex.Message.Contains("Could not find an implementation"))
+                    {
+                        _logger.LogWarning("❌ Grain acquisition attempt {Attempt}/{MaxRetries} failed: {Error}", i + 1, maxRetries, ex.Message);
+                        
+                        if (i < maxRetries - 1)
+                        {
+                            _logger.LogDebug("Waiting {DelayMs}ms before next attempt...", retryDelayMs);
+                            await Task.Delay(retryDelayMs, grainAcquisitionCts.Token);
+                        }
+                        else
+                        {
+                            var totalElapsed = DateTime.UtcNow - startTime;
+                            _logger.LogError("🚨 All grain acquisition attempts failed after {TotalMs}ms. ActionServer may not be running or may not have registered IGameRpcGrain implementation.", totalElapsed.TotalMilliseconds);
+                            throw new InvalidOperationException(
+                                $"Failed to get game grain after {maxRetries} attempts. " +
+                                "The RPC server may not have registered the grain implementation.", ex);
+                        }
+                    }
+                    catch (TimeoutException)
+                    {
+                        _logger.LogError("GetGrain call timed out on attempt {Attempt}/{MaxRetries}", i + 1, maxRetries);
+                        if (i < maxRetries - 1)
+                        {
+                            await Task.Delay(retryDelayMs, grainAcquisitionCts.Token);
+                        }
+                        else
+                        {
+                            throw new TimeoutException("GetGrain call timed out after all retries");
+                        }
                     }
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogError("Grain acquisition was cancelled (timeout after {Seconds} seconds)", grainAcquisitionTimeoutSeconds);
+                throw new TimeoutException($"Grain acquisition timed out after {grainAcquisitionTimeoutSeconds} seconds");
             }
             
             if (_gameGrain == null)

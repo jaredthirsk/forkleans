@@ -1,977 +1,969 @@
 {
   "ProjectCount": 142,
-  "LastScan": "2025-07-24T21:19:14.8754452-06:00",
+  "LastScan": "2025-07-24T21:57:38.3580759-06:00",
   "Paths": {
-    "TempDirs": {
-      "FullName": "/mnt/c/forks/orleans/Artifacts/DistributedTests",
-      "Name": "DistributedTests"
-    },
+    "LogFiles": null,
     "BinObjDirs": [
       {
-        "FullName": "/mnt/c/forks/orleans/granville/compatibility-tools/type-forwarding-generator/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/granville/compatibility-tools/type-forwarding-generator/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/compatibility-tools/type-forwarding-generator/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/granville/compatibility-tools/type-forwarding-generator/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.ActionServer/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.ActionServer/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.ActionServer/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.ActionServer/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.AppHost/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.AppHost/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.AppHost/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.AppHost/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Bot/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Bot/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Bot/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Bot/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Client/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Client/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Client/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Client/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Client.Common/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Client.Common/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Client.Common/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Client.Common/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.ServiceDefaults/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.ServiceDefaults/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.ServiceDefaults/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.ServiceDefaults/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Shared/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Shared/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Shared/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Shared/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Shared/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Shared/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Shared/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Shared/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Shared/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Shared/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Shared/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Shared/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Silo/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Silo/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Silo/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/Shooter.Silo/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/test/Shooter.Tests/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/test/Shooter.Tests/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/test/Shooter.Tests/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/test/Shooter.Tests/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/ActivationRebalancing/ActivationRebalancing.Cluster/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/playground/ActivationRebalancing/ActivationRebalancing.Cluster/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/ActivationRebalancing/ActivationRebalancing.Cluster/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/playground/ActivationRebalancing/ActivationRebalancing.Cluster/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/ActivationRebalancing/ActivationRebalancing.Frontend/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/playground/ActivationRebalancing/ActivationRebalancing.Frontend/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/ActivationRebalancing/ActivationRebalancing.Frontend/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/playground/ActivationRebalancing/ActivationRebalancing.Frontend/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/ChaoticCluster/ChaoticCluster.AppHost/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/playground/ChaoticCluster/ChaoticCluster.AppHost/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/ChaoticCluster/ChaoticCluster.AppHost/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/playground/ChaoticCluster/ChaoticCluster.AppHost/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/ChaoticCluster/ChaoticCluster.ServiceDefaults/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/playground/ChaoticCluster/ChaoticCluster.ServiceDefaults/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/ChaoticCluster/ChaoticCluster.ServiceDefaults/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/playground/ChaoticCluster/ChaoticCluster.ServiceDefaults/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/ChaoticCluster/ChaoticCluster.Silo/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/playground/ChaoticCluster/ChaoticCluster.Silo/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/ChaoticCluster/ChaoticCluster.Silo/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/playground/ChaoticCluster/ChaoticCluster.Silo/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/DashboardToy/DashboardToy.AppHost/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/playground/DashboardToy/DashboardToy.AppHost/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/DashboardToy/DashboardToy.AppHost/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/playground/DashboardToy/DashboardToy.AppHost/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/DashboardToy/DashboardToy.Frontend/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/playground/DashboardToy/DashboardToy.Frontend/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/playground/DashboardToy/DashboardToy.Frontend/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/playground/DashboardToy/DashboardToy.Frontend/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Clustering.AdoNet/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Clustering.AdoNet/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Clustering.AdoNet/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Clustering.AdoNet/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Persistence.AdoNet/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Persistence.AdoNet/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Persistence.AdoNet/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Persistence.AdoNet/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Reminders.AdoNet/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Reminders.AdoNet/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Reminders.AdoNet/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Reminders.AdoNet/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Streaming.AdoNet/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Streaming.AdoNet/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Streaming.AdoNet/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/AdoNet/Orleans.Streaming.AdoNet/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Clustering.DynamoDB/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Clustering.DynamoDB/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Clustering.DynamoDB/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Clustering.DynamoDB/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Persistence.DynamoDB/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Persistence.DynamoDB/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Persistence.DynamoDB/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Persistence.DynamoDB/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Reminders.DynamoDB/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Reminders.DynamoDB/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Reminders.DynamoDB/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Reminders.DynamoDB/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Streaming.SQS/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Streaming.SQS/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Streaming.SQS/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/AWS/Orleans.Streaming.SQS/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Clustering.AzureStorage/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Clustering.AzureStorage/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Clustering.AzureStorage/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Clustering.AzureStorage/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Clustering.Cosmos/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Clustering.Cosmos/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Clustering.Cosmos/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Clustering.Cosmos/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.GrainDirectory.AzureStorage/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.GrainDirectory.AzureStorage/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.GrainDirectory.AzureStorage/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.GrainDirectory.AzureStorage/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Hosting.AzureCloudServices/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Hosting.AzureCloudServices/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Hosting.AzureCloudServices/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Hosting.AzureCloudServices/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Persistence.AzureStorage/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Persistence.AzureStorage/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Persistence.AzureStorage/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Persistence.AzureStorage/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Persistence.Cosmos/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Persistence.Cosmos/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Persistence.Cosmos/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Persistence.Cosmos/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Reminders.AzureStorage/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Reminders.AzureStorage/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Reminders.AzureStorage/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Reminders.AzureStorage/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Reminders.Cosmos/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Reminders.Cosmos/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Reminders.Cosmos/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Reminders.Cosmos/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Streaming.AzureStorage/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Streaming.AzureStorage/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Streaming.AzureStorage/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Streaming.AzureStorage/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Streaming.EventHubs/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Streaming.EventHubs/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Streaming.EventHubs/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Streaming.EventHubs/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Transactions.AzureStorage/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Transactions.AzureStorage/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Transactions.AzureStorage/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Azure/Orleans.Transactions.AzureStorage/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Cassandra/Orleans.Clustering.Cassandra/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Cassandra/Orleans.Clustering.Cassandra/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Cassandra/Orleans.Clustering.Cassandra/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Cassandra/Orleans.Clustering.Cassandra/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Analyzers/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Analyzers/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Analyzers/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Analyzers/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.BroadcastChannel/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.BroadcastChannel/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.BroadcastChannel/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.BroadcastChannel/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Client/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Client/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Client/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Client/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Clustering.Consul/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Clustering.Consul/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Clustering.Consul/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Clustering.Consul/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Clustering.ZooKeeper/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Clustering.ZooKeeper/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Clustering.ZooKeeper/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Clustering.ZooKeeper/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.CodeGenerator/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.CodeGenerator/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.CodeGenerator/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.CodeGenerator/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Connections.Security/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Connections.Security/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Connections.Security/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Connections.Security/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Core/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Core/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Core/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Core/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Core.Abstractions/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Core.Abstractions/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Core.Abstractions/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Core.Abstractions/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.EventSourcing/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.EventSourcing/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.EventSourcing/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.EventSourcing/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Hosting.Kubernetes/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Hosting.Kubernetes/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Hosting.Kubernetes/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Hosting.Kubernetes/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Persistence.Memory/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Persistence.Memory/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Persistence.Memory/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Persistence.Memory/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Reminders/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Reminders/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Reminders/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Reminders/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Runtime/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Runtime/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Runtime/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Runtime/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Sdk/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Sdk/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Sdk/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Sdk/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.Abstractions/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.Abstractions/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.Abstractions/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.Abstractions/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.FSharp/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.FSharp/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.FSharp/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.FSharp/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.MessagePack/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.MessagePack/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.MessagePack/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.MessagePack/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.NewtonsoftJson/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.NewtonsoftJson/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.NewtonsoftJson/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.NewtonsoftJson/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.SystemTextJson/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.SystemTextJson/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.SystemTextJson/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.SystemTextJson/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.TestKit/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.TestKit/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.TestKit/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Serialization.TestKit/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Server/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Server/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Server/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Server/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Streaming/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Streaming/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Streaming/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Streaming/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.TestingHost/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.TestingHost/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.TestingHost/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.TestingHost/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Transactions/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Transactions/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Transactions/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Transactions/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Transactions.TestKit.Base/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Transactions.TestKit.Base/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Transactions.TestKit.Base/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Transactions.TestKit.Base/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Transactions.TestKit.xUnit/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Transactions.TestKit.xUnit/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Orleans.Transactions.TestKit.xUnit/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Orleans.Transactions.TestKit.xUnit/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.Clustering.Redis/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.Clustering.Redis/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.Clustering.Redis/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.Clustering.Redis/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.GrainDirectory.Redis/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.GrainDirectory.Redis/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.GrainDirectory.Redis/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.GrainDirectory.Redis/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.Persistence.Redis/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.Persistence.Redis/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.Persistence.Redis/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.Persistence.Redis/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.Reminders.Redis/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.Reminders.Redis/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.Reminders.Redis/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Redis/Orleans.Reminders.Redis/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Abstractions/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Abstractions/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Abstractions/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Abstractions/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Client/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Client/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Client/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Client/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Sdk/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Sdk/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Sdk/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Sdk/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Server/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Server/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Server/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Server/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Transport.LiteNetLib/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Transport.LiteNetLib/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Transport.LiteNetLib/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Transport.LiteNetLib/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Transport.Ruffles/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Transport.Ruffles/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Transport.Ruffles/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Transport.Ruffles/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Serializers/Orleans.Serialization.Protobuf/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/src/Serializers/Orleans.Serialization.Protobuf/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/src/Serializers/Orleans.Serialization.Protobuf/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/src/Serializers/Orleans.Serialization.Protobuf/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Analyzers.Tests/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Analyzers.Tests/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Analyzers.Tests/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Analyzers.Tests/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Benchmarks/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Benchmarks/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Benchmarks/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Benchmarks/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Benchmarks.AdoNet/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Benchmarks.AdoNet/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Benchmarks.AdoNet/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Benchmarks.AdoNet/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/DefaultCluster.Tests/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/DefaultCluster.Tests/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/DefaultCluster.Tests/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/DefaultCluster.Tests/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/DependencyInjection.Tests/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/DependencyInjection.Tests/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/DependencyInjection.Tests/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/DependencyInjection.Tests/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/DistributedTests/DistributedTests.Client/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/DistributedTests/DistributedTests.Client/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/DistributedTests/DistributedTests.Common/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/DistributedTests/DistributedTests.Common/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/DistributedTests/DistributedTests.Common/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/DistributedTests/DistributedTests.Common/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/DistributedTests/DistributedTests.Grains/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/DistributedTests/DistributedTests.Grains/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/DistributedTests/DistributedTests.Grains/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/DistributedTests/DistributedTests.Grains/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/DistributedTests/DistributedTests.Server/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/DistributedTests/DistributedTests.Server/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/AWSUtils.Tests/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/AWSUtils.Tests/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/AWSUtils.Tests/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/AWSUtils.Tests/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/Consul.Tests/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/Consul.Tests/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/Consul.Tests/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/Consul.Tests/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/ServiceBus.Tests/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/ServiceBus.Tests/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/ServiceBus.Tests/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/ServiceBus.Tests/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/Tester.Cassandra/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/Tester.Cassandra/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/Tester.Cassandra/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/Tester.Cassandra/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/Tester.Cosmos/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/Tester.Cosmos/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/Tester.Cosmos/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/Tester.Cosmos/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/Tester.Redis/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/Tester.Redis/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/Tester.Redis/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/Tester.Redis/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/TesterAdoNet/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/TesterAdoNet/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/TesterAdoNet/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/TesterAdoNet/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/TesterAzureUtils/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/TesterAzureUtils/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/TesterAzureUtils/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/TesterAzureUtils/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/TesterZooKeeperUtils/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/TesterZooKeeperUtils/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Extensions/TesterZooKeeperUtils/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Extensions/TesterZooKeeperUtils/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/BenchmarkGrainInterfaces/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/BenchmarkGrainInterfaces/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/BenchmarkGrainInterfaces/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/BenchmarkGrainInterfaces/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/BenchmarkGrains/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/BenchmarkGrains/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/BenchmarkGrains/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/BenchmarkGrains/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestFSharpGrainInterfaces/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestFSharpGrainInterfaces/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestFSharpGrainInterfaces/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestFSharpGrainInterfaces/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestGrainInterfaces/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestGrainInterfaces/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestGrainInterfaces/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestGrainInterfaces/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestGrains/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestGrains/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestGrains/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestGrains/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestInternalGrainInterfaces/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestInternalGrainInterfaces/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestInternalGrainInterfaces/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestInternalGrainInterfaces/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestInternalGrains/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestInternalGrains/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestInternalGrains/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestInternalGrains/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestVersionGrains/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestVersionGrains/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestVersionGrains/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestVersionGrains/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestVersionGrains2/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestVersionGrains2/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestVersionGrains2/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestVersionGrains2/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Misc/TestInterfaces/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Misc/TestInterfaces/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Misc/TestInterfaces/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Misc/TestInterfaces/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Misc/TestInternalDtosRefOrleans/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Misc/TestInternalDtosRefOrleans/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Misc/TestInternalDtosRefOrleans/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Misc/TestInternalDtosRefOrleans/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Misc/TestSerializerExternalModels/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Misc/TestSerializerExternalModels/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Misc/TestSerializerExternalModels/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Misc/TestSerializerExternalModels/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/NonSilo.Tests/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/NonSilo.Tests/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/NonSilo.Tests/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/NonSilo.Tests/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Orleans.Connections.Security.Tests/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Orleans.Connections.Security.Tests/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Orleans.Connections.Security.Tests/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Orleans.Connections.Security.Tests/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Orleans.Serialization.UnitTests/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Orleans.Serialization.UnitTests/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Orleans.Serialization.UnitTests/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Orleans.Serialization.UnitTests/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Tester/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Tester/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Tester/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Tester/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/TesterInternal/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/TesterInternal/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/TesterInternal/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/TesterInternal/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/TestInfrastructure/Orleans.TestingHost.Tests/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/TestInfrastructure/Orleans.TestingHost.Tests/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/TestInfrastructure/Orleans.TestingHost.Tests/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/TestInfrastructure/Orleans.TestingHost.Tests/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/TestInfrastructure/TestExtensions/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/TestInfrastructure/TestExtensions/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/TestInfrastructure/TestExtensions/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/TestInfrastructure/TestExtensions/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Transactions/Orleans.Transactions.Azure.Test/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Transactions/Orleans.Transactions.Azure.Test/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Transactions/Orleans.Transactions.Azure.Test/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Transactions/Orleans.Transactions.Azure.Test/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Transactions/Orleans.Transactions.Tests/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Transactions/Orleans.Transactions.Tests/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Transactions/Orleans.Transactions.Tests/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Transactions/Orleans.Transactions.Tests/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/test/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/udp-test-server/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/test/obj",
-        "Name": "obj"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestFSharp/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/udp-test-server/bin",
-        "Name": "bin"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Grains/TestFSharp/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestFSharp/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Misc/TestFSharpInterfaces/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Grains/TestFSharp/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Misc/TestFSharpInterfaces/obj"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Misc/TestFSharpInterfaces/bin",
-        "Name": "bin"
+        "Name": "bin",
+        "FullName": "/mnt/c/forks/orleans/test/Orleans.Serialization.FSharp.Tests/bin"
       },
       {
-        "FullName": "/mnt/c/forks/orleans/test/Misc/TestFSharpInterfaces/obj",
-        "Name": "obj"
-      },
-      {
-        "FullName": "/mnt/c/forks/orleans/test/Orleans.Serialization.FSharp.Tests/bin",
-        "Name": "bin"
-      },
-      {
-        "FullName": "/mnt/c/forks/orleans/test/Orleans.Serialization.FSharp.Tests/obj",
-        "Name": "obj"
+        "Name": "obj",
+        "FullName": "/mnt/c/forks/orleans/test/Orleans.Serialization.FSharp.Tests/obj"
       }
     ],
-    "LogFiles": null
+    "TempDirs": {
+      "Name": "DistributedTests",
+      "FullName": "/mnt/c/forks/orleans/Artifacts/DistributedTests"
+    }
   }
 }
