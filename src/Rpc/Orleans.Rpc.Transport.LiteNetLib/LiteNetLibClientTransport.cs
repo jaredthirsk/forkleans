@@ -140,10 +140,31 @@ namespace Granville.Rpc.Transport.LiteNetLib
 
         private async void PollEvents(CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested && _netManager != null)
+            _logger.LogDebug("Starting LiteNetLib polling loop with interval {IntervalMs}ms", _liteNetLibOptions.PollingIntervalMs);
+            var pollCount = 0;
+            
+            try
             {
-                _netManager.PollEvents();
-                await Task.Delay(_liteNetLibOptions.PollingIntervalMs, cancellationToken);
+                while (!cancellationToken.IsCancellationRequested && _netManager != null)
+                {
+                    pollCount++;
+                    if (pollCount % 100 == 0) // Log every 100 polls
+                    {
+                        _logger.LogDebug("LiteNetLib polling active, poll count: {PollCount}", pollCount);
+                    }
+                    
+                    _netManager.PollEvents();
+                    await Task.Delay(_liteNetLibOptions.PollingIntervalMs, cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in LiteNetLib polling loop");
+                throw;
+            }
+            finally
+            {
+                _logger.LogDebug("LiteNetLib polling loop stopped after {PollCount} polls", pollCount);
             }
         }
 
@@ -188,10 +209,23 @@ namespace Granville.Rpc.Transport.LiteNetLib
                 var data = new byte[reader.AvailableBytes];
                 reader.GetBytes(data, reader.AvailableBytes);
                 
+                _logger.LogDebug("LiteNetLib client received {ByteCount} bytes from server on channel {Channel} via {DeliveryMethod}", 
+                    data.Length, channelNumber, deliveryMethod);
+                
                 // Track statistics
                 _networkStatisticsTracker?.RecordPacketReceived(data.Length);
                 
+                var hasSubscribers = DataReceived != null;
+                _logger.LogDebug("DataReceived event has {SubscriberCount} subscribers", DataReceived?.GetInvocationList()?.Length ?? 0);
+                
                 DataReceived?.Invoke(this, new RpcDataReceivedEventArgs(_serverEndpoint, data));
+                
+                _logger.LogDebug("DataReceived event invoked successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in OnNetworkReceive");
+                throw;
             }
             finally
             {

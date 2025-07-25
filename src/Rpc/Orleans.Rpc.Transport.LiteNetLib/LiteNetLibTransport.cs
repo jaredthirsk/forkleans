@@ -225,7 +225,13 @@ namespace Granville.Rpc.Transport.LiteNetLib
 
             var deliveryMethod = _options.EnableReliableDelivery ? DeliveryMethod.ReliableOrdered : DeliveryMethod.Unreliable;
             var dataArray = data.ToArray();
+            
+            _logger.LogDebug("SendToConnectionAsync: Sending {ByteCount} bytes to peer {PeerId} (connectionId: {ConnectionId}) via {DeliveryMethod}, peer state: {State}", 
+                dataArray.Length, peerId, connectionId, deliveryMethod, peer.ConnectionState);
+            
             peer.Send(dataArray, deliveryMethod);
+            
+            _logger.LogDebug("SendToConnectionAsync: Send completed to peer {PeerId}", peerId);
             
             // Track statistics
             _networkStatisticsTracker?.RecordPacketSent(dataArray.Length);

@@ -17,8 +17,8 @@
     <PackageReference Include="Granville.Orleans.Sdk" />
     <PackageReference Include="Granville.Orleans.Server" />
     
-    <!-- Microsoft Orleans packages that don't have Granville equivalents -->
-    <PackageReference Include="Microsoft.Orleans.Persistence.Memory" />
+    <!-- Granville Orleans packages -->
+    <PackageReference Include="Granville.Orleans.Persistence.Memory" />
     
     <!-- Microsoft Orleans shim packages to resolve type conflicts -->
     <PackageReference Include="Microsoft.Orleans.Core" />
