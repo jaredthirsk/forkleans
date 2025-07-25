@@ -8,7 +8,7 @@
   <PropertyGroup>
     <AssemblyVersion>9.0.0.0</AssemblyVersion>
     <VersionPrefix Condition=" '$(VersionPrefix)'=='' ">9.1.2</VersionPrefix>
-    <GranvilleRevision Condition=" '$(GranvilleRevision)'=='' ">147</GranvilleRevision>
+    <GranvilleRevision Condition=" '$(GranvilleRevision)'=='' ">148</GranvilleRevision>
     <PackageVersion Condition=" '$(PackageVersion)'=='' ">$(VersionPrefix).$(GranvilleRevision)</PackageVersion>
   </PropertyGroup>
   

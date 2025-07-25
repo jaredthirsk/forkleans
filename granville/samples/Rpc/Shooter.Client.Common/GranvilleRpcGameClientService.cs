@@ -263,8 +263,32 @@ public class GranvilleRpcGameClientService : IDisposable
                 return false;
             }
             
-            var result = await _gameGrain.ConnectPlayer(PlayerId);
-            _logger.LogInformation("RPC ConnectPlayer returned: {Result}", result);
+            _logger.LogInformation("About to call ConnectPlayer for PlayerId: {PlayerId}", PlayerId);
+            var connectStartTime = DateTime.UtcNow;
+            
+            string result;
+            try
+            {
+                var connectTask = _gameGrain.ConnectPlayer(PlayerId);
+                _logger.LogInformation("ConnectPlayer task created, waiting for completion...");
+                
+                // Add timeout to detect hanging
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                result = await connectTask.WaitAsync(TimeSpan.FromSeconds(10), cts.Token);
+                
+                var elapsed = DateTime.UtcNow - connectStartTime;
+                _logger.LogInformation("RPC ConnectPlayer returned: {Result} after {ElapsedMs}ms", result, elapsed.TotalMilliseconds);
+            }
+            catch (TimeoutException)
+            {
+                _logger.LogError("ConnectPlayer timed out after 10 seconds for PlayerId: {PlayerId}", PlayerId);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ConnectPlayer failed with exception for PlayerId: {PlayerId}", PlayerId);
+                return false;
+            }
             
             if (result != "SUCCESS")
             {
