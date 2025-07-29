@@ -310,7 +310,7 @@ namespace Granville.Rpc.Multiplexing
             return serverId;
         }
 
-        private RpcClient GetRpcClient(string serverId)
+        private IRpcClient GetRpcClient(string serverId)
         {
             if (!_connections.TryGetValue(serverId, out var connection))
             {
