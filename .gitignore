@@ -215,3 +215,6 @@ src/SetupTestScriptOutput.txt
 # VS Code
 .ionide/
 .claude/settings.local.json
+
+# Granville-specific files
+.granville/clean-cache.json
