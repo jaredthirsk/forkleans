@@ -24,7 +24,7 @@ public record ConnectPlayerResult
 /// Uses Orleans RPC types for RPC compatibility.
 /// Implements IZoneAwareGrain to enable zone-based routing.
 /// </summary>
-public interface IGameRpcGrain : Granville.Rpc.IRpcGrainInterfaceWithStringKey, Granville.Rpc.IZoneAwareGrain
+public interface IGameRpcGrain : Granville.Rpc.IRpcGrainInterfaceWithStringKey, Granville.Rpc.Multiplexing.IZoneAwareGrain
 {
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
     Task<string> ConnectPlayer(string playerId);
