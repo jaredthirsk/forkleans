@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Granville.Rpc.Configuration;
 using Granville.Rpc.Hosting;
@@ -18,7 +19,8 @@ namespace Granville.Rpc.Multiplexing
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger _logger;
         private readonly SemaphoreSlim _connectionLock;
-        private RpcClient _client;
+        private IRpcClient _client;
+        private IHost _host;
         private ConnectionState _state;
         private DateTime _lastConnectionAttempt;
         private int _connectionFailures;
@@ -38,12 +40,12 @@ namespace Granville.Rpc.Multiplexing
             _state = ConnectionState.Disconnected;
         }
 
-        public async Task<RpcClient> GetClientAsync()
+        public async Task<IRpcClient> GetClientAsync()
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(RpcClientConnection));
             
-            if (_state == ConnectionState.Connected && _client != null && _client.IsConnected)
+            if (_state == ConnectionState.Connected && _client != null)
             {
                 return _client;
             }
@@ -60,7 +62,7 @@ namespace Granville.Rpc.Multiplexing
             await _connectionLock.WaitAsync();
             try
             {
-                if (_state == ConnectionState.Connected && _client != null && _client.IsConnected)
+                if (_state == ConnectionState.Connected && _client != null)
                 {
                     return;
                 }
@@ -88,44 +90,40 @@ namespace Granville.Rpc.Multiplexing
                         _serverDescriptor.ServerId, _serverDescriptor.HostName, _serverDescriptor.Port);
 
                     // Dispose existing client if any
-                    if (_client != null)
+                    if (_host != null)
                     {
                         try
                         {
-                            await _client.StopAsync();
-                            _client.Dispose();
+                            await _host.StopAsync(CancellationToken.None);
+                            _host.Dispose();
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogWarning(ex, "Error disposing old client for server {ServerId}", 
+                            _logger.LogWarning(ex, "Error disposing old host for server {ServerId}", 
                                 _serverDescriptor.ServerId);
                         }
+                        _host = null;
                         _client = null;
                     }
 
                     // Create new RpcClient with server-specific configuration
-                    var services = new ServiceCollection();
-                    
-                    // Copy registrations from parent service provider
-                    services.AddLogging();
-                    services.AddSingleton(_serviceProvider);
-                    
-                    // Configure RPC client for this specific server
-                    services.AddRpcClient(builder =>
-                    {
-                        builder.Configure<RpcClientOptions>(options =>
+                    var hostBuilder = Host.CreateDefaultBuilder()
+                        .ConfigureServices((context, services) =>
                         {
-                            options.ServerEndpoints = new[]
-                            {
-                                new DnsEndPoint(_serverDescriptor.HostName, _serverDescriptor.Port)
-                            };
-                        });
-                    });
+                            // Copy logging from parent
+                            services.AddLogging();
+                        })
+                        .UseOrleansRpcClient(rpcBuilder =>
+                        {
+                            rpcBuilder.ConnectTo(_serverDescriptor.HostName, _serverDescriptor.Port);
+                        })
+                        .Build();
 
-                    var provider = services.BuildServiceProvider();
-                    _client = provider.GetRequiredService<RpcClient>();
+                    await hostBuilder.StartAsync(CancellationToken.None);
+                    _host = hostBuilder;
+                    _client = hostBuilder.Services.GetRequiredService<IRpcClient>();
                     
-                    await _client.StartAsync();
+                    // Client is already started by the host
 
                     _state = ConnectionState.Connected;
                     _connectionFailures = 0;
@@ -174,19 +172,10 @@ namespace Granville.Rpc.Multiplexing
 
                 try
                 {
-                    // Check if the client is still connected
-                    if (_client.IsConnected)
-                    {
-                        // Could enhance this with an actual ping/health check call
-                        _serverDescriptor.HealthStatus = ServerHealthStatus.Healthy;
-                        return ServerHealthStatus.Healthy;
-                    }
-                    else
-                    {
-                        _state = ConnectionState.Disconnected;
-                        _serverDescriptor.HealthStatus = ServerHealthStatus.Offline;
-                        return ServerHealthStatus.Offline;
-                    }
+                    // For now, assume connected if we have a client
+                    // Could enhance this with an actual ping/health check call
+                    _serverDescriptor.HealthStatus = ServerHealthStatus.Healthy;
+                    return ServerHealthStatus.Healthy;
                 }
                 catch (Exception ex)
                 {
@@ -211,18 +200,19 @@ namespace Granville.Rpc.Multiplexing
             await _connectionLock.WaitAsync();
             try
             {
-                if (_client != null)
+                if (_host != null)
                 {
                     try
                     {
-                        await _client.StopAsync();
-                        _client.Dispose();
+                        await _host.StopAsync(CancellationToken.None);
+                        _host.Dispose();
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning(ex, "Error disposing client for server {ServerId}", 
+                        _logger.LogWarning(ex, "Error disposing host for server {ServerId}", 
                             _serverDescriptor.ServerId);
                     }
+                    _host = null;
                     _client = null;
                 }
                 

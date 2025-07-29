@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Orleans;
 using Orleans.Runtime;
+using Granville.Rpc.Multiplexing.Strategies;
 
 namespace Granville.Rpc.Multiplexing
 {
@@ -18,7 +19,7 @@ namespace Granville.Rpc.Multiplexing
     internal sealed class RpcClientMultiplexer : IRpcClientMultiplexer
     {
         private readonly ILogger<RpcClientMultiplexer> _logger;
-        private readonly IGrainRoutingStrategy _routingStrategy;
+        private IGrainRoutingStrategy _routingStrategy;
         private readonly RpcClientMultiplexerOptions _options;
         private readonly ConcurrentDictionary<string, RpcClientConnection> _connections;
         private readonly IServiceProvider _serviceProvider;
@@ -30,15 +31,14 @@ namespace Granville.Rpc.Multiplexing
         public event EventHandler<ServerHealthChangedEventArgs> ServerHealthChanged;
 
         public RpcClientMultiplexer(
-            ILogger<RpcClientMultiplexer> logger,
-            IGrainRoutingStrategy routingStrategy,
-            IOptions<RpcClientMultiplexerOptions> options,
-            IServiceProvider serviceProvider)
+            RpcClientMultiplexerOptions options,
+            IServiceProvider serviceProvider,
+            ILogger<RpcClientMultiplexer> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _routingStrategy = routingStrategy ?? throw new ArgumentNullException(nameof(routingStrategy));
-            _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+            _options = options ?? throw new ArgumentNullException(nameof(options));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            _routingStrategy = new DefaultRoutingStrategy(_logger); // Default strategy
             _connections = new ConcurrentDictionary<string, RpcClientConnection>();
             _connectionLock = new SemaphoreSlim(1, 1);
             _routingContext = new RoutingContext();
@@ -358,6 +358,49 @@ namespace Granville.Rpc.Multiplexing
             {
                 _logger.LogError(ex, "Unexpected error in health check timer callback");
             }
+        }
+
+        public void SetRoutingStrategy(IGrainRoutingStrategy routingStrategy)
+        {
+            _routingStrategy = routingStrategy ?? throw new ArgumentNullException(nameof(routingStrategy));
+            _logger.LogInformation("Routing strategy set to {StrategyType}", routingStrategy.GetType().Name);
+        }
+
+        public void RegisterServer(IServerDescriptor serverDescriptor)
+        {
+            if (serverDescriptor == null) throw new ArgumentNullException(nameof(serverDescriptor));
+            
+            var connection = new RpcClientConnection(serverDescriptor, _serviceProvider, _logger);
+            
+            if (_connections.TryAdd(serverDescriptor.ServerId, connection))
+            {
+                _logger.LogInformation("Registered server {ServerId} at {HostName}:{Port}",
+                    serverDescriptor.ServerId, serverDescriptor.HostName, serverDescriptor.Port);
+                
+                if (_options.EagerConnect)
+                {
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await connection.EnsureConnectedAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to eagerly connect to server {ServerId}", serverDescriptor.ServerId);
+                        }
+                    });
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Server {ServerId} is already registered", serverDescriptor.ServerId);
+            }
+        }
+
+        public bool IsServerRegistered(string serverId)
+        {
+            return _connections.ContainsKey(serverId);
         }
 
         public void Dispose()
