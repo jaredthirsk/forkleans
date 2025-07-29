@@ -206,14 +206,33 @@ public class GranvilleRpcGameClientService : IDisposable
             _logger.LogInformation("RPC client started, beginning grain acquisition process");
             _logger.LogInformation("RPC client type: {Type}", _rpcClient?.GetType().FullName ?? "NULL");
             
-            // Wait for the handshake and manifest exchange to complete
-            // Try to get the grain with retries to ensure manifest is ready
-            const int maxRetries = 15; // Increased for better manifest reliability
-            const int retryDelayMs = 200; // Increased delay for better debugging
-            const int grainAcquisitionTimeoutSeconds = 30; // Overall timeout for grain acquisition
+            // Wait for the manifest to be populated from the server
+            _logger.LogInformation("Waiting for RPC manifest to be populated...");
+            
+            if (_rpcClient == null)
+            {
+                _logger.LogError("RPC client is null, cannot wait for manifest");
+                return false;
+            }
+            
+            try
+            {
+                await _rpcClient.WaitForManifestAsync(TimeSpan.FromSeconds(10));
+                _logger.LogInformation("RPC manifest is ready, proceeding to get grain");
+            }
+            catch (TimeoutException ex)
+            {
+                _logger.LogError("Failed to receive manifest from server: {Error}", ex.Message);
+                return false;
+            }
+            
+            // Now try to get the grain (should work immediately)
+            const int maxRetries = 3; // Reduced since manifest should be ready
+            const int retryDelayMs = 200;
+            const int grainAcquisitionTimeoutSeconds = 10; // Reduced timeout
             
             var startTime = DateTime.UtcNow;
-            _logger.LogInformation("Starting grain acquisition retry loop at {StartTime}", startTime);
+            _logger.LogInformation("Starting grain acquisition at {StartTime}", startTime);
             
             using var grainAcquisitionCts = new CancellationTokenSource(TimeSpan.FromSeconds(grainAcquisitionTimeoutSeconds));
             
@@ -234,10 +253,28 @@ public class GranvilleRpcGameClientService : IDisposable
                         // Wrap GetGrain in a task with timeout
                         var getGrainTask = Task.Run(() => 
                         {
-                            _logger.LogDebug("Inside Task.Run, about to call GetGrain");
-                            var grain = _rpcClient?.GetGrain<IGameRpcGrain>("game");
-                            _logger.LogDebug("GetGrain returned: {GrainType}", grain?.GetType().Name ?? "null");
-                            return grain;
+                            try
+                            {
+                                _logger.LogInformation("Inside Task.Run, about to call GetGrain. RpcClient is {RpcClientState}", 
+                                    _rpcClient == null ? "NULL" : "not null");
+                                
+                                if (_rpcClient == null)
+                                {
+                                    _logger.LogError("RpcClient is null, cannot call GetGrain");
+                                    return null;
+                                }
+                                
+                                _logger.LogInformation("Calling _rpcClient.GetGrain<IGameRpcGrain>(\"game\")");
+                                var grain = _rpcClient.GetGrain<IGameRpcGrain>("game");
+                                _logger.LogInformation("GetGrain returned: {GrainType}", grain?.GetType().FullName ?? "null");
+                                return grain;
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Exception in GetGrain task: {ExceptionType} - {Message}", 
+                                    ex.GetType().FullName, ex.Message);
+                                throw;
+                            }
                         }, grainAcquisitionCts.Token);
                         
                         _logger.LogDebug("Waiting for GetGrain task with 2 second timeout...");

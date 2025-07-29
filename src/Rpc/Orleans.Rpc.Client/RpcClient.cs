@@ -136,28 +136,58 @@ namespace Granville.Rpc
         public TGrainInterface GetGrain<TGrainInterface>(Guid primaryKey, string grainClassNamePrefix = null) 
             where TGrainInterface : IGrainWithGuidKey
         {
+            _logger.LogDebug("RpcClient.GetGrain<{Interface}> called with primaryKey: {PrimaryKey}", typeof(TGrainInterface).Name, primaryKey);
             EnsureConnected();
             // Use keyed service to ensure we get RPC's grain factory
+            _logger.LogDebug("Getting keyed IGrainFactory service with key 'rpc'");
             var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            return grainFactory.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
+            _logger.LogDebug("Got RPC grain factory, creating grain reference");
+            var grain = grainFactory.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
+            _logger.LogDebug("Created grain reference of type {GrainType}", grain?.GetType().Name ?? "null");
+            return grain;
         }
 
         public TGrainInterface GetGrain<TGrainInterface>(long primaryKey, string grainClassNamePrefix = null) 
             where TGrainInterface : IGrainWithIntegerKey
         {
+            _logger.LogDebug("RpcClient.GetGrain<{Interface}> called with primaryKey: {PrimaryKey}", typeof(TGrainInterface).Name, primaryKey);
             EnsureConnected();
             // Use keyed service to ensure we get RPC's grain factory
+            _logger.LogDebug("Getting keyed IGrainFactory service with key 'rpc'");
             var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            return grainFactory.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
+            _logger.LogDebug("Got RPC grain factory, creating grain reference");
+            var grain = grainFactory.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
+            _logger.LogDebug("Created grain reference of type {GrainType}", grain?.GetType().Name ?? "null");
+            return grain;
         }
 
         public TGrainInterface GetGrain<TGrainInterface>(string primaryKey, string grainClassNamePrefix = null) 
             where TGrainInterface : IGrainWithStringKey
         {
-            EnsureConnected();
-            // Use keyed service to ensure we get RPC's grain factory
-            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            return grainFactory.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
+            _logger.LogInformation("RpcClient.GetGrain<{Interface}> called with primaryKey: {PrimaryKey}", typeof(TGrainInterface).Name, primaryKey);
+            try
+            {
+                _logger.LogInformation("Calling EnsureConnected()");
+                EnsureConnected();
+                _logger.LogInformation("EnsureConnected() completed successfully");
+                
+                // Use keyed service to ensure we get RPC's grain factory
+                _logger.LogInformation("About to call GetRequiredKeyedService<IGrainFactory>('rpc')");
+                var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
+                _logger.LogInformation("Got RPC grain factory of type: {FactoryType}", grainFactory?.GetType().FullName ?? "null");
+                
+                _logger.LogInformation("About to call grainFactory.GetGrain<{Interface}>({PrimaryKey})", typeof(TGrainInterface).Name, primaryKey);
+                var grain = grainFactory.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
+                _logger.LogInformation("grainFactory.GetGrain returned grain of type {GrainType}", grain?.GetType().FullName ?? "null");
+                
+                return grain;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception in RpcClient.GetGrain: {ExceptionType} - {Message}", 
+                    ex.GetType().FullName, ex.Message);
+                throw;
+            }
         }
 
         public TGrainInterface GetGrain<TGrainInterface>(Guid primaryKey, string keyExtension, string grainClassNamePrefix = null) 
@@ -724,6 +754,46 @@ namespace Granville.Rpc
         /// </summary>
         internal RpcAsyncEnumerableManager AsyncEnumerableManager => _asyncEnumerableManager;
 
+        public async Task WaitForManifestAsync(TimeSpan timeout = default)
+        {
+            var manifestProvider = _manifestProvider as MultiServerManifestProvider;
+            if (manifestProvider == null) 
+            {
+                _logger.LogWarning("Manifest provider is not MultiServerManifestProvider, cannot wait for manifest");
+                return;
+            }
+            
+            timeout = timeout == default ? TimeSpan.FromSeconds(10) : timeout;
+            var cts = new CancellationTokenSource(timeout);
+            var startTime = Stopwatch.StartNew();
+            
+            _logger.LogInformation("Waiting for manifest to be populated (timeout: {Timeout})", timeout);
+            
+            try
+            {
+                while (!cts.Token.IsCancellationRequested)
+                {
+                    var manifest = manifestProvider.Current;
+                    if (manifest?.AllGrainManifests.Any(m => m.Grains.Count > 0) == true)
+                    {
+                        _logger.LogInformation("Manifest ready after {ElapsedMs}ms - {GrainCount} grains, {InterfaceCount} interfaces",
+                            startTime.ElapsedMilliseconds,
+                            manifest.AllGrainManifests.Sum(m => m.Grains.Count),
+                            manifest.AllGrainManifests.Sum(m => m.Interfaces.Count));
+                        return;
+                    }
+                    
+                    await Task.Delay(50, cts.Token);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Timeout reached
+            }
+            
+            throw new TimeoutException($"Manifest not populated within {timeout}. Ensure at least one RPC server is running and accessible.");
+        }
+
         public void Dispose()
         {
             DisconnectAllAsync().GetAwaiter().GetResult();
@@ -736,5 +806,12 @@ namespace Granville.Rpc
     /// </summary>
     public interface IRpcClient : IClusterClient
     {
+        /// <summary>
+        /// Waits for the manifest to be populated from at least one server.
+        /// </summary>
+        /// <param name="timeout">The maximum time to wait. Default is 10 seconds.</param>
+        /// <returns>A task that completes when the manifest is ready.</returns>
+        /// <exception cref="TimeoutException">Thrown if the manifest is not populated within the timeout.</exception>
+        Task WaitForManifestAsync(TimeSpan timeout = default);
     }
 }

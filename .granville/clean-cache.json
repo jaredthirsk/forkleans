@@ -1,6 +1,5 @@
 {
-  "ProjectCount": 142,
-  "LastScan": "2025-07-24T21:57:38.3580759-06:00",
+  "LastScan": "2025-07-29T11:08:03.9188329-06:00",
   "Paths": {
     "LogFiles": null,
     "BinObjDirs": [
@@ -934,10 +933,6 @@
       },
       {
         "Name": "bin",
-        "FullName": "/mnt/c/forks/orleans/granville/samples/Rpc/udp-test-server/bin"
-      },
-      {
-        "Name": "bin",
         "FullName": "/mnt/c/forks/orleans/test/Grains/TestFSharp/bin"
       },
       {
@@ -965,5 +960,6 @@
       "Name": "DistributedTests",
       "FullName": "/mnt/c/forks/orleans/Artifacts/DistributedTests"
     }
-  }
+  },
+  "ProjectCount": 145
 }

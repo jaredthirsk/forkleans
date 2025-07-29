@@ -48,6 +48,9 @@ namespace Granville.Rpc
 
         public async Task<T> InvokeRpcMethodAsync<T>(int methodId, object[] arguments)
         {
+            _logger.LogDebug("InvokeRpcMethodAsync called - MethodId: {MethodId}, GrainId: {GrainId}, InterfaceType: {InterfaceType}", 
+                methodId, this.GrainId, this.InterfaceType);
+            
             try
             {
                 // Serialize arguments
@@ -66,6 +69,9 @@ namespace Granville.Rpc
                     TargetZoneId = ZoneId // Include zone ID if set
                 };
 
+                _logger.LogDebug("Sending RPC request - MessageId: {MessageId}, PayloadSize: {PayloadSize} bytes", 
+                    request.MessageId, request.Arguments.Length);
+                
                 // Send request and wait for response
                 var response = await _rpcClient.SendRequestAsync(request);
                 
@@ -143,12 +149,6 @@ namespace Granville.Rpc
             return _asyncEnumerableManager.CreateStream<T>(streamId, cancellationToken);
         }
 
-        // TODO: Implement proper invocation once we have RpcConnection
-        // For now, just return a simple response
-        public ValueTask<Response> InvokeRpcAsync(object request)
-        {
-            return new ValueTask<Response>(Response.FromResult("RPC invocation not yet implemented"));
-        }
 
         string IFormattable.ToString(string format, IFormatProvider formatProvider) => ToString();
 

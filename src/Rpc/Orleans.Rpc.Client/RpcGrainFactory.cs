@@ -14,23 +14,29 @@ namespace Granville.Rpc
     /// </summary>
     internal sealed class RpcGrainFactory : GrainFactory
     {
-        private readonly RpcClient _rpcClient;
+        private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<RpcGrainReference> _referenceLogger;
         private readonly Serializer _serializer;
+        private RpcClient? _rpcClient;
 
         public RpcGrainFactory(
             IRuntimeClient runtimeClient,
             GrainReferenceActivator referenceActivator,
             GrainInterfaceTypeResolver interfaceTypeResolver,
             GrainInterfaceTypeToGrainTypeResolver interfaceToTypeResolver,
-            RpcClient rpcClient,
+            IServiceProvider serviceProvider,
             ILogger<RpcGrainReference> referenceLogger,
             Serializer serializer)
             : base(runtimeClient, referenceActivator, interfaceTypeResolver, interfaceToTypeResolver)
         {
-            _rpcClient = rpcClient ?? throw new ArgumentNullException(nameof(rpcClient));
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _referenceLogger = referenceLogger ?? throw new ArgumentNullException(nameof(referenceLogger));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+        }
+
+        private RpcClient GetRpcClient()
+        {
+            return _rpcClient ??= _serviceProvider.GetRequiredService<RpcClient>();
         }
 
         // We can override CreateGrainReference if needed to create RpcGrainReference instances

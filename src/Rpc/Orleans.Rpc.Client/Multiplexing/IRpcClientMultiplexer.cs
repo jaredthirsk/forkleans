@@ -31,31 +31,31 @@ namespace Granville.Rpc.Multiplexing
         /// <summary>
         /// Gets a grain reference with a GUID key.
         /// </summary>
-        TGrainInterface GetGrain<TGrainInterface>(Guid primaryKey, string grainClassNamePrefix = null) 
+        TGrainInterface GetGrain<TGrainInterface>(Guid primaryKey, string? grainClassNamePrefix = null) 
             where TGrainInterface : IGrainWithGuidKey;
 
         /// <summary>
         /// Gets a grain reference with an integer key.
         /// </summary>
-        TGrainInterface GetGrain<TGrainInterface>(long primaryKey, string grainClassNamePrefix = null) 
+        TGrainInterface GetGrain<TGrainInterface>(long primaryKey, string? grainClassNamePrefix = null) 
             where TGrainInterface : IGrainWithIntegerKey;
 
         /// <summary>
         /// Gets a grain reference with a string key.
         /// </summary>
-        TGrainInterface GetGrain<TGrainInterface>(string primaryKey, string grainClassNamePrefix = null) 
+        TGrainInterface GetGrain<TGrainInterface>(string primaryKey, string? grainClassNamePrefix = null) 
             where TGrainInterface : IGrainWithStringKey;
 
         /// <summary>
         /// Gets a grain reference with a GUID compound key.
         /// </summary>
-        TGrainInterface GetGrain<TGrainInterface>(Guid primaryKey, string keyExtension, string grainClassNamePrefix = null) 
+        TGrainInterface GetGrain<TGrainInterface>(Guid primaryKey, string keyExtension, string? grainClassNamePrefix = null) 
             where TGrainInterface : IGrainWithGuidCompoundKey;
 
         /// <summary>
         /// Gets a grain reference with an integer compound key.
         /// </summary>
-        TGrainInterface GetGrain<TGrainInterface>(long primaryKey, string keyExtension, string grainClassNamePrefix = null) 
+        TGrainInterface GetGrain<TGrainInterface>(long primaryKey, string keyExtension, string? grainClassNamePrefix = null) 
             where TGrainInterface : IGrainWithIntegerCompoundKey;
 
         /// <summary>

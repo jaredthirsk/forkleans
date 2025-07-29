@@ -112,8 +112,6 @@ builder.Services.AddHostedService(provider => provider.GetRequiredService<WorldS
 builder.Services.AddSingleton<GameService>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<GameService>()); // GameService is also a hosted service
 
-// Register RPC grain for dependency injection
-builder.Services.AddSingleton<GameRpcGrain>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<RpcServerPortProvider>();
 

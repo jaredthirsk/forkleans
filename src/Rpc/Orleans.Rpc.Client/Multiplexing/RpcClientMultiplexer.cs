@@ -130,7 +130,7 @@ namespace Granville.Rpc.Multiplexing
                 kvp => kvp.Value.ServerDescriptor);
         }
 
-        public TGrainInterface GetGrain<TGrainInterface>(string primaryKey, string grainClassNamePrefix = null) 
+        public TGrainInterface GetGrain<TGrainInterface>(string primaryKey, string? grainClassNamePrefix = null) 
             where TGrainInterface : IGrainWithStringKey
         {
             if (_disposed) throw new ObjectDisposedException(nameof(RpcClientMultiplexer));
@@ -146,7 +146,7 @@ namespace Granville.Rpc.Multiplexing
             return client.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
         }
 
-        public TGrainInterface GetGrain<TGrainInterface>(Guid primaryKey, string grainClassNamePrefix = null) 
+        public TGrainInterface GetGrain<TGrainInterface>(Guid primaryKey, string? grainClassNamePrefix = null) 
             where TGrainInterface : IGrainWithGuidKey
         {
             if (_disposed) throw new ObjectDisposedException(nameof(RpcClientMultiplexer));
@@ -157,7 +157,7 @@ namespace Granville.Rpc.Multiplexing
             return client.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
         }
 
-        public TGrainInterface GetGrain<TGrainInterface>(long primaryKey, string grainClassNamePrefix = null) 
+        public TGrainInterface GetGrain<TGrainInterface>(long primaryKey, string? grainClassNamePrefix = null) 
             where TGrainInterface : IGrainWithIntegerKey
         {
             if (_disposed) throw new ObjectDisposedException(nameof(RpcClientMultiplexer));
@@ -168,7 +168,7 @@ namespace Granville.Rpc.Multiplexing
             return client.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
         }
 
-        public TGrainInterface GetGrain<TGrainInterface>(Guid primaryKey, string keyExtension, string grainClassNamePrefix = null) 
+        public TGrainInterface GetGrain<TGrainInterface>(Guid primaryKey, string keyExtension, string? grainClassNamePrefix = null) 
             where TGrainInterface : IGrainWithGuidCompoundKey
         {
             if (_disposed) throw new ObjectDisposedException(nameof(RpcClientMultiplexer));
@@ -179,7 +179,7 @@ namespace Granville.Rpc.Multiplexing
             return client.GetGrain<TGrainInterface>(primaryKey, keyExtension, grainClassNamePrefix);
         }
 
-        public TGrainInterface GetGrain<TGrainInterface>(long primaryKey, string keyExtension, string grainClassNamePrefix = null) 
+        public TGrainInterface GetGrain<TGrainInterface>(long primaryKey, string keyExtension, string? grainClassNamePrefix = null) 
             where TGrainInterface : IGrainWithIntegerCompoundKey
         {
             if (_disposed) throw new ObjectDisposedException(nameof(RpcClientMultiplexer));

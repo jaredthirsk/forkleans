@@ -158,6 +158,11 @@ namespace Granville.Rpc.Runtime
 
         private int GetMethodId(GrainInterfaceType interfaceType, string methodName)
         {
+            // Log the interface type format for debugging
+            var interfaceTypeStr = interfaceType.ToString();
+            _logger.LogDebug("GetMethodId called for interface: {InterfaceType}, method: {MethodName}", 
+                interfaceTypeStr, methodName);
+            
             // Find the actual interface type
             // This is a simplified approach - in production, you'd want to cache this
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -165,6 +170,16 @@ namespace Granville.Rpc.Runtime
             
             // GrainInterfaceType.Value is an IdSpan, convert to string
             var typeName = interfaceType.Value.ToString();
+            _logger.LogDebug("Searching for type with Value: {TypeName}", typeName);
+            
+            // Also try the full ToString() which includes assembly info
+            var fullTypeName = interfaceTypeStr;
+            if (fullTypeName.Contains(','))
+            {
+                // Extract just the type name part before the comma
+                fullTypeName = fullTypeName.Split(',')[0].Trim();
+            }
+            _logger.LogDebug("Also searching for type: {FullTypeName}", fullTypeName);
             
             foreach (var assembly in assemblies)
             {
@@ -176,8 +191,12 @@ namespace Granville.Rpc.Runtime
                         if (type.IsInterface && 
                             (type.Name == typeName || 
                              type.FullName == typeName ||
+                             type.FullName == fullTypeName ||
+                             type.Name == fullTypeName ||
                              type.FullName.EndsWith("." + typeName)))
                         {
+                            _logger.LogDebug("Found matching interface type: {TypeFullName} in assembly {AssemblyName}", 
+                                type.FullName, assembly.GetName().Name);
                             interfaceClrType = type;
                             break;
                         }
@@ -193,7 +212,9 @@ namespace Granville.Rpc.Runtime
             
             if (interfaceClrType == null)
             {
-                _logger.LogWarning("Could not find interface type {InterfaceType}, using method name hash", interfaceType);
+                _logger.LogError("Could not find interface type for {InterfaceType}. Searched {AssemblyCount} assemblies. Type formats tried: Value='{TypeName}', FullName='{FullTypeName}'", 
+                    interfaceTypeStr, assemblies.Length, typeName, fullTypeName);
+                _logger.LogWarning("Using fallback method ID based on method name hash for {MethodName}", methodName);
                 return Math.Abs(methodName.GetHashCode()) % 100; // Fallback
             }
             

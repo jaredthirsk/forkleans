@@ -29,6 +29,7 @@ namespace Granville.Rpc
         private readonly CodecProvider _codecProvider;
         private readonly CopyContextPool _copyContextPool;
         private readonly Orleans.GrainReferences.RpcProvider _orleansRpcProvider;
+        private readonly GranvilleRpcProvider _granvilleRpcProvider;
         private IGrainReferenceRuntime _grainReferenceRuntime;
 
         public RpcGrainReferenceActivatorProvider(
@@ -38,7 +39,8 @@ namespace Granville.Rpc
             GrainVersionManifest grainVersionManifest,
             CodecProvider codecProvider,
             CopyContextPool copyContextPool,
-            Orleans.GrainReferences.RpcProvider orleansRpcProvider)
+            Orleans.GrainReferences.RpcProvider orleansRpcProvider,
+            GranvilleRpcProvider granvilleRpcProvider)
         {
             _services = services ?? throw new ArgumentNullException(nameof(services));
             _rpcProxyProvider = rpcProxyProvider ?? throw new ArgumentNullException(nameof(rpcProxyProvider));
@@ -47,30 +49,55 @@ namespace Granville.Rpc
             _codecProvider = codecProvider ?? throw new ArgumentNullException(nameof(codecProvider));
             _copyContextPool = copyContextPool ?? throw new ArgumentNullException(nameof(copyContextPool));
             _orleansRpcProvider = orleansRpcProvider ?? throw new ArgumentNullException(nameof(orleansRpcProvider));
+            _granvilleRpcProvider = granvilleRpcProvider ?? throw new ArgumentNullException(nameof(granvilleRpcProvider));
         }
 
         public bool TryGet(GrainType grainType, GrainInterfaceType interfaceType, out IGrainReferenceActivator activator)
         {
             // Check if this is an RPC interface (by convention or configuration)
             var interfaceTypeStr = interfaceType.ToString();
+            
+            // Log for debugging
+            var logger = _services.GetService<ILogger<RpcGrainReferenceActivatorProvider>>();
+            logger?.LogInformation("RpcGrainReferenceActivatorProvider.TryGet called for GrainType: {GrainType}, InterfaceType: {InterfaceType}", 
+                grainType.ToString(), interfaceTypeStr);
+            
+            // Check if this is an RPC interface
+            // Look for RPC in the namespace or interface name, or Shooter anywhere in the type
             if (interfaceTypeStr.Contains("Rpc", StringComparison.Ordinal) || 
-                interfaceTypeStr.StartsWith("Shooter.", StringComparison.Ordinal))
+                interfaceTypeStr.Contains("Shooter", StringComparison.Ordinal))
             {
-                // Check if Orleans has a generated proxy for this interface
-                if (_orleansRpcProvider.TryGet(interfaceType, out var proxyType))
+                logger?.LogInformation("Recognized {InterfaceType} as RPC interface for grain type {GrainType}", interfaceTypeStr, grainType.ToString());
+                
+                // First check Granville-generated proxies
+                logger?.LogDebug("Checking GranvilleRpcProvider for interface {InterfaceType}...", interfaceTypeStr);
+                if (_granvilleRpcProvider.TryGet(interfaceType, out var proxyType))
                 {
+                    logger?.LogInformation("Found Granville proxy {ProxyType} for interface {InterfaceType}", proxyType.FullName, interfaceTypeStr);
+                    // Use Granville-generated proxy with RPC grain reference
+                    activator = new OrleansProxyWithRpcReferenceActivator(_services, grainType, interfaceType, proxyType);
+                    return true;
+                }
+                
+                // Then check Orleans RpcProvider
+                logger?.LogDebug("Checking Orleans RpcProvider for interface {InterfaceType}...", interfaceTypeStr);
+                if (_orleansRpcProvider.TryGet(interfaceType, out proxyType))
+                {
+                    logger?.LogInformation("Found Orleans proxy {ProxyType} for interface {InterfaceType}", proxyType.FullName, interfaceTypeStr);
                     // Use Orleans-generated proxy with RPC grain reference
                     activator = new OrleansProxyWithRpcReferenceActivator(_services, grainType, interfaceType, proxyType);
                     return true;
                 }
                 else
                 {
+                    logger?.LogWarning("No proxy found (neither Granville nor Orleans) for interface {InterfaceType}, falling back to RpcGrainReference without proxy", interfaceTypeStr);
                     // Fall back to creating RpcGrainReference directly (no proxy)
                     activator = new RpcGrainReferenceActivator(_services, grainType, interfaceType);
                     return true;
                 }
             }
 
+            logger?.LogDebug("Interface {InterfaceType} is not an RPC interface (no 'Rpc' or 'Shooter' in name), passing to next provider", interfaceTypeStr);
             // Not an RPC interface - let Orleans handle it
             activator = null!;
             return false;
@@ -160,6 +187,10 @@ namespace Granville.Rpc
 
             public GrainReference CreateReference(GrainId grainId)
             {
+                var logger = _services.GetService<ILogger<RpcGrainReferenceActivator>>();
+                logger?.LogInformation("RpcGrainReferenceActivator.CreateReference called for GrainId: {GrainId}, GrainType: {GrainType}, InterfaceType: {InterfaceType}", 
+                    grainId.ToString(), _grainType.ToString(), _interfaceType.ToString());
+                
                 // Lazily get services to avoid circular dependencies
                 var grainReferenceRuntime = _services.GetRequiredService<IGrainReferenceRuntime>();
                 var versionManifest = _services.GetRequiredService<GrainVersionManifest>();
@@ -183,8 +214,11 @@ namespace Granville.Rpc
                     copyContextPool,
                     _services);
 
-                return new RpcGrainReference(shared, grainId.Key, referenceLogger, rpcClient, serializer, 
+                var reference = new RpcGrainReference(shared, grainId.Key, referenceLogger, rpcClient, serializer, 
                     rpcClient.AsyncEnumerableManager);
+                    
+                logger?.LogInformation("Created RpcGrainReference: {Reference}", reference);
+                return reference;
             }
         }
     }

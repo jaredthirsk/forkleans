@@ -25,11 +25,8 @@ namespace Granville.Rpc
         /// <returns>True if a proxy type was found, false otherwise.</returns>
         public bool TryGet(GrainInterfaceType interfaceType, out Type proxyType)
         {
-            // For now, always return false to force use of RpcGrainReference
-            // The Orleans-generated proxies exist but aren't properly registered
-            // when Orleans code generation is disabled in the project
-            proxyType = null;
-            return false;
+            // Delegate to the Orleans RpcProvider which knows about generated proxies
+            return _orleansProvider.TryGet(interfaceType, out proxyType);
         }
     }
 }

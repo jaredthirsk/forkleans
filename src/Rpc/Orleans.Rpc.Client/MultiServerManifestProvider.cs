@@ -129,12 +129,20 @@ namespace Granville.Rpc
                 {
                     foreach (var kvp in silo.Grains)
                     {
-                        grainsBuilder[kvp.Key] = kvp.Value;
+                        // Only add if not already present to avoid duplicate interface mappings
+                        if (!grainsBuilder.ContainsKey(kvp.Key))
+                        {
+                            grainsBuilder[kvp.Key] = kvp.Value;
+                        }
                     }
                     
                     foreach (var kvp in silo.Interfaces)
                     {
-                        interfacesBuilder[kvp.Key] = kvp.Value;
+                        // Only add if not already present
+                        if (!interfacesBuilder.ContainsKey(kvp.Key))
+                        {
+                            interfacesBuilder[kvp.Key] = kvp.Value;
+                        }
                     }
                 }
             }
@@ -202,23 +210,55 @@ namespace Granville.Rpc
             // Add interface-to-grain mappings as grain properties
             if (grainManifest.InterfaceToGrainMappings != null)
             {
+                // Group interfaces by grain type to assign sequential indices
+                var grainInterfaces = new Dictionary<string, List<string>>();
                 foreach (var mapping in grainManifest.InterfaceToGrainMappings)
                 {
-                    var grainType = GrainType.Create(mapping.Value);
-                    var interfaceType = GrainInterfaceType.Create(mapping.Key);
+                    if (!grainInterfaces.ContainsKey(mapping.Value))
+                    {
+                        grainInterfaces[mapping.Value] = new List<string>();
+                    }
+                    grainInterfaces[mapping.Value].Add(mapping.Key);
+                }
+                
+                // Now add interface properties with numeric indices
+                foreach (var grainGroup in grainInterfaces)
+                {
+                    var grainType = GrainType.Create(grainGroup.Key);
                     
+                    // Get existing properties or create new
                     GrainProperties existingProps;
+                    ImmutableDictionary<string, string> props;
                     if (grainsBuilder.TryGetValue(grainType, out existingProps))
                     {
-                        // The property value should be the interface type ID that can be parsed by GrainInterfaceType.Create
-                        var newProps = existingProps.Properties.Add($"interface.{mapping.Key}", interfaceType.ToString());
-                        grainsBuilder[grainType] = new GrainProperties(newProps);
+                        props = existingProps.Properties;
                     }
                     else
                     {
-                        var props = ImmutableDictionary<string, string>.Empty.Add($"interface.{mapping.Key}", interfaceType.ToString());
-                        grainsBuilder[grainType] = new GrainProperties(props);
+                        props = ImmutableDictionary<string, string>.Empty;
                     }
+                    
+                    // Determine the starting counter by checking existing interface properties
+                    var counter = 0;
+                    while (props.ContainsKey($"{WellKnownGrainTypeProperties.ImplementedInterfacePrefix}{counter}"))
+                    {
+                        counter++;
+                    }
+                    
+                    // Add each interface with a numeric index
+                    foreach (var interfaceTypeStr in grainGroup.Value)
+                    {
+                        var interfaceType = GrainInterfaceType.Create(interfaceTypeStr);
+                        var key = $"{WellKnownGrainTypeProperties.ImplementedInterfacePrefix}{counter}";
+                        // Check if this key already exists to avoid duplicates
+                        if (!props.ContainsKey(key))
+                        {
+                            props = props.Add(key, interfaceType.ToString());
+                        }
+                        counter++;
+                    }
+                    
+                    grainsBuilder[grainType] = new GrainProperties(props);
                 }
             }
 

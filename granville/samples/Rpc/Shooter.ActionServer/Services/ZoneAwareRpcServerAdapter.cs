@@ -28,9 +28,9 @@ public class ZoneAwareRpcServerAdapter : IZoneAwareRpcServer
         }
 
         // Convert GridSquare (X,Y) to a single zone ID
-        // Using a simple formula: zoneId = y * 1000 + x
+        // Using a simple formula: zoneId = x * 1000 + y
         // This assumes zones are in a reasonable range (e.g., -500 to 500)
-        var zoneId = assignedSquare.Y * 1000 + assignedSquare.X;
+        var zoneId = assignedSquare.X * 1000 + assignedSquare.Y;
         
         _logger.LogDebug("Zone ({X},{Y}) mapped to ZoneId: {ZoneId}", 
             assignedSquare.X, assignedSquare.Y, zoneId);

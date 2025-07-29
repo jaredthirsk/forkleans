@@ -109,3 +109,8 @@ See `/granville/compatibility-tools/README.md` for details.
 - prefer powershell scipts (.ps1) instead of bash scripts (.sh), unless something can only be practically done by a bash script
 - when creating powershell scripts, put this in the first line: `#!/usr/bin/env pwsh` 
 
+# Non-obvious notes to remember:
+
+- Orleans code generation is disabled (Orleans_DesignTimeBuild=true) but Granville code generation is enabled (Granville_DesignTimeBuild=false)
+
+
