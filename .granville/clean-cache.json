@@ -1,6 +1,11 @@
 {
-  "LastScan": "2025-07-29T11:08:03.9188329-06:00",
+  "ProjectCount": 145,
+  "LastScan": "2025-07-29T11:26:24.2454627-06:00",
   "Paths": {
+    "TempDirs": {
+      "Name": "DistributedTests",
+      "FullName": "/mnt/c/forks/orleans/Artifacts/DistributedTests"
+    },
     "LogFiles": null,
     "BinObjDirs": [
       {
@@ -589,38 +594,6 @@
       },
       {
         "Name": "bin",
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Sdk/bin"
-      },
-      {
-        "Name": "obj",
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Sdk/obj"
-      },
-      {
-        "Name": "bin",
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Server/bin"
-      },
-      {
-        "Name": "obj",
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Server/obj"
-      },
-      {
-        "Name": "bin",
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Transport.LiteNetLib/bin"
-      },
-      {
-        "Name": "obj",
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Transport.LiteNetLib/obj"
-      },
-      {
-        "Name": "bin",
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Transport.Ruffles/bin"
-      },
-      {
-        "Name": "obj",
-        "FullName": "/mnt/c/forks/orleans/src/Rpc/Orleans.Rpc.Transport.Ruffles/obj"
-      },
-      {
-        "Name": "bin",
         "FullName": "/mnt/c/forks/orleans/src/Serializers/Orleans.Serialization.Protobuf/bin"
       },
       {
@@ -955,11 +928,6 @@
         "Name": "obj",
         "FullName": "/mnt/c/forks/orleans/test/Orleans.Serialization.FSharp.Tests/obj"
       }
-    ],
-    "TempDirs": {
-      "Name": "DistributedTests",
-      "FullName": "/mnt/c/forks/orleans/Artifacts/DistributedTests"
-    }
-  },
-  "ProjectCount": 145
+    ]
+  }
 }
