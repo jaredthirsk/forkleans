@@ -1,5 +1,7 @@
 # Granville RPC
 
+![Granville RPC Logo](docs/images/granville-rpc-logo.jpg)
+
 A high-performance UDP-based RPC extension for Microsoft Orleans, designed for real-time applications like multiplayer games.
 
 ## Overview
