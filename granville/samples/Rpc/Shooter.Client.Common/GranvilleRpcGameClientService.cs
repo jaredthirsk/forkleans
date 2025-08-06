@@ -183,18 +183,50 @@ public class GranvilleRpcGameClientService : IDisposable
             _logger.LogInformation("Connecting to Orleans RPC server at {Host}:{Port}", resolvedHost, rpcPort);
             
             // Create RPC client using helper method
-            var hostBuilder = BuildRpcHost(resolvedHost, rpcPort, PlayerId);
-                
-            await hostBuilder.StartAsync();
+            _logger.LogInformation("Creating RPC host for {Host}:{Port}", resolvedHost, rpcPort);
+            var host = BuildRpcHost(resolvedHost, rpcPort, PlayerId);
+            _rpcHost = host;
             
-            _rpcHost = hostBuilder;
-            _rpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+            try
+            {
+                // Start the host in the background to avoid blocking on console lifetime
+                _ = host.RunAsync();
+                
+                // Give the host time to start services
+                await Task.Delay(500);
+                _logger.LogInformation("RPC host services started");
+                
+                // Defer getting the RPC client service to avoid potential blocking
+                // during host startup. Give the host time to fully initialize.
+                await Task.Delay(100);
+                
+                // Now get the RPC client service after a small delay
+                _logger.LogInformation("Getting RPC client service from DI container");
+                try
+                {
+                    _rpcClient = host.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+                    _logger.LogInformation("RPC client obtained successfully");
+                }
+                catch (Exception serviceEx)
+                {
+                    _logger.LogError(serviceEx, "Failed to get RPC client service from DI container");
+                    // Try one more time after another delay
+                    await Task.Delay(500);
+                    _rpcClient = host.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+                    _logger.LogInformation("RPC client obtained successfully on retry");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to start RPC host or get RPC client");
+                return false;
+            }
             
             
             // Debug: check what manifest provider we have
             try
             {
-                var manifestProvider = hostBuilder.Services.GetKeyedService<IClusterManifestProvider>("rpc");
+                var manifestProvider = _rpcHost?.Services.GetKeyedService<IClusterManifestProvider>("rpc");
                 _logger.LogInformation("RPC manifest provider type: {Type}", manifestProvider?.GetType().FullName ?? "NULL");
             }
             catch (Exception ex)
@@ -265,7 +297,28 @@ public class GranvilleRpcGameClientService : IDisposable
                                 }
                                 
                                 _logger.LogInformation("Calling _rpcClient.GetGrain<IGameRpcGrain>(\"game\")");
-                                var grain = _rpcClient.GetGrain<IGameRpcGrain>("game");
+                                _logger.LogInformation("RpcClient type check: {Type}, HashCode: {HashCode}", 
+                                    _rpcClient.GetType().FullName, _rpcClient.GetHashCode());
+                                
+                                // Add thread info
+                                _logger.LogInformation("Thread before GetGrain: {ThreadId}, IsBackground: {IsBackground}, IsThreadPool: {IsThreadPool}", 
+                                    Thread.CurrentThread.ManagedThreadId, 
+                                    Thread.CurrentThread.IsBackground, 
+                                    Thread.CurrentThread.IsThreadPoolThread);
+                                
+                                IGameRpcGrain? grain = null;
+                                try
+                                {
+                                    _logger.LogInformation("About to invoke GetGrain method");
+                                    grain = _rpcClient.GetGrain<IGameRpcGrain>("game");
+                                    _logger.LogInformation("GetGrain method returned");
+                                }
+                                catch (Exception innerEx)
+                                {
+                                    _logger.LogError(innerEx, "Exception during GetGrain call");
+                                    throw;
+                                }
+                                
                                 _logger.LogInformation("GetGrain returned: {GrainType}", grain?.GetType().FullName ?? "null");
                                 return grain;
                             }
@@ -376,7 +429,12 @@ public class GranvilleRpcGameClientService : IDisposable
             // Create and subscribe observer for push updates
             try
             {
-                var loggerFactory = _rpcHost.Services.GetRequiredService<ILoggerFactory>();
+                var loggerFactory = _rpcHost?.Services.GetRequiredService<ILoggerFactory>();
+                if (loggerFactory == null)
+                {
+                    _logger.LogWarning("Could not get logger factory for observer");
+                    return true;
+                }
                 _observer = new GameRpcObserver(loggerFactory.CreateLogger<GameRpcObserver>(), this);
                 
                 // Create an observer reference
@@ -1235,7 +1293,12 @@ public class GranvilleRpcGameClientService : IDisposable
                             case "litenetlib":
                             default:
                                 _logger.LogInformation("Using LiteNetLib UDP transport");
-                                rpcBuilder.UseLiteNetLib();
+                                rpcBuilder.UseLiteNetLib()
+                                    .ConfigureLiteNetLib(options =>
+                                    {
+                                        options.ConnectionTimeoutMs = 5000; // 5 seconds instead of 120 in DEBUG
+                                        options.PollingIntervalMs = 15;
+                                    });
                                 TransportType = "litenetlib";
                                 break;
                         }
@@ -1253,9 +1316,24 @@ public class GranvilleRpcGameClientService : IDisposable
                     })
                     .Build();
                 
-                await hostBuilder.StartAsync();
+                // Start the host without awaiting - it runs in the background
+                _ = hostBuilder.RunAsync();
+                
+                // Wait a bit for the host to start up
+                await Task.Delay(100);
                 _rpcHost = hostBuilder;
-                _rpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+                
+                // Defer getting the RPC client service to avoid potential blocking
+                try
+                {
+                    _rpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+                }
+                catch (Exception serviceEx)
+                {
+                    _logger.LogWarning(serviceEx, "[ZONE_TRANSITION] Failed to get RPC client service immediately, retrying after delay");
+                    await Task.Delay(500);
+                    _rpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+                }
                 
                 // Get the game grain for the independent connection
                 _logger.LogInformation("[ZONE_TRANSITION] Waiting for RPC handshake on independent connection...");
@@ -1427,7 +1505,12 @@ public class GranvilleRpcGameClientService : IDisposable
                         case "litenetlib":
                         default:
                             _logger.LogInformation("Using LiteNetLib UDP transport");
-                            rpcBuilder.UseLiteNetLib();
+                            rpcBuilder.UseLiteNetLib()
+                                .ConfigureLiteNetLib(options =>
+                                {
+                                    options.ConnectionTimeoutMs = 5000; // 5 seconds instead of 120 in DEBUG
+                                    options.PollingIntervalMs = 15;
+                                });
                             TransportType = "litenetlib"; // Ensure we always have a value
                             break;
                     }
@@ -1445,10 +1528,25 @@ public class GranvilleRpcGameClientService : IDisposable
                 })
                 .Build();
                 
-            await hostBuilder.StartAsync();
+            // Start the host without awaiting - it runs in the background
+            _ = hostBuilder.RunAsync();
+            
+            // Wait a bit for the host to start up
+            await Task.Delay(100);
             
             _rpcHost = hostBuilder;
-            _rpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+            
+            // Defer getting the RPC client service to avoid potential blocking
+            try
+            {
+                _rpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+            }
+            catch (Exception serviceEx)
+            {
+                _logger.LogWarning(serviceEx, "[ZONE_TRANSITION] Failed to get RPC client service immediately, retrying after delay");
+                await Task.Delay(500);
+                _rpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+            }
             
             
             // Wait for handshake and manifest exchange to complete with timeout and retry logic
@@ -2090,7 +2188,12 @@ public class GranvilleRpcGameClientService : IDisposable
                         case "litenetlib":
                         default:
                             _logger.LogInformation("Using LiteNetLib UDP transport");
-                            rpcBuilder.UseLiteNetLib();
+                            rpcBuilder.UseLiteNetLib()
+                                .ConfigureLiteNetLib(options =>
+                                {
+                                    options.ConnectionTimeoutMs = 5000; // 5 seconds instead of 120 in DEBUG
+                                    options.PollingIntervalMs = 15;
+                                });
                             TransportType = "litenetlib"; // Ensure we always have a value
                             break;
                     }
@@ -2108,10 +2211,25 @@ public class GranvilleRpcGameClientService : IDisposable
                 })
                 .Build();
                 
-            await hostBuilder.StartAsync();
+            // Start the host without awaiting - it runs in the background
+            _ = hostBuilder.RunAsync();
+            
+            // Wait a bit for the host to start up
+            await Task.Delay(100);
             
             connection.RpcHost = hostBuilder;
-            connection.RpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+            
+            // Defer getting the RPC client service to avoid potential blocking
+            try
+            {
+                connection.RpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+            }
+            catch (Exception serviceEx)
+            {
+                _logger.LogWarning(serviceEx, "Failed to get RPC client service immediately, retrying after delay");
+                await Task.Delay(500);
+                connection.RpcClient = hostBuilder.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+            }
             
             // Brief delay for handshake
             await Task.Delay(200);
@@ -2505,7 +2623,8 @@ public class GranvilleRpcGameClientService : IDisposable
     
     private IHost BuildRpcHost(string resolvedHost, int rpcPort, string? playerId = null)
     {
-        var hostBuilder = Host.CreateDefaultBuilder()
+        // Use HostBuilder instead of Host.CreateDefaultBuilder to avoid console lifetime
+        var hostBuilder = new HostBuilder()
             .ConfigureLogging(logging =>
             {
                 // Clear default providers to avoid duplicate logs
@@ -2538,7 +2657,12 @@ public class GranvilleRpcGameClientService : IDisposable
                     case "litenetlib":
                     default:
                         _logger.LogInformation("Using LiteNetLib UDP transport");
-                        rpcBuilder.UseLiteNetLib();
+                        rpcBuilder.UseLiteNetLib()
+                            .ConfigureLiteNetLib(options =>
+                            {
+                                options.ConnectionTimeoutMs = 5000; // 5 seconds instead of 120 in DEBUG
+                                options.PollingIntervalMs = 15;
+                            });
                         TransportType = "litenetlib"; // Ensure we always have a value
                         break;
                 }

@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Granville.Rpc.Protocol;
+using Granville.Rpc.Zones;
+using Orleans.Runtime;
 
 namespace Granville.Rpc
 {
@@ -19,10 +21,20 @@ namespace Granville.Rpc
         private readonly ConcurrentDictionary<int, string> _zoneToServerMapping = new();
         private readonly SemaphoreSlim _connectionLock = new(1, 1);
         private bool _disposed;
+        private IZoneDetectionStrategy _zoneDetectionStrategy;
 
         public RpcConnectionManager(ILogger<RpcConnectionManager> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        /// <summary>
+        /// Sets the zone detection strategy for routing grains to specific servers.
+        /// </summary>
+        public void SetZoneDetectionStrategy(IZoneDetectionStrategy strategy)
+        {
+            _zoneDetectionStrategy = strategy;
+            _logger.LogInformation("Zone detection strategy set to: {StrategyType}", strategy?.GetType().Name ?? "none");
         }
 
         /// <summary>
@@ -117,20 +129,41 @@ namespace Granville.Rpc
         /// </summary>
         public RpcConnection GetConnectionForRequest(RpcRequest request)
         {
-            // If request has a target zone, try to route to that zone's server
+            // First check if request has an explicit target zone
             if (request.TargetZoneId.HasValue)
             {
                 var connection = GetConnectionForZone(request.TargetZoneId.Value);
                 if (connection != null)
                 {
-                    _logger.LogDebug("Routing request to zone {ZoneId} via server {ServerId}", 
+                    _logger.LogDebug("Routing request to explicit zone {ZoneId} via server {ServerId}", 
                         request.TargetZoneId.Value, 
                         _zoneToServerMapping.GetValueOrDefault(request.TargetZoneId.Value));
                     return connection;
                 }
 
-                _logger.LogWarning("No server found for zone {ZoneId}, falling back to default", 
+                _logger.LogWarning("No server found for explicit zone {ZoneId}, will try zone detection strategy", 
                     request.TargetZoneId.Value);
+            }
+
+            // Try to determine zone using the zone detection strategy
+            if (_zoneDetectionStrategy != null && request.GrainId != default(GrainId))
+            {
+                var detectedZoneId = _zoneDetectionStrategy.GetZoneId(request.GrainId);
+                if (detectedZoneId.HasValue)
+                {
+                    var connection = GetConnectionForZone(detectedZoneId.Value);
+                    if (connection != null)
+                    {
+                        _logger.LogDebug("Zone detection strategy routed grain {GrainId} to zone {ZoneId} via server {ServerId}", 
+                            request.GrainId, 
+                            detectedZoneId.Value,
+                            _zoneToServerMapping.GetValueOrDefault(detectedZoneId.Value));
+                        return connection;
+                    }
+
+                    _logger.LogWarning("Zone detection strategy returned zone {ZoneId} but no server found for that zone", 
+                        detectedZoneId.Value);
+                }
             }
 
             // Fall back to first available connection
@@ -140,6 +173,8 @@ namespace Granville.Rpc
                 throw new InvalidOperationException("No RPC connections available");
             }
 
+            _logger.LogDebug("No zone routing available, using first available connection to server {ServerId}", 
+                firstConnection.ServerId);
             return firstConnection;
         }
 

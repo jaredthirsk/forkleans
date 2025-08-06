@@ -399,7 +399,22 @@ namespace Orleans.Runtime
         bool ISpanFormattable.TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider provider)
             => destination.TryWrite($"GrainReference:{GrainId}:{InterfaceType}", out charsWritten);
 
-        protected TInvokable GetInvokable<TInvokable>() => ActivatorUtilities.GetServiceOrCreateInstance<TInvokable>(Shared.ServiceProvider);
+        protected TInvokable GetInvokable<TInvokable>() 
+        {
+            var result = ActivatorUtilities.GetServiceOrCreateInstance<TInvokable>(Shared.ServiceProvider);
+            
+            // DEBUG: Log invokable creation for debugging GetArgument null issue
+            if (result is IInvokable invokable)
+            {
+                var type = invokable.GetType();
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] GetInvokable<{typeof(TInvokable).Name}> created instance of {type.FullName}");
+                System.Diagnostics.Debug.WriteLine($"[DEBUG]   BaseType: {type.BaseType?.FullName}");
+                System.Diagnostics.Debug.WriteLine($"[DEBUG]   ArgumentCount: {invokable.GetArgumentCount()}");
+                System.Diagnostics.Debug.WriteLine($"[DEBUG]   Method: {invokable.GetMethodName()}");
+            }
+            
+            return result;
+        }
 
         /// <summary>
         /// Invokes the provided method.

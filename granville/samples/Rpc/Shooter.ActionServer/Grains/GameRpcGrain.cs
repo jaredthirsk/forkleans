@@ -419,8 +419,12 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
             var stats = _networkStatsTracker.GetStats();
             stats.ServerId = $"Zone({_worldSimulation.GetAssignedSquare().X},{_worldSimulation.GetAssignedSquare().Y})";
             
-            _logger.LogDebug("[NETWORK_STATS] Sending network stats to {ObserverCount} observers. Stats: Sent={Sent}, Recv={Recv}", 
-                _observers.Count, stats.PacketsSent, stats.PacketsReceived);
+            // Only log if there are observers to notify
+            if (_observers.Count > 0)
+            {
+                _logger.LogDebug("[NETWORK_STATS] Sending network stats to {ObserverCount} observers. Stats: Sent={Sent}, Recv={Recv}", 
+                    _observers.Count, stats.PacketsSent, stats.PacketsReceived);
+            }
             
             // Notify all observers about network stats
             _observers.Notify(observer => observer.OnNetworkStatsUpdated(stats));

@@ -17,7 +17,7 @@ namespace Granville.Rpc
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<RpcGrainReference> _referenceLogger;
         private readonly Serializer _serializer;
-        private RpcClient? _rpcClient;
+        private OutsideRpcClient? _rpcClient;
 
         public RpcGrainFactory(
             IRuntimeClient runtimeClient,
@@ -34,9 +34,9 @@ namespace Granville.Rpc
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
-        private RpcClient GetRpcClient()
+        private OutsideRpcClient GetRpcClient()
         {
-            return _rpcClient ??= _serviceProvider.GetRequiredService<RpcClient>();
+            return _rpcClient ??= _serviceProvider.GetRequiredService<OutsideRpcClient>();
         }
 
         // We can override CreateGrainReference if needed to create RpcGrainReference instances

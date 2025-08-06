@@ -29,7 +29,7 @@ namespace Granville.Rpc
         private readonly IServiceProvider _serviceProvider;
         private readonly TimeProvider _timeProvider;
         private readonly ILocalClientDetails _clientDetails;
-        private readonly RpcClient _rpcClient;
+        private readonly OutsideRpcClient _rpcClient;
         private readonly Serializer _serializer;
         private readonly RpcSerializationSessionFactory _sessionFactory;
         private TimeSpan _responseTimeout = TimeSpan.FromSeconds(30);
@@ -40,7 +40,7 @@ namespace Granville.Rpc
             ILogger<OutsideRpcRuntimeClient> logger,
             TimeProvider timeProvider,
             ILocalClientDetails clientDetails,
-            RpcClient rpcClient,
+            OutsideRpcClient rpcClient,
             RpcSerializationSessionFactory sessionFactory)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -239,9 +239,36 @@ namespace Granville.Rpc
             }
             
             var args = new object[argCount];
+            var invokableType = request.GetType();
+            
             for (int i = 0; i < argCount; i++)
             {
                 args[i] = request.GetArgument(i);
+                
+                // If GetArgument returns null, try to get the value via reflection
+                // This is a workaround for Orleans-generated proxies that don't properly implement GetArgument
+                if (args[i] == null && argCount > 0)
+                {
+                    _logger.LogWarning("[RPC_CLIENT] GetArgument({Index}) returned null, using reflection fallback", i);
+                    var fieldName = $"arg{i}";
+                    var field = invokableType.GetField(fieldName, 
+                        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    
+                    if (field != null)
+                    {
+                        args[i] = field.GetValue(request);
+                        _logger.LogWarning("[RPC_CLIENT] Reflection found field {FieldName} = {Value} (Type: {Type})", 
+                            fieldName, 
+                            args[i]?.ToString() ?? "null",
+                            args[i]?.GetType()?.FullName ?? "null");
+                    }
+                    else
+                    {
+                        _logger.LogError("[RPC_CLIENT] Field {FieldName} not found on type {Type}", 
+                            fieldName, invokableType.FullName);
+                    }
+                }
+                
                 _logger.LogDebug("[RPC_CLIENT] SerializeArguments: arg[{Index}] = {Type}: {Value}", 
                     i, args[i]?.GetType()?.Name ?? "null", args[i]?.ToString() ?? "null");
             }

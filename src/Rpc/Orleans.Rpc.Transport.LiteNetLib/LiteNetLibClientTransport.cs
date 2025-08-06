@@ -16,6 +16,11 @@ namespace Granville.Rpc.Transport.LiteNetLib
     /// </summary>
     public class LiteNetLibClientTransport : IRpcTransport, INetEventListener
     {
+        static LiteNetLibClientTransport()
+        {
+            // Disable LiteNetLib's internal debug logging that outputs "[NM]" and "bad!" messages to console
+            NetDebug.Logger = null;
+        }
         private readonly ILogger<LiteNetLibClientTransport> _logger;
         private readonly RpcTransportOptions _transportOptions;
         private readonly LiteNetLibOptions _liteNetLibOptions;
@@ -148,7 +153,7 @@ namespace Granville.Rpc.Transport.LiteNetLib
                 while (!cancellationToken.IsCancellationRequested && _netManager != null)
                 {
                     pollCount++;
-                    if (pollCount % 100 == 0) // Log every 100 polls
+                    if (pollCount % 1000 == 0) // Log every 1000 polls
                     {
                         _logger.LogDebug("LiteNetLib polling active, poll count: {PollCount}", pollCount);
                     }

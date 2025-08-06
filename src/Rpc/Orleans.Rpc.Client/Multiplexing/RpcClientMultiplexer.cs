@@ -16,7 +16,7 @@ namespace Granville.Rpc.Multiplexing
     /// <summary>
     /// Manages multiple RPC client connections and routes grain requests to appropriate servers.
     /// </summary>
-    internal sealed class RpcClientMultiplexer : IRpcClientMultiplexer
+    public sealed class RpcClientMultiplexer : IRpcClientMultiplexer
     {
         private readonly ILogger<RpcClientMultiplexer> _logger;
         private IGrainRoutingStrategy _routingStrategy;

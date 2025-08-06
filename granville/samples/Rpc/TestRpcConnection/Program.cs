@@ -13,11 +13,15 @@ using Orleans.Metadata;
 using Orleans.Runtime;
 using Orleans.Serialization;
 using Shooter.Shared.RpcInterfaces;
+using LiteNetLib;
 
 class Program
 {
     static async Task Main(string[] args)
     {
+        // Disable LiteNetLib's internal debug logging that outputs "[NM]" and "bad!" messages
+        NetDebug.Logger = null;
+        
         Console.WriteLine("Starting RPC connection test...");
         
         var serverEndpoint = new IPEndPoint(IPAddress.Loopback, 12000);

@@ -35,14 +35,6 @@
                     {
                         <span>Connecting...</span>
                     }
-                    else if (_autoJoinRetrying)
-                    {
-                        <span>Retry #@_autoJoinRetryCount (Stop Auto-Join)</span>
-                    }
-                    else if (_autoJoinEnabled && _countdownSeconds > 0)
-                    {
-                        <span>Join Now (@_countdownSeconds...)</span>
-                    }
                     else
                     {
                         <span>Join Game</span>

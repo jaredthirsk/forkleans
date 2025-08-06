@@ -5,6 +5,7 @@ using System.Reflection.Emit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Orleans;
 using Orleans.CodeGeneration;
 using Orleans.GrainReferences;
 using Orleans.Metadata;
@@ -69,13 +70,37 @@ namespace Granville.Rpc
             {
                 logger?.LogInformation("Recognized {InterfaceType} as RPC interface for grain type {GrainType}", interfaceTypeStr, grainType.ToString());
                 
+                // IMPORTANT: Resolve the correct grain type from interface type
+                // Orleans may pass incorrect grain type (like "rpc"), so we need to resolve it
+                var resolvedGrainType = grainType;
+                try
+                {
+                    var interfaceToTypeResolver = _services.GetRequiredKeyedService<GrainInterfaceTypeToGrainTypeResolver>("rpc");
+                    if (interfaceToTypeResolver.TryGetGrainType(interfaceType, out var correctGrainType))
+                    {
+                        resolvedGrainType = correctGrainType;
+                        logger?.LogInformation("Resolved interface {InterfaceType} to correct grain type {ResolvedGrainType} (was {OriginalGrainType})", 
+                            interfaceTypeStr, resolvedGrainType, grainType);
+                    }
+                    else
+                    {
+                        logger?.LogWarning("Could not resolve grain type for interface {InterfaceType}, using original grain type {GrainType}", 
+                            interfaceTypeStr, grainType);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger?.LogError(ex, "Error resolving grain type for interface {InterfaceType}, using original grain type {GrainType}", 
+                        interfaceTypeStr, grainType);
+                }
+                
                 // First check Granville-generated proxies
                 logger?.LogDebug("Checking GranvilleRpcProvider for interface {InterfaceType}...", interfaceTypeStr);
                 if (_granvilleRpcProvider.TryGet(interfaceType, out var proxyType))
                 {
                     logger?.LogInformation("Found Granville proxy {ProxyType} for interface {InterfaceType}", proxyType.FullName, interfaceTypeStr);
-                    // Use Granville-generated proxy with RPC grain reference
-                    activator = new OrleansProxyWithRpcReferenceActivator(_services, grainType, interfaceType, proxyType);
+                    // Use Granville-generated proxy with RPC grain reference with RESOLVED grain type
+                    activator = new OrleansProxyWithRpcReferenceActivator(_services, resolvedGrainType, interfaceType, proxyType);
                     return true;
                 }
                 
@@ -84,8 +109,8 @@ namespace Granville.Rpc
                 if (_orleansRpcProvider.TryGet(interfaceType, out proxyType))
                 {
                     logger?.LogInformation("Found Orleans proxy {ProxyType} for interface {InterfaceType}", proxyType.FullName, interfaceTypeStr);
-                    // Use Orleans-generated proxy with RPC grain reference
-                    activator = new OrleansProxyWithRpcReferenceActivator(_services, grainType, interfaceType, proxyType);
+                    // Use Orleans-generated proxy with RPC grain reference with RESOLVED grain type
+                    activator = new OrleansProxyWithRpcReferenceActivator(_services, resolvedGrainType, interfaceType, proxyType);
                     return true;
                 }
                 else
@@ -196,7 +221,7 @@ namespace Granville.Rpc
                 var versionManifest = _services.GetRequiredService<GrainVersionManifest>();
                 var codecProvider = _services.GetRequiredService<CodecProvider>();
                 var copyContextPool = _services.GetRequiredService<CopyContextPool>();
-                var rpcClient = _services.GetRequiredService<RpcClient>();
+                var rpcClient = _services.GetRequiredService<OutsideRpcClient>();
                 var serializer = _services.GetRequiredService<Serializer>();
                 var referenceLogger = _services.GetRequiredService<ILogger<RpcGrainReference>>();
                 

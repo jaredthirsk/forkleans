@@ -22,7 +22,7 @@ namespace Granville.Rpc
     internal class RpcGrainReference : GrainReference, ISpanFormattable
     {
         private readonly ILogger<RpcGrainReference> _logger;
-        private readonly RpcClient _rpcClient;
+        private readonly OutsideRpcClient _rpcClient;
         private readonly Serializer _serializer;
         private readonly RpcAsyncEnumerableManager _asyncEnumerableManager;
 
@@ -35,7 +35,7 @@ namespace Granville.Rpc
             GrainReferenceShared shared,
             IdSpan key,
             ILogger<RpcGrainReference> logger,
-            RpcClient rpcClient,
+            OutsideRpcClient rpcClient,
             Serializer serializer,
             RpcAsyncEnumerableManager asyncEnumerableManager)
             : base(shared, key)

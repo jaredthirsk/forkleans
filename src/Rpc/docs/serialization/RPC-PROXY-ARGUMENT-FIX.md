@@ -7,57 +7,68 @@ When using Orleans-generated proxies with the RPC client, method arguments were 
 ### Symptoms
 - Server receives null for method arguments (e.g., playerId in ConnectPlayer)
 - Only 7 bytes serialized instead of full argument data
-- IInvokable.GetArgumentCount() returns 0 in OutsideRpcRuntimeClient
+- IInvokable.GetArgument(index) returns null even though arguments were passed
 
 ### Root Cause
-Orleans-generated proxy classes create IInvokable objects but don't properly initialize them with method arguments when used in the RPC client context. The Orleans proxy system expects a different initialization pattern than what the RPC client provides.
+Orleans-generated proxy classes create IInvokable objects and populate fields like `arg0`, `arg1`, etc. with the method arguments. However, the `GetArgument(int index)` method implementation doesn't properly return these field values, always returning null instead.
 
-## Solution
+## Initial Approach (Doesn't Work)
 
-Create an RpcProvider that prevents Orleans-generated proxies from being used for RPC grains, forcing the system to use RpcGrainReference instead.
+The initial approach was to disable Orleans proxies entirely by making RpcProvider always return false. However, this doesn't work because:
+- RpcGrainReference doesn't implement the specific grain interfaces (e.g., IGameRpcGrain)
+- Client code expects to cast the grain reference to the interface type
+- Without the proxy, the cast fails with an InvalidCastException
+
+## Actual Solution
+
+Fix the argument extraction in RpcGrainReferenceRuntime.GetMethodArguments() to use reflection when GetArgument returns null.
 
 ### Implementation
 
-1. **Created RpcProvider.cs**:
+Updated **RpcGrainReferenceRuntime.cs**:
 ```csharp
-namespace Granville.Rpc
+private object[] GetMethodArguments(IInvokable invokable)
 {
-    internal sealed class RpcProvider
+    var argumentCount = invokable.GetArgumentCount();
+    var arguments = new object[argumentCount];
+    
+    for (int i = 0; i < argumentCount; i++)
     {
-        public bool TryGet(GrainInterfaceType interfaceType, out Type proxyType)
+        arguments[i] = invokable.GetArgument(i);
+        
+        // If GetArgument returns null, try to get the value via reflection
+        // This is a workaround for Orleans-generated proxies that don't properly implement GetArgument
+        if (arguments[i] == null && argumentCount > 0)
         {
-            // Always return false to force use of RpcGrainReference
-            proxyType = null;
-            return false;
+            var fieldName = $"arg{i}";
+            var field = invokable.GetType().GetField(fieldName, 
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            
+            if (field != null)
+            {
+                arguments[i] = field.GetValue(invokable);
+            }
         }
     }
+    
+    return arguments;
 }
 ```
 
-2. **Updated RpcGrainReferenceActivatorProvider.cs**:
-- When RpcProvider.TryGet returns false, create RpcGrainReferenceActivator
-- This ensures all RPC grains use RpcGrainReference which properly handles argument serialization
-
 ### How It Works
 
-1. RpcGrainReferenceActivatorProvider is registered as the first IGrainReferenceActivatorProvider
-2. When creating a grain reference, it checks RpcProvider.TryGet()
-3. Since it always returns false, RpcGrainReferenceActivator is used
-4. RpcGrainReference instances are created with proper InvokeRpcMethodAsync methods
-5. These methods correctly serialize arguments before sending RPC requests
+1. Orleans-generated proxy creates an IInvokable with fields `arg0`, `arg1`, etc. populated with actual values
+2. When RpcGrainReferenceRuntime calls `GetArgument(i)`, it returns null (Orleans bug)
+3. Our fix detects the null return and uses reflection to read the field value directly
+4. The correct argument values are then passed to the RPC transport
 
 ### Benefits
 
-- Arguments are properly captured and serialized
+- Maintains full interface compatibility (proxies implement the grain interfaces)
+- Arguments are properly extracted and serialized
 - No changes needed to Orleans proxy generation
-- Clean separation between Orleans and RPC grain invocation patterns
-- Maintains compatibility with existing code
-
-## Future Improvements
-
-1. **Selective Proxy Usage**: Implement logic in RpcProvider to selectively allow Orleans proxies for certain interfaces that don't use RPC
-2. **Proxy Integration**: Fix Orleans proxy integration to properly initialize IInvokable with arguments
-3. **Performance**: Investigate if custom proxies could provide better performance than reflection-based invocation
+- Simple, localized fix in one method
+- Can be easily removed if Orleans fixes the issue upstream
 
 ## Testing
 

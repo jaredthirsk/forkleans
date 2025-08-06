@@ -17,6 +17,11 @@ namespace Granville.Rpc.Transport.LiteNetLib
     /// </summary>
     public class LiteNetLibTransport : IRpcTransport, INetEventListener
     {
+        static LiteNetLibTransport()
+        {
+            // Disable LiteNetLib's internal debug logging that outputs "[NM]" and "bad!" messages to console
+            NetDebug.Logger = null;
+        }
         private readonly ILogger<LiteNetLibTransport> _logger;
         private readonly RpcTransportOptions _options;
         private readonly INetworkStatisticsTracker _networkStatisticsTracker;

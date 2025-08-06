@@ -14,275 +14,224 @@ using Orleans;
 using Granville.Rpc.Configuration;
 using Granville.Rpc.Telemetry;
 using Granville.Rpc.Transport;
+using Granville.Rpc.Zones;
 using Orleans.Runtime;
+using Orleans.Serialization;
+using Orleans.Serialization.Session;
+using Orleans.Metadata;
 
 namespace Granville.Rpc
 {
     /// <summary>
-    /// RPC client implementation.
+    /// Outside runtime client for RPC.
+    /// This follows Orleans' pattern of separating implementation from public API.
     /// </summary>
-    internal sealed class RpcClient : IClusterClient, IRpcClient, IHostedService
+    internal sealed class OutsideRpcClient : IDisposable
     {
-        private readonly ILogger<RpcClient> _logger;
+        private readonly ILogger<OutsideRpcClient> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly RpcClientOptions _clientOptions;
         private readonly RpcTransportOptions _transportOptions;
         private readonly IRpcTransportFactory _transportFactory;
-        private readonly IClusterClientLifecycle _lifecycle;
         private readonly RpcConnectionManager _connectionManager;
-        private readonly IClusterManifestProvider _manifestProvider;
+        private IClusterManifestProvider _manifestProvider;
         private readonly RpcAsyncEnumerableManager _asyncEnumerableManager;
         
         private readonly ConcurrentDictionary<Guid, TaskCompletionSource<Protocol.RpcResponse>> _pendingRequests 
             = new ConcurrentDictionary<Guid, TaskCompletionSource<Protocol.RpcResponse>>();
         private readonly ConcurrentDictionary<string, IRpcTransport> _transports 
             = new ConcurrentDictionary<string, IRpcTransport>();
+        
+        private IInternalGrainFactory _internalGrainFactory;
+        private IZoneDetectionStrategy _zoneDetectionStrategy;
+        private Serializer _serializer;
+        private SerializerSessionPool _sessionPool;
+        private RpcSerializationSessionFactory _sessionFactory;
+        private bool _servicesConsumed = false;
+        private readonly object _servicesLock = new object();
 
         public bool IsInitialized => _connectionManager?.GetAllConnections().Count > 0;
         public IServiceProvider ServiceProvider => _serviceProvider;
+        public IInternalGrainFactory InternalGrainFactory 
+        {
+            get
+            {
+                EnsureServicesResolved();
+                return _internalGrainFactory;
+            }
+        }
 
-        public RpcClient(
-            ILogger<RpcClient> logger,
+        public OutsideRpcClient(
+            ILogger<OutsideRpcClient> logger,
             IServiceProvider serviceProvider,
             IOptions<RpcClientOptions> clientOptions,
             IOptions<RpcTransportOptions> transportOptions,
             IRpcTransportFactory transportFactory,
-            IClusterClientLifecycle lifecycle,
-            [FromKeyedServices("rpc")] IClusterManifestProvider manifestProvider)
+            ILoggerFactory loggerFactory,
+            RpcSerializationSessionFactory sessionFactory)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _clientOptions = clientOptions?.Value ?? throw new ArgumentNullException(nameof(clientOptions));
             _transportOptions = transportOptions?.Value ?? throw new ArgumentNullException(nameof(transportOptions));
             _transportFactory = transportFactory ?? throw new ArgumentNullException(nameof(transportFactory));
-            _lifecycle = lifecycle ?? throw new ArgumentNullException(nameof(lifecycle));
-            _manifestProvider = manifestProvider ?? throw new ArgumentNullException(nameof(manifestProvider));
             
-            _logger.LogInformation("RpcClient constructor called. ClientId: {ClientId}, Endpoints: {EndpointCount}", 
+            _logger.LogInformation("OutsideRpcClient constructor called. ClientId: {ClientId}, Endpoints: {EndpointCount}", 
                 _clientOptions.ClientId, _clientOptions.ServerEndpoints.Count);
-            
-            _logger.LogInformation("RpcClient created with manifest provider: {ManifestProviderType}", 
-                _manifestProvider.GetType().FullName);
-            
-            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             _connectionManager = new RpcConnectionManager(loggerFactory.CreateLogger<RpcConnectionManager>());
+            _sessionFactory = sessionFactory ?? throw new ArgumentNullException(nameof(sessionFactory));
             
-            var serializer = serviceProvider.GetRequiredService<Orleans.Serialization.Serializer>();
-            _asyncEnumerableManager = new RpcAsyncEnumerableManager(loggerFactory.CreateLogger<RpcAsyncEnumerableManager>(), serializer);
+            _serializer = serviceProvider.GetRequiredService<Orleans.Serialization.Serializer>();
+            _sessionPool = serviceProvider.GetRequiredService<SerializerSessionPool>();
+            _asyncEnumerableManager = new RpcAsyncEnumerableManager(loggerFactory.CreateLogger<RpcAsyncEnumerableManager>(), _serializer);
+            
+            _logger.LogDebug("OutsideRpcClient constructor completed");
+        }
+
+        /// <summary>
+        /// Consume services from the service provider to break circular dependencies.
+        /// This must be called after the DI container is fully built.
+        /// </summary>
+        public void ConsumeServices()
+        {
+            lock (_servicesLock)
+            {
+                if (_servicesConsumed)
+                {
+                    return;
+                }
+                
+                try
+                {
+                    _logger.LogDebug("ConsumeServices called");
+                    
+                    // Note: We delay the actual service resolution to avoid circular dependencies during startup
+                    // The services will be resolved on first use instead
+                    _logger.LogDebug("ConsumeServices marking as consumed without resolving services (lazy initialization)");
+                    
+                    _servicesConsumed = true;
+                    _logger.LogInformation("ConsumeServices completed (services will be resolved on first use)");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error in ConsumeServices. Stack trace: {StackTrace}", ex.StackTrace);
+                    throw;
+                }
+            }
+        }
+        
+        private void EnsureServicesResolved()
+        {
+            lock (_servicesLock)
+            {
+                if (_manifestProvider != null && _internalGrainFactory != null)
+                {
+                    return;
+                }
+                
+                try
+                {
+                    _logger.LogDebug("EnsureServicesResolved: Resolving services on first use");
+                    
+                    if (_manifestProvider == null)
+                    {
+                        _logger.LogDebug("Attempting to resolve IClusterManifestProvider with key 'rpc'");
+                        _manifestProvider = ServiceProvider.GetRequiredKeyedService<IClusterManifestProvider>("rpc");
+                        _logger.LogDebug("Successfully resolved IClusterManifestProvider: {Type}", _manifestProvider?.GetType().FullName ?? "null");
+                    }
+                    
+                    if (_internalGrainFactory == null)
+                    {
+                        _logger.LogDebug("Attempting to resolve IGrainFactory with key 'rpc'");
+                        _internalGrainFactory = ServiceProvider.GetRequiredKeyedService<IGrainFactory>("rpc") as IInternalGrainFactory;
+                        _logger.LogDebug("Successfully resolved IGrainFactory: {Type}", _internalGrainFactory?.GetType().FullName ?? "null");
+                    }
+                    
+                    if (_zoneDetectionStrategy == null)
+                    {
+                        _logger.LogDebug("Attempting to resolve IZoneDetectionStrategy");
+                        _zoneDetectionStrategy = ServiceProvider.GetService<IZoneDetectionStrategy>();
+                        _logger.LogDebug("Resolved IZoneDetectionStrategy: {Type}", _zoneDetectionStrategy?.GetType().FullName ?? "null");
+                        
+                        // Set zone detection strategy if available
+                        if (_zoneDetectionStrategy != null)
+                        {
+                            _connectionManager.SetZoneDetectionStrategy(_zoneDetectionStrategy);
+                            _logger.LogInformation("Configured with zone detection strategy: {StrategyType}", 
+                                _zoneDetectionStrategy.GetType().Name);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error resolving services. Stack trace: {StackTrace}", ex.StackTrace);
+                    throw;
+                }
+            }
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting RPC client {ClientId}", _clientOptions.ClientId);
+            _logger.LogInformation("Starting OutsideRpcClient {ClientId}", _clientOptions.ClientId);
             
             try
             {
-                // REMOVED: ConsumeServices was causing a circular dependency instead of breaking one
-                // RpcClient → OutsideRpcRuntimeClient.ConsumeServices() → IGrainReferenceRuntime → 
-                // RpcGrainReferenceRuntime → needs RpcClient (circular!)
-                // The GrainReferenceRuntime will be lazily initialized when first needed instead
-                _logger.LogDebug("Skipping ConsumeServices to avoid circular dependency");
-                
-                // Start lifecycle if available
-                var lifecycleSubject = _lifecycle as ILifecycleSubject;
-                if (lifecycleSubject != null)
+                // Note: We don't call ConsumeServices here anymore to avoid potential deadlocks
+                // during IHostedService startup. Services will be resolved on first use instead.
+                _logger.LogDebug("StartAsync: Marking services as consumed for lazy initialization");
+                lock (_servicesLock)
                 {
-                    _logger.LogDebug("Lifecycle subject found, calling OnStart");
-                    await lifecycleSubject.OnStart(cancellationToken);
-                    _logger.LogDebug("Lifecycle OnStart completed");
-                }
-                else
-                {
-                    _logger.LogDebug("No lifecycle subject found");
+                    _servicesConsumed = true;
                 }
                 
                 // Check if we have any configured endpoints
+                _logger.LogInformation("RPC client has {EndpointCount} configured endpoints", _clientOptions.ServerEndpoints.Count);
                 if (_clientOptions.ServerEndpoints.Count == 0)
                 {
                     _logger.LogWarning("RPC client started but no server endpoints configured. Client will not connect to any servers.");
                     return;
                 }
                 
-                _logger.LogDebug("Connecting to {EndpointCount} initial servers", _clientOptions.ServerEndpoints.Count);
-                _logger.LogDebug("RPC Client: About to call ConnectToInitialServersAsync");
+                // Log the endpoints
+                foreach (var endpoint in _clientOptions.ServerEndpoints)
+                {
+                    _logger.LogInformation("Configured endpoint: {Endpoint}", endpoint);
+                }
+                
+                _logger.LogInformation("Connecting to {EndpointCount} initial servers", _clientOptions.ServerEndpoints.Count);
                 await ConnectToInitialServersAsync(cancellationToken);
-                _logger.LogDebug("RPC Client: ConnectToInitialServersAsync completed successfully");
-                _logger.LogInformation("RPC client started successfully");
+                _logger.LogInformation("OutsideRpcClient started successfully");
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("StartAsync was cancelled");
+                throw;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to start RPC client");
+                _logger.LogError(ex, "Failed to start OutsideRpcClient. Exception type: {ExceptionType}, Message: {Message}", 
+                    ex.GetType().FullName, ex.Message);
                 throw;
             }
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Stopping RPC client");
+            _logger.LogInformation("Stopping OutsideRpcClient");
             
             try
             {
                 await DisconnectAllAsync();
-                await (_lifecycle as ILifecycleSubject)?.OnStop(cancellationToken);
-                _logger.LogInformation("RPC client stopped successfully");
+                _logger.LogInformation("OutsideRpcClient stopped successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while stopping RPC client");
+                _logger.LogError(ex, "Error while stopping OutsideRpcClient");
                 throw;
             }
         }
 
-        public TGrainInterface GetGrain<TGrainInterface>(Guid primaryKey, string grainClassNamePrefix = null) 
-            where TGrainInterface : IGrainWithGuidKey
-        {
-            _logger.LogDebug("RpcClient.GetGrain<{Interface}> called with primaryKey: {PrimaryKey}", typeof(TGrainInterface).Name, primaryKey);
-            EnsureConnected();
-            // Use keyed service to ensure we get RPC's grain factory
-            _logger.LogDebug("Getting keyed IGrainFactory service with key 'rpc'");
-            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            _logger.LogDebug("Got RPC grain factory, creating grain reference");
-            var grain = grainFactory.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
-            _logger.LogDebug("Created grain reference of type {GrainType}", grain?.GetType().Name ?? "null");
-            return grain;
-        }
-
-        public TGrainInterface GetGrain<TGrainInterface>(long primaryKey, string grainClassNamePrefix = null) 
-            where TGrainInterface : IGrainWithIntegerKey
-        {
-            _logger.LogDebug("RpcClient.GetGrain<{Interface}> called with primaryKey: {PrimaryKey}", typeof(TGrainInterface).Name, primaryKey);
-            EnsureConnected();
-            // Use keyed service to ensure we get RPC's grain factory
-            _logger.LogDebug("Getting keyed IGrainFactory service with key 'rpc'");
-            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            _logger.LogDebug("Got RPC grain factory, creating grain reference");
-            var grain = grainFactory.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
-            _logger.LogDebug("Created grain reference of type {GrainType}", grain?.GetType().Name ?? "null");
-            return grain;
-        }
-
-        public TGrainInterface GetGrain<TGrainInterface>(string primaryKey, string grainClassNamePrefix = null) 
-            where TGrainInterface : IGrainWithStringKey
-        {
-            _logger.LogInformation("RpcClient.GetGrain<{Interface}> called with primaryKey: {PrimaryKey}", typeof(TGrainInterface).Name, primaryKey);
-            try
-            {
-                _logger.LogInformation("Calling EnsureConnected()");
-                EnsureConnected();
-                _logger.LogInformation("EnsureConnected() completed successfully");
-                
-                // Use keyed service to ensure we get RPC's grain factory
-                _logger.LogInformation("About to call GetRequiredKeyedService<IGrainFactory>('rpc')");
-                var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-                _logger.LogInformation("Got RPC grain factory of type: {FactoryType}", grainFactory?.GetType().FullName ?? "null");
-                
-                _logger.LogInformation("About to call grainFactory.GetGrain<{Interface}>({PrimaryKey})", typeof(TGrainInterface).Name, primaryKey);
-                var grain = grainFactory.GetGrain<TGrainInterface>(primaryKey, grainClassNamePrefix);
-                _logger.LogInformation("grainFactory.GetGrain returned grain of type {GrainType}", grain?.GetType().FullName ?? "null");
-                
-                return grain;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Exception in RpcClient.GetGrain: {ExceptionType} - {Message}", 
-                    ex.GetType().FullName, ex.Message);
-                throw;
-            }
-        }
-
-        public TGrainInterface GetGrain<TGrainInterface>(Guid primaryKey, string keyExtension, string grainClassNamePrefix = null) 
-            where TGrainInterface : IGrainWithGuidCompoundKey
-        {
-            EnsureConnected();
-            // Use keyed service to ensure we get RPC's grain factory
-            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            return grainFactory.GetGrain<TGrainInterface>(primaryKey, keyExtension, grainClassNamePrefix);
-        }
-
-        public TGrainInterface GetGrain<TGrainInterface>(long primaryKey, string keyExtension, string grainClassNamePrefix = null) 
-            where TGrainInterface : IGrainWithIntegerCompoundKey
-        {
-            EnsureConnected();
-            // Use keyed service to ensure we get RPC's grain factory
-            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            return grainFactory.GetGrain<TGrainInterface>(primaryKey, keyExtension, grainClassNamePrefix);
-        }
-
-        public TGrainInterface GetGrain<TGrainInterface>(GrainId grainId) where TGrainInterface : IAddressable
-        {
-            EnsureConnected();
-            // Use keyed service to ensure we get RPC's grain factory
-            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            return grainFactory.GetGrain<TGrainInterface>(grainId);
-        }
-
-        public IAddressable GetGrain(GrainId grainId)
-        {
-            EnsureConnected();
-            // Use keyed service to ensure we get RPC's grain factory
-            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            return grainFactory.GetGrain(grainId);
-        }
-
-        public IAddressable GetGrain(GrainId grainId, GrainInterfaceType interfaceType)
-        {
-            EnsureConnected();
-            // Use keyed service to ensure we get RPC's grain factory
-            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            return grainFactory.GetGrain(grainId, interfaceType);
-        }
-
-        public IGrain GetGrain(Type grainInterfaceType, Guid grainPrimaryKey)
-        {
-            EnsureConnected();
-            // Use keyed service to ensure we get RPC's grain factory
-            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            return grainFactory.GetGrain(grainInterfaceType, grainPrimaryKey);
-        }
-
-        public IGrain GetGrain(Type grainInterfaceType, long grainPrimaryKey)
-        {
-            EnsureConnected();
-            // Use keyed service to ensure we get RPC's grain factory
-            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            return grainFactory.GetGrain(grainInterfaceType, grainPrimaryKey);
-        }
-
-        public IGrain GetGrain(Type grainInterfaceType, string grainPrimaryKey)
-        {
-            EnsureConnected();
-            // Use keyed service to ensure we get RPC's grain factory
-            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            return grainFactory.GetGrain(grainInterfaceType, grainPrimaryKey);
-        }
-
-        public IGrain GetGrain(Type grainInterfaceType, Guid grainPrimaryKey, string grainClassNamePrefix)
-        {
-            EnsureConnected();
-            // Use keyed service to ensure we get RPC's grain factory
-            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            return grainFactory.GetGrain(grainInterfaceType, grainPrimaryKey, grainClassNamePrefix);
-        }
-
-        public IGrain GetGrain(Type grainInterfaceType, long grainPrimaryKey, string grainClassNamePrefix)
-        {
-            EnsureConnected();
-            // Use keyed service to ensure we get RPC's grain factory
-            var grainFactory = _serviceProvider.GetRequiredKeyedService<IGrainFactory>("rpc");
-            return grainFactory.GetGrain(grainInterfaceType, grainPrimaryKey, grainClassNamePrefix);
-        }
-
-        public TGrainObserverInterface CreateObjectReference<TGrainObserverInterface>(IGrainObserver obj) 
-            where TGrainObserverInterface : IGrainObserver
-        {
-            throw new NotSupportedException("Grain observers are not supported in RPC mode");
-        }
-
-        public void DeleteObjectReference<TGrainObserverInterface>(IGrainObserver obj) 
-            where TGrainObserverInterface : IGrainObserver
-        {
-            // Not supported in RPC mode
-        }
+        // GetGrain methods removed - these are now in RpcClusterClient which delegates to InternalGrainFactory
 
         private async Task ConnectToInitialServersAsync(CancellationToken cancellationToken)
         {
@@ -402,6 +351,8 @@ namespace Granville.Rpc
             }
         }
 
+        // GetGrainFactory removed - now using InternalGrainFactory property set in ConsumeServices
+
         private async void OnDataReceived(object sender, RpcDataReceivedEventArgs e)
         {
             try
@@ -479,6 +430,7 @@ namespace Granville.Rpc
             // Update the manifest provider with server's grain manifest
             if (handshakeAck.GrainManifest != null)
             {
+                EnsureServicesResolved();
                 // Cast to the concrete type to access the UpdateFromServerAsync method
                 if (_manifestProvider is MultiServerManifestProvider multiServerManifestProvider)
                 {
@@ -562,6 +514,7 @@ namespace Granville.Rpc
                     await _connectionManager.RemoveConnectionAsync(e.ConnectionId);
                     
                     // Remove the manifest for this server to ensure clean state on reconnection
+                    EnsureServicesResolved();
                     if (_manifestProvider is MultiServerManifestProvider multiServerManifestProvider)
                     {
                         await multiServerManifestProvider.RemoveServerManifestAsync(e.ConnectionId);
@@ -756,6 +709,7 @@ namespace Granville.Rpc
 
         public async Task WaitForManifestAsync(TimeSpan timeout = default)
         {
+            EnsureServicesResolved();
             var manifestProvider = _manifestProvider as MultiServerManifestProvider;
             if (manifestProvider == null) 
             {
@@ -794,24 +748,216 @@ namespace Granville.Rpc
             throw new TimeoutException($"Manifest not populated within {timeout}. Ensure at least one RPC server is running and accessible.");
         }
 
+        /// <summary>
+        /// Invokes an RPC method on a grain.
+        /// </summary>
+        /// <summary>
+        /// Invoke RPC method using grain type directly (for Orleans-generated proxies)
+        /// </summary>
+        internal async Task<T> InvokeRpcMethodAsync<T>(string grainKey, GrainType grainType, int methodId, object[] arguments)
+        {
+            _logger.LogDebug("InvokeRpcMethodAsync called with {ArgCount} arguments for grain {GrainType}/{GrainKey} method {MethodId}", 
+                arguments?.Length ?? 0, grainType, grainKey, methodId);
+            
+            // Log the actual arguments
+            if (arguments != null)
+            {
+                for (int i = 0; i < arguments.Length; i++)
+                {
+                    _logger.LogDebug("Argument[{Index}]: Type={Type}, Value={Value}", 
+                        i, arguments[i]?.GetType()?.FullName ?? "null", arguments[i]?.ToString() ?? "null");
+                }
+            }
+            
+            // Serialize the arguments using isolated session for value-based serialization
+            var serializedArgs = new byte[0];
+            if (arguments != null && arguments.Length > 0)
+            {
+                serializedArgs = _sessionFactory.SerializeArgumentsWithIsolatedSession(_serializer, arguments);
+            }
+
+            EnsureServicesResolved();
+            
+            _logger.LogDebug("InvokeRpcMethodAsync (GrainType): grainKey={GrainKey}, grainType={GrainType}", grainKey, grainType);
+            
+            // Use the grain type directly
+            var grainId = GrainId.Create(grainType, grainKey);
+            
+            // Create and send the RPC request  
+            var request = new Protocol.RpcRequest
+            {
+                MessageId = Guid.NewGuid(),
+                GrainId = grainId,
+                MethodId = methodId,
+                Arguments = serializedArgs,
+                TimeoutMs = 30000
+            };
+            
+            _logger.LogDebug("Sending RPC request {MessageId} for grain {GrainId} method {MethodId}", 
+                request.MessageId, grainId, methodId);
+            
+            var response = await SendRequestAsync(request);
+            
+            if (!response.Success)
+            {
+                throw new Exception(response.ErrorMessage ?? "Unknown RPC error");
+            }
+            
+            // Deserialize the response
+            if (response.Payload != null && response.Payload.Length > 0)
+            {
+                using var responseSession = _sessionPool.GetSession();
+                
+                // Check for Orleans binary marker and skip it if present
+                var payload = response.Payload;
+                if (payload.Length > 0 && payload[0] == 0x00)
+                {
+                    // Skip the Orleans binary marker
+                    payload = payload[1..];
+                    _logger.LogDebug("Skipping Orleans binary marker in response payload");
+                }
+                
+                return _serializer.Deserialize<T>(payload, responseSession);
+            }
+            
+            return default(T);
+        }
+
+        internal async Task<T> InvokeRpcMethodAsync<T>(string grainKey, GrainInterfaceType interfaceType, int methodId, object[] arguments)
+        {
+            // Serialize the arguments using isolated session for value-based serialization
+            var serializedArgs = new byte[0];
+            if (arguments != null && arguments.Length > 0)
+            {
+                serializedArgs = _sessionFactory.SerializeArgumentsWithIsolatedSession(_serializer, arguments);
+            }
+
+            // Resolve the grain type from the interface type
+            EnsureServicesResolved();
+            
+            _logger.LogDebug("InvokeRpcMethodAsync: grainKey={GrainKey}, interfaceType={InterfaceType}", grainKey, interfaceType);
+            
+            // Get the GrainInterfaceTypeToGrainTypeResolver
+            var interfaceToTypeResolver = _serviceProvider.GetRequiredKeyedService<GrainInterfaceTypeToGrainTypeResolver>("rpc");
+            
+            // Resolve the grain type from the interface type
+            GrainType grainType;
+            if (interfaceToTypeResolver.TryGetGrainType(interfaceType, out var resolvedGrainType))
+            {
+                grainType = resolvedGrainType;
+                _logger.LogInformation("Successfully resolved grain type {GrainType} for interface {InterfaceType}", grainType, interfaceType);
+            }
+            else
+            {
+                // Fallback: if we can't resolve, log an error and try to continue
+                _logger.LogError("Could not resolve grain type for interface {InterfaceType}, using convention-based fallback", interfaceType);
+                
+                // First try to look up in manifest if available
+                if (_manifestProvider.Current != null)
+                {
+                    _logger.LogDebug("Trying to find grain type in manifest...");
+                    foreach (var grainManifest in _manifestProvider.Current.AllGrainManifests)
+                    {
+                        _logger.LogDebug("Checking manifest with {GrainCount} grains", grainManifest.Grains.Count);
+                        foreach (var grain in grainManifest.Grains)
+                        {
+                            _logger.LogDebug("Checking grain {GrainType} with {PropCount} properties", grain.Key, grain.Value.Properties.Count);
+                            // Check if this grain implements the interface
+                            // Look for interface properties (e.g., "interface.0", "interface.1", etc.)
+                            foreach (var prop in grain.Value.Properties)
+                            {
+                                if (prop.Key.StartsWith("interface.") && prop.Key != "interface.count")
+                                {
+                                    var implementedInterface = prop.Value;
+                                    _logger.LogDebug("  Grain {GrainType} implements interface {Interface}", grain.Key, implementedInterface);
+                                    
+                                    if (implementedInterface == interfaceType.ToString())
+                                    {
+                                        grainType = grain.Key;
+                                        _logger.LogInformation("Found grain type {GrainType} in manifest for interface {InterfaceType}", grainType, interfaceType);
+                                        goto foundInManifest;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // If not found in manifest, use convention
+                var typeName = char.ToUpper(grainKey[0]) + grainKey.Substring(1);
+                grainType = GrainType.Create($"Shooter.ActionServer.Grains.{typeName}RpcGrain"); 
+                _logger.LogWarning("Using convention-based grain type {GrainType} for interface {InterfaceType}", grainType, interfaceType);
+                
+                foundInManifest:;
+            }
+            
+            _logger.LogInformation("Creating GrainId with grainType={GrainType}, grainKey={GrainKey}", grainType, grainKey);
+            var grainId = GrainId.Create(grainType, IdSpan.Create(grainKey));
+
+            var request = new Protocol.RpcRequest
+            {
+                MessageId = Guid.NewGuid(),
+                GrainId = grainId,
+                InterfaceType = interfaceType,
+                MethodId = methodId,
+                Arguments = serializedArgs,
+                Timestamp = DateTime.UtcNow,
+                ReturnTypeName = typeof(T).FullName ?? string.Empty
+            };
+
+            var response = await SendRequestAsync(request);
+            
+            if (!response.Success)
+            {
+                // Deserialize the error
+                if (response.Payload != null && response.Payload.Length > 0)
+                {
+                    try
+                    {
+                        var error = _serializer.Deserialize<string>(response.Payload);
+                        throw new Exception($"RPC call failed: {error}");
+                    }
+                    catch
+                    {
+                        throw new Exception($"RPC call failed with unknown error");
+                    }
+                }
+                throw new Exception($"RPC call failed: {response.ErrorMessage}");
+            }
+
+            if (response.Payload == null || response.Payload.Length == 0)
+            {
+                return default(T);
+            }
+
+            // Deserialize the result
+            try
+            {
+                using var responseSession = _sessionPool.GetSession();
+                
+                // Check for Orleans binary marker and skip it if present
+                var payload = response.Payload;
+                if (payload.Length > 0 && payload[0] == 0x00)
+                {
+                    // Skip the Orleans binary marker
+                    payload = payload[1..];
+                    _logger.LogDebug("Skipping Orleans binary marker in response payload");
+                }
+                
+                var result = _serializer.Deserialize<T>(payload, responseSession);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to deserialize RPC result to {ExpectedType}", typeof(T).FullName);
+                throw new InvalidCastException($"Cannot deserialize RPC result to {typeof(T)}", ex);
+            }
+        }
+
         public void Dispose()
         {
             DisconnectAllAsync().GetAwaiter().GetResult();
             _connectionManager?.Dispose();
         }
-    }
-
-    /// <summary>
-    /// RPC client interface.
-    /// </summary>
-    public interface IRpcClient : IClusterClient
-    {
-        /// <summary>
-        /// Waits for the manifest to be populated from at least one server.
-        /// </summary>
-        /// <param name="timeout">The maximum time to wait. Default is 10 seconds.</param>
-        /// <returns>A task that completes when the manifest is ready.</returns>
-        /// <exception cref="TimeoutException">Thrown if the manifest is not populated within the timeout.</exception>
-        Task WaitForManifestAsync(TimeSpan timeout = default);
     }
 }

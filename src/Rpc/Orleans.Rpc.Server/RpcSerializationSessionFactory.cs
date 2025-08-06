@@ -74,22 +74,63 @@ namespace Granville.Rpc
         /// </summary>
         public byte[] SerializeArgumentsWithIsolatedSession(Serializer serializer, object[] args)
         {
-            using var session = CreateClientSession();
-            
             _logger.LogDebug("[RPC_SESSION_FACTORY] Serializing {Count} arguments with isolated session", args.Length);
             
-            var writer = new System.Buffers.ArrayBufferWriter<byte>();
-            serializer.Serialize(args, writer, session);
-            var result = writer.WrittenMemory.ToArray();
+            // IMPORTANT: Serialize each argument with its own fresh session to avoid reference tracking
+            // Orleans StringCodec always tries to use references if the string was seen before in the session.
+            // By using a fresh session for each argument, we ensure value-based serialization.
+            var segments = new System.Collections.Generic.List<byte[]>();
+            var totalLength = 0;
             
-            _logger.LogDebug("[RPC_SESSION_FACTORY] Serialized to {Length} bytes with isolated session", result.Length);
+            for (int i = 0; i < args.Length; i++)
+            {
+                using var session = CreateClientSession();
+                var writer = new System.Buffers.ArrayBufferWriter<byte>();
+                
+                // Serialize individual argument to force value serialization
+                serializer.Serialize(args[i], writer, session);
+                var segment = writer.WrittenMemory.ToArray();
+                
+                _logger.LogDebug("[RPC_SESSION_FACTORY] Argument[{Index}] serialized to {Length} bytes", i, segment.Length);
+                
+                segments.Add(segment);
+                totalLength += segment.Length + 4; // 4 bytes for length prefix
+            }
+            
+            // Combine segments with length prefixes into a custom format
+            // Format: [marker][count][length1][data1][length2][data2]...
+            var result = new byte[totalLength + 5]; // +5 for marker and array count
+            result[0] = 0xFF; // Custom RPC arguments marker (not 0x00 which is Orleans binary)
+            
+            // Write argument count (4 bytes, big-endian)
+            result[1] = (byte)(args.Length >> 24);
+            result[2] = (byte)(args.Length >> 16);
+            result[3] = (byte)(args.Length >> 8);
+            result[4] = (byte)args.Length;
+            
+            var offset = 5;
+            for (int i = 0; i < segments.Count; i++)
+            {
+                var segment = segments[i];
+                // Write segment length (4 bytes, big-endian)
+                result[offset++] = (byte)(segment.Length >> 24);
+                result[offset++] = (byte)(segment.Length >> 16);
+                result[offset++] = (byte)(segment.Length >> 8);
+                result[offset++] = (byte)segment.Length;
+                
+                // Write segment data
+                Array.Copy(segment, 0, result, offset, segment.Length);
+                offset += segment.Length;
+            }
+            
+            _logger.LogDebug("[RPC_SESSION_FACTORY] Total serialized to {Length} bytes with individual sessions per argument", result.Length);
             
             return result;
         }
 
         /// <summary>
         /// Deserializes arguments using an isolated session to handle value-based deserialization.
-        /// Always expects Orleans binary format for consistency.
+        /// Supports both Orleans binary format and custom RPC format with individual argument sessions.
         /// </summary>
         public T DeserializeWithIsolatedSession<T>(Serializer serializer, ReadOnlyMemory<byte> data)
         {
@@ -104,7 +145,53 @@ namespace Granville.Rpc
             var dataSpan = data.Span;
             var marker = dataSpan[0];
             
-            if (marker == 0x00) // Orleans binary marker
+            if (marker == 0xFF && typeof(T) == typeof(object[])) // Custom RPC arguments format
+            {
+                _logger.LogDebug("[RPC_SESSION_FACTORY] Detected custom RPC arguments format");
+                
+                if (data.Length < 5)
+                {
+                    throw new InvalidOperationException("Invalid RPC arguments format: insufficient data");
+                }
+                
+                // Read argument count (4 bytes, big-endian)
+                var argCount = (dataSpan[1] << 24) | (dataSpan[2] << 16) | (dataSpan[3] << 8) | dataSpan[4];
+                _logger.LogDebug("[RPC_SESSION_FACTORY] Deserializing {Count} arguments", argCount);
+                
+                var args = new object[argCount];
+                var offset = 5;
+                
+                for (int i = 0; i < argCount; i++)
+                {
+                    if (offset + 4 > data.Length)
+                    {
+                        throw new InvalidOperationException($"Invalid RPC arguments format: insufficient data for argument {i} length");
+                    }
+                    
+                    // Read segment length (4 bytes, big-endian)
+                    var segmentLength = (dataSpan[offset] << 24) | (dataSpan[offset + 1] << 16) | 
+                                      (dataSpan[offset + 2] << 8) | dataSpan[offset + 3];
+                    offset += 4;
+                    
+                    if (offset + segmentLength > data.Length)
+                    {
+                        throw new InvalidOperationException($"Invalid RPC arguments format: insufficient data for argument {i} content");
+                    }
+                    
+                    // Deserialize individual argument with fresh session
+                    var segmentData = data.Slice(offset, segmentLength);
+                    using var session = CreateServerSession();
+                    args[i] = serializer.Deserialize<object>(segmentData, session);
+                    
+                    _logger.LogDebug("[RPC_SESSION_FACTORY] Deserialized argument[{Index}]: Type={Type}, Value={Value}",
+                        i, args[i]?.GetType()?.Name ?? "null", args[i]?.ToString() ?? "null");
+                    
+                    offset += segmentLength;
+                }
+                
+                return (T)(object)args;
+            }
+            else if (marker == 0x00) // Orleans binary marker
             {
                 _logger.LogDebug("[RPC_SESSION_FACTORY] Detected Orleans binary serialization, using isolated session for type {Type}", typeof(T).Name);
                 

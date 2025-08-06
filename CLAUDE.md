@@ -56,7 +56,8 @@ Key principles:
 
 ## Building Granville Orleans
 
-See `/granville/docs/BUILDING.md` for build approaches.
+- Use `rl.sh` to run the AppHost, and use `pwsh_win @granville/scripts/build-all-granville.ps1 -BumpRevision` to build as needed (you can tweak the options if you want to build less.)
+- See `/granville/docs/BUILDING.md` for more details on build approaches.
 - When building new versions of nupkg packages, always bump the revision part of the version first using the `granville/scripts/bump-granville-version.ps1` script
 
 ## Working with the Fork
@@ -112,5 +113,8 @@ See `/granville/compatibility-tools/README.md` for details.
 # Non-obvious notes to remember:
 
 - Orleans code generation is disabled (Orleans_DesignTimeBuild=true) but Granville code generation is enabled (Granville_DesignTimeBuild=false)
+- Granville RPC needs keyed service registration, because our Granville RPC application has to be able to coexist with Orleans in the same DI container.  So for example both Orleans IGrainFactory and RPC IGrainFactory may exist in the same container, and the RPC one should have the "rpc" key.
+- When looking at circular dependencies, pay attention to constructor injection versus resolving services via a method such as ConsumeServices() after the constructor has been invoked.  Follow Orleans' pattern unless there's a good reason not to.
+
 
 

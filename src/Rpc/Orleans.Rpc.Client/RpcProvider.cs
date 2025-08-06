@@ -6,7 +6,7 @@ namespace Granville.Rpc
 {
     /// <summary>
     /// Provides information about RPC proxy types.
-    /// This delegates to the Orleans RpcProvider to use Granville-generated proxies.
+    /// This delegates to the Orleans RpcProvider to use Orleans-generated proxies.
     /// </summary>
     internal sealed class RpcProxyProvider
     {
