@@ -51,8 +51,9 @@ public class GranvilleRpcGameClientService : IDisposable
     private readonly ConcurrentDictionary<string, PreEstablishedConnection> _preEstablishedConnections = new();
     private GridSquare? _currentZone = null;
     private GridSquare? _previousZone = null; // For one-way hysteresis
+    private GridSquare? _lastStableZone = null; // Last zone player was stable in (for hysteresis calculation)
     private DateTime _zoneEntryTime = DateTime.MinValue; // When entered current zone
-    private const float ZONE_REENTRY_THRESHOLD = 75f; // Must move 75 units into previous zone
+    private const float ZONE_REENTRY_THRESHOLD = 100f; // Must move 100 units into previous zone (aligns with grid lines)
     private bool _isBlockedFromPreviousZone = false; // Currently blocked from re-entering
     private Vector2 _blockedBoundaryNormal = Vector2.Zero; // Normal vector of blocked boundary
     private WorldState? _lastWorldState = null;
@@ -599,83 +600,97 @@ public class GranvilleRpcGameClientService : IDisposable
     
     private GridSquare ApplyOneWayHysteresis(GridSquare detectedZone, Vector2 position)
     {
-        // If no previous zone or no current zone, allow the transition
-        if (_previousZone == null || _currentZone == null)
+        // If we don't have a stable zone history, allow the transition
+        if (_lastStableZone == null || _previousZone == null)
         {
             _isBlockedFromPreviousZone = false;
+            _lastStableZone = detectedZone;
             return detectedZone;
         }
         
-        // Check if trying to return to previous zone
-        if (detectedZone.X == _previousZone.X && detectedZone.Y == _previousZone.Y)
+        // If we're in a different zone than last stable, we've moved on
+        if (detectedZone.X != _lastStableZone.X || detectedZone.Y != _lastStableZone.Y)
         {
-            // Calculate distance into the previous zone from the boundary
-            var distanceIntoPreviousZone = CalculateDistanceFromBoundary(position, _previousZone, _currentZone);
-            
-            // If zones aren't adjacent (distance < 0), allow the transition
-            if (distanceIntoPreviousZone < 0)
+            // Check if trying to return to previous zone
+            if (_previousZone != null && detectedZone.X == _previousZone.X && detectedZone.Y == _previousZone.Y)
             {
-                // Zones aren't adjacent - this shouldn't normally happen but allow it
-                _logger.LogWarning("[ONE_WAY_HYSTERESIS] Non-adjacent zone transition from ({FromX},{FromY}) to ({ToX},{ToY})",
-                    _currentZone.X, _currentZone.Y, _previousZone.X, _previousZone.Y);
+                // Calculate distance into the previous zone from the boundary
+                var distanceIntoPreviousZone = CalculateDistanceFromBoundary(position, _previousZone, _lastStableZone);
+                
+                // If zones aren't adjacent (distance < 0), something's wrong but allow it
+                if (distanceIntoPreviousZone < 0)
+                {
+                    _logger.LogWarning("[ONE_WAY_HYSTERESIS] Non-adjacent zones: last stable ({FromX},{FromY}), trying to enter ({ToX},{ToY})",
+                        _lastStableZone.X, _lastStableZone.Y, _previousZone.X, _previousZone.Y);
+                        
+                    bool wasBlocked = _isBlockedFromPreviousZone;
+                    _isBlockedFromPreviousZone = false;
+                    _lastStableZone = detectedZone;
                     
-                bool wasBlocked = _isBlockedFromPreviousZone;
-                _isBlockedFromPreviousZone = false;
-                
-                if (wasBlocked)
-                {
-                    OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+                    if (wasBlocked)
+                    {
+                        OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+                    }
+                    
+                    return detectedZone;
                 }
                 
-                return detectedZone;
-            }
-            
-            if (distanceIntoPreviousZone < ZONE_REENTRY_THRESHOLD)
-            {
-                // Block re-entry, stay in current zone
-                bool wasBlocked = _isBlockedFromPreviousZone;
-                _isBlockedFromPreviousZone = true;
-                
-                // Calculate boundary normal for bouncy wall physics
-                _blockedBoundaryNormal = CalculateBoundaryNormal(_currentZone, _previousZone);
-                
-                // Fire event if blocking state changed
-                if (!wasBlocked)
+                if (distanceIntoPreviousZone < ZONE_REENTRY_THRESHOLD)
                 {
-                    OneWayBoundaryStateChanged?.Invoke(_previousZone, _blockedBoundaryNormal);
+                    // Block re-entry, stay in last stable zone
+                    bool wasBlocked = _isBlockedFromPreviousZone;
+                    _isBlockedFromPreviousZone = true;
+                    
+                    // Calculate boundary normal for bouncy wall physics
+                    _blockedBoundaryNormal = CalculateBoundaryNormal(_lastStableZone, _previousZone);
+                    
+                    // Fire event if blocking state changed
+                    if (!wasBlocked)
+                    {
+                        OneWayBoundaryStateChanged?.Invoke(_previousZone, _blockedBoundaryNormal);
+                    }
+                    
+                    _logger.LogDebug("[ONE_WAY_HYSTERESIS] Blocking return to zone ({X},{Y}), distance: {Distance}, threshold: {Threshold}",
+                        _previousZone.X, _previousZone.Y, distanceIntoPreviousZone, ZONE_REENTRY_THRESHOLD);
+                    
+                    return _lastStableZone; // Stay in last stable zone
                 }
-                
-                _logger.LogDebug("[ONE_WAY_HYSTERESIS] Blocking return to zone ({X},{Y}), distance: {Distance}, threshold: {Threshold}",
-                    _previousZone.X, _previousZone.Y, distanceIntoPreviousZone, ZONE_REENTRY_THRESHOLD);
-                
-                return _currentZone;
+                else
+                {
+                    // Sufficient distance, allow re-entry
+                    _logger.LogInformation("[ONE_WAY_HYSTERESIS] Allowing return to zone ({X},{Y}), distance: {Distance} >= threshold: {Threshold}",
+                        _previousZone.X, _previousZone.Y, distanceIntoPreviousZone, ZONE_REENTRY_THRESHOLD);
+                        
+                    bool wasBlocked = _isBlockedFromPreviousZone;
+                    _isBlockedFromPreviousZone = false;
+                    _lastStableZone = detectedZone; // Update stable zone
+                    
+                    // Fire event if blocking state changed
+                    if (wasBlocked)
+                    {
+                        OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+                    }
+                    
+                    return detectedZone;
+                }
             }
             else
             {
-                // Sufficient distance, allow re-entry
-                _logger.LogInformation("[ONE_WAY_HYSTERESIS] Allowing return to zone ({X},{Y}), distance: {Distance} >= threshold: {Threshold}",
-                    _previousZone.X, _previousZone.Y, distanceIntoPreviousZone, ZONE_REENTRY_THRESHOLD);
-                    
-                bool wasBlocked = _isBlockedFromPreviousZone;
-                _isBlockedFromPreviousZone = false;
-                
-                // Fire event if blocking state changed
-                if (wasBlocked)
+                // Moving to a completely different zone (not previous)
+                // Update zones and clear blocking
+                if (_isBlockedFromPreviousZone)
                 {
+                    _isBlockedFromPreviousZone = false;
                     OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
                 }
-            }
-        }
-        else
-        {
-            // Different zone - clear blocking state
-            if (_isBlockedFromPreviousZone)
-            {
-                _isBlockedFromPreviousZone = false;
-                OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+                
+                _previousZone = _lastStableZone;
+                _lastStableZone = detectedZone;
+                return detectedZone;
             }
         }
         
+        // Staying in the same zone
         return detectedZone;
     }
     
@@ -960,12 +975,15 @@ public class GranvilleRpcGameClientService : IDisposable
                                 _lastZoneChangeTime = now;
                                 _lastDetectedZone = playerZone;
                                 
-                                // Save previous zone for one-way hysteresis
-                                _previousZone = _currentZone;
+                                // Zone change is happening (playerZone != _currentZone)
+                                // This means hysteresis did NOT block the transition
+                                // The hysteresis logic has already updated _previousZone and _lastStableZone
                                 _zoneEntryTime = now;
                                 
                                 _logger.LogInformation("[CLIENT_ZONE_CHANGE] Player moved from zone ({OldX},{OldY}) to ({NewX},{NewY}) at position {Position}", 
-                                    _currentZone.X, _currentZone.Y, playerZone.X, playerZone.Y, playerEntity.Position);
+                                    _previousZone?.X ?? _currentZone?.X ?? -1, 
+                                    _previousZone?.Y ?? _currentZone?.Y ?? -1, 
+                                    playerZone.X, playerZone.Y, playerEntity.Position);
                                 
                                 // Schedule server transition check (don't use Task.Run in hot path)
                                 _ = CheckForServerTransition();
