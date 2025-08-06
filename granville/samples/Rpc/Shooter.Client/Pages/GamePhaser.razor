@@ -191,6 +191,7 @@
                 RpcGameClient.PreEstablishedConnectionsUpdated += OnPreEstablishedConnectionsUpdated;
                 RpcGameClient.GameOverReceived += OnGameOverReceived;
                 RpcGameClient.GameRestartedReceived += OnGameRestartedReceived;
+                RpcGameClient.OneWayBoundaryStateChanged += OnOneWayBoundaryStateChanged;
                 
                 // Add initial system message
                 AddSystemMessage("Connected to game server");
@@ -581,6 +582,7 @@
             RpcGameClient.WorldStateUpdated -= OnWorldStateUpdated;
             RpcGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
             RpcGameClient.PreEstablishedConnectionsUpdated -= OnPreEstablishedConnectionsUpdated;
+            RpcGameClient.OneWayBoundaryStateChanged -= OnOneWayBoundaryStateChanged;
             
             try
             {
@@ -921,6 +923,28 @@
         });
     }
     
+    private void OnOneWayBoundaryStateChanged(GridSquare? blockedZone, Vector2 boundaryNormal)
+    {
+        _ = InvokeAsync(async () =>
+        {
+            if (_isInitialized)
+            {
+                try
+                {
+                    // Convert to JavaScript-friendly format
+                    object? zoneObj = blockedZone != null ? new { x = blockedZone.X, y = blockedZone.Y } : null;
+                    object normalObj = new { x = boundaryNormal.X, y = boundaryNormal.Y };
+                    
+                    await JS.InvokeVoidAsync("gamePhaser.updateOneWayBoundaryState", zoneObj, normalObj);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Error updating one-way boundary state");
+                }
+            }
+        });
+    }
+    
     public void Dispose()
     {
         _disposeCts.Cancel();
@@ -941,6 +965,7 @@
         RpcGameClient.PreEstablishedConnectionsUpdated -= OnPreEstablishedConnectionsUpdated;
         RpcGameClient.GameOverReceived -= OnGameOverReceived;
         RpcGameClient.GameRestartedReceived -= OnGameRestartedReceived;
+        RpcGameClient.OneWayBoundaryStateChanged -= OnOneWayBoundaryStateChanged;
         
         // Destroy Phaser game
         if (_isInitialized)

@@ -16,6 +16,9 @@ class GamePhaser {
         this.lastZoneMismatchLog = null; // Track last time we logged zone mismatch
         this.lastEntityPositions = new Map(); // Track last positions for jump detection
         this.positionJumpThreshold = 100; // Threshold for detecting position jumps
+        this.blockedZone = null; // One-way hysteresis blocked zone
+        this.blockedBoundaryNormal = null; // Direction of the blocked boundary
+        this.chevronAnimation = 0; // Animation timer for chevrons
     }
 
     init(dotNetReference, containerId, playerId) {
@@ -799,6 +802,134 @@ class GamePhaser {
         return 0xffffff; // Default white
     }
 
+    drawOneWayBoundary(worldView) {
+        if (!this.blockedZone || !this.blockedBoundaryNormal) {
+            // Hide the one-way text if no boundary is blocked
+            if (this.oneWayText) {
+                this.oneWayText.setVisible(false);
+            }
+            return;
+        }
+        
+        const zoneSize = 500;
+        const x = this.blockedZone.x * zoneSize;
+        const y = this.blockedZone.y * zoneSize;
+        
+        // Determine which edge to highlight based on boundary normal
+        let edgeStartX, edgeStartY, edgeEndX, edgeEndY;
+        let isVertical = false;
+        
+        if (this.blockedBoundaryNormal.x > 0) {
+            // Blocking left entry (right edge of blocked zone)
+            edgeStartX = x + zoneSize;
+            edgeStartY = y;
+            edgeEndX = x + zoneSize;
+            edgeEndY = y + zoneSize;
+            isVertical = true;
+        } else if (this.blockedBoundaryNormal.x < 0) {
+            // Blocking right entry (left edge of blocked zone)
+            edgeStartX = x;
+            edgeStartY = y;
+            edgeEndX = x;
+            edgeEndY = y + zoneSize;
+            isVertical = true;
+        } else if (this.blockedBoundaryNormal.y > 0) {
+            // Blocking up entry (bottom edge of blocked zone)
+            edgeStartX = x;
+            edgeStartY = y + zoneSize;
+            edgeEndX = x + zoneSize;
+            edgeEndY = y + zoneSize;
+            isVertical = false;
+        } else if (this.blockedBoundaryNormal.y < 0) {
+            // Blocking down entry (top edge of blocked zone)
+            edgeStartX = x;
+            edgeStartY = y;
+            edgeEndX = x + zoneSize;
+            edgeEndY = y;
+            isVertical = false;
+        } else {
+            return; // No valid normal
+        }
+        
+        // Check if edge is visible
+        if ((isVertical && (edgeStartX < worldView.left || edgeStartX > worldView.right)) ||
+            (!isVertical && (edgeStartY < worldView.top || edgeStartY > worldView.bottom))) {
+            return;
+        }
+        
+        // Draw the highlighted boundary edge
+        this.gridGraphics.lineStyle(5, 0xff4444, 1.0);
+        this.gridGraphics.lineBetween(edgeStartX, edgeStartY, edgeEndX, edgeEndY);
+        
+        // Update chevron animation
+        this.chevronAnimation += 0.016; // Assuming 60 FPS, this is roughly 1/60
+        const animOffset = (this.chevronAnimation * 30) % 50;
+        
+        // Draw animated chevrons along the boundary
+        const chevronSpacing = 50;
+        const chevronSize = 15;
+        const edgeLength = Math.sqrt(
+            Math.pow(edgeEndX - edgeStartX, 2) + 
+            Math.pow(edgeEndY - edgeStartY, 2)
+        );
+        const numChevrons = Math.floor(edgeLength / chevronSpacing);
+        
+        this.gridGraphics.lineStyle(3, 0xff6666, 0.8);
+        
+        for (let i = 0; i < numChevrons; i++) {
+            const t = (i * chevronSpacing + animOffset) / edgeLength;
+            if (t > 1) continue;
+            
+            const chevronX = edgeStartX + (edgeEndX - edgeStartX) * t;
+            const chevronY = edgeStartY + (edgeEndY - edgeStartY) * t;
+            
+            // Draw chevron pointing in the direction of the boundary normal
+            this.gridGraphics.beginPath();
+            
+            if (isVertical) {
+                // Horizontal chevron
+                const direction = this.blockedBoundaryNormal.x;
+                this.gridGraphics.moveTo(chevronX - direction * chevronSize, chevronY - chevronSize/2);
+                this.gridGraphics.lineTo(chevronX, chevronY);
+                this.gridGraphics.lineTo(chevronX - direction * chevronSize, chevronY + chevronSize/2);
+            } else {
+                // Vertical chevron
+                const direction = this.blockedBoundaryNormal.y;
+                this.gridGraphics.moveTo(chevronX - chevronSize/2, chevronY - direction * chevronSize);
+                this.gridGraphics.lineTo(chevronX, chevronY);
+                this.gridGraphics.lineTo(chevronX + chevronSize/2, chevronY - direction * chevronSize);
+            }
+            
+            this.gridGraphics.strokePath();
+        }
+        
+        // Draw "ONE-WAY" text in the middle of the edge
+        const textX = (edgeStartX + edgeEndX) / 2;
+        const textY = (edgeStartY + edgeEndY) / 2;
+        
+        // Create or update the one-way text
+        if (!this.oneWayText) {
+            this.oneWayText = this.scene.add.text(textX, textY, 'ONE-WAY', {
+                fontSize: '16px',
+                fontStyle: 'bold',
+                color: '#ff6666',
+                backgroundColor: '#000000',
+                padding: { x: 4, y: 2 }
+            });
+            this.oneWayText.setOrigin(0.5, 0.5);
+        } else {
+            this.oneWayText.setPosition(textX, textY);
+            this.oneWayText.setVisible(true);
+        }
+        
+        // Rotate text for vertical boundaries
+        if (isVertical) {
+            this.oneWayText.setRotation(Math.PI / 2);
+        } else {
+            this.oneWayText.setRotation(0);
+        }
+    }
+    
     drawGrid() {
         this.gridGraphics.clear();
         
@@ -1041,6 +1172,9 @@ class GamePhaser {
                 }
             }
         }
+        
+        // Draw one-way boundary if active
+        this.drawOneWayBoundary(worldView);
     }
 
     getGridSquare(x, y) {
@@ -1063,6 +1197,20 @@ class GamePhaser {
         this.serverText.setText(`Server: ${serverId || 'Unknown'}`);
         
         // Redraw grid with new server zone info
+        this.drawGrid();
+    }
+    
+    updateOneWayBoundaryState(blockedZone, boundaryNormal) {
+        this.blockedZone = blockedZone;
+        this.blockedBoundaryNormal = boundaryNormal;
+        
+        if (blockedZone && boundaryNormal) {
+            console.log(`[ONE_WAY_BOUNDARY] Blocking return to zone (${blockedZone.x},${blockedZone.y}), normal: (${boundaryNormal.x},${boundaryNormal.y})`);
+        } else {
+            console.log('[ONE_WAY_BOUNDARY] Boundary blocking cleared');
+        }
+        
+        // Redraw grid with new boundary state
         this.drawGrid();
     }
 
