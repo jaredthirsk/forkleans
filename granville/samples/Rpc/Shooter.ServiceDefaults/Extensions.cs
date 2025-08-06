@@ -25,8 +25,27 @@ public static class Extensions
 
         builder.Services.AddServiceDiscovery();
 
+        // Configure SSL certificate bypass globally for development
+        if (builder.Environment.IsDevelopment())
+        {
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+            Environment.SetEnvironmentVariable("DOTNET_SYSTEM_NET_HTTP_SOCKETSHTTPHANDLER_HTTP2UNENCRYPTEDSUPPORT", "1");
+        }
+
         builder.Services.ConfigureHttpClientDefaults(http =>
         {
+            // For development - bypass SSL certificate validation (configure BEFORE other handlers)
+            if (builder.Environment.IsDevelopment())
+            {
+                http.ConfigurePrimaryHttpMessageHandler(() =>
+                {
+                    return new HttpClientHandler()
+                    {
+                        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    };
+                });
+            }
+            
             // Turn on resilience by default
             http.AddStandardResilienceHandler();
 
