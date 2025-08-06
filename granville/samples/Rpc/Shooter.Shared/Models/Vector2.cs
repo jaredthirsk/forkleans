@@ -21,4 +21,6 @@ public record struct Vector2(
     }
     
     public float DistanceTo(Vector2 other) => (this - other).Length();
+    
+    public static float Dot(Vector2 a, Vector2 b) => a.X * b.X + a.Y * b.Y;
 }

@@ -52,7 +52,7 @@ public class GranvilleRpcGameClientService : IDisposable
     private GridSquare? _currentZone = null;
     private GridSquare? _previousZone = null; // For one-way hysteresis
     private DateTime _zoneEntryTime = DateTime.MinValue; // When entered current zone
-    private const float ZONE_REENTRY_THRESHOLD = 30f; // Must move 30 units into previous zone
+    private const float ZONE_REENTRY_THRESHOLD = 75f; // Must move 75 units into previous zone
     private bool _isBlockedFromPreviousZone = false; // Currently blocked from re-entering
     private Vector2 _blockedBoundaryNormal = Vector2.Zero; // Normal vector of blocked boundary
     private WorldState? _lastWorldState = null;
@@ -612,6 +612,24 @@ public class GranvilleRpcGameClientService : IDisposable
             // Calculate distance into the previous zone from the boundary
             var distanceIntoPreviousZone = CalculateDistanceFromBoundary(position, _previousZone, _currentZone);
             
+            // If zones aren't adjacent (distance < 0), allow the transition
+            if (distanceIntoPreviousZone < 0)
+            {
+                // Zones aren't adjacent - this shouldn't normally happen but allow it
+                _logger.LogWarning("[ONE_WAY_HYSTERESIS] Non-adjacent zone transition from ({FromX},{FromY}) to ({ToX},{ToY})",
+                    _currentZone.X, _currentZone.Y, _previousZone.X, _previousZone.Y);
+                    
+                bool wasBlocked = _isBlockedFromPreviousZone;
+                _isBlockedFromPreviousZone = false;
+                
+                if (wasBlocked)
+                {
+                    OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+                }
+                
+                return detectedZone;
+            }
+            
             if (distanceIntoPreviousZone < ZONE_REENTRY_THRESHOLD)
             {
                 // Block re-entry, stay in current zone
@@ -696,7 +714,8 @@ public class GranvilleRpcGameClientService : IDisposable
             }
         }
         
-        return float.MaxValue; // Not adjacent zones
+        // Not adjacent zones - return a negative value to indicate invalid
+        return -1f;
     }
     
     private Vector2 CalculateBoundaryNormal(GridSquare fromZone, GridSquare toZone)
@@ -731,7 +750,7 @@ public class GranvilleRpcGameClientService : IDisposable
         
         // Reflect perpendicular component with elasticity coefficient
         const float elasticity = 0.8f; // Slightly dampen to prevent infinite bouncing
-        Vector2 reflected = velocity - (2f * elasticity * dotProduct * boundaryNormal);
+        Vector2 reflected = velocity - boundaryNormal * (2f * elasticity * dotProduct);
         
         _logger.LogDebug("[BOUNCY_WALL] Applied physics - Original: {Original}, Normal: {Normal}, Reflected: {Reflected}",
             velocity, boundaryNormal, reflected);
@@ -777,6 +796,12 @@ public class GranvilleRpcGameClientService : IDisposable
         if (_gameGrain == null || !IsConnected || string.IsNullOrEmpty(PlayerId))
         {
             return;
+        }
+        
+        // Apply bouncy wall physics if blocked from previous zone
+        if (moveDirection.HasValue && _isBlockedFromPreviousZone && _blockedBoundaryNormal != Vector2.Zero)
+        {
+            moveDirection = ApplyBouncyWallPhysics(moveDirection.Value, _blockedBoundaryNormal);
         }
         
         // Track last input for zone transitions
