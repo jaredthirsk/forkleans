@@ -86,6 +86,118 @@ class DoubleBufferedCanvasContext {
         }
     }
     
+    drawOneWayBoundary(blockedZone, boundaryNormal, cameraOffset = { x: 0, y: 0 }) {
+        if (!blockedZone || !boundaryNormal) return;
+        
+        const zoneSize = 500;
+        const x = blockedZone.x * zoneSize;
+        const y = blockedZone.y * zoneSize;
+        
+        // Determine which edge to highlight based on boundary normal
+        let edgeStartX, edgeStartY, edgeEndX, edgeEndY;
+        let chevronDirection = { x: 0, y: 0 };
+        
+        if (boundaryNormal.x > 0) {
+            // Blocking left entry (right edge of blocked zone)
+            edgeStartX = x + zoneSize;
+            edgeStartY = y;
+            edgeEndX = x + zoneSize;
+            edgeEndY = y + zoneSize;
+            chevronDirection = { x: 1, y: 0 };
+        } else if (boundaryNormal.x < 0) {
+            // Blocking right entry (left edge of blocked zone)
+            edgeStartX = x;
+            edgeStartY = y;
+            edgeEndX = x;
+            edgeEndY = y + zoneSize;
+            chevronDirection = { x: -1, y: 0 };
+        } else if (boundaryNormal.y > 0) {
+            // Blocking up entry (bottom edge of blocked zone)
+            edgeStartX = x;
+            edgeStartY = y + zoneSize;
+            edgeEndX = x + zoneSize;
+            edgeEndY = y + zoneSize;
+            chevronDirection = { x: 0, y: 1 };
+        } else if (boundaryNormal.y < 0) {
+            // Blocking down entry (top edge of blocked zone)
+            edgeStartX = x;
+            edgeStartY = y;
+            edgeEndX = x + zoneSize;
+            edgeEndY = y;
+            chevronDirection = { x: 0, y: -1 };
+        } else {
+            return; // No valid normal
+        }
+        
+        // Convert to screen coordinates
+        const screenStartX = edgeStartX - cameraOffset.x;
+        const screenStartY = edgeStartY - cameraOffset.y;
+        const screenEndX = edgeEndX - cameraOffset.x;
+        const screenEndY = edgeEndY - cameraOffset.y;
+        
+        // Draw the highlighted boundary edge
+        this.currentCtx.strokeStyle = '#ff4444';
+        this.currentCtx.lineWidth = 5;
+        this.currentCtx.beginPath();
+        this.currentCtx.moveTo(screenStartX, screenStartY);
+        this.currentCtx.lineTo(screenEndX, screenEndY);
+        this.currentCtx.stroke();
+        
+        // Draw animated chevrons along the boundary
+        const time = Date.now() / 1000;
+        const chevronSpacing = 50;
+        const chevronSize = 15;
+        const animOffset = (time * 30) % chevronSpacing;
+        
+        this.currentCtx.strokeStyle = '#ff6666';
+        this.currentCtx.lineWidth = 3;
+        
+        // Calculate number of chevrons
+        const edgeLength = Math.sqrt(
+            Math.pow(edgeEndX - edgeStartX, 2) + 
+            Math.pow(edgeEndY - edgeStartY, 2)
+        );
+        const numChevrons = Math.floor(edgeLength / chevronSpacing);
+        
+        for (let i = 0; i < numChevrons; i++) {
+            const t = (i * chevronSpacing + animOffset) / edgeLength;
+            if (t > 1) continue;
+            
+            const chevronX = screenStartX + (screenEndX - screenStartX) * t;
+            const chevronY = screenStartY + (screenEndY - screenStartY) * t;
+            
+            // Draw chevron pointing in the direction of the boundary normal
+            this.currentCtx.beginPath();
+            
+            if (Math.abs(chevronDirection.x) > 0) {
+                // Horizontal chevron
+                this.currentCtx.moveTo(chevronX - chevronDirection.x * chevronSize, chevronY - chevronSize/2);
+                this.currentCtx.lineTo(chevronX, chevronY);
+                this.currentCtx.lineTo(chevronX - chevronDirection.x * chevronSize, chevronY + chevronSize/2);
+            } else {
+                // Vertical chevron
+                this.currentCtx.moveTo(chevronX - chevronSize/2, chevronY - chevronDirection.y * chevronSize);
+                this.currentCtx.lineTo(chevronX, chevronY);
+                this.currentCtx.lineTo(chevronX + chevronSize/2, chevronY - chevronDirection.y * chevronSize);
+            }
+            
+            this.currentCtx.stroke();
+        }
+        
+        // Draw warning text
+        this.currentCtx.fillStyle = '#ff6666';
+        this.currentCtx.font = 'bold 16px monospace';
+        const textX = (screenStartX + screenEndX) / 2;
+        const textY = (screenStartY + screenEndY) / 2;
+        this.currentCtx.save();
+        this.currentCtx.translate(textX, textY);
+        if (Math.abs(chevronDirection.x) > 0) {
+            this.currentCtx.rotate(Math.PI / 2);
+        }
+        this.currentCtx.fillText('ONE-WAY', -35, chevronDirection.y > 0 ? -20 : chevronDirection.x > 0 ? -20 : 20);
+        this.currentCtx.restore();
+    }
+    
     drawZoneBoundaries(width, height, cameraOffset = { x: 0, y: 0 }, availableZones = []) {
         // Draw zone boundaries (500x500 units each)
         const zoneSize = 500;

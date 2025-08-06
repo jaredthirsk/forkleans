@@ -50,6 +50,11 @@ public class GranvilleRpcGameClientService : IDisposable
     private long _lastSequenceNumber = -1;
     private readonly ConcurrentDictionary<string, PreEstablishedConnection> _preEstablishedConnections = new();
     private GridSquare? _currentZone = null;
+    private GridSquare? _previousZone = null; // For one-way hysteresis
+    private DateTime _zoneEntryTime = DateTime.MinValue; // When entered current zone
+    private const float ZONE_REENTRY_THRESHOLD = 30f; // Must move 30 units into previous zone
+    private bool _isBlockedFromPreviousZone = false; // Currently blocked from re-entering
+    private Vector2 _blockedBoundaryNormal = Vector2.Zero; // Normal vector of blocked boundary
     private WorldState? _lastWorldState = null;
     private Vector2 _lastInputDirection = Vector2.Zero;
     private bool _lastInputShooting = false;
@@ -77,6 +82,7 @@ public class GranvilleRpcGameClientService : IDisposable
     public event Action<ZoneStatistics>? ZoneStatsUpdated;
     public event Action<ScoutAlert>? ScoutAlertReceived;
     public event Action<GameOverMessage>? GameOverReceived;
+    public event Action<GridSquare?, Vector2>? OneWayBoundaryStateChanged; // previousZone, boundaryNormal
     public event Action? GameRestartedReceived;
     public event Action<ChatMessage>? ChatMessageReceived;
     public event Action<NetworkStatistics>? NetworkStatsUpdated;
@@ -87,6 +93,10 @@ public class GranvilleRpcGameClientService : IDisposable
     public string? PlayerName { get; private set; }
     public string? CurrentServerId { get; private set; }
     public string? TransportType { get; private set; }
+    public GridSquare? CurrentGridSquare => _currentZone;
+    public bool IsBlockedFromPreviousZone => _isBlockedFromPreviousZone;
+    public GridSquare? BlockedZone => _isBlockedFromPreviousZone ? _previousZone : null;
+    public Vector2 BlockedBoundaryNormal => _blockedBoundaryNormal;
     
     public GranvilleRpcGameClientService(
         ILogger<GranvilleRpcGameClientService> logger,
@@ -587,11 +597,159 @@ public class GranvilleRpcGameClientService : IDisposable
         Cleanup();
     }
     
+    private GridSquare ApplyOneWayHysteresis(GridSquare detectedZone, Vector2 position)
+    {
+        // If no previous zone or no current zone, allow the transition
+        if (_previousZone == null || _currentZone == null)
+        {
+            _isBlockedFromPreviousZone = false;
+            return detectedZone;
+        }
+        
+        // Check if trying to return to previous zone
+        if (detectedZone.X == _previousZone.X && detectedZone.Y == _previousZone.Y)
+        {
+            // Calculate distance into the previous zone from the boundary
+            var distanceIntoPreviousZone = CalculateDistanceFromBoundary(position, _previousZone, _currentZone);
+            
+            if (distanceIntoPreviousZone < ZONE_REENTRY_THRESHOLD)
+            {
+                // Block re-entry, stay in current zone
+                bool wasBlocked = _isBlockedFromPreviousZone;
+                _isBlockedFromPreviousZone = true;
+                
+                // Calculate boundary normal for bouncy wall physics
+                _blockedBoundaryNormal = CalculateBoundaryNormal(_currentZone, _previousZone);
+                
+                // Fire event if blocking state changed
+                if (!wasBlocked)
+                {
+                    OneWayBoundaryStateChanged?.Invoke(_previousZone, _blockedBoundaryNormal);
+                }
+                
+                _logger.LogDebug("[ONE_WAY_HYSTERESIS] Blocking return to zone ({X},{Y}), distance: {Distance}, threshold: {Threshold}",
+                    _previousZone.X, _previousZone.Y, distanceIntoPreviousZone, ZONE_REENTRY_THRESHOLD);
+                
+                return _currentZone;
+            }
+            else
+            {
+                // Sufficient distance, allow re-entry
+                _logger.LogInformation("[ONE_WAY_HYSTERESIS] Allowing return to zone ({X},{Y}), distance: {Distance} >= threshold: {Threshold}",
+                    _previousZone.X, _previousZone.Y, distanceIntoPreviousZone, ZONE_REENTRY_THRESHOLD);
+                    
+                bool wasBlocked = _isBlockedFromPreviousZone;
+                _isBlockedFromPreviousZone = false;
+                
+                // Fire event if blocking state changed
+                if (wasBlocked)
+                {
+                    OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+                }
+            }
+        }
+        else
+        {
+            // Different zone - clear blocking state
+            if (_isBlockedFromPreviousZone)
+            {
+                _isBlockedFromPreviousZone = false;
+                OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+            }
+        }
+        
+        return detectedZone;
+    }
+    
+    private float CalculateDistanceFromBoundary(Vector2 position, GridSquare targetZone, GridSquare fromZone)
+    {
+        // Calculate perpendicular distance from the shared boundary into the target zone
+        const float gridSize = 500f; // GridSquare.Size
+        
+        // Determine which boundary is shared
+        if (targetZone.X != fromZone.X)
+        {
+            // Vertical boundary (X differs)
+            if (targetZone.X > fromZone.X)
+            {
+                // Moving right, measure from left edge of target zone
+                return position.X - (targetZone.X * gridSize);
+            }
+            else
+            {
+                // Moving left, measure from right edge of target zone
+                return ((targetZone.X + 1) * gridSize) - position.X;
+            }
+        }
+        else if (targetZone.Y != fromZone.Y)
+        {
+            // Horizontal boundary (Y differs)
+            if (targetZone.Y > fromZone.Y)
+            {
+                // Moving up, measure from bottom edge of target zone
+                return position.Y - (targetZone.Y * gridSize);
+            }
+            else
+            {
+                // Moving down, measure from top edge of target zone
+                return ((targetZone.Y + 1) * gridSize) - position.Y;
+            }
+        }
+        
+        return float.MaxValue; // Not adjacent zones
+    }
+    
+    private Vector2 CalculateBoundaryNormal(GridSquare fromZone, GridSquare toZone)
+    {
+        // Calculate normal vector pointing from blocked zone into current zone
+        if (toZone.X > fromZone.X)
+            return new Vector2(-1, 0); // Blocking right entry, push left
+        else if (toZone.X < fromZone.X)
+            return new Vector2(1, 0);  // Blocking left entry, push right
+        else if (toZone.Y > fromZone.Y)
+            return new Vector2(0, -1); // Blocking up entry, push down
+        else if (toZone.Y < fromZone.Y)
+            return new Vector2(0, 1);  // Blocking down entry, push up
+        
+        return Vector2.Zero;
+    }
+    
+    private Vector2 ApplyBouncyWallPhysics(Vector2 velocity, Vector2 boundaryNormal)
+    {
+        // Apply elastic collision with boundary
+        // Reflect velocity component perpendicular to boundary, keep parallel component
+        
+        if (velocity == Vector2.Zero || boundaryNormal == Vector2.Zero)
+            return velocity;
+        
+        // Calculate dot product to find perpendicular component
+        float dotProduct = Vector2.Dot(velocity, boundaryNormal);
+        
+        // If moving away from boundary, don't modify
+        if (dotProduct >= 0)
+            return velocity;
+        
+        // Reflect perpendicular component with elasticity coefficient
+        const float elasticity = 0.8f; // Slightly dampen to prevent infinite bouncing
+        Vector2 reflected = velocity - (2f * elasticity * dotProduct * boundaryNormal);
+        
+        _logger.LogDebug("[BOUNCY_WALL] Applied physics - Original: {Original}, Normal: {Normal}, Reflected: {Reflected}",
+            velocity, boundaryNormal, reflected);
+        
+        return reflected;
+    }
+
     public async Task SendPlayerInput(Vector2 moveDirection, bool isShooting)
     {
         if (_gameGrain == null || !IsConnected || string.IsNullOrEmpty(PlayerId))
         {
             return;
+        }
+        
+        // Apply bouncy wall physics if blocked from previous zone
+        if (_isBlockedFromPreviousZone && _blockedBoundaryNormal != Vector2.Zero)
+        {
+            moveDirection = ApplyBouncyWallPhysics(moveDirection, _blockedBoundaryNormal);
         }
         
         // Track last input for zone transitions
@@ -760,7 +918,8 @@ public class GranvilleRpcGameClientService : IDisposable
                     var playerEntity = worldState.Entities?.FirstOrDefault(e => e.EntityId == PlayerId);
                     if (playerEntity != null)
                     {
-                        var playerZone = GridSquare.FromPosition(playerEntity.Position);
+                        var detectedZone = GridSquare.FromPosition(playerEntity.Position);
+                        var playerZone = ApplyOneWayHysteresis(detectedZone, playerEntity.Position);
                         
                         // Check if player's actual zone differs from the server's zone
                         if (_currentZone != null && (playerZone.X != _currentZone.X || playerZone.Y != _currentZone.Y))
@@ -775,6 +934,10 @@ public class GranvilleRpcGameClientService : IDisposable
                             {
                                 _lastZoneChangeTime = now;
                                 _lastDetectedZone = playerZone;
+                                
+                                // Save previous zone for one-way hysteresis
+                                _previousZone = _currentZone;
+                                _zoneEntryTime = now;
                                 
                                 _logger.LogInformation("[CLIENT_ZONE_CHANGE] Player moved from zone ({OldX},{OldY}) to ({NewX},{NewY}) at position {Position}", 
                                     _currentZone.X, _currentZone.Y, playerZone.X, playerZone.Y, playerEntity.Position);
