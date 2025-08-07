@@ -1452,7 +1452,7 @@ public class GranvilleRpcGameClientService : IDisposable
         try
         {
             _logger.LogTrace("Checking for server transition for player {PlayerId} at position {Position} in zone ({ZoneX},{ZoneY})", 
-                PlayerId, playerEntity.Position, playerZone.X, playerZone.Y);
+                PlayerId, playerPosition, playerZone.X, playerZone.Y);
             
             // Query the Orleans silo for the correct server
             var response = await _httpClient.GetFromJsonAsync<Shooter.Shared.Models.ActionServerInfo>(

@@ -138,10 +138,11 @@ builder.Services.AddHttpClient("SiloClient", client =>
 builder.Services.AddSingleton<GranvilleRpcGameClientService>(serviceProvider =>
 {
     var logger = serviceProvider.GetRequiredService<ILogger<GranvilleRpcGameClientService>>();
+    var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
     var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
     var httpClient = httpClientFactory.CreateClient("SiloClient");
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-    return new GranvilleRpcGameClientService(logger, httpClient, configuration);
+    return new GranvilleRpcGameClientService(logger, httpClient, configuration, loggerFactory);
 });
 
 // Add bot service
