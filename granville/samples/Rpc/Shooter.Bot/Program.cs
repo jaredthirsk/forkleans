@@ -29,7 +29,7 @@ AssemblyLoadContext.Default.Resolving += (context, assemblyName) =>
 // Command line options:
 // --test or -t: Enable test mode (default: true)
 // --transport: Specify transport type (litenetlib or ruffles, default: litenetlib)
-// --SiloUrl: Specify the Orleans silo URL (default: https://localhost:7071/)
+// --SiloUrl: Specify the Orleans silo URL (default: http://localhost:7071/)
 // --BotName: Override the auto-generated bot name
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -124,7 +124,7 @@ builder.Services.AddHealthChecks();
 builder.Services.AddMetricsHealthCheck("Bot");
 
 // Get configuration
-var siloUrl = builder.Configuration["SiloUrl"] ?? "https://localhost:7071/";
+var siloUrl = builder.Configuration["SiloUrl"] ?? "http://localhost:7071/";
 if (!siloUrl.EndsWith("/"))
     siloUrl += "/";
 
