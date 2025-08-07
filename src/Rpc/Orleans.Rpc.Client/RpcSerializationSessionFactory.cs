@@ -38,7 +38,7 @@ namespace Granville.Rpc
         /// </summary>
         public SerializerSession CreateClientSession()
         {
-            _logger.LogDebug("[RPC_SESSION_FACTORY] Creating isolated client session for value-based serialization");
+            _logger.LogTrace("[RPC_SESSION_FACTORY] Creating isolated client session for value-based serialization");
             
             // Create a fresh session with no pre-existing references
             var session = new SerializerSession(_typeCodec, _wellKnownTypes, _codecProvider);
@@ -57,7 +57,7 @@ namespace Granville.Rpc
         /// </summary>
         public SerializerSession CreateServerSession()
         {
-            _logger.LogDebug("[RPC_SESSION_FACTORY] Creating isolated server session for value-based deserialization");
+            _logger.LogTrace("[RPC_SESSION_FACTORY] Creating isolated server session for value-based deserialization");
             
             // Create a fresh session with no pre-existing references
             var session = new SerializerSession(_typeCodec, _wellKnownTypes, _codecProvider);
@@ -75,12 +75,12 @@ namespace Granville.Rpc
         /// </summary>
         public byte[] SerializeArgumentsWithIsolatedSession(Serializer serializer, object[] args)
         {
-            _logger.LogDebug("[RPC_SESSION_FACTORY] Serializing {Count} arguments with isolated session", args.Length);
+            _logger.LogTrace("[RPC_SESSION_FACTORY] Serializing {Count} arguments with isolated session", args.Length);
             
             // Log the actual argument values
             for (int i = 0; i < args.Length; i++)
             {
-                _logger.LogDebug("[RPC_SESSION_FACTORY] Argument[{Index}]: Type={Type}, Value={Value}", 
+                _logger.LogTrace("[RPC_SESSION_FACTORY] Argument[{Index}]: Type={Type}, Value={Value}", 
                     i, args[i]?.GetType()?.FullName ?? "null", args[i]?.ToString() ?? "null");
             }
             
@@ -99,7 +99,7 @@ namespace Granville.Rpc
                 serializer.Serialize(args[i], writer, session);
                 var segment = writer.WrittenMemory.ToArray();
                 
-                _logger.LogDebug("[RPC_SESSION_FACTORY] Argument[{Index}] serialized to {Length} bytes", i, segment.Length);
+                _logger.LogTrace("[RPC_SESSION_FACTORY] Argument[{Index}] serialized to {Length} bytes", i, segment.Length);
                 
                 segments.Add(segment);
                 totalLength += segment.Length + 4; // 4 bytes for length prefix
@@ -131,7 +131,7 @@ namespace Granville.Rpc
                 offset += segment.Length;
             }
             
-            _logger.LogDebug("[RPC_SESSION_FACTORY] Total serialized to {Length} bytes with individual sessions per argument", result.Length);
+            _logger.LogTrace("[RPC_SESSION_FACTORY] Total serialized to {Length} bytes with individual sessions per argument", result.Length);
             
             return result;
         }
@@ -144,18 +144,18 @@ namespace Granville.Rpc
         {
             if (data.Length == 0)
             {
-                _logger.LogDebug("[RPC_SESSION_FACTORY] Empty data, returning default");
+                _logger.LogTrace("[RPC_SESSION_FACTORY] Empty data, returning default");
                 return default(T)!;
             }
             
-            _logger.LogDebug("[RPC_SESSION_FACTORY] Deserializing {Length} bytes with isolated session", data.Length);
+            _logger.LogTrace("[RPC_SESSION_FACTORY] Deserializing {Length} bytes with isolated session", data.Length);
             
             var dataSpan = data.Span;
             var marker = dataSpan[0];
             
             if (marker == 0xFF && typeof(T) == typeof(object[])) // Custom RPC arguments format
             {
-                _logger.LogDebug("[RPC_SESSION_FACTORY] Detected custom RPC arguments format");
+                _logger.LogTrace("[RPC_SESSION_FACTORY] Detected custom RPC arguments format");
                 
                 if (data.Length < 5)
                 {
@@ -164,7 +164,7 @@ namespace Granville.Rpc
                 
                 // Read argument count (4 bytes, big-endian)
                 var argCount = (dataSpan[1] << 24) | (dataSpan[2] << 16) | (dataSpan[3] << 8) | dataSpan[4];
-                _logger.LogDebug("[RPC_SESSION_FACTORY] Deserializing {Count} arguments", argCount);
+                _logger.LogTrace("[RPC_SESSION_FACTORY] Deserializing {Count} arguments", argCount);
                 
                 var args = new object[argCount];
                 var offset = 5;
@@ -191,7 +191,7 @@ namespace Granville.Rpc
                     using var session = CreateServerSession();
                     args[i] = serializer.Deserialize<object>(segmentData, session);
                     
-                    _logger.LogDebug("[RPC_SESSION_FACTORY] Deserialized argument[{Index}]: Type={Type}, Value={Value}",
+                    _logger.LogTrace("[RPC_SESSION_FACTORY] Deserialized argument[{Index}]: Type={Type}, Value={Value}",
                         i, args[i]?.GetType()?.Name ?? "null", args[i]?.ToString() ?? "null");
                     
                     offset += segmentLength;
@@ -201,7 +201,7 @@ namespace Granville.Rpc
             }
             else if (marker == 0x00) // Orleans binary marker
             {
-                _logger.LogDebug("[RPC_SESSION_FACTORY] Detected Orleans binary serialization, using isolated session for type {Type}", typeof(T).Name);
+                _logger.LogTrace("[RPC_SESSION_FACTORY] Detected Orleans binary serialization, using isolated session for type {Type}", typeof(T).Name);
                 
                 // Skip the marker byte - Orleans deserializer expects the raw serialized data without the marker
                 var orleansData = data.Slice(1);
@@ -211,7 +211,7 @@ namespace Granville.Rpc
                     using var session = CreateServerSession();
                     var result = serializer.Deserialize<T>(orleansData, session);
                     
-                    _logger.LogDebug("[RPC_SESSION_FACTORY] Orleans binary deserialized with isolated session");
+                    _logger.LogTrace("[RPC_SESSION_FACTORY] Orleans binary deserialized with isolated session");
                     return result;
                 }
                 catch (Exception ex)
@@ -224,12 +224,12 @@ namespace Granville.Rpc
             else
             {
                 // Backward compatibility: no marker byte, assume Orleans binary
-                _logger.LogDebug("[RPC_SESSION_FACTORY] No marker detected (marker: 0x{Marker:X2}), assuming Orleans binary format for backward compatibility", marker);
+                _logger.LogTrace("[RPC_SESSION_FACTORY] No marker detected (marker: 0x{Marker:X2}), assuming Orleans binary format for backward compatibility", marker);
                 
                 using var session = CreateServerSession();
                 var result = serializer.Deserialize<T>(data, session);
                 
-                _logger.LogDebug("[RPC_SESSION_FACTORY] Legacy Orleans binary deserialized with isolated session");
+                _logger.LogTrace("[RPC_SESSION_FACTORY] Legacy Orleans binary deserialized with isolated session");
                 return result;
             }
         }

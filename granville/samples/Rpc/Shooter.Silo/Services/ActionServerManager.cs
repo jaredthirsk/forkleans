@@ -29,31 +29,81 @@ public class ActionServerManager : IHostedService
         return Task.CompletedTask;
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
+    public async Task StopAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("ActionServerManager stopping, terminating all managed ActionServers");
+        _logger.LogInformation("ActionServerManager stopping, gracefully shutting down all managed ActionServers");
         
+        var shutdownTasks = new List<Task>();
+        var processesToShutdown = new Dictionary<string, Process>();
+        
+        // Copy process references under lock
         lock (_processLock)
         {
-            foreach (var process in _actionServerProcesses.Values)
+            foreach (var kvp in _actionServerProcesses)
+            {
+                processesToShutdown[kvp.Key] = kvp.Value;
+            }
+        }
+        
+        // Shutdown processes outside of lock
+        foreach (var kvp in processesToShutdown)
+        {
+            var serverId = kvp.Key;
+            var process = kvp.Value;
+            
+            shutdownTasks.Add(Task.Run(async () =>
             {
                 try
                 {
                     if (!process.HasExited)
                     {
-                        process.Kill();
-                        process.WaitForExit(5000);
+                        _logger.LogInformation("Sending graceful shutdown signal to ActionServer {ServerId}", serverId);
+                        
+                        // Try graceful shutdown first using SIGTERM
+                        try
+                        {
+                            // On Windows, this sends WM_CLOSE; on Linux, SIGTERM
+                            process.CloseMainWindow();
+                            
+                            // Wait up to 10 seconds for graceful shutdown
+                            var gracefulShutdown = await Task.Run(() => process.WaitForExit(10000), cancellationToken);
+                            
+                            if (!gracefulShutdown && !process.HasExited)
+                            {
+                                _logger.LogWarning("ActionServer {ServerId} did not respond to graceful shutdown, forcing termination", serverId);
+                                process.Kill();
+                                process.WaitForExit(5000);
+                            }
+                            else
+                            {
+                                _logger.LogInformation("ActionServer {ServerId} shut down gracefully", serverId);
+                            }
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            // Process has no main window (console app), use Kill with SIGTERM
+                            process.Kill(entireProcessTree: true);
+                            process.WaitForExit(5000);
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error terminating ActionServer process");
+                    _logger.LogError(ex, "Error terminating ActionServer {ServerId}", serverId);
                 }
-            }
+            }));
+        }
+        
+        // Wait for all shutdown tasks to complete
+        await Task.WhenAll(shutdownTasks);
+        
+        // Clear the process list under lock
+        lock (_processLock)
+        {
             _actionServerProcesses.Clear();
         }
         
-        return Task.CompletedTask;
+        _logger.LogInformation("All ActionServers have been shut down");
     }
 
     public async Task<string> StartNewActionServerAsync()
@@ -82,7 +132,7 @@ public class ActionServerManager : IHostedService
                 "run",
                 "--", // Remove --no-build to ensure the project is built
                 $"--urls=http://localhost:{7072 + instanceId}",
-                $"--environment=Production"
+                $"--environment=Development"
             };
             
             // Set environment variables
@@ -92,7 +142,7 @@ public class ActionServerManager : IHostedService
                 ["Orleans__GatewayEndpoint"] = "tcp://localhost:30000",
                 ["RPC_PORT"] = rpcPort.ToString(),
                 ["ASPIRE_INSTANCE_ID"] = instanceId.ToString(),
-                ["DOTNET_ENVIRONMENT"] = "Production"
+                ["DOTNET_ENVIRONMENT"] = "Development"
             };
             
             var startInfo = new ProcessStartInfo

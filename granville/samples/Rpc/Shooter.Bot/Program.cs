@@ -128,13 +128,18 @@ var siloUrl = builder.Configuration["SiloUrl"] ?? "https://localhost:7071/";
 if (!siloUrl.EndsWith("/"))
     siloUrl += "/";
 
+// Configure named HttpClient for Silo communication
+builder.Services.AddHttpClient("SiloClient", client =>
+{
+    client.BaseAddress = new Uri(siloUrl);
+});
+
 // Register the RPC game client service
 builder.Services.AddSingleton<GranvilleRpcGameClientService>(serviceProvider =>
 {
     var logger = serviceProvider.GetRequiredService<ILogger<GranvilleRpcGameClientService>>();
     var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
-    var httpClient = httpClientFactory.CreateClient();
-    httpClient.BaseAddress = new Uri(siloUrl);
+    var httpClient = httpClientFactory.CreateClient("SiloClient");
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
     return new GranvilleRpcGameClientService(logger, httpClient, configuration);
 });

@@ -76,22 +76,25 @@
     }
     
     .stat-item {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 1fr auto;
         align-items: center;
         margin-bottom: 8px;
         font-family: monospace;
         font-size: 14px;
-        gap: 8px;
+        gap: 12px;
     }
     
     .stat-label {
         color: #aaa;
+        text-align: right;
     }
     
     .stat-value {
         color: #fff;
         font-weight: bold;
+        min-width: 80px;
+        text-align: left;
     }
     
     
@@ -113,13 +116,14 @@
     }
     
     .silo-item .stat-label {
-        align-self: flex-start;
+        align-self: start;
     }
     
     .silo-value-container {
         display: flex;
         align-items: center;
         gap: 8px;
+        min-width: 80px;
     }
     
     .switch-silo-icon-btn {

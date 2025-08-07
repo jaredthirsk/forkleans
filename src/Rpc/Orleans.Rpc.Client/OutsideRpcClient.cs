@@ -756,7 +756,7 @@ namespace Granville.Rpc
         /// </summary>
         internal async Task<T> InvokeRpcMethodAsync<T>(string grainKey, GrainType grainType, int methodId, object[] arguments)
         {
-            _logger.LogDebug("InvokeRpcMethodAsync called with {ArgCount} arguments for grain {GrainType}/{GrainKey} method {MethodId}", 
+            _logger.LogTrace("InvokeRpcMethodAsync called with {ArgCount} arguments for grain {GrainType}/{GrainKey} method {MethodId}", 
                 arguments?.Length ?? 0, grainType, grainKey, methodId);
             
             // Log the actual arguments
@@ -764,7 +764,7 @@ namespace Granville.Rpc
             {
                 for (int i = 0; i < arguments.Length; i++)
                 {
-                    _logger.LogDebug("Argument[{Index}]: Type={Type}, Value={Value}", 
+                    _logger.LogTrace("Argument[{Index}]: Type={Type}, Value={Value}", 
                         i, arguments[i]?.GetType()?.FullName ?? "null", arguments[i]?.ToString() ?? "null");
                 }
             }
@@ -778,7 +778,7 @@ namespace Granville.Rpc
 
             EnsureServicesResolved();
             
-            _logger.LogDebug("InvokeRpcMethodAsync (GrainType): grainKey={GrainKey}, grainType={GrainType}", grainKey, grainType);
+            _logger.LogTrace("InvokeRpcMethodAsync (GrainType): grainKey={GrainKey}, grainType={GrainType}", grainKey, grainType);
             
             // Use the grain type directly
             var grainId = GrainId.Create(grainType, grainKey);
@@ -814,7 +814,7 @@ namespace Granville.Rpc
                 {
                     // Skip the Orleans binary marker
                     payload = payload[1..];
-                    _logger.LogDebug("Skipping Orleans binary marker in response payload");
+                    _logger.LogTrace("Skipping Orleans binary marker in response payload");
                 }
                 
                 return _serializer.Deserialize<T>(payload, responseSession);
@@ -835,7 +835,7 @@ namespace Granville.Rpc
             // Resolve the grain type from the interface type
             EnsureServicesResolved();
             
-            _logger.LogDebug("InvokeRpcMethodAsync: grainKey={GrainKey}, interfaceType={InterfaceType}", grainKey, interfaceType);
+            _logger.LogTrace("InvokeRpcMethodAsync: grainKey={GrainKey}, interfaceType={InterfaceType}", grainKey, interfaceType);
             
             // Get the GrainInterfaceTypeToGrainTypeResolver
             var interfaceToTypeResolver = _serviceProvider.GetRequiredKeyedService<GrainInterfaceTypeToGrainTypeResolver>("rpc");
@@ -941,7 +941,7 @@ namespace Granville.Rpc
                 {
                     // Skip the Orleans binary marker
                     payload = payload[1..];
-                    _logger.LogDebug("Skipping Orleans binary marker in response payload");
+                    _logger.LogTrace("Skipping Orleans binary marker in response payload");
                 }
                 
                 var result = _serializer.Deserialize<T>(payload, responseSession);
