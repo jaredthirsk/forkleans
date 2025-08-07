@@ -26,6 +26,9 @@ public class GranvilleRpcGameClientService : IDisposable
     private readonly ILogger<GranvilleRpcGameClientService> _logger;
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
+    private readonly ZoneTransitionDebouncer _zoneDebouncer;
+    private readonly RobustTimerManager _timerManager;
+    private readonly ConnectionResilienceManager _connectionManager;
     private Granville.Rpc.IRpcClient? _rpcClient;
     private IHost? _rpcHost;
     private IGameRpcGrain? _gameGrain;
@@ -70,6 +73,8 @@ public class GranvilleRpcGameClientService : IDisposable
     private Dictionary<string, List<EntityState>> _cachedAdjacentEntities = new();
     private NetworkStatistics? _latestNetworkStats = null;
     private NetworkStatisticsTracker? _clientNetworkTracker = null;
+    private Vector2? _lastKnownPlayerPosition = null; // Track last known player position
+    private DateTime _lastPositionUpdateTime = DateTime.MinValue; // When position was last updated
     
     // Connection distance thresholds with hysteresis
     private const float CONNECTION_CREATE_DISTANCE = 200f;    // Create connections when within this distance
@@ -102,11 +107,17 @@ public class GranvilleRpcGameClientService : IDisposable
     public GranvilleRpcGameClientService(
         ILogger<GranvilleRpcGameClientService> logger,
         HttpClient httpClient,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ILoggerFactory loggerFactory)
     {
         _logger = logger;
         _httpClient = httpClient;
         _configuration = configuration;
+        
+        // Initialize the protection components
+        _zoneDebouncer = new ZoneTransitionDebouncer(loggerFactory.CreateLogger<ZoneTransitionDebouncer>());
+        _timerManager = new RobustTimerManager(loggerFactory.CreateLogger<RobustTimerManager>());
+        _connectionManager = new ConnectionResilienceManager(loggerFactory.CreateLogger<ConnectionResilienceManager>());
     }
     
     public async Task<bool> ConnectAsync(string playerName)
@@ -470,8 +481,8 @@ public class GranvilleRpcGameClientService : IDisposable
                 StartChatPolling();
             }
             
-            // Start polling for world state
-            _worldStateTimer = new Timer(async _ => 
+            // Start timers using RobustTimerManager for protected execution
+            _timerManager.CreateTimer("worldState", async _ => 
             {
                 try
                 {
@@ -482,10 +493,9 @@ public class GranvilleRpcGameClientService : IDisposable
                     _logger.LogError(ex, "[TIMER_CALLBACK] Unhandled exception in world state timer callback. ExceptionType={ExceptionType}, State: IsConnected={IsConnected}, IsTransitioning={IsTransitioning}, ThreadId={ThreadId}, GameGrainNull={GameGrainNull}, CancellationRequested={CancellationRequested}",
                         ex.GetType().FullName, IsConnected, _isTransitioning, Thread.CurrentThread.ManagedThreadId, _gameGrain == null, _cancellationTokenSource?.Token.IsCancellationRequested ?? true);
                 }
-            }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(33)); // Reduced from 16ms to 33ms (30 FPS)
+            }, 33); // 30 FPS
             
-            // Start heartbeat
-            _heartbeatTimer = new Timer(async _ => 
+            _timerManager.CreateTimer("heartbeat", async _ => 
             {
                 try
                 {
@@ -495,10 +505,9 @@ public class GranvilleRpcGameClientService : IDisposable
                 {
                     _logger.LogError(ex, "Unhandled exception in heartbeat timer callback");
                 }
-            }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
+            }, 5000);
             
-            // Start polling for available zones - reduced frequency for better performance
-            _availableZonesTimer = new Timer(async _ => 
+            _timerManager.CreateTimer("availableZones", async _ => 
             {
                 try
                 {
@@ -508,10 +517,9 @@ public class GranvilleRpcGameClientService : IDisposable
                 {
                     _logger.LogError(ex, "Unhandled exception in available zones timer callback");
                 }
-            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+            }, 10000);
             
-            // Start polling for network stats (since observer might not be supported)
-            _networkStatsTimer = new Timer(async _ => 
+            _timerManager.CreateTimer("networkStats", async _ => 
             {
                 try
                 {
@@ -521,10 +529,13 @@ public class GranvilleRpcGameClientService : IDisposable
                 {
                     _logger.LogError(ex, "Unhandled exception in network stats timer callback");
                 }
-            }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+            }, 1000);
             
-            // Start watchdog timer to monitor polling health
-            _watchdogTimer = new Timer(_ => CheckPollingHealth(), null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
+            _timerManager.CreateTimer("watchdog", _ => { CheckPollingHealth(); }, 5000);
+            
+            // Initialize position tracking
+            _lastKnownPlayerPosition = null;
+            _lastPositionUpdateTime = DateTime.MinValue;
             
             _logger.LogInformation("Connected to game via Orleans RPC");
             return true;
@@ -600,11 +611,21 @@ public class GranvilleRpcGameClientService : IDisposable
     
     private GridSquare ApplyOneWayHysteresis(GridSquare detectedZone, Vector2 position)
     {
+        // Add comprehensive debug logging
+        _logger.LogDebug("[HYSTERESIS_DEBUG] Called with detected=({DetX},{DetY}), pos=({PosX:F2},{PosY:F2}), " +
+            "lastStable=({StableX},{StableY}), previous=({PrevX},{PrevY}), blocked={Blocked}",
+            detectedZone.X, detectedZone.Y, position.X, position.Y,
+            _lastStableZone?.X ?? -1, _lastStableZone?.Y ?? -1,
+            _previousZone?.X ?? -1, _previousZone?.Y ?? -1,
+            _isBlockedFromPreviousZone);
+        
         // If we don't have a stable zone history, allow the transition
         if (_lastStableZone == null || _previousZone == null)
         {
+            _logger.LogDebug("[HYSTERESIS_DEBUG] Initializing zones - no previous history");
             _isBlockedFromPreviousZone = false;
             _lastStableZone = detectedZone;
+            _previousZone = detectedZone; // Initialize previousZone too
             return detectedZone;
         }
         
@@ -616,6 +637,11 @@ public class GranvilleRpcGameClientService : IDisposable
             {
                 // Calculate distance into the previous zone from the boundary
                 var distanceIntoPreviousZone = CalculateDistanceFromBoundary(position, _previousZone, _lastStableZone);
+                
+                _logger.LogDebug("[HYSTERESIS_DEBUG] Trying to return to previous zone ({PrevX},{PrevY}) from ({StableX},{StableY}), " +
+                    "distance={Distance:F2}, threshold={Threshold}",
+                    _previousZone.X, _previousZone.Y, _lastStableZone.X, _lastStableZone.Y,
+                    distanceIntoPreviousZone, ZONE_REENTRY_THRESHOLD);
                 
                 // If zones aren't adjacent (distance < 0), something's wrong but allow it
                 if (distanceIntoPreviousZone < 0)
@@ -690,7 +716,33 @@ public class GranvilleRpcGameClientService : IDisposable
             }
         }
         
-        // Staying in the same zone
+        // Staying in the same zone as last stable zone
+        // Check if we're blocked and have moved far enough to clear the blocking
+        if (_isBlockedFromPreviousZone && _previousZone != null)
+        {
+            // Calculate how far we are from the previous zone boundary
+            var distanceFromPreviousZone = CalculateDistanceFromBoundary(position, _lastStableZone, _previousZone);
+            
+            // If we've moved more than 100 units into our current zone, clear the blocking
+            if (distanceFromPreviousZone >= ZONE_REENTRY_THRESHOLD)
+            {
+                _logger.LogInformation("[ONE_WAY_HYSTERESIS] Clearing blocking - moved {Distance:F2} units into zone ({X},{Y}), threshold: {Threshold}",
+                    distanceFromPreviousZone, _lastStableZone.X, _lastStableZone.Y, ZONE_REENTRY_THRESHOLD);
+                
+                _isBlockedFromPreviousZone = false;
+                _blockedBoundaryNormal = Vector2.Zero;
+                
+                // Fire event to clear visual indicators
+                OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+            }
+            else
+            {
+                _logger.LogTrace("[HYSTERESIS_DEBUG] Still blocked - distance from previous zone: {Distance:F2}, threshold: {Threshold}",
+                    distanceFromPreviousZone, ZONE_REENTRY_THRESHOLD);
+            }
+        }
+        
+        _logger.LogTrace("[HYSTERESIS_DEBUG] Staying in same zone ({X},{Y})", detectedZone.X, detectedZone.Y);
         return detectedZone;
     }
     
@@ -958,6 +1010,58 @@ public class GranvilleRpcGameClientService : IDisposable
                     var playerEntity = worldState.Entities?.FirstOrDefault(e => e.EntityId == PlayerId);
                     if (playerEntity != null)
                     {
+                        // Detect position jumps (e.g., from reconnection or server-side teleportation)
+                        const float MAX_POSITION_JUMP = 150f; // Maximum allowed position change per update
+                        const float RECONNECTION_GRACE_PERIOD = 2.0f; // Seconds after reconnection to allow position sync
+                        
+                        if (_lastKnownPlayerPosition.HasValue)
+                        {
+                            var timeSinceLastUpdate = (DateTime.UtcNow - _lastPositionUpdateTime).TotalSeconds;
+                            var positionDelta = _lastKnownPlayerPosition.Value.DistanceTo(playerEntity.Position);
+                            
+                            // Check for abnormal position jump
+                            if (positionDelta > MAX_POSITION_JUMP)
+                            {
+                                _logger.LogWarning("[POSITION_JUMP] Detected position jump of {Delta:F2} units from {OldPos} to {NewPos} after {Time:F2}s.",
+                                    positionDelta, _lastKnownPlayerPosition.Value, playerEntity.Position, timeSinceLastUpdate);
+                                
+                                // Determine the cause and handle appropriately
+                                if (timeSinceLastUpdate > 10.0f)
+                                {
+                                    // Extended disconnection - likely respawn or server reset
+                                    _logger.LogInformation("[POSITION_SYNC] Accepting server position after extended disconnection ({Time:F2}s) - likely respawn",
+                                        timeSinceLastUpdate);
+                                    
+                                    // Reset zone tracking to prevent confusion
+                                    _lastStableZone = null;
+                                    _previousZone = null;
+                                    _currentZone = GridSquare.FromPosition(playerEntity.Position);
+                                    _isBlockedFromPreviousZone = false;
+                                }
+                                else if (playerEntity.Position.X < 1f && playerEntity.Position.Y > 499f && playerEntity.Position.Y < 501f)
+                                {
+                                    // This looks like spawn point (0.15, 500) - player likely died/respawned
+                                    _logger.LogInformation("[POSITION_SYNC] Player appears to have respawned at spawn point {Position}", 
+                                        playerEntity.Position);
+                                    
+                                    // Reset zone tracking for fresh start
+                                    _lastStableZone = null;
+                                    _previousZone = null;
+                                    _currentZone = GridSquare.FromPosition(playerEntity.Position);
+                                    _isBlockedFromPreviousZone = false;
+                                }
+                                else if (timeSinceLastUpdate < RECONNECTION_GRACE_PERIOD)
+                                {
+                                    // Recent update with large jump - possible zone transition or teleportation
+                                    _logger.LogDebug("[POSITION_SYNC] Position correction within grace period - accepting server position");
+                                }
+                            }
+                        }
+                        
+                        // Update tracked position
+                        _lastKnownPlayerPosition = playerEntity.Position;
+                        _lastPositionUpdateTime = DateTime.UtcNow;
+                        
                         var detectedZone = GridSquare.FromPosition(playerEntity.Position);
                         var playerZone = ApplyOneWayHysteresis(detectedZone, playerEntity.Position);
                         
@@ -981,9 +1085,12 @@ public class GranvilleRpcGameClientService : IDisposable
                                 _zoneEntryTime = now;
                                 
                                 _logger.LogInformation("[CLIENT_ZONE_CHANGE] Player moved from zone ({OldX},{OldY}) to ({NewX},{NewY}) at position {Position}", 
-                                    _previousZone?.X ?? _currentZone?.X ?? -1, 
-                                    _previousZone?.Y ?? _currentZone?.Y ?? -1, 
+                                    _currentZone?.X ?? -1, 
+                                    _currentZone?.Y ?? -1, 
                                     playerZone.X, playerZone.Y, playerEntity.Position);
+                                
+                                // Update current zone AFTER logging the transition
+                                _currentZone = playerZone;
                                 
                                 // Schedule server transition check (don't use Task.Run in hot path)
                                 _ = CheckForServerTransition();
@@ -1170,54 +1277,74 @@ public class GranvilleRpcGameClientService : IDisposable
         
         try
         {
-            _logger.LogInformation("Attempting to reconnect to current server");
+            // Use ConnectionResilienceManager for robust reconnection
+            var result = await _connectionManager.ExecuteWithReconnect(
+                async () => await TestAndRestoreConnection(),
+                "reconnection",
+                _cancellationTokenSource?.Token ?? CancellationToken.None
+            );
             
-            // First try to test the current connection
-            if (_gameGrain != null)
+            if (result != null)
             {
-                try
-                {
-                    var testState = await _gameGrain.GetWorldState();
-                    if (testState != null)
-                    {
-                        _logger.LogInformation("Connection test successful, resetting failure count and restarting timers");
-                        _worldStatePollFailures = 0;
-                        IsConnected = true;  // Fix: Set connection status to true since test succeeded
-                        
-                        // Restart the world state timer if it appears to have stopped
-                        if (_worldStateTimer != null)
-                        {
-                            _logger.LogInformation("Restarting world state timer after successful connection test");
-                            _worldStateTimer.Dispose();
-                            _worldStateTimer = new Timer(async _ => 
-                            {
-                                try
-                                {
-                                    await PollWorldState();
-                                }
-                                catch (Exception ex)
-                                {
-                                    _logger.LogError(ex, "Unhandled exception in restarted world state timer callback");
-                                }
-                            }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(33));
-                        }
-                        
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Connection test failed, proceeding with reconnection");
-                }
+                _logger.LogInformation("Reconnection successful");
             }
-            
-            // Force a zone check to trigger proper reconnection
-            await CheckForServerTransition();
+            else
+            {
+                _logger.LogWarning("Reconnection failed after all attempts");
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to attempt reconnection");
+            _logger.LogError(ex, "Error during reconnection attempt");
         }
+    }
+    
+    private async Task<object> TestAndRestoreConnection()
+    {
+        _logger.LogInformation("Testing connection to current server");
+        
+        // First try to test the current connection
+        if (_gameGrain != null)
+        {
+            try
+            {
+                var testState = await _gameGrain.GetWorldState();
+                if (testState != null)
+                {
+                    _logger.LogInformation("Connection test successful, resetting failure count and restarting timers");
+                    _worldStatePollFailures = 0;
+                    IsConnected = true;  // Fix: Set connection status to true since test succeeded
+                    _connectionManager.MarkConnectionSuccess();
+                    
+                    // Reset position tracking after reconnection to prevent false jump detection
+                    _lastKnownPlayerPosition = null;
+                    _lastPositionUpdateTime = DateTime.MinValue;
+                    _logger.LogDebug("[RECONNECTION] Reset position tracking after successful reconnection");
+                    
+                    // Restart timers using the timer manager
+                    _timerManager.RestartAllTimers();
+                    _logger.LogInformation("Restarted all timers after successful connection test");
+                    
+                    return new object(); // Return non-null to indicate success
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Connection test failed, proceeding with reconnection");
+                _connectionManager.MarkConnectionFailure("Connection test failed");
+            }
+        }
+        
+        // Force a zone check to trigger proper reconnection
+        await CheckForServerTransition();
+        
+        // If we successfully reconnected during zone check, return success
+        if (IsConnected)
+        {
+            return new object();
+        }
+        
+        throw new InvalidOperationException("Failed to restore connection");
     }
     
     private async Task PollAvailableZones()
@@ -1304,6 +1431,22 @@ public class GranvilleRpcGameClientService : IDisposable
             return;
         }
         
+        // Use debouncer to prevent rapid transitions
+        var shouldTransition = await _zoneDebouncer.ShouldTransitionAsync(
+            playerZone,
+            playerEntity.Position,
+            async () => await PerformZoneTransitionDebounced(playerZone, playerEntity.Position)
+        );
+        
+        if (!shouldTransition)
+        {
+            _logger.LogDebug("[ZONE_TRANSITION] Transition to zone ({X},{Y}) prevented by debouncer", 
+                playerZone.X, playerZone.Y);
+        }
+    }
+    
+    private async Task PerformZoneTransitionDebounced(GridSquare playerZone, Vector2 playerPosition)
+    {
         _isTransitioning = true;
         
         try
@@ -1335,17 +1478,10 @@ public class GranvilleRpcGameClientService : IDisposable
                 
                 var cleanupStart = DateTime.UtcNow;
                 
-                // Stop timers before disconnecting
-                _worldStateTimer?.Dispose();
-                _heartbeatTimer?.Dispose();
-                _availableZonesTimer?.Dispose();
-                _networkStatsTimer?.Dispose();
-                _watchdogTimer?.Dispose();
-                _worldStateTimer = null;
-                _heartbeatTimer = null;
-                _availableZonesTimer = null;
-                _networkStatsTimer = null;
-                _watchdogTimer = null;
+                // Use timer manager to protect timers during transition
+                using (var transitionScope = _timerManager.BeginTransition($"zone change to {response.AssignedSquare.X},{response.AssignedSquare.Y}"))
+                {
+                    // Timers are now paused, not disposed
                 
                 // Explicitly disconnect player from old server before cleanup
                 if (_gameGrain != null && !string.IsNullOrEmpty(PlayerId))
@@ -1373,9 +1509,10 @@ public class GranvilleRpcGameClientService : IDisposable
                 var connectDuration = (DateTime.UtcNow - connectStart).TotalMilliseconds;
                 _logger.LogInformation("[ZONE_TRANSITION] ConnectToActionServer took {Duration}ms", connectDuration);
                 
-                // Reset zone change detection state after successful transition
-                _lastDetectedZone = null;
-                _lastZoneChangeTime = DateTime.MinValue;
+                    // Reset zone change detection state after successful transition
+                    _lastDetectedZone = null;
+                    _lastZoneChangeTime = DateTime.MinValue;
+                } // transitionScope disposed here, timers resume
             }
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -1929,11 +2066,12 @@ public class GranvilleRpcGameClientService : IDisposable
             }
         }
         
-        // Restart timers with minimal initial delay for smooth transition
-        _worldStateTimer = new Timer(async _ => await PollWorldState(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(33)); // Reduced from 16ms to 33ms (30 FPS)
-        _heartbeatTimer = new Timer(async _ => await SendHeartbeat(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
-        _availableZonesTimer = new Timer(async _ => await PollAvailableZones(), null, TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(10));
-        _networkStatsTimer = new Timer(async _ => await PollNetworkStats(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+        // Use RobustTimerManager to create protected timers
+        _timerManager.CreateTimer("worldState", async _ => await PollWorldState(), 33); // 30 FPS
+        _timerManager.CreateTimer("heartbeat", async _ => await SendHeartbeat(), 5000);
+        _timerManager.CreateTimer("availableZones", async _ => await PollAvailableZones(), 10000);
+        _timerManager.CreateTimer("networkStats", async _ => await PollNetworkStats(), 1000);
+        _timerManager.CreateTimer("watchdog", _ => { CheckPollingHealth(); }, 5000);
         
         // Restart chat polling if it was active
         if (_observer == null)
@@ -1941,16 +2079,16 @@ public class GranvilleRpcGameClientService : IDisposable
             StartChatPolling();
         }
         
-        // Restart watchdog timer
-        _watchdogTimer?.Dispose();
-        _watchdogTimer = new Timer(_ => CheckPollingHealth(), null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
-        
         // Reset sequence number for new server
         _lastSequenceNumber = -1;
         
         // Reset polling health tracking
         _worldStatePollFailures = 0;
         _lastWorldStatePollTime = DateTime.UtcNow;
+        
+        // Reset position tracking for new server
+        _lastKnownPlayerPosition = null;
+        _lastPositionUpdateTime = DateTime.MinValue;
         
         // Notify about server change
         ServerChanged?.Invoke(CurrentServerId);
@@ -2912,6 +3050,11 @@ public class GranvilleRpcGameClientService : IDisposable
             _ = Task.Run(async () => await CleanupPreEstablishedConnection(key));
         }
         _preEstablishedConnections.Clear();
+        
+        // Dispose of the protection components
+        _timerManager?.Dispose();
+        _zoneDebouncer?.Reset();
+        _connectionManager?.Reset();
         
         PlayerId = null;  // Clear PlayerId only on final dispose
     }

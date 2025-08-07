@@ -76,11 +76,12 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<GranvilleRpcGameClientService>(serviceProvider =>
 {
     var logger = serviceProvider.GetRequiredService<ILogger<GranvilleRpcGameClientService>>();
+    var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
     var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
     var httpClient = httpClientFactory.CreateClient();
     httpClient.BaseAddress = new Uri(siloUrl);
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-    return new GranvilleRpcGameClientService(logger, httpClient, configuration);
+    return new GranvilleRpcGameClientService(logger, httpClient, configuration, loggerFactory);
 });
 
 // Register SignalR chat service as SCOPED to match the game client service
