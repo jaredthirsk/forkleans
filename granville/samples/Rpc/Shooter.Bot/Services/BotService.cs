@@ -25,6 +25,7 @@ public class BotService : BackgroundService
     private WorldState? _lastWorldState;
     private List<GridSquare> _availableZones = new();
     private AutoMoveController? _autoMoveController;
+    private int _consecutiveMissingEntityCount = 0;
     private DateTime _lastShootTime = DateTime.UtcNow;
     private Vector2? _lastPlayerPosition;
     private readonly float _positionJumpThreshold = 100f;
@@ -207,8 +208,48 @@ public class BotService : BackgroundService
         {
             _logger.LogWarning("Bot {BotName}: Player entity not found in world state (PlayerId: {PlayerId})",
                 _botName, _gameClient.PlayerId);
+            
+            // Increment counter for missing entity
+            _consecutiveMissingEntityCount++;
+            
+            // If entity has been missing for too long, attempt to respawn
+            if (_consecutiveMissingEntityCount >= 5) // ~5 seconds
+            {
+                _logger.LogWarning("Bot {BotName}: Player entity missing for {Count} updates, attempting respawn",
+                    _botName, _consecutiveMissingEntityCount);
+                
+                // Reset counter
+                _consecutiveMissingEntityCount = 0;
+                
+                // Attempt to respawn by reconnecting
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        _logger.LogInformation("Bot {BotName}: Reconnecting to respawn", _botName);
+                        await _gameClient.DisconnectAsync();
+                        await Task.Delay(1000); // Brief delay before reconnecting
+                        var connected = await _gameClient.ConnectAsync(_botName);
+                        if (connected)
+                        {
+                            _logger.LogInformation("Bot {BotName}: Successfully reconnected and respawned", _botName);
+                        }
+                        else
+                        {
+                            _logger.LogError("Bot {BotName}: Failed to reconnect for respawn", _botName);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Bot {BotName}: Error during respawn attempt", _botName);
+                    }
+                });
+            }
             return;
         }
+        
+        // Reset counter when player entity is found
+        _consecutiveMissingEntityCount = 0;
         
         // Get movement decision from automove controller
         var (moveDirection, shootDirection) = _autoMoveController.Update(

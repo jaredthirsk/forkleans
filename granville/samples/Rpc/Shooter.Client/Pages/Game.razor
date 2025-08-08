@@ -393,6 +393,8 @@
     private List<ChatMessage> _chatMessages = new();
     private Shooter.Shared.GrainInterfaces.SiloInfo? _currentSilo;
     private int _totalSilos = 0;
+    private DateTime _lastWorldStateUpdate = DateTime.UtcNow;
+    private System.Timers.Timer? _connectionMonitorTimer;
     
     protected override async void OnInitialized()
     {
@@ -542,6 +544,9 @@
                 // Stop auto-join retry on successful connection
                 StopAutoJoinRetry();
                 
+                // Start connection monitoring
+                StartConnectionMonitoring();
+                
                 _logger.LogInformation("[GAME_CONNECT] RpcGameClient instance {InstanceId} - Connected with playerId: {PlayerId}", 
                     RpcGameClient.GetHashCode(), _playerId);
                 
@@ -671,8 +676,73 @@
         }
     }
     
+    private void StartConnectionMonitoring()
+    {
+        _connectionMonitorTimer?.Stop();
+        _connectionMonitorTimer?.Dispose();
+        
+        _connectionMonitorTimer = new System.Timers.Timer(2000); // Check every 2 seconds
+        _connectionMonitorTimer.Elapsed += async (sender, e) =>
+        {
+            var timeSinceLastUpdate = DateTime.UtcNow - _lastWorldStateUpdate;
+            if (timeSinceLastUpdate.TotalSeconds > 5 && _isConnected)
+            {
+                _logger.LogWarning("[CONNECTION_MONITOR] No world state updates for {Seconds:F1} seconds, checking connection", 
+                    timeSinceLastUpdate.TotalSeconds);
+                
+                // Check if RPC client is still connected
+                if (!RpcGameClient.IsConnected)
+                {
+                    _logger.LogWarning("[CONNECTION_MONITOR] RPC client disconnected, attempting to reconnect");
+                    await InvokeAsync(async () =>
+                    {
+                        _errorMessage = "Connection lost. Attempting to reconnect...";
+                        StateHasChanged();
+                        
+                        // Try to reconnect
+                        try
+                        {
+                            var reconnected = await RpcGameClient.ConnectAsync(_playerName);
+                            if (reconnected)
+                            {
+                                _logger.LogInformation("[CONNECTION_MONITOR] Successfully reconnected");
+                                _errorMessage = "";
+                                _lastWorldStateUpdate = DateTime.UtcNow;
+                            }
+                            else
+                            {
+                                _logger.LogError("[CONNECTION_MONITOR] Failed to reconnect");
+                                _errorMessage = "Failed to reconnect. Please refresh the page.";
+                                _isConnected = false;
+                                StopConnectionMonitoring();
+                            }
+                            StateHasChanged();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "[CONNECTION_MONITOR] Error during reconnection attempt");
+                            _errorMessage = $"Reconnection error: {ex.Message}";
+                            _isConnected = false;
+                            StopConnectionMonitoring();
+                            StateHasChanged();
+                        }
+                    });
+                }
+            }
+        };
+        _connectionMonitorTimer.Start();
+    }
+    
+    private void StopConnectionMonitoring()
+    {
+        _connectionMonitorTimer?.Stop();
+        _connectionMonitorTimer?.Dispose();
+        _connectionMonitorTimer = null;
+    }
+    
     private async Task Disconnect()
     {
+        StopConnectionMonitoring();
         await RpcGameClient.DisconnectAsync();
         _isConnected = false;
         
@@ -939,6 +1009,7 @@
     private void OnWorldStateUpdated(WorldState worldState)
     {
         _currentWorldState = worldState;
+        _lastWorldStateUpdate = DateTime.UtcNow;
         
         // Update FPS counter
         _frameCount++;
@@ -1321,6 +1392,7 @@
         
         StopAutoJoinCountdown();
         StopAutoJoinRetry();
+        StopConnectionMonitoring();
         
         // Unsubscribe from RPC events
         RpcGameClient.WorldStateUpdated -= OnWorldStateUpdated;

@@ -922,6 +922,15 @@ public class GranvilleRpcGameClientService : IDisposable
             return;
         }
         
+        // Double-check RPC client connection status
+        if (_rpcClient != null && _rpcClient.GetType().GetProperty("IsConnected")?.GetValue(_rpcClient) is bool rpcConnected && !rpcConnected)
+        {
+            _logger.LogWarning("[RPC_CHECK] RPC client reports disconnected, skipping poll and marking connection as lost");
+            IsConnected = false;
+            _ = Task.Run(async () => await AttemptReconnection());
+            return;
+        }
+        
         _logger.LogTrace("PollWorldState executing for player {PlayerId}", PlayerId);
         
         try
@@ -1148,6 +1157,20 @@ public class GranvilleRpcGameClientService : IDisposable
         catch (Exception ex)
         {
             _worldStatePollFailures++;
+            
+            // Check if this is a disconnection error
+            if (ex is InvalidOperationException && ex.Message.Contains("RPC client is not connected"))
+            {
+                _logger.LogWarning("[RPC_DISCONNECT] RPC client disconnected, marking connection as lost");
+                IsConnected = false;
+                
+                // Immediately attempt reconnection for RPC disconnection
+                if (_worldStatePollFailures == 1)
+                {
+                    _logger.LogInformation("[RPC_RECONNECT] Attempting immediate reconnection after RPC disconnect");
+                    _ = Task.Run(async () => await AttemptReconnection());
+                }
+            }
             
             // Throttle error logging to avoid spamming logs during connection issues
             if (!_worldStateErrorLogged || (DateTime.UtcNow - _lastWorldStateError).TotalSeconds > 5)
