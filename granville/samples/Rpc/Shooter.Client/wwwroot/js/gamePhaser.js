@@ -19,6 +19,8 @@ class GamePhaser {
         this.blockedZone = null; // One-way hysteresis blocked zone
         this.blockedBoundaryNormal = null; // Direction of the blocked boundary
         this.chevronAnimation = 0; // Animation timer for chevrons
+        this.blockingStartTime = null; // When the one-way restriction started
+        this.oneWayTimeoutSeconds = 5.0; // Timeout duration for one-way restriction
     }
 
     init(dotNetReference, containerId, playerId) {
@@ -460,6 +462,12 @@ class GamePhaser {
     }
 
     update() {
+        // Update one-way boundary timer if active
+        if (this.blockedZone && this.blockingStartTime) {
+            // Redraw to update the timer display
+            this.drawGrid();
+        }
+        
         // Handle special key press events
         if (this.automoveKey.isDown && !this.keyStates.automove) {
             this.keyStates.automove = true;
@@ -851,11 +859,8 @@ class GamePhaser {
             return; // No valid normal
         }
         
-        // Check if edge is visible
-        if ((isVertical && (edgeStartX < worldView.left || edgeStartX > worldView.right)) ||
-            (!isVertical && (edgeStartY < worldView.top || edgeStartY > worldView.bottom))) {
-            return;
-        }
+        // Always show the one-way boundary when active (don't check visibility)
+        // This ensures players always see the restriction indicator
         
         // Draw the highlighted boundary edge
         this.gridGraphics.lineStyle(5, 0xff4444, 1.0);
@@ -903,13 +908,21 @@ class GamePhaser {
             this.gridGraphics.strokePath();
         }
         
-        // Draw "ONE-WAY" text in the middle of the edge
+        // Draw "ONE-WAY" text with timer in the middle of the edge
         const textX = (edgeStartX + edgeEndX) / 2;
         const textY = (edgeStartY + edgeEndY) / 2;
         
+        // Calculate remaining time
+        let displayText = 'ONE-WAY';
+        if (this.blockingStartTime) {
+            const elapsedSeconds = (Date.now() - this.blockingStartTime) / 1000;
+            const remainingSeconds = Math.max(0, this.oneWayTimeoutSeconds - elapsedSeconds);
+            displayText = `ONE-WAY (${remainingSeconds.toFixed(1)}s)`;
+        }
+        
         // Create or update the one-way text
         if (!this.oneWayText) {
-            this.oneWayText = this.scene.add.text(textX, textY, 'ONE-WAY', {
+            this.oneWayText = this.scene.add.text(textX, textY, displayText, {
                 fontSize: '16px',
                 fontStyle: 'bold',
                 color: '#ff6666',
@@ -918,6 +931,7 @@ class GamePhaser {
             });
             this.oneWayText.setOrigin(0.5, 0.5);
         } else {
+            this.oneWayText.setText(displayText);
             this.oneWayText.setPosition(textX, textY);
             this.oneWayText.setVisible(true);
         }
@@ -1205,9 +1219,14 @@ class GamePhaser {
         this.blockedBoundaryNormal = boundaryNormal;
         
         if (blockedZone && boundaryNormal) {
+            // Record when blocking started
+            if (!this.blockingStartTime) {
+                this.blockingStartTime = Date.now();
+            }
             console.log(`[ONE_WAY_BOUNDARY] Blocking return to zone (${blockedZone.x},${blockedZone.y}), normal: (${boundaryNormal.x},${boundaryNormal.y})`);
         } else {
             console.log('[ONE_WAY_BOUNDARY] Boundary blocking cleared');
+            this.blockingStartTime = null;
         }
         
         // Redraw grid with new boundary state

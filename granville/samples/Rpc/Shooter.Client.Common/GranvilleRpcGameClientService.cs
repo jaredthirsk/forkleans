@@ -59,6 +59,8 @@ public class GranvilleRpcGameClientService : IDisposable
     private const float ZONE_REENTRY_THRESHOLD = 100f; // Must move 100 units into previous zone (aligns with grid lines)
     private bool _isBlockedFromPreviousZone = false; // Currently blocked from re-entering
     private Vector2 _blockedBoundaryNormal = Vector2.Zero; // Normal vector of blocked boundary
+    private DateTime _blockingStartTime = DateTime.MinValue; // When one-way blocking started
+    private const double ONE_WAY_TIMEOUT_SECONDS = 5.0; // Timeout for one-way restriction
     private WorldState? _lastWorldState = null;
     private Vector2 _lastInputDirection = Vector2.Zero;
     private bool _lastInputShooting = false;
@@ -651,6 +653,7 @@ public class GranvilleRpcGameClientService : IDisposable
                         
                     bool wasBlocked = _isBlockedFromPreviousZone;
                     _isBlockedFromPreviousZone = false;
+                    _blockingStartTime = DateTime.MinValue;
                     _lastStableZone = detectedZone;
                     
                     if (wasBlocked)
@@ -666,6 +669,12 @@ public class GranvilleRpcGameClientService : IDisposable
                     // Block re-entry, stay in last stable zone
                     bool wasBlocked = _isBlockedFromPreviousZone;
                     _isBlockedFromPreviousZone = true;
+                    
+                    // Record when blocking started
+                    if (!wasBlocked)
+                    {
+                        _blockingStartTime = DateTime.UtcNow;
+                    }
                     
                     // Calculate boundary normal for bouncy wall physics
                     _blockedBoundaryNormal = CalculateBoundaryNormal(_lastStableZone, _previousZone);
@@ -689,6 +698,7 @@ public class GranvilleRpcGameClientService : IDisposable
                         
                     bool wasBlocked = _isBlockedFromPreviousZone;
                     _isBlockedFromPreviousZone = false;
+                    _blockingStartTime = DateTime.MinValue;
                     _lastStableZone = detectedZone; // Update stable zone
                     
                     // Fire event if blocking state changed
@@ -707,6 +717,7 @@ public class GranvilleRpcGameClientService : IDisposable
                 if (_isBlockedFromPreviousZone)
                 {
                     _isBlockedFromPreviousZone = false;
+                    _blockingStartTime = DateTime.MinValue;
                     OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
                 }
                 
@@ -720,25 +731,43 @@ public class GranvilleRpcGameClientService : IDisposable
         // Check if we're blocked and have moved far enough to clear the blocking
         if (_isBlockedFromPreviousZone && _previousZone != null)
         {
-            // Calculate how far we are from the previous zone boundary
-            var distanceFromPreviousZone = CalculateDistanceFromBoundary(position, _lastStableZone, _previousZone);
-            
-            // If we've moved more than 100 units into our current zone, clear the blocking
-            if (distanceFromPreviousZone >= ZONE_REENTRY_THRESHOLD)
+            // Check for timeout
+            var blockingDuration = (DateTime.UtcNow - _blockingStartTime).TotalSeconds;
+            if (blockingDuration >= ONE_WAY_TIMEOUT_SECONDS)
             {
-                _logger.LogInformation("[ONE_WAY_HYSTERESIS] Clearing blocking - moved {Distance:F2} units into zone ({X},{Y}), threshold: {Threshold}",
-                    distanceFromPreviousZone, _lastStableZone.X, _lastStableZone.Y, ZONE_REENTRY_THRESHOLD);
+                _logger.LogInformation("[ONE_WAY_HYSTERESIS] Clearing blocking - timeout after {Duration:F1} seconds",
+                    blockingDuration);
                 
                 _isBlockedFromPreviousZone = false;
                 _blockedBoundaryNormal = Vector2.Zero;
+                _blockingStartTime = DateTime.MinValue;
                 
                 // Fire event to clear visual indicators
                 OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
             }
             else
             {
-                _logger.LogTrace("[HYSTERESIS_DEBUG] Still blocked - distance from previous zone: {Distance:F2}, threshold: {Threshold}",
-                    distanceFromPreviousZone, ZONE_REENTRY_THRESHOLD);
+                // Calculate how far we are from the previous zone boundary
+                var distanceFromPreviousZone = CalculateDistanceFromBoundary(position, _lastStableZone, _previousZone);
+                
+                // If we've moved more than 100 units into our current zone, clear the blocking
+                if (distanceFromPreviousZone >= ZONE_REENTRY_THRESHOLD)
+                {
+                    _logger.LogInformation("[ONE_WAY_HYSTERESIS] Clearing blocking - moved {Distance:F2} units into zone ({X},{Y}), threshold: {Threshold}",
+                        distanceFromPreviousZone, _lastStableZone.X, _lastStableZone.Y, ZONE_REENTRY_THRESHOLD);
+                    
+                    _isBlockedFromPreviousZone = false;
+                    _blockedBoundaryNormal = Vector2.Zero;
+                    _blockingStartTime = DateTime.MinValue;
+                    
+                    // Fire event to clear visual indicators
+                    OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+                }
+                else
+                {
+                    _logger.LogTrace("[HYSTERESIS_DEBUG] Still blocked - distance from previous zone: {Distance:F2}, threshold: {Threshold}, time remaining: {TimeLeft:F1}s",
+                        distanceFromPreviousZone, ZONE_REENTRY_THRESHOLD, ONE_WAY_TIMEOUT_SECONDS - blockingDuration);
+                }
             }
         }
         
