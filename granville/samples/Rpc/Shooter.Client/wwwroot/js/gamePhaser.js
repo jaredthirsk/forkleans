@@ -862,8 +862,13 @@ class GamePhaser {
         // Always show the one-way boundary when active (don't check visibility)
         // This ensures players always see the restriction indicator
         
+        // Choose colors based on blocking state
+        const isCurrentlyBlocked = this.isBlocked;
+        const edgeColor = isCurrentlyBlocked ? 0xff4444 : 0x44ccff; // Red when blocked, cyan when active
+        const chevronColor = isCurrentlyBlocked ? 0xff6666 : 0x66ddff; // Light red when blocked, light cyan when active
+        
         // Draw the highlighted boundary edge
-        this.gridGraphics.lineStyle(5, 0xff4444, 1.0);
+        this.gridGraphics.lineStyle(5, edgeColor, 1.0);
         this.gridGraphics.lineBetween(edgeStartX, edgeStartY, edgeEndX, edgeEndY);
         
         // Update chevron animation
@@ -879,7 +884,7 @@ class GamePhaser {
         );
         const numChevrons = Math.floor(edgeLength / chevronSpacing);
         
-        this.gridGraphics.lineStyle(3, 0xff6666, 0.8);
+        this.gridGraphics.lineStyle(3, chevronColor, 0.8);
         
         for (let i = 0; i < numChevrons; i++) {
             const t = (i * chevronSpacing + animOffset) / edgeLength;
@@ -912,20 +917,45 @@ class GamePhaser {
         const textX = (edgeStartX + edgeEndX) / 2;
         const textY = (edgeStartY + edgeEndY) / 2;
         
-        // Calculate remaining time
+        // Calculate remaining time and check for timeout
         let displayText = 'ONE-WAY';
+        let shouldClearBoundary = false;
+        
         if (this.blockingStartTime) {
             const elapsedSeconds = (Date.now() - this.blockingStartTime) / 1000;
             const remainingSeconds = Math.max(0, this.oneWayTimeoutSeconds - elapsedSeconds);
             displayText = `ONE-WAY (${remainingSeconds.toFixed(1)}s)`;
+            
+            // If timer has expired, mark for clearing
+            if (elapsedSeconds >= this.oneWayTimeoutSeconds) {
+                shouldClearBoundary = true;
+            }
         }
+        
+        // If timeout expired, clear the boundary
+        if (shouldClearBoundary) {
+            console.log('[ONE_WAY_BOUNDARY] Client-side timeout expired, clearing boundary');
+            this.blockedZone = null;
+            this.blockedBoundaryNormal = null;
+            this.isBlocked = false;
+            this.blockingStartTime = null;
+            
+            // Hide the text and exit early
+            if (this.oneWayText) {
+                this.oneWayText.setVisible(false);
+            }
+            return;
+        }
+        
+        // Choose text color based on blocking state
+        const textColor = isCurrentlyBlocked ? '#ff6666' : '#66ddff'; // Red when blocked, cyan when active
         
         // Create or update the one-way text
         if (!this.oneWayText) {
             this.oneWayText = this.scene.add.text(textX, textY, displayText, {
                 fontSize: '16px',
                 fontStyle: 'bold',
-                color: '#ff6666',
+                color: textColor,
                 backgroundColor: '#000000',
                 padding: { x: 4, y: 2 }
             });
@@ -933,6 +963,7 @@ class GamePhaser {
         } else {
             this.oneWayText.setText(displayText);
             this.oneWayText.setPosition(textX, textY);
+            this.oneWayText.setStyle({ color: textColor }); // Update color dynamically
             this.oneWayText.setVisible(true);
         }
         
@@ -1214,19 +1245,26 @@ class GamePhaser {
         this.drawGrid();
     }
     
-    updateOneWayBoundaryState(blockedZone, boundaryNormal) {
+    updateOneWayBoundaryState(blockedZone, boundaryNormal, isBlocked) {
         this.blockedZone = blockedZone;
         this.blockedBoundaryNormal = boundaryNormal;
+        this.isBlocked = isBlocked || false;
         
         if (blockedZone && boundaryNormal) {
-            // Record when blocking started
+            // Record when boundary became active (not necessarily blocked)
             if (!this.blockingStartTime) {
                 this.blockingStartTime = Date.now();
             }
-            console.log(`[ONE_WAY_BOUNDARY] Blocking return to zone (${blockedZone.x},${blockedZone.y}), normal: (${boundaryNormal.x},${boundaryNormal.y})`);
+            
+            if (isBlocked) {
+                console.log(`[ONE_WAY_BOUNDARY] Blocking return to zone (${blockedZone.x},${blockedZone.y}), normal: (${boundaryNormal.x},${boundaryNormal.y})`);
+            } else {
+                console.log(`[ONE_WAY_BOUNDARY] One-way boundary active for zone (${blockedZone.x},${blockedZone.y}), normal: (${boundaryNormal.x},${boundaryNormal.y})`);
+            }
         } else {
-            console.log('[ONE_WAY_BOUNDARY] Boundary blocking cleared');
+            console.log('[ONE_WAY_BOUNDARY] Boundary cleared');
             this.blockingStartTime = null;
+            this.isBlocked = false;
         }
         
         // Redraw grid with new boundary state

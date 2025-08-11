@@ -1,0 +1,226 @@
+@page "/"
+@using Microsoft.AspNetCore.SignalR
+@using System.Timers
+@inject Orleans.IGrainFactory GrainFactory
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<PageTitle>Shooter Silo Dashboard</PageTitle>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    🎮 Shooter Game World Overview
+                    <span class="badge bg-success ms-2">@_actionServers.Count Server@(_actionServers.Count != 1 ? "s" : "")</span>
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <WorldMinimap ActionServers="_actionServers" />
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="card bg-primary">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Active Zones</h5>
+                                        <h2 class="mb-0">@_actionServers.Count</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="card bg-success">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Total Players</h5>
+                                        <h2 class="mb-0">@_totalPlayers</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="card bg-warning text-dark">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Enemies</h5>
+                                        <h2 class="mb-0">@_totalEnemies</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="card bg-info text-dark">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Factories</h5>
+                                        <h2 class="mb-0">@_totalFactories</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">🖥️ Action Servers</h4>
+            </div>
+            <div class="card-body">
+                @if (_actionServers.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Zone</th>
+                                    <th>Server ID</th>
+                                    <th>Status</th>
+                                    <th>Phaser View</th>
+                                    <th>RPC Port</th>
+                                    <th>Last Seen</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var server in _actionServers.OrderBy(s => s.AssignedSquare.Y).ThenBy(s => s.AssignedSquare.X))
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-secondary">(@server.AssignedSquare.X, @server.AssignedSquare.Y)</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">@server.ServerId[..8]...</small>
+                                        </td>
+                                        <td>
+                                            @{
+                                                var timeSinceLastSeen = DateTime.UtcNow - server.LastHeartbeat;
+                                                var isOnline = timeSinceLastSeen < TimeSpan.FromMinutes(2);
+                                            }
+                                            <span class="badge @(isOnline ? "bg-success" : "bg-danger")">
+                                                @(isOnline ? "Online" : "Offline")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if (server.HasPhaserView && !string.IsNullOrEmpty(server.WebUrl))
+                                            {
+                                                <a href="@GetPhaserUrl(server.WebUrl)" target="_blank" class="btn btn-sm btn-primary">
+                                                    🎮 View
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not available</span>
+                                            }
+                                        </td>
+                                        <td>@server.RpcPort</td>
+                                        <td>
+                                            <small>@GetTimeAgoString(server.LastHeartbeat)</small>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-info" @onclick="() => ViewServerDetails(server)">
+                                                Details
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No action servers registered</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<ActionServerInfo> _actionServers = new();
+    private List<ActionServerStatus> _serverStatuses = new();
+    private Timer? _refreshTimer;
+    private int _totalPlayers = 0;
+    private int _totalEnemies = 0;
+    private int _totalFactories = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshData();
+        
+        // Set up periodic refresh
+        _refreshTimer = new Timer(2000); // Refresh every 2 seconds
+        _refreshTimer.Elapsed += async (sender, e) =>
+        {
+            try
+            {
+                await RefreshData();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error refreshing dashboard: {ex.Message}");
+            }
+        };
+        _refreshTimer.Start();
+    }
+
+    private async Task RefreshData()
+    {
+        try
+        {
+            var worldManager = GrainFactory.GetGrain<IWorldManagerGrain>(0);
+            _actionServers = await worldManager.GetAllActionServers();
+            _serverStatuses = await worldManager.GetActionServerStatuses();
+            
+            // Calculate totals from server statuses
+            _totalPlayers = _serverStatuses.Sum(s => s.PlayerCount);
+            _totalEnemies = _serverStatuses.Sum(s => s.EnemyCount);
+            _totalFactories = _serverStatuses.Sum(s => s.FactoryCount);
+            
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching data: {ex.Message}");
+        }
+    }
+
+    private string GetPhaserUrl(string webUrl)
+    {
+        if (string.IsNullOrEmpty(webUrl)) return "#";
+        
+        // Ensure the URL ends with /phaser
+        return webUrl.TrimEnd('/') + "/phaser";
+    }
+
+    private string GetTimeAgoString(DateTime dateTime)
+    {
+        var timeSpan = DateTime.UtcNow - dateTime;
+        
+        if (timeSpan < TimeSpan.FromMinutes(1))
+            return "Just now";
+        if (timeSpan < TimeSpan.FromHours(1))
+            return $"{(int)timeSpan.TotalMinutes}m ago";
+        if (timeSpan < TimeSpan.FromDays(1))
+            return $"{(int)timeSpan.TotalHours}h ago";
+        
+        return dateTime.ToString("MM/dd HH:mm");
+    }
+
+    private void ViewServerDetails(ActionServerInfo server)
+    {
+        // TODO: Implement server details modal or navigate to details page
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _refreshTimer?.Dispose();
+        await Task.CompletedTask;
+    }
+}

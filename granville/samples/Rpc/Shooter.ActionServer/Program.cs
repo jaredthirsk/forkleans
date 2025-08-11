@@ -21,6 +21,9 @@ using Orleans.Serialization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Runtime.Loader;
 using System.Reflection;
+using Shooter.ActionServer.Configuration;
+using Shooter.ActionServer.Hubs;
+using Shooter.ActionServer.Views;
 
 // Initialize assembly redirect helper to redirect Orleans.* to Granville.Orleans.*
 Shooter.Shared.AssemblyRedirectHelper.Initialize();
@@ -28,15 +31,28 @@ Shooter.Shared.AssemblyRedirectHelper.PreloadGranvilleAssemblies();
 
 // Parse command line arguments
 var transportType = args.FirstOrDefault(arg => arg.StartsWith("--transport="))?.Replace("--transport=", "") ?? "litenetlib";
+var enablePhaserView = args.Any(arg => arg == "--phaser-view" || arg == "--phaser") || 
+                       Environment.GetEnvironmentVariable("ENABLE_PHASER_VIEW")?.ToLower() == "true";
+
+Console.WriteLine($"🚀 ActionServer starting with args: {string.Join(" ", args)}");
+Console.WriteLine($"🎮 Phaser view enabled: {enablePhaserView} (from args: {args.Any(arg => arg == "--phaser-view" || arg == "--phaser")}, from env: {Environment.GetEnvironmentVariable("ENABLE_PHASER_VIEW")})");
+Console.WriteLine($"🌐 Transport type: {transportType}");
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
 // Configure logging
-builder.Logging.SetMinimumLevel(LogLevel.Debug);
-builder.Logging.AddFilter("Granville.Rpc", LogLevel.Debug);
-builder.Logging.AddFilter("Shooter.ActionServer", LogLevel.Debug);
+builder.Logging.SetMinimumLevel(LogLevel.Information);
+builder.Logging.AddFilter("Granville.Rpc", LogLevel.Warning);  // Reduce RPC noise
+builder.Logging.AddFilter("Granville.Rpc.RpcConnection", LogLevel.Error);  // Especially connection noise
+builder.Logging.AddFilter("Orleans.Rpc.Server.RpcConnection", LogLevel.Error);  // Alternative namespace
+builder.Logging.AddFilter("Shooter.ActionServer", LogLevel.Information);
+
+// Explicitly filter out trace and debug from all RPC components
+builder.Logging.AddFilter((category, level) => 
+    (category?.StartsWith("Granville.Rpc") == true || category?.StartsWith("Orleans.Rpc") == true) 
+    && level < LogLevel.Warning);
 
 // Add file logging with unique filename based on Aspire instance
 string logFileName = "../logs/actionserver.log";
@@ -114,6 +130,15 @@ builder.Services.AddHostedService(provider => provider.GetRequiredService<GameSe
 
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<RpcServerPortProvider>();
+
+// Add Phaser view configuration
+builder.Services.AddSingleton(new PhaserViewConfiguration { IsEnabled = enablePhaserView });
+if (enablePhaserView)
+{
+    Console.WriteLine("Phaser view is ENABLED for this ActionServer");
+    // Add SignalR for real-time updates to Phaser view
+    builder.Services.AddSignalR();
+}
 
 // Register zone-aware RPC server adapter
 builder.Services.AddSingleton<IZoneAwareRpcServer, ZoneAwareRpcServerAdapter>();
@@ -296,6 +321,9 @@ builder.Services.AddHostedService<ActionServerRegistrationService>();
 // Add stats reporting service
 builder.Services.AddHostedService<StatsReportingService>();
 
+// Add status reporting service
+builder.Services.AddHostedService<StatusReportingService>();
+
 // Add diagnostic service
 // Diagnostic service removed - was causing unnecessary log noise
 // builder.Services.AddHostedService<DiagnosticService>();
@@ -312,7 +340,14 @@ app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.Health
 });
 
 // Add game endpoints
-app.MapGet("/", () => "ActionServer is running");
+app.MapGet("/", (PhaserViewConfiguration phaserConfig) => 
+{
+    if (phaserConfig.IsEnabled)
+    {
+        return Results.Redirect("/phaser");
+    }
+    return Results.Text("ActionServer is running");
+});
 
 app.MapGet("/status", (IWorldSimulation simulation) => 
 {
@@ -351,6 +386,74 @@ app.MapPost("/api/admin/shutdown", async (IHostApplicationLifetime lifetime, ILo
 
 // All game communication now happens via RPC only
 // HTTP endpoints are only used for health/status monitoring
+
+// Add Phaser view endpoints if enabled
+if (enablePhaserView)
+{
+    Console.WriteLine("🎮 Setting up Phaser view endpoints...");
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+    
+    app.MapGet("/phaser", () => {
+        Console.WriteLine("📡 Phaser view requested");
+        return Results.Content(PhaserViewHtml.GetHtml(), "text/html");
+    });
+    
+    app.MapHub<WorldStateHub>("/worldStateHub");
+    
+    app.MapGet("/api/phaser/config", (IWorldSimulation simulation, CrossZoneRpcService crossZoneRpc, RpcServerPortProvider rpcPortProvider) =>
+    {
+        var assignedSquare = simulation.GetAssignedSquare();
+        return new
+        {
+            AssignedZone = new { assignedSquare.X, assignedSquare.Y },
+            RpcPort = rpcPortProvider.Port,
+            ServerInstanceId = Environment.GetEnvironmentVariable("ASPIRE_INSTANCE_ID") ?? "default"
+        };
+    });
+    
+    app.MapGet("/api/phaser/adjacent-zones", async (CrossZoneRpcService crossZoneRpc, Orleans.IClusterClient orleansClient) =>
+    {
+        try
+        {
+            var worldManager = orleansClient.GetGrain<IWorldManagerGrain>(0);
+            var actionServers = await worldManager.GetAllActionServers();
+            
+            // Return all action servers with their zone assignments
+            var result = actionServers.Select(s => new 
+            {
+                s.ServerId,
+                Zone = new { s.AssignedSquare.X, s.AssignedSquare.Y },
+                s.IpAddress,
+                s.HttpEndpoint,
+                s.RpcPort
+            });
+            
+            return Results.Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Failed to get adjacent zones: {ex.Message}");
+        }
+    });
+}
+
+// Show the actual URLs the server is listening on
+var server = app.Services.GetRequiredService<IServer>();
+var addressFeature = server.Features.Get<IServerAddressesFeature>();
+if (addressFeature != null)
+{
+    Console.WriteLine("🌐 ActionServer listening on:");
+    foreach (var address in addressFeature.Addresses)
+    {
+        Console.WriteLine($"   {address}");
+        if (enablePhaserView)
+        {
+            var phaserUrl = address.EndsWith('/') ? $"{address}phaser" : $"{address}/phaser";
+            Console.WriteLine($"   🎮 Phaser view: {phaserUrl}");
+        }
+    }
+}
 
 app.Run();
 

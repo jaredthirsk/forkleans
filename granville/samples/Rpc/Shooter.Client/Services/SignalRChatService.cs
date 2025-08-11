@@ -272,12 +272,17 @@ public class SignalRChatService : IDisposable
         
         try
         {
-            _logger.LogInformation("[SIGNALR_CHAT] Sending message from {PlayerName}: {Message}", _playerName, message);
+            _logger.LogInformation("[SIGNALR_CHAT] Attempting to send message from {PlayerName}: {Message}", _playerName, message);
+            _logger.LogInformation("[SIGNALR_CHAT] HubConnection state: {State}, ConnectionId: {ConnectionId}", 
+                _hubConnection.State, _hubConnection.ConnectionId);
+            
             await _hubConnection.InvokeAsync("SendMessage", _playerName, message);
+            
+            _logger.LogInformation("[SIGNALR_CHAT] Message sent successfully to hub");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send chat message");
+            _logger.LogError(ex, "[SIGNALR_CHAT] Failed to send chat message");
         }
     }
 

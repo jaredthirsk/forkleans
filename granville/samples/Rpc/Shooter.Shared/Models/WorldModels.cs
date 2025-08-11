@@ -27,7 +27,21 @@ public record ActionServerInfo(
     string HttpEndpoint,
     GridSquare AssignedSquare,
     DateTime RegisteredAt,
-    int RpcPort = 0);
+    int RpcPort = 0,
+    string? WebUrl = null,
+    bool HasPhaserView = false,
+    DateTime LastHeartbeat = default);
+
+[Orleans.GenerateSerializer]
+public record ActionServerStatus(
+    string ServerId,
+    int EntityCount,
+    int PlayerCount,
+    int EnemyCount,
+    int FactoryCount,
+    double ServerFps,
+    long MemoryUsage,
+    DateTime LastUpdate);
 
 [Orleans.GenerateSerializer]
 public record PlayerInfo(

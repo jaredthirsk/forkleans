@@ -1,5 +1,6 @@
 using Shooter.Shared.GrainInterfaces;
 using Shooter.ActionServer.Simulation;
+using Shooter.ActionServer.Configuration;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 
@@ -14,6 +15,7 @@ public class ActionServerRegistrationService : BackgroundService
     private readonly RpcServerPortProvider _rpcPortProvider;
     private readonly IHostApplicationLifetime _lifetime;
     private readonly IServiceProvider _serviceProvider;
+    private readonly PhaserViewConfiguration _phaserConfig;
     private string? _serverId;
 
     public ActionServerRegistrationService(
@@ -23,7 +25,8 @@ public class ActionServerRegistrationService : BackgroundService
         ILogger<ActionServerRegistrationService> logger,
         RpcServerPortProvider rpcPortProvider,
         IHostApplicationLifetime lifetime,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        PhaserViewConfiguration phaserConfig)
     {
         _orleansClient = orleansClient;
         _configuration = configuration;
@@ -32,6 +35,7 @@ public class ActionServerRegistrationService : BackgroundService
         _rpcPortProvider = rpcPortProvider;
         _lifetime = lifetime;
         _serviceProvider = serviceProvider;
+        _phaserConfig = phaserConfig;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -78,8 +82,11 @@ public class ActionServerRegistrationService : BackgroundService
             var rpcPort = _rpcPortProvider.Port;
             
             var httpEndpoint = $"http://{advertisedHost}:{httpPort}";
-            _logger.LogInformation("Registering ActionServer {ServerId} with Silo - HTTP endpoint: {HttpEndpoint}, RPC port: {RpcPort}", 
-                _serverId, httpEndpoint, rpcPort);
+            var webUrl = actualAddress; // Use the actual listening address
+            var hasPhaserView = _phaserConfig.IsEnabled;
+            
+            _logger.LogInformation("Registering ActionServer {ServerId} with Silo - HTTP endpoint: {HttpEndpoint}, Web URL: {WebUrl}, RPC port: {RpcPort}, Phaser view: {HasPhaserView}", 
+                _serverId, httpEndpoint, webUrl, rpcPort, hasPhaserView);
             
             // Register with WorldManager
             var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
@@ -88,7 +95,9 @@ public class ActionServerRegistrationService : BackgroundService
                 advertisedHost,
                 0, // UDP port not used anymore
                 httpEndpoint,
-                rpcPort);
+                rpcPort,
+                webUrl,
+                hasPhaserView);
             
             _logger.LogInformation("ActionServer registered successfully. Assigned zone: ({X}, {Y})", 
                 serverInfo.AssignedSquare.X, serverInfo.AssignedSquare.Y);

@@ -1,5 +1,6 @@
 #!/bin/bash
-./k.sh
+#./k.sh
+/mnt/c/forks/orleans/granville/samples/Rpc/scripts/kill-shooter-processes.sh
 rm /mnt/c/forks/orleans/granville/samples/Rpc/logs/*.log -f
 
 # Work around dotnet CLI issue with Windows filesystem mounts
@@ -14,6 +15,7 @@ cd "$TEMP_DIR"
 cd "$ORIGINAL_DIR"
 dotnet clean 2>/dev/null || true
 cd "$TEMP_DIR"
+
 dotnet run --project "$ORIGINAL_DIR/Shooter.AppHost.csproj" -- "$@"
 #dotnet run --project "$ORIGINAL_DIR/Shooter.AppHost.csproj" -c Release -- "$@"
 

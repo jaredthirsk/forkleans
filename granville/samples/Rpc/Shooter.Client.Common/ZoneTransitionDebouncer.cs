@@ -20,11 +20,11 @@ namespace Shooter.Client.Common
         private int _rapidTransitionCount = 0;
         private CancellationTokenSource? _debounceCts;
         
-        // Configuration
-        private const int MIN_TIME_BETWEEN_TRANSITIONS_MS = 500; // Minimum 500ms between transitions
-        private const int DEBOUNCE_DELAY_MS = 300; // Wait 300ms to confirm zone change
-        private const int MAX_RAPID_TRANSITIONS = 5; // Max transitions before forcing cooldown
-        private const int COOLDOWN_PERIOD_MS = 2000; // 2 second cooldown after rapid transitions
+        // Configuration - Reduced delays for faster transitions
+        private const int MIN_TIME_BETWEEN_TRANSITIONS_MS = 200; // Minimum 200ms between transitions (reduced from 500ms)
+        private const int DEBOUNCE_DELAY_MS = 150; // Wait 150ms to confirm zone change (reduced from 300ms)
+        private const int MAX_RAPID_TRANSITIONS = 8; // Max transitions before forcing cooldown (increased tolerance)
+        private const int COOLDOWN_PERIOD_MS = 1000; // 1 second cooldown after rapid transitions (reduced from 2000ms)
         private const float ZONE_HYSTERESIS_DISTANCE = 20f; // Must move 20 units into new zone
 
         public bool IsInCooldown { get; private set; }

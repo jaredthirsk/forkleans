@@ -25,6 +25,7 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
     private readonly Dictionary<GridSquare, ZoneStats> _zoneStats = new();
     private DateTime _lastStatsUpdate = DateTime.UtcNow;
     private IHubContext<GameHub, IGameHubClient>? _hubContext;
+    private readonly Dictionary<string, ActionServerStatus> _serverStatuses = new();
 
     public WorldManagerGrain(
         [Orleans.Runtime.PersistentState("worldManager", "worldStore")] Orleans.Runtime.IPersistentState<WorldManagerState> state,
@@ -88,7 +89,7 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
         await base.OnActivateAsync(cancellationToken);
     }
 
-    public async Task<ActionServerInfo> RegisterActionServer(string serverId, string ipAddress, int udpPort, string httpEndpoint, int rpcPort = 0)
+    public async Task<ActionServerInfo> RegisterActionServer(string serverId, string ipAddress, int udpPort, string httpEndpoint, int rpcPort = 0, string? webUrl = null, bool hasPhaserView = false)
     {
         // Check if this server is already registered
         if (_serverIdToInfo.ContainsKey(serverId))
@@ -133,7 +134,7 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
         _logger.LogInformation("Assigning server {ServerId} to zone ({X},{Y}) in {GridSize}x{GridSize} grid (found {ExistingCount} existing servers)", 
             serverId, assignedSquare.X, assignedSquare.Y, gridSize, gridSize, _gridToServer.Count);
 
-        var serverInfo = new ActionServerInfo(serverId, ipAddress, udpPort, httpEndpoint, assignedSquare, DateTime.UtcNow, rpcPort);
+        var serverInfo = new ActionServerInfo(serverId, ipAddress, udpPort, httpEndpoint, assignedSquare, DateTime.UtcNow, rpcPort, webUrl, hasPhaserView, DateTime.UtcNow);
         
         // Add the server to our mappings
         _gridToServer[assignedSquare] = serverInfo;
@@ -373,13 +374,20 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
     
     public async Task BroadcastChatMessage(ChatMessage message)
     {
-        _logger.LogInformation("Broadcasting chat message from {Sender}: {Message}", message.SenderName, message.Message);
+        _logger.LogInformation("[CHAT_BROADCAST] Broadcasting chat message from {Sender}: {Message}", message.SenderName, message.Message);
         
         // Broadcast to all SignalR web clients
         if (_hubContext != null)
         {
+            _logger.LogInformation("[CHAT_BROADCAST] HubContext available, sending to all SignalR clients");
             await _hubContext.Clients.All.ReceiveChatMessage(message);
-            _logger.LogDebug("Broadcast chat message to all SignalR clients");
+            // Also send in the simple format for compatibility
+            await _hubContext.Clients.All.ReceiveMessage(message.SenderName, message.Message);
+            _logger.LogInformation("[CHAT_BROADCAST] Successfully broadcast chat message to all SignalR clients");
+        }
+        else
+        {
+            _logger.LogWarning("[CHAT_BROADCAST] HubContext is null - cannot broadcast to SignalR clients!");
         }
         
         // Also send to all action servers for zone-local distribution
@@ -570,6 +578,28 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
     {
         _timerHandle?.Dispose();
         return base.OnDeactivateAsync(reason, cancellationToken);
+    }
+
+    // ActionServer monitoring methods
+    public async Task UpdateActionServerStatus(ActionServerStatus status)
+    {
+        _serverStatuses[status.ServerId] = status;
+        
+        // Update heartbeat if the server exists
+        if (_serverIdToInfo.TryGetValue(status.ServerId, out var serverInfo))
+        {
+            var updatedInfo = serverInfo with { LastHeartbeat = DateTime.UtcNow };
+            _serverIdToInfo[status.ServerId] = updatedInfo;
+            _gridToServer[serverInfo.AssignedSquare] = updatedInfo;
+        }
+        
+        await Task.CompletedTask;
+    }
+
+    public async Task<List<ActionServerStatus>> GetActionServerStatuses()
+    {
+        await Task.CompletedTask;
+        return _serverStatuses.Values.ToList();
     }
 }
 

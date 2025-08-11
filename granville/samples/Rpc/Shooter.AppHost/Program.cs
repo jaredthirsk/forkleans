@@ -112,14 +112,16 @@ for (int i = 0; i < InitialActionServerCount; i++)
     var targetSilo = silos[i % silos.Count];
     
     var server = builder.AddProject<Projects.Shooter_ActionServer>($"shooter-actionserver-{i}")
+        .WithHttpEndpoint()  // Let Aspire assign a dynamic HTTP endpoint
         .WithEnvironment("Orleans__SiloUrl", targetSilo.GetEndpoint("https"))
         .WithEnvironment("Orleans__GatewayEndpoint", targetSilo.GetEndpoint("orleans-gateway"))
         .WithEnvironment("Orleans__ClusterId", "shooter-cluster")
         .WithEnvironment("Orleans__ServiceId", "shooter-service")
         .WithEnvironment("RPC_PORT", rpcPort.ToString())
         .WithEnvironment("ASPIRE_INSTANCE_ID", i.ToString()) // Help identify instances
+        .WithEnvironment("ENABLE_PHASER_VIEW", "true") // Use environment variable instead
         .WithEnvironment("OTEL_EXPORTER_OTLP_ENDPOINT", builder.Configuration["DOTNET_DASHBOARD_OTLP_ENDPOINT_URL"] ?? "http://localhost:19265")
-        .WithArgs($"--transport={transportType}")
+        .WithArgs($"--transport={transportType} --phaser-view")
         .WithReference(targetSilo)
         .WaitFor(targetSilo);
     

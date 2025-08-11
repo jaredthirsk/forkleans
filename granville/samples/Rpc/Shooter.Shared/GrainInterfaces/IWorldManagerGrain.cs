@@ -5,7 +5,7 @@ namespace Shooter.Shared.GrainInterfaces;
 
 public interface IWorldManagerGrain : Orleans.IGrainWithIntegerKey
 {
-    Task<ActionServerInfo> RegisterActionServer(string serverId, string ipAddress, int udpPort, string httpEndpoint, int rpcPort = 0);
+    Task<ActionServerInfo> RegisterActionServer(string serverId, string ipAddress, int udpPort, string httpEndpoint, int rpcPort = 0, string? webUrl = null, bool hasPhaserView = false);
     Task UnregisterActionServer(string serverId);
     Task<ActionServerInfo?> GetActionServerForPosition(Vector2 position);
     Task<List<ActionServerInfo>> GetAllActionServers();
@@ -27,4 +27,8 @@ public interface IWorldManagerGrain : Orleans.IGrainWithIntegerKey
     // Zone statistics streaming
     Task ReportZoneStats(GridSquare zone, ZoneStats stats);
     IAsyncEnumerable<GlobalZoneStats> StreamZoneStatistics(TimeSpan updateInterval);
+    
+    // ActionServer monitoring
+    Task UpdateActionServerStatus(ActionServerStatus status);
+    Task<List<ActionServerStatus>> GetActionServerStatuses();
 }

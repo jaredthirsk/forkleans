@@ -2305,6 +2305,9 @@ public class GranvilleRpcGameClientService : IDisposable
         
         _logger.LogInformation("Successfully reconnected to new server {ServerId}", CurrentServerId);
         
+        // Update health monitor with the new server zone
+        _healthMonitor?.UpdateServerZone(_currentZone);
+        
         // Mark this pre-established connection as recently used to prevent cleanup
         var currentZoneKey = $"{_currentZone?.X ?? -1},{_currentZone?.Y ?? -1}";
         if (_preEstablishedConnections.TryGetValue(currentZoneKey, out var conn))
@@ -3529,11 +3532,13 @@ public class GranvilleRpcGameClientService : IDisposable
             var siloUrl = _configuration["SiloUrl"] ?? "https://localhost:7071";
             if (!siloUrl.EndsWith("/")) siloUrl += "/";
             
-            // Get player's current server assignment
-            var response = await _httpClient.GetAsync($"{siloUrl}api/world/players/{PlayerId}/server");
+            // Get the action server for the NEW zone's center position
+            var zoneCenter = newZone.GetCenter();
+            var response = await _httpClient.GetAsync($"{siloUrl}api/world/action-servers/for-position?x={zoneCenter.X}&y={zoneCenter.Y}");
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogError("[ZONE_TRANSITION] Failed to get server assignment: {Status}", response.StatusCode);
+                _logger.LogError("[ZONE_TRANSITION] Failed to get server for zone ({X},{Y}): {Status}", 
+                    newZone.X, newZone.Y, response.StatusCode);
                 return;
             }
             
@@ -3543,6 +3548,9 @@ public class GranvilleRpcGameClientService : IDisposable
                 _logger.LogError("[ZONE_TRANSITION] No server assigned for zone ({X},{Y})", newZone.X, newZone.Y);
                 return;
             }
+            
+            _logger.LogInformation("[ZONE_TRANSITION] Found server {ServerId} for zone ({X},{Y})", 
+                serverInfo.ServerId, newZone.X, newZone.Y);
             
             // Check if we're already connected to the correct server
             if (serverInfo.ServerId == CurrentServerId)
@@ -3578,8 +3586,12 @@ public class GranvilleRpcGameClientService : IDisposable
                     }
                 }
                 
-                // Update current server ID
+                // Update current server ID and zone
                 CurrentServerId = serverInfo.ServerId;
+                _currentZone = newZone;
+                
+                // Update health monitor with the new server zone
+                _healthMonitor?.UpdateServerZone(newZone);
                 
                 // Fire server changed event
                 ServerChanged?.Invoke(CurrentServerId);

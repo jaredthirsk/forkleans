@@ -1,0 +1,239 @@
+@using System.Text.Json
+@inject IJSRuntime JS
+
+<div class="minimap-container">
+    <canvas id="worldMinimap" width="400" height="400" style="border: 2px solid #30363d; background-color: #000;"></canvas>
+    <div class="minimap-legend mt-2">
+        <div class="d-flex flex-wrap gap-3">
+            <div class="legend-item">
+                <div class="legend-color bg-success"></div>
+                <small>Active Zone</small>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color bg-warning"></div>
+                <small>Phaser View</small>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color bg-danger"></div>
+                <small>Offline</small>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color bg-secondary"></div>
+                <small>Empty Zone</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public List<ActionServerInfo> ActionServers { get; set; } = new();
+    
+    private DotNetObjectReference<WorldMinimap>? _dotNetRef;
+    private bool _isInitialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("worldMinimap.init", _dotNetRef, "worldMinimap");
+            _isInitialized = true;
+        }
+        
+        if (_isInitialized)
+        {
+            await UpdateMinimap();
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_isInitialized)
+        {
+            await UpdateMinimap();
+        }
+    }
+
+    private async Task UpdateMinimap()
+    {
+        try
+        {
+            var minimapData = ActionServers.Select(server => new
+            {
+                x = server.AssignedSquare.X,
+                y = server.AssignedSquare.Y,
+                serverId = server.ServerId,
+                isOnline = DateTime.UtcNow - server.LastHeartbeat < TimeSpan.FromMinutes(2),
+                hasPhaserView = server.HasPhaserView,
+                webUrl = server.WebUrl
+            }).ToArray();
+
+            await JS.InvokeVoidAsync("worldMinimap.update", minimapData);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating minimap: {ex.Message}");
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnZoneClick(int x, int y)
+    {
+        var server = ActionServers.FirstOrDefault(s => s.AssignedSquare.X == x && s.AssignedSquare.Y == y);
+        if (server?.HasPhaserView == true && !string.IsNullOrEmpty(server.WebUrl))
+        {
+            var phaserUrl = server.WebUrl.TrimEnd('/') + "/phaser";
+            await JS.InvokeVoidAsync("window.open", phaserUrl, "_blank");
+        }
+    }
+
+    public void Dispose()
+    {
+        _dotNetRef?.Dispose();
+    }
+}
+
+<style>
+    .minimap-container {
+        position: relative;
+    }
+
+    .minimap-legend {
+        display: flex;
+        justify-content: center;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+    }
+
+    #worldMinimap {
+        cursor: pointer;
+        border-radius: 8px;
+    }
+
+    #worldMinimap:hover {
+        border-color: #58a6ff;
+    }
+</style>
+
+<script>
+    window.worldMinimap = {
+        canvas: null,
+        ctx: null,
+        dotNetRef: null,
+        
+        init: function(dotNetRef, canvasId) {
+            this.dotNetRef = dotNetRef;
+            this.canvas = document.getElementById(canvasId);
+            this.ctx = this.canvas.getContext('2d');
+            
+            // Add click handler
+            this.canvas.addEventListener('click', (e) => {
+                const rect = this.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Convert canvas coordinates to grid coordinates
+                const gridX = Math.floor(x / 40); // 40px per grid cell (400/10)
+                const gridY = Math.floor(y / 40);
+                
+                dotNetRef.invokeMethodAsync('OnZoneClick', gridX, gridY);
+            });
+            
+            // Draw initial empty grid
+            this.drawGrid();
+        },
+        
+        drawGrid: function() {
+            this.ctx.clearRect(0, 0, 400, 400);
+            
+            // Draw grid lines
+            this.ctx.strokeStyle = '#30363d';
+            this.ctx.lineWidth = 1;
+            
+            // Draw vertical lines
+            for (let x = 0; x <= 400; x += 40) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, 0);
+                this.ctx.lineTo(x, 400);
+                this.ctx.stroke();
+            }
+            
+            // Draw horizontal lines
+            for (let y = 0; y <= 400; y += 40) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, y);
+                this.ctx.lineTo(400, y);
+                this.ctx.stroke();
+            }
+        },
+        
+        update: function(servers) {
+            this.drawGrid();
+            
+            // Draw zones
+            servers.forEach(server => {
+                const x = server.x * 40;
+                const y = server.y * 40;
+                
+                // Choose color based on server status
+                let color;
+                if (!server.isOnline) {
+                    color = '#dc3545'; // Red for offline
+                } else if (server.hasPhaserView) {
+                    color = '#ffc107'; // Yellow for Phaser view
+                } else {
+                    color = '#28a745'; // Green for active
+                }
+                
+                // Fill the zone
+                this.ctx.fillStyle = color;
+                this.ctx.fillRect(x + 1, y + 1, 38, 38);
+                
+                // Add server ID text
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.font = '10px monospace';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(
+                    `(${server.x},${server.y})`, 
+                    x + 20, 
+                    y + 15
+                );
+                this.ctx.fillText(
+                    server.serverId.substring(0, 8), 
+                    x + 20, 
+                    y + 28
+                );
+                
+                // Add border for online servers
+                if (server.isOnline) {
+                    this.ctx.strokeStyle = '#ffffff';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(x + 1, y + 1, 38, 38);
+                }
+                
+                // Add special indicator for Phaser view
+                if (server.hasPhaserView) {
+                    this.ctx.fillStyle = '#000000';
+                    this.ctx.beginPath();
+                    this.ctx.arc(x + 32, y + 8, 4, 0, 2 * Math.PI);
+                    this.ctx.fill();
+                    
+                    this.ctx.fillStyle = '#ffffff';
+                    this.ctx.font = '8px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('🎮', x + 32, y + 12);
+                }
+            });
+        }
+    };
+</script>

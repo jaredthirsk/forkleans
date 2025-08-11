@@ -1,0 +1,78 @@
+@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <div class="d-flex align-items-center">
+                <h1 class="mb-0">Shooter Silo Dashboard</h1>
+                <div class="ms-auto">
+                    <span class="badge bg-success">Orleans Online</span>
+                </div>
+            </div>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<style>
+    .page {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    main {
+        flex: 1;
+    }
+
+    .sidebar {
+        background-image: linear-gradient(180deg, #161b22 0%, #0d1117 70%);
+        width: 260px;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+    }
+
+    .top-row {
+        background-color: #21262d;
+        border-bottom: 1px solid #30363d;
+        height: 3.5rem;
+        display: flex;
+        align-items: center;
+        margin-left: 260px;
+    }
+
+    .content {
+        margin-left: 260px;
+        padding-top: 1.1rem;
+    }
+
+    @@media (max-width: 767.98px) {
+        .top-row:not(.auth) {
+            display: none;
+        }
+
+        .top-row.auth {
+            justify-content: space-between;
+        }
+
+        .sidebar {
+            position: static;
+            width: 100%;
+            height: auto;
+        }
+
+        .top-row, .content {
+            margin-left: 0;
+        }
+    }
+</style>

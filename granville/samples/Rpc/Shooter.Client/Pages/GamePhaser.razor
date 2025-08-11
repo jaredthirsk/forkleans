@@ -673,25 +673,54 @@
     
     private void OnGameOverReceived(GameOverMessage message)
     {
-        InvokeAsync(async () =>
+        InvokeAsync(() =>
         {
             try
             {
-                await JS.InvokeVoidAsync("gamePhaser.onGameOverReceived", message);
+                // Display game over message in chat
+                AddSystemMessage("=== GAME OVER ===");
+                AddSystemMessage($"All enemies destroyed! Restarting in {message.RestartDelaySeconds} seconds...");
+                
+                if (message.PlayerScores.Any())
+                {
+                    AddSystemMessage("Final Scores (deaths):");
+                    foreach (var score in message.PlayerScores.OrderBy(s => s.RespawnCount))
+                    {
+                        var isCurrentPlayer = score.PlayerId == RpcGameClient?.PlayerId;
+                        var color = isCurrentPlayer ? "#4CAF50" : "#E0E0E0"; // Green for current player, white for others
+                        AddChatMessage($"{score.PlayerName}: {score.RespawnCount} deaths", "Score", color);
+                    }
+                }
+                
+                AddSystemMessage("================");
+                
+                // Also try to call JavaScript method if it exists (graceful fallback)
+                _ = JS.InvokeVoidAsync("gamePhaser.onGameOverReceived", message);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error handling game over message");
+            }
         });
     }
     
     private void OnGameRestartedReceived()
     {
-        InvokeAsync(async () =>
+        InvokeAsync(() =>
         {
             try
             {
-                await JS.InvokeVoidAsync("gamePhaser.onGameRestartedReceived");
+                // Display game restart message in chat
+                AddSystemMessage("=== NEW GAME STARTED ===");
+                AddSystemMessage("Good luck!");
+                
+                // Also try to call JavaScript method if it exists (graceful fallback)
+                _ = JS.InvokeVoidAsync("gamePhaser.onGameRestartedReceived");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error handling game restart message");
+            }
         });
     }
     

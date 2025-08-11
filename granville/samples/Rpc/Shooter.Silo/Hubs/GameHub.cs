@@ -71,8 +71,11 @@ public class GameHub : Hub<IGameHubClient>
     /// </summary>
     public async Task SendMessage(string user, string message)
     {
+        _logger.LogInformation("[CHAT_HUB] SendMessage called - User: '{User}', Message: '{Message}'", user, message);
+        
         if (string.IsNullOrWhiteSpace(message))
         {
+            _logger.LogWarning("[CHAT_HUB] Empty message received, ignoring");
             return;
         }
         
@@ -101,12 +104,22 @@ public class GameHub : Hub<IGameHubClient>
             false
         );
 
-        _logger.LogInformation("Chat message from {Sender}: {Message}", 
+        _logger.LogInformation("[CHAT_HUB] Created chat message from {Sender}: {Message}", 
             chatMessage.SenderName, chatMessage.Message);
 
-        // Broadcast through Orleans
-        var worldManager = _grainFactory.GetGrain<IWorldManagerGrain>(0);
-        await worldManager.BroadcastChatMessage(chatMessage);
+        try
+        {
+            // Broadcast through Orleans
+            var worldManager = _grainFactory.GetGrain<IWorldManagerGrain>(0);
+            _logger.LogInformation("[CHAT_HUB] Sending message to WorldManagerGrain for broadcast");
+            await worldManager.BroadcastChatMessage(chatMessage);
+            _logger.LogInformation("[CHAT_HUB] Message successfully sent to WorldManagerGrain");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[CHAT_HUB] Error broadcasting chat message");
+            throw;
+        }
     }
 
     /// <summary>

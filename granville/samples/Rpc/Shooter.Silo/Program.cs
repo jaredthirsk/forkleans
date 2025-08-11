@@ -76,6 +76,11 @@ TaskScheduler.UnobservedTaskException += (sender, args) =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add Blazor Server support for monitoring dashboard
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+
 builder.Services.AddHealthChecks()
     .AddCheck<Shooter.Silo.HealthChecks.OrleansHealthCheck>("orleans", tags: new[] { "ready" });
 
@@ -292,6 +297,14 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("GameClients"); // Enable CORS with our policy
 app.UseAuthorization();
+
+// Add Blazor Server routing
+app.UseStaticFiles();
+app.UseRouting();
+app.MapRazorPages();
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
+
 app.MapControllers();
 
 // Map SignalR hub
