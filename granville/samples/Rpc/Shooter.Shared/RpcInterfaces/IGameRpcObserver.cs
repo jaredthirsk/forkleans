@@ -29,6 +29,11 @@ public interface IGameRpcObserver : IGrainObserver
     void OnScoutAlert(ScoutAlert alert);
     
     /// <summary>
+    /// Called when victory is achieved and pause period begins.
+    /// </summary>
+    void OnVictoryPause(VictoryPauseMessage victoryPauseMessage);
+    
+    /// <summary>
     /// Called when the game is over (all enemies destroyed).
     /// </summary>
     void OnGameOver(GameOverMessage gameOverMessage);

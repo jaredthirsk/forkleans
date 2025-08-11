@@ -10,14 +10,14 @@
     <canvas @ref="_canvasElement" width="280" height="150"></canvas>
     <div class="stats-table">
         <div class="stats-row">
-            <div class="stat-value client-sent">@FormatBytes(GetLast60SecondsSum(_clientSentBytesHistory))</div>
+            <div class="stat-value client-sent">@FormatBytes(GetCurrentPerSecond(_clientSentBytesHistory))/s</div>
             <div class="arrow">→</div>
-            <div class="stat-value server-recv">@FormatBytes(GetLast60SecondsSum(_serverRecvBytesHistory))</div>
+            <div class="stat-value server-recv">@FormatBytes(GetCurrentPerSecond(_serverRecvBytesHistory))/s</div>
         </div>
         <div class="stats-row">
-            <div class="stat-value client-recv">@FormatBytes(GetLast60SecondsSum(_clientRecvBytesHistory))</div>
+            <div class="stat-value client-recv">@FormatBytes(GetCurrentPerSecond(_clientRecvBytesHistory))/s</div>
             <div class="arrow">←</div>
-            <div class="stat-value server-sent">@FormatBytes(GetLast60SecondsSum(_serverSentBytesHistory))</div>
+            <div class="stat-value server-sent">@FormatBytes(GetCurrentPerSecond(_serverSentBytesHistory))/s</div>
         </div>
         <div class="stats-header">
             <div>Client</div>
@@ -143,6 +143,15 @@
             RpcGameClient.NetworkStatsUpdated += OnServerNetworkStatsUpdated;
         }
         
+        // Pre-fill history with zeros for the full 60 seconds
+        for (int i = 0; i < _maxDataPoints; i++)
+        {
+            _clientSentBytesHistory.Enqueue(0);
+            _clientRecvBytesHistory.Enqueue(0);
+            _serverSentBytesHistory.Enqueue(0);
+            _serverRecvBytesHistory.Enqueue(0);
+        }
+        
         // Start update timer
         _updateTimer = new Timer(async _ => await UpdateGraph(), null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
         
@@ -237,9 +246,9 @@
         }
     }
     
-    private long GetLast60SecondsSum(Queue<long> history)
+    private long GetCurrentPerSecond(Queue<long> history)
     {
-        return history.Sum();
+        return history.LastOrDefault();
     }
     
     private string FormatBytes(long bytes)

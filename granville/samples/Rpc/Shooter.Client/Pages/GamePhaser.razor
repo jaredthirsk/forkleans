@@ -132,6 +132,7 @@
     private bool _isAutoMoveEnabled = false;
     private bool _isAutoShootEnabled = false;
     private bool _isTestMode = false;
+    private bool _victoryPauseActive = false;
     private System.Timers.Timer? _autoMoveTimer;
     private System.Timers.Timer? _statsUpdateTimer;
     private System.Timers.Timer? _warningClearTimer;
@@ -189,9 +190,11 @@
                 RpcGameClient.WorldStateUpdated += OnWorldStateUpdated;
                 RpcGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
                 RpcGameClient.PreEstablishedConnectionsUpdated += OnPreEstablishedConnectionsUpdated;
+                RpcGameClient.VictoryPauseReceived += OnVictoryPauseReceived;
                 RpcGameClient.GameOverReceived += OnGameOverReceived;
                 RpcGameClient.GameRestartedReceived += OnGameRestartedReceived;
                 RpcGameClient.OneWayBoundaryStateChanged += OnOneWayBoundaryStateChanged;
+                RpcGameClient.ChatMessageReceived += OnChatMessageReceived;
                 
                 // Add initial system message
                 AddSystemMessage("Connected to game server");
@@ -389,6 +392,13 @@
     {
         try
         {
+            // Block input during victory pause
+            if (_victoryPauseActive)
+            {
+                Logger.LogDebug("Movement input blocked - Victory pause active");
+                return;
+            }
+            
             var moveDir = new Vector2(x, y).Length() > 0 ? new Vector2(x, y) : (Vector2?)null;
             await RpcGameClient.SendPlayerInputEx(moveDir, null);
         }
@@ -403,6 +413,13 @@
     {
         try
         {
+            // Block input during victory pause
+            if (_victoryPauseActive)
+            {
+                Logger.LogDebug("Shoot input blocked - Victory pause active");
+                return;
+            }
+            
             await RpcGameClient.SendPlayerInputEx(null, new Vector2(x, y));
         }
         catch (Exception ex)
@@ -513,7 +530,7 @@
 
     private async Task UpdateAutoFeatures()
     {
-        if (_lastWorldState == null || !RpcGameClient.IsConnected)
+        if (_lastWorldState == null || !RpcGameClient.IsConnected || _victoryPauseActive)
         {
             return;
         }
@@ -900,6 +917,7 @@
     {
         _ = InvokeAsync(() =>
         {
+            _victoryPauseActive = false; // Clear victory pause flag
             AddSystemMessage("=== GAME OVER ===");
             AddSystemMessage($"All enemies destroyed! Restarting in {gameOverMessage.RestartDelaySeconds} seconds...");
             AddSystemMessage("Final Scores (deaths):");
@@ -920,10 +938,22 @@
         {
             AddSystemMessage("=== NEW GAME STARTED ===");
             AddSystemMessage("Good luck!");
+            _victoryPauseActive = false; // Clear victory pause flag on restart
         });
     }
     
-    private void OnOneWayBoundaryStateChanged(GridSquare? blockedZone, Vector2 boundaryNormal)
+    private void OnVictoryPauseReceived(VictoryPauseMessage victoryPauseMessage)
+    {
+        _ = InvokeAsync(() =>
+        {
+            _victoryPauseActive = true;
+            AddSystemMessage($"🎉 VICTORY PAUSE! ({victoryPauseMessage.CountdownSeconds}s remaining)");
+            AddSystemMessage("Movement paused - enjoy the break!");
+            StateHasChanged();
+        });
+    }
+    
+    private void OnOneWayBoundaryStateChanged(GridSquare? blockedZone, Vector2 boundaryNormal, bool isBlocked)
     {
         _ = InvokeAsync(async () =>
         {
@@ -935,13 +965,22 @@
                     object? zoneObj = blockedZone != null ? new { x = blockedZone.X, y = blockedZone.Y } : null;
                     object normalObj = new { x = boundaryNormal.X, y = boundaryNormal.Y };
                     
-                    await JS.InvokeVoidAsync("gamePhaser.updateOneWayBoundaryState", zoneObj, normalObj);
+                    await JS.InvokeVoidAsync("gamePhaser.updateOneWayBoundaryState", zoneObj, normalObj, isBlocked);
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError(ex, "Error updating one-way boundary state");
                 }
             }
+        });
+    }
+    
+    private void OnChatMessageReceived(ChatMessage message)
+    {
+        _ = InvokeAsync(() =>
+        {
+            var color = message.IsSystemMessage ? "#0066cc" : "#e0e0e0";
+            AddChatMessage(message.SenderName, message.Message, color);
         });
     }
     
@@ -963,9 +1002,11 @@
         RpcGameClient.WorldStateUpdated -= OnWorldStateUpdated;
         RpcGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
         RpcGameClient.PreEstablishedConnectionsUpdated -= OnPreEstablishedConnectionsUpdated;
+        RpcGameClient.VictoryPauseReceived -= OnVictoryPauseReceived;
         RpcGameClient.GameOverReceived -= OnGameOverReceived;
         RpcGameClient.GameRestartedReceived -= OnGameRestartedReceived;
         RpcGameClient.OneWayBoundaryStateChanged -= OnOneWayBoundaryStateChanged;
+        RpcGameClient.ChatMessageReceived -= OnChatMessageReceived;
         
         // Destroy Phaser game
         if (_isInitialized)

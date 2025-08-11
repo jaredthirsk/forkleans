@@ -44,6 +44,7 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
         
         // Subscribe to GameEventBroker events
         _gameEventBroker.SubscribeToGameOver(NotifyObserversGameOver);
+        _gameEventBroker.SubscribeToVictoryPause(NotifyObserversVictoryPause);
         _gameEventBroker.SubscribeToGameRestart(NotifyObserversGameRestarted);
         _gameEventBroker.SubscribeToChatMessage(NotifyObserversChat);
         _logger.LogInformation("GameRpcGrain subscribed to GameEventBroker events");
@@ -93,11 +94,25 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
 
     public async Task UpdatePlayerInput(string playerId, Vector2 moveDirection, bool isShooting)
     {
+        // Check if we're in victory pause mode - block all input during pause
+        if (_worldSimulation.GetCurrentPhase() == GamePhase.VictoryPause)
+        {
+            _logger.LogDebug("[RPC_INPUT] Blocked input for player {PlayerId} - Victory pause active", playerId);
+            return;
+        }
+        
         await _gameService.UpdatePlayerInput(playerId, moveDirection, isShooting);
     }
     
     public async Task UpdatePlayerInputEx(string playerId, Vector2? moveDirection, Vector2? shootDirection)
     {
+        // Check if we're in victory pause mode - block all input during pause
+        if (_worldSimulation.GetCurrentPhase() == GamePhase.VictoryPause)
+        {
+            _logger.LogDebug("[RPC_INPUT] Blocked input for player {PlayerId} - Victory pause active", playerId);
+            return;
+        }
+        
         // Log input receipt to help debug cross-control issues
         if (moveDirection.HasValue || shootDirection.HasValue)
         {
@@ -110,6 +125,13 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
     
     public async Task UpdatePlayerInputSimple(string playerId, double moveX, double moveY, bool isShooting)
     {
+        // Check if we're in victory pause mode - block all input during pause
+        if (_worldSimulation.GetCurrentPhase() == GamePhase.VictoryPause)
+        {
+            _logger.LogDebug("[RPC_INPUT] Blocked input for player {PlayerId} - Victory pause active", playerId);
+            return;
+        }
+        
         // Convert simple doubles to Vector2 for game service
         var moveDirection = (moveX != 0 || moveY != 0) ? new Vector2((float)moveX, (float)moveY) : Vector2.Zero;
         
@@ -332,6 +354,15 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
     }
     
     /// <summary>
+    /// Called by WorldSimulation to notify all connected clients about victory pause.
+    /// </summary>
+    public void NotifyObserversVictoryPause(VictoryPauseMessage victoryPauseMessage)
+    {
+        _logger.LogInformation("Notifying {ObserverCount} observers about victory pause", _observers.Count);
+        _observers.Notify(observer => observer.OnVictoryPause(victoryPauseMessage));
+    }
+    
+    /// <summary>
     /// Called by WorldSimulation to notify all connected clients about game restart.
     /// </summary>
     public void NotifyObserversGameRestarted()
@@ -397,7 +428,7 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
     
     public Task NotifyBulletDestroyed(string bulletId)
     {
-        _logger.LogDebug("RPC: Received notification to destroy bullet {BulletId}", bulletId);
+        _logger.LogTrace("RPC: Received notification to destroy bullet {BulletId}", bulletId);
         
         // Immediately remove the bullet from our world simulation
         _worldSimulation.RemoveBullet(bulletId);

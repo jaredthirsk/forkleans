@@ -28,6 +28,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private GamePhase _currentPhase = GamePhase.Playing;
     private DateTime _gameOverTime = DateTime.MinValue;
     private DateTime _lastEnemyDeathTime = DateTime.MinValue;
+    private DateTime _victoryPauseTime = DateTime.MinValue;
     private bool _allEnemiesDefeated = false;
     private readonly ConcurrentDictionary<string, int> _playerRespawnCounts = new();
     private readonly List<DamageEvent> _damageEvents = new();
@@ -306,6 +307,11 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         var sequenceNumber = Interlocked.Increment(ref _sequenceNumber);
         return new WorldState(entities, DateTime.UtcNow, sequenceNumber);
     }
+    
+    public GamePhase GetCurrentPhase()
+    {
+        return _currentPhase;
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -369,6 +375,16 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                         
                     SpawnEnemies(1, enemyType);
                 }
+            }
+            else if (_currentPhase == GamePhase.VictoryPause)
+            {
+                // During victory pause, just update physics but no player input processing
+                await UpdatePhysicsAsync(deltaTime);
+                UpdateEntityStates(deltaTime);
+                CleanupDeadEntities();
+                
+                // Send countdown messages and check if pause is over
+                await HandleVictoryPause();
             }
             else if (_currentPhase == GamePhase.GameOver)
             {
@@ -2196,37 +2212,25 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             _allEnemiesDefeated = false;
         }
         
-        // Check if it's time to trigger game over (15 seconds after last enemy death)
-        if (_allEnemiesDefeated && !(_currentPhase == GamePhase.GameOver) && 
-            (DateTime.UtcNow - _lastEnemyDeathTime).TotalSeconds >= 15)
+        // Check if it's time to trigger victory pause (10 seconds after last enemy death)
+        if (_allEnemiesDefeated && _currentPhase == GamePhase.Playing && 
+            (DateTime.UtcNow - _lastEnemyDeathTime).TotalSeconds >= 10)
         {
-            // Now trigger game over
-            _currentPhase = GamePhase.GameOver;
-            _gameOverTime = DateTime.UtcNow;
+            // Now trigger victory pause
+            _currentPhase = GamePhase.VictoryPause;
+            _victoryPauseTime = DateTime.UtcNow;
             
-            _logger.LogInformation("GAME OVER! 15 seconds have passed since all enemies were destroyed.");
+            _logger.LogInformation("VICTORY PAUSE! Starting 10-second pause before game restart.");
             
-            // Collect player scores
-            var playerScores = new List<PlayerScore>();
-            foreach (var (playerId, entity) in _entities.Where(e => e.Value.Type == EntityType.Player))
-            {
-                var respawnCount = _playerRespawnCounts.GetValueOrDefault(playerId, 0);
-                playerScores.Add(new PlayerScore(playerId, entity.PlayerName ?? "Unknown", respawnCount));
-            }
+            // Collect player scores with mock data
+            var playerScores = await GeneratePlayerScores();
             
-            // Send game over message to all players
-            var gameOverMessage = new GameOverMessage(playerScores, _gameOverTime, 15);
-            await NotifyAllPlayersGameOver(gameOverMessage);
+            // Send victory pause message to all players
+            var victoryPauseMessage = new VictoryPauseMessage(playerScores, _victoryPauseTime, 10);
+            await NotifyAllPlayersVictoryPause(victoryPauseMessage);
             
-            // Send victory chat message through GameEventBroker
-            var victoryMessage = new ChatMessage(
-                "System",
-                "Game System",
-                $"🎉 Victory! All enemies have been defeated! Game will restart in 15 seconds.",
-                DateTime.UtcNow,
-                true
-            );
-            _gameEventBroker.RaiseChatMessage(victoryMessage);
+            // Send initial victory chat message with scores
+            await SendVictoryScoresMessage(playerScores);
             
             // Notify the WorldManager about game over for round tracking
             var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
@@ -2275,6 +2279,20 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         }
     }
     
+    private async Task NotifyAllPlayersVictoryPause(VictoryPauseMessage victoryPauseMessage)
+    {
+        try
+        {
+            // Notify RPC clients through GameEventBroker
+            _gameEventBroker.RaiseVictoryPause(victoryPauseMessage);
+            _logger.LogInformation("Victory pause event raised through GameEventBroker");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to notify players of victory pause");
+        }
+    }
+    
     private async Task RestartGame()
     {
         _logger.LogInformation("Restarting game...");
@@ -2314,6 +2332,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         // Reset game over tracking
         _allEnemiesDefeated = false;
         _lastEnemyDeathTime = DateTime.MinValue;
+        _victoryPauseTime = DateTime.MinValue;
         
         // Spawn fresh enemies and factories
         var factoryCount = _random.Next(1, 3); // 1-2 factories
@@ -2449,6 +2468,96 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         catch (Exception ex)
         {
             _logger.LogError(ex, "[BULLET_DESTROY] Failed to notify neighbor zones about bullet {BulletId}", bulletId);
+        }
+    }
+    
+    private async Task<List<PlayerScore>> GeneratePlayerScores()
+    {
+        var playerScores = new List<PlayerScore>();
+        var random = new Random();
+        
+        foreach (var (playerId, entity) in _entities.Where(e => e.Value.Type == EntityType.Player))
+        {
+            var respawnCount = _playerRespawnCounts.GetValueOrDefault(playerId, 0);
+            
+            // Generate mock scores
+            var enemiesKilled = random.Next(5, 15);
+            var playerKills = random.Next(0, 3);
+            var deaths = respawnCount;
+            var accuracyPercent = (float)(random.NextDouble() * 20 + 80); // 80-100%
+            
+            // Calculate total score: (Enemies × 10) + (PK × 50) - (Deaths × 5) + (Accuracy bonus)
+            var accuracyBonus = (int)((accuracyPercent - 80) * 2); // 0-40 bonus points
+            var totalScore = (enemiesKilled * 10) + (playerKills * 50) - (deaths * 5) + accuracyBonus;
+            
+            playerScores.Add(new PlayerScore(
+                playerId, 
+                entity.PlayerName ?? "Unknown", 
+                respawnCount,
+                enemiesKilled,
+                playerKills,
+                deaths,
+                accuracyPercent,
+                totalScore));
+        }
+        
+        return playerScores.OrderByDescending(s => s.TotalScore).ToList();
+    }
+    
+    private async Task SendVictoryScoresMessage(List<PlayerScore> playerScores)
+    {
+        var scoreText = "🎉 Victory! Final Scores:\n" + string.Join("\n", 
+            playerScores.Take(5).Select((s, i) => 
+                $"• {s.PlayerName}: {s.TotalScore} pts ({s.EnemiesKilled} enemies, {s.PlayerKills} PK, {s.Deaths} deaths, {s.AccuracyPercent:F0}% accuracy)"));
+                
+        if (playerScores.Count > 5)
+        {
+            scoreText += $"\n... and {playerScores.Count - 5} others";
+        }
+        
+        scoreText += "\n\nGame will restart in 10 seconds...";
+        
+        var victoryMessage = new ChatMessage(
+            "System",
+            "Game System",
+            scoreText,
+            DateTime.UtcNow,
+            true
+        );
+        
+        _gameEventBroker.RaiseChatMessage(victoryMessage);
+    }
+    
+    private async Task HandleVictoryPause()
+    {
+        var elapsed = (DateTime.UtcNow - _victoryPauseTime).TotalSeconds;
+        var remaining = 10 - (int)elapsed;
+        
+        // Send countdown messages every 2 seconds (at 8s, 6s, 4s, 2s remaining)
+        if (remaining > 0 && remaining % 2 == 0 && remaining <= 8)
+        {
+            var countdownMessage = new ChatMessage(
+                "System",
+                "Game System",
+                $"Game restarting in {remaining} seconds...",
+                DateTime.UtcNow,
+                true
+            );
+            
+            _gameEventBroker.RaiseChatMessage(countdownMessage);
+        }
+        
+        // Check if pause is over - transition to GameOver phase
+        if (elapsed >= 10)
+        {
+            _currentPhase = GamePhase.GameOver;
+            _gameOverTime = DateTime.UtcNow;
+            _logger.LogInformation("Victory pause ended, entering game over phase");
+            
+            // Generate scores again for GameOver message
+            var playerScores = await GeneratePlayerScores();
+            var gameOverMessage = new GameOverMessage(playerScores, _gameOverTime, 15);
+            await NotifyAllPlayersGameOver(gameOverMessage);
         }
     }
 }

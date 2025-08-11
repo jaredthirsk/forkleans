@@ -29,6 +29,7 @@ public class BotService : BackgroundService
     private DateTime _lastShootTime = DateTime.UtcNow;
     private Vector2? _lastPlayerPosition;
     private readonly float _positionJumpThreshold = 100f;
+    private bool _victoryPauseActive = false;
 
     public BotService(
         ILogger<BotService> logger,
@@ -105,6 +106,8 @@ public class BotService : BackgroundService
             // Subscribe to game events
             _gameClient.WorldStateUpdated += OnWorldStateUpdated;
             _gameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
+            _gameClient.VictoryPauseReceived += OnVictoryPauseReceived;
+            _gameClient.GameRestartedReceived += OnGameRestartedReceived;
             
             // Main bot loop
             var loopCount = 0;
@@ -138,8 +141,12 @@ public class BotService : BackgroundService
                         // Re-subscribe to events
                         _gameClient.WorldStateUpdated -= OnWorldStateUpdated;
                         _gameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
+                        _gameClient.VictoryPauseReceived -= OnVictoryPauseReceived;
+                        _gameClient.GameRestartedReceived -= OnGameRestartedReceived;
                         _gameClient.WorldStateUpdated += OnWorldStateUpdated;
                         _gameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
+                        _gameClient.VictoryPauseReceived += OnVictoryPauseReceived;
+                        _gameClient.GameRestartedReceived += OnGameRestartedReceived;
                     }
                     else
                     {
@@ -196,10 +203,10 @@ public class BotService : BackgroundService
 
     private async Task RunAutoMove(CancellationToken cancellationToken)
     {
-        if (_lastWorldState == null || _autoMoveController == null)
+        if (_lastWorldState == null || _autoMoveController == null || _victoryPauseActive)
         {
-            _logger.LogDebug("Bot {BotName}: Skipping automove - worldState: {HasWorldState}, controller: {HasController}",
-                _botName, _lastWorldState != null, _autoMoveController != null);
+            _logger.LogDebug("Bot {BotName}: Skipping automove - worldState: {HasWorldState}, controller: {HasController}, victoryPause: {VictoryPause}",
+                _botName, _lastWorldState != null, _autoMoveController != null, _victoryPauseActive);
             return;
         }
         
@@ -318,6 +325,19 @@ public class BotService : BackgroundService
     {
         _availableZones = zones;
         _logger.LogDebug("Bot {BotName} found {ZoneCount} available zones", _botName, zones.Count);
+    }
+    
+    private void OnVictoryPauseReceived(VictoryPauseMessage victoryPauseMessage)
+    {
+        _logger.LogInformation("Bot {BotName}: Victory pause received! Pausing movement for {CountdownSeconds}s", 
+            _botName, victoryPauseMessage.CountdownSeconds);
+        _victoryPauseActive = true;
+    }
+    
+    private void OnGameRestartedReceived()
+    {
+        _logger.LogInformation("Bot {BotName}: Game restarted, resuming movement", _botName);
+        _victoryPauseActive = false;
     }
 
     public bool IsConnected => _gameClient?.IsConnected ?? false;

@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using Shooter.Client.Common.Configuration;
 using System.Threading;
 using System.Collections.Concurrent;
 
@@ -56,11 +57,10 @@ public class GranvilleRpcGameClientService : IDisposable
     private GridSquare? _previousZone = null; // For one-way hysteresis
     private GridSquare? _lastStableZone = null; // Last zone player was stable in (for hysteresis calculation)
     private DateTime _zoneEntryTime = DateTime.MinValue; // When entered current zone
-    private const float ZONE_REENTRY_THRESHOLD = 100f; // Must move 100 units into previous zone (aligns with grid lines)
+    private DateTime _stableZoneEntryTime = DateTime.MinValue; // When entered last stable zone
     private bool _isBlockedFromPreviousZone = false; // Currently blocked from re-entering
     private Vector2 _blockedBoundaryNormal = Vector2.Zero; // Normal vector of blocked boundary
     private DateTime _blockingStartTime = DateTime.MinValue; // When one-way blocking started
-    private const double ONE_WAY_TIMEOUT_SECONDS = 5.0; // Timeout for one-way restriction
     private WorldState? _lastWorldState = null;
     private Vector2 _lastInputDirection = Vector2.Zero;
     private bool _lastInputShooting = false;
@@ -77,6 +77,7 @@ public class GranvilleRpcGameClientService : IDisposable
     private NetworkStatisticsTracker? _clientNetworkTracker = null;
     private Vector2? _lastKnownPlayerPosition = null; // Track last known player position
     private DateTime _lastPositionUpdateTime = DateTime.MinValue; // When position was last updated
+    private DateTime _zoneTransitionStartTime = DateTime.MinValue; // When zone transition started
     
     // Connection distance thresholds with hysteresis
     private const float CONNECTION_CREATE_DISTANCE = 200f;    // Create connections when within this distance
@@ -89,8 +90,9 @@ public class GranvilleRpcGameClientService : IDisposable
     public event Action<Dictionary<string, (bool isConnected, bool isNeighbor, bool isConnecting)>>? PreEstablishedConnectionsUpdated;
     public event Action<ZoneStatistics>? ZoneStatsUpdated;
     public event Action<ScoutAlert>? ScoutAlertReceived;
+    public event Action<VictoryPauseMessage>? VictoryPauseReceived;
     public event Action<GameOverMessage>? GameOverReceived;
-    public event Action<GridSquare?, Vector2>? OneWayBoundaryStateChanged; // previousZone, boundaryNormal
+    public event Action<GridSquare?, Vector2, bool>? OneWayBoundaryStateChanged; // previousZone, boundaryNormal, isBlocked
     public event Action? GameRestartedReceived;
     public event Action<ChatMessage>? ChatMessageReceived;
     public event Action<NetworkStatistics>? NetworkStatsUpdated;
@@ -628,12 +630,23 @@ public class GranvilleRpcGameClientService : IDisposable
             _isBlockedFromPreviousZone = false;
             _lastStableZone = detectedZone;
             _previousZone = detectedZone; // Initialize previousZone too
+            _stableZoneEntryTime = DateTime.UtcNow;
             return detectedZone;
         }
         
         // If we're in a different zone than last stable, we've moved on
         if (detectedZone.X != _lastStableZone.X || detectedZone.Y != _lastStableZone.Y)
         {
+            // First check if the player is very close to the zone boundary (likely a fluctuation)
+            var distanceFromBoundary = CalculateDistanceFromBoundary(position, detectedZone, _lastStableZone);
+            if (distanceFromBoundary >= 0 && distanceFromBoundary < ClientConfiguration.ZoneBoundaryFluctuationThresholdUnits)
+            {
+                // This is likely a position fluctuation near the boundary, ignore it
+                _logger.LogTrace("[HYSTERESIS_DEBUG] Ignoring zone change - too close to boundary ({Distance:F2} units)",
+                    distanceFromBoundary);
+                return _lastStableZone; // Stay in current stable zone
+            }
+            
             // Check if trying to return to previous zone
             if (_previousZone != null && detectedZone.X == _previousZone.X && detectedZone.Y == _previousZone.Y)
             {
@@ -643,7 +656,7 @@ public class GranvilleRpcGameClientService : IDisposable
                 _logger.LogDebug("[HYSTERESIS_DEBUG] Trying to return to previous zone ({PrevX},{PrevY}) from ({StableX},{StableY}), " +
                     "distance={Distance:F2}, threshold={Threshold}",
                     _previousZone.X, _previousZone.Y, _lastStableZone.X, _lastStableZone.Y,
-                    distanceIntoPreviousZone, ZONE_REENTRY_THRESHOLD);
+                    distanceIntoPreviousZone, ClientConfiguration.ZoneReentryThresholdUnits);
                 
                 // If zones aren't adjacent (distance < 0), something's wrong but allow it
                 if (distanceIntoPreviousZone < 0)
@@ -655,16 +668,17 @@ public class GranvilleRpcGameClientService : IDisposable
                     _isBlockedFromPreviousZone = false;
                     _blockingStartTime = DateTime.MinValue;
                     _lastStableZone = detectedZone;
+                    _stableZoneEntryTime = DateTime.UtcNow;
                     
                     if (wasBlocked)
                     {
-                        OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+                        OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero, false);
                     }
                     
                     return detectedZone;
                 }
                 
-                if (distanceIntoPreviousZone < ZONE_REENTRY_THRESHOLD)
+                if (distanceIntoPreviousZone < ClientConfiguration.ZoneReentryThresholdUnits)
                 {
                     // Block re-entry, stay in last stable zone
                     bool wasBlocked = _isBlockedFromPreviousZone;
@@ -682,11 +696,11 @@ public class GranvilleRpcGameClientService : IDisposable
                     // Fire event if blocking state changed
                     if (!wasBlocked)
                     {
-                        OneWayBoundaryStateChanged?.Invoke(_previousZone, _blockedBoundaryNormal);
+                        OneWayBoundaryStateChanged?.Invoke(_previousZone, _blockedBoundaryNormal, true);
                     }
                     
                     _logger.LogDebug("[ONE_WAY_HYSTERESIS] Blocking return to zone ({X},{Y}), distance: {Distance}, threshold: {Threshold}",
-                        _previousZone.X, _previousZone.Y, distanceIntoPreviousZone, ZONE_REENTRY_THRESHOLD);
+                        _previousZone.X, _previousZone.Y, distanceIntoPreviousZone, ClientConfiguration.ZoneReentryThresholdUnits);
                     
                     return _lastStableZone; // Stay in last stable zone
                 }
@@ -694,17 +708,18 @@ public class GranvilleRpcGameClientService : IDisposable
                 {
                     // Sufficient distance, allow re-entry
                     _logger.LogInformation("[ONE_WAY_HYSTERESIS] Allowing return to zone ({X},{Y}), distance: {Distance} >= threshold: {Threshold}",
-                        _previousZone.X, _previousZone.Y, distanceIntoPreviousZone, ZONE_REENTRY_THRESHOLD);
+                        _previousZone.X, _previousZone.Y, distanceIntoPreviousZone, ClientConfiguration.ZoneReentryThresholdUnits);
                         
                     bool wasBlocked = _isBlockedFromPreviousZone;
                     _isBlockedFromPreviousZone = false;
                     _blockingStartTime = DateTime.MinValue;
-                    _lastStableZone = detectedZone; // Update stable zone
+                    _lastStableZone = detectedZone;
+                    _stableZoneEntryTime = DateTime.UtcNow; // Update stable zone
                     
                     // Fire event if blocking state changed
                     if (wasBlocked)
                     {
-                        OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+                        OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero, false);
                     }
                     
                     return detectedZone;
@@ -713,27 +728,71 @@ public class GranvilleRpcGameClientService : IDisposable
             else
             {
                 // Moving to a completely different zone (not previous)
-                // Update zones and clear blocking
+                // Update zones and clear any existing blocking
                 if (_isBlockedFromPreviousZone)
                 {
                     _isBlockedFromPreviousZone = false;
                     _blockingStartTime = DateTime.MinValue;
-                    OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+                    OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero, false);
                 }
                 
+                // Set up new one-way boundary immediately
                 _previousZone = _lastStableZone;
                 _lastStableZone = detectedZone;
+                _stableZoneEntryTime = DateTime.UtcNow;
+                
+                // Show boundary immediately but not as "blocked" until someone tries to cross
+                _isBlockedFromPreviousZone = false; // Not blocked yet, just active
+                _blockingStartTime = DateTime.UtcNow;
+                _blockedBoundaryNormal = CalculateBoundaryNormal(detectedZone, _previousZone);
+                
+                // Fire event to show chevrons immediately (cyan/blue, not blocked yet)
+                OneWayBoundaryStateChanged?.Invoke(_previousZone, _blockedBoundaryNormal, false);
+                
+                _logger.LogDebug("[ONE_WAY_HYSTERESIS] Activated one-way boundary after entering zone ({X},{Y}) from ({PrevX},{PrevY})",
+                    detectedZone.X, detectedZone.Y, _previousZone.X, _previousZone.Y);
+                
                 return detectedZone;
             }
         }
         
         // Staying in the same zone as last stable zone
+        // Check for one-way boundary timeout (whether blocked or just active)
+        if (_previousZone != null && _blockingStartTime != DateTime.MinValue)
+        {
+            var boundaryDuration = (DateTime.UtcNow - _blockingStartTime).TotalSeconds;
+            if (boundaryDuration >= ClientConfiguration.OneWayTimeoutSeconds)
+            {
+                _logger.LogDebug("[ONE_WAY_HYSTERESIS] Clearing one-way boundary - timeout after {Duration:F1} seconds for zone ({X},{Y})",
+                    boundaryDuration, _previousZone.X, _previousZone.Y);
+                
+                // Clear the boundary completely
+                _previousZone = null;
+                _isBlockedFromPreviousZone = false;
+                _blockedBoundaryNormal = Vector2.Zero;
+                _blockingStartTime = DateTime.MinValue;
+                
+                // Fire event to clear visual indicators
+                OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero, false);
+                return _lastStableZone;
+            }
+        }
+        
+        // If we've been stable in this zone for more than the configured time, clear the previous zone memory
+        var stableZoneDuration = (DateTime.UtcNow - _stableZoneEntryTime).TotalSeconds;
+        if (_previousZone != null && stableZoneDuration > ClientConfiguration.StableZoneClearTimeSeconds)
+        {
+            _logger.LogDebug("[ONE_WAY_HYSTERESIS] Clearing previous zone memory after {Duration:F1}s stable in zone ({X},{Y})",
+                stableZoneDuration, _lastStableZone.X, _lastStableZone.Y);
+            _previousZone = null; // Clear previous zone - we're fully established in current zone
+        }
+        
         // Check if we're blocked and have moved far enough to clear the blocking
         if (_isBlockedFromPreviousZone && _previousZone != null)
         {
             // Check for timeout
             var blockingDuration = (DateTime.UtcNow - _blockingStartTime).TotalSeconds;
-            if (blockingDuration >= ONE_WAY_TIMEOUT_SECONDS)
+            if (blockingDuration >= ClientConfiguration.OneWayTimeoutSeconds)
             {
                 _logger.LogInformation("[ONE_WAY_HYSTERESIS] Clearing blocking - timeout after {Duration:F1} seconds",
                     blockingDuration);
@@ -743,30 +802,30 @@ public class GranvilleRpcGameClientService : IDisposable
                 _blockingStartTime = DateTime.MinValue;
                 
                 // Fire event to clear visual indicators
-                OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+                OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero, false);
             }
             else
             {
                 // Calculate how far we are from the previous zone boundary
                 var distanceFromPreviousZone = CalculateDistanceFromBoundary(position, _lastStableZone, _previousZone);
                 
-                // If we've moved more than 100 units into our current zone, clear the blocking
-                if (distanceFromPreviousZone >= ZONE_REENTRY_THRESHOLD)
+                // If we've moved more than the threshold units into our current zone, clear the blocking
+                if (distanceFromPreviousZone >= ClientConfiguration.ZoneReentryThresholdUnits)
                 {
                     _logger.LogInformation("[ONE_WAY_HYSTERESIS] Clearing blocking - moved {Distance:F2} units into zone ({X},{Y}), threshold: {Threshold}",
-                        distanceFromPreviousZone, _lastStableZone.X, _lastStableZone.Y, ZONE_REENTRY_THRESHOLD);
+                        distanceFromPreviousZone, _lastStableZone.X, _lastStableZone.Y, ClientConfiguration.ZoneReentryThresholdUnits);
                     
                     _isBlockedFromPreviousZone = false;
                     _blockedBoundaryNormal = Vector2.Zero;
                     _blockingStartTime = DateTime.MinValue;
                     
                     // Fire event to clear visual indicators
-                    OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero);
+                    OneWayBoundaryStateChanged?.Invoke(null, Vector2.Zero, false);
                 }
                 else
                 {
                     _logger.LogTrace("[HYSTERESIS_DEBUG] Still blocked - distance from previous zone: {Distance:F2}, threshold: {Threshold}, time remaining: {TimeLeft:F1}s",
-                        distanceFromPreviousZone, ZONE_REENTRY_THRESHOLD, ONE_WAY_TIMEOUT_SECONDS - blockingDuration);
+                        distanceFromPreviousZone, ClientConfiguration.ZoneReentryThresholdUnits, ClientConfiguration.OneWayTimeoutSeconds - blockingDuration);
                 }
             }
         }
@@ -1122,10 +1181,31 @@ public class GranvilleRpcGameClientService : IDisposable
                                 // The hysteresis logic has already updated _previousZone and _lastStableZone
                                 _zoneEntryTime = now;
                                 
-                                _logger.LogInformation("[CLIENT_ZONE_CHANGE] Player moved from zone ({OldX},{OldY}) to ({NewX},{NewY}) at position {Position}", 
-                                    _currentZone?.X ?? -1, 
-                                    _currentZone?.Y ?? -1, 
-                                    playerZone.X, playerZone.Y, playerEntity.Position);
+                                // Check how long the transition is taking for appropriate log level
+                                var transitionTime = _zoneTransitionStartTime != DateTime.MinValue 
+                                    ? (DateTime.UtcNow - _zoneTransitionStartTime).TotalSeconds 
+                                    : 0;
+                                
+                                // Only log if transition has been going on for more than a minimal grace period
+                                // This prevents spam during the initial connection setup
+                                const double gracePeriod = 0.5; // 500ms grace period before logging
+                                
+                                if (transitionTime > gracePeriod || !_isTransitioning)
+                                {
+                                    var isTransitioningSlow = transitionTime > ClientConfiguration.ZoneTransitionWarningTimeSeconds;
+                                    var logLevel = isTransitioningSlow ? LogLevel.Warning : LogLevel.Information;
+                                    
+                                    var transitionStatus = _isTransitioning ? $"transitioning for {transitionTime:F1}s" : "starting transition";
+                                    var messagePrefix = isTransitioningSlow ? "SLOW ZONE TRANSITION" : "ZONE TRANSITION";
+                                    
+                                    _logger.Log(logLevel, "[{MessagePrefix}] Ship moved to zone ({ShipX},{ShipY}) but client still connected to server for zone ({ServerX},{ServerY}) at position {Position} ({TransitionStatus})", 
+                                        messagePrefix,
+                                        playerZone.X, playerZone.Y,
+                                        _currentZone?.X ?? -1, 
+                                        _currentZone?.Y ?? -1, 
+                                        playerEntity.Position,
+                                        transitionStatus);
+                                }
                                 
                                 // Update current zone AFTER logging the transition
                                 _currentZone = playerZone;
@@ -1484,11 +1564,16 @@ public class GranvilleRpcGameClientService : IDisposable
         }
         
         // Use debouncer to prevent rapid transitions
+        var debounceStart = DateTime.UtcNow;
         var shouldTransition = await _zoneDebouncer.ShouldTransitionAsync(
             playerZone,
             playerEntity.Position,
             async () => await PerformZoneTransitionDebounced(playerZone, playerEntity.Position)
         );
+        var debounceDuration = (DateTime.UtcNow - debounceStart).TotalMilliseconds;
+        
+        _logger.LogDebug("[ZONE_TRANSITION] Debouncer took {Duration}ms, allowed transition: {Allowed}", 
+            debounceDuration, shouldTransition);
         
         if (!shouldTransition)
         {
@@ -1507,8 +1592,13 @@ public class GranvilleRpcGameClientService : IDisposable
                 PlayerId, playerPosition, playerZone.X, playerZone.Y);
             
             // Query the Orleans silo for the correct server
+            var serverLookupStart = DateTime.UtcNow;
             var response = await _httpClient.GetFromJsonAsync<Shooter.Shared.Models.ActionServerInfo>(
                 $"api/world/players/{PlayerId}/server");
+            var serverLookupDuration = (DateTime.UtcNow - serverLookupStart).TotalMilliseconds;
+            
+            _logger.LogDebug("[ZONE_TRANSITION] Server lookup took {Duration}ms for player {PlayerId}", 
+                serverLookupDuration, PlayerId);
                 
             if (response != null && response.ServerId != CurrentServerId)
             {
@@ -1524,6 +1614,9 @@ public class GranvilleRpcGameClientService : IDisposable
                     }
                     _currentTransitionTarget = targetZoneKey;
                 }
+                
+                // Track transition start time
+                _zoneTransitionStartTime = DateTime.UtcNow;
                 
                 _logger.LogInformation("[ZONE_TRANSITION] Player {PlayerId} needs to transition from server {OldServer} to {NewServer} for zone ({ZoneX},{ZoneY})", 
                     PlayerId, CurrentServerId, response.ServerId, response.AssignedSquare.X, response.AssignedSquare.Y);
@@ -2075,7 +2168,29 @@ public class GranvilleRpcGameClientService : IDisposable
             {
                 var testTask = _gameGrain.GetWorldState();
                 var testState = await testTask.WaitAsync(TimeSpan.FromSeconds(3), testCts.Token);
-                _logger.LogInformation("Test GetWorldState succeeded, got {Count} entities", testState?.Entities?.Count ?? 0);
+                
+                // Log transition completion with timing info
+                var transitionDuration = _zoneTransitionStartTime != DateTime.MinValue 
+                    ? (DateTime.UtcNow - _zoneTransitionStartTime).TotalSeconds 
+                    : -1;
+                
+                if (transitionDuration >= 0)
+                {
+                    var logLevel = transitionDuration > ClientConfiguration.ZoneTransitionWarningTimeSeconds 
+                        ? LogLevel.Warning 
+                        : LogLevel.Information;
+                    
+                    _logger.Log(logLevel, 
+                        "[ZONE_TRANSITION] Successfully connected to zone ({X},{Y}) in {Duration:F2}s - Test GetWorldState got {Count} entities", 
+                        _currentZone?.X ?? -1, _currentZone?.Y ?? -1, transitionDuration, testState?.Entities?.Count ?? 0);
+                }
+                else
+                {
+                    _logger.LogInformation("Test GetWorldState succeeded, got {Count} entities", testState?.Entities?.Count ?? 0);
+                }
+                
+                // Clear transition timing
+                _zoneTransitionStartTime = DateTime.MinValue;
             }
             else
             {
@@ -2148,7 +2263,7 @@ public class GranvilleRpcGameClientService : IDisposable
         _logger.LogInformation("Successfully reconnected to new server {ServerId}", CurrentServerId);
         
         // Mark this pre-established connection as recently used to prevent cleanup
-        var currentZoneKey = $"{_currentZone.X},{_currentZone.Y}";
+        var currentZoneKey = $"{_currentZone?.X ?? -1},{_currentZone?.Y ?? -1}";
         if (_preEstablishedConnections.TryGetValue(currentZoneKey, out var conn))
         {
             conn.EstablishedAt = DateTime.UtcNow; // Reset the timestamp to prevent immediate cleanup
@@ -3129,6 +3244,14 @@ public class GranvilleRpcGameClientService : IDisposable
         
         // Notify UI about game restart
         GameRestartedReceived?.Invoke();
+    }
+    
+    public void HandleVictoryPause(VictoryPauseMessage victoryPauseMessage)
+    {
+        _logger.LogInformation("Victory pause started! Countdown: {CountdownSeconds}s", victoryPauseMessage.CountdownSeconds);
+        
+        // Notify UI about victory pause
+        VictoryPauseReceived?.Invoke(victoryPauseMessage);
     }
     
     public void HandleChatMessage(ChatMessage message)

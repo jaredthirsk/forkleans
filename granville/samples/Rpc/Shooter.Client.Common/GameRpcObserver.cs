@@ -53,6 +53,15 @@ public class GameRpcObserver : IGameRpcObserver
         _clientService.HandleScoutAlert(alert);
     }
     
+    public void OnVictoryPause(VictoryPauseMessage victoryPauseMessage)
+    {
+        _logger.LogInformation("Received victory pause notification. Top scores: {Scores}",
+            string.Join(", ", victoryPauseMessage.PlayerScores.Take(3).Select(s => $"{s.PlayerName}: {s.TotalScore} pts")));
+        
+        // Handle victory pause
+        _clientService.HandleVictoryPause(victoryPauseMessage);
+    }
+    
     public void OnGameOver(GameOverMessage gameOverMessage)
     {
         _logger.LogInformation("Received game over notification. Scores: {Scores}",

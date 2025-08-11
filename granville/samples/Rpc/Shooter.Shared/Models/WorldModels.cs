@@ -135,7 +135,12 @@ public record ZoneStats
 public record PlayerScore(
     string PlayerId,
     string PlayerName,
-    int RespawnCount);
+    int RespawnCount,
+    int EnemiesKilled = 0,
+    int PlayerKills = 0,
+    int Deaths = 0,
+    float AccuracyPercent = 0.0f,
+    int TotalScore = 0);
 
 [Orleans.GenerateSerializer]
 public record GameOverMessage(
@@ -148,6 +153,7 @@ public record GameOverMessage(
 public enum GamePhase
 {
     Playing,
+    VictoryPause,
     GameOver,
     Restarting
 }
@@ -189,3 +195,10 @@ public record ChatMessage(
     string Message,
     DateTime Timestamp,
     bool IsSystemMessage = false);
+
+[Orleans.GenerateSerializer]
+public record VictoryPauseMessage(
+    List<PlayerScore> PlayerScores,
+    DateTime VictoryTime,
+    int CountdownSeconds,
+    int TotalPauseSeconds = 10);

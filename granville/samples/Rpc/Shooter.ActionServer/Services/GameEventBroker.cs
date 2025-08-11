@@ -13,6 +13,7 @@ public class GameEventBroker
 {
     private readonly ILogger<GameEventBroker> _logger;
     private readonly ConcurrentBag<Action<GameOverMessage>> _gameOverHandlers = new();
+    private readonly ConcurrentBag<Action<VictoryPauseMessage>> _victoryPauseHandlers = new();
     private readonly ConcurrentBag<Action> _gameRestartHandlers = new();
     private readonly ConcurrentBag<Action<ChatMessage>> _chatMessageHandlers = new();
 
@@ -38,6 +39,22 @@ public class GameEventBroker
         }
     }
 
+    public void RaiseVictoryPause(VictoryPauseMessage message)
+    {
+        _logger.LogInformation("GameEventBroker: Raising victory pause event to {HandlerCount} handlers", _victoryPauseHandlers.Count);
+        foreach (var handler in _victoryPauseHandlers)
+        {
+            try
+            {
+                handler(message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in victory pause handler");
+            }
+        }
+    }
+
     public void RaiseGameRestart()
     {
         _logger.LogInformation("GameEventBroker: Raising game restart event to {HandlerCount} handlers", _gameRestartHandlers.Count);
@@ -59,6 +76,12 @@ public class GameEventBroker
     {
         _gameOverHandlers.Add(handler);
         _logger.LogInformation("GameEventBroker: Game over handler subscribed, total handlers: {Count}", _gameOverHandlers.Count);
+    }
+
+    public void SubscribeToVictoryPause(Action<VictoryPauseMessage> handler)
+    {
+        _victoryPauseHandlers.Add(handler);
+        _logger.LogInformation("GameEventBroker: Victory pause handler subscribed, total handlers: {Count}", _victoryPauseHandlers.Count);
     }
 
     public void SubscribeToGameRestart(Action handler)
