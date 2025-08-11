@@ -2223,14 +2223,14 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             _logger.LogInformation("VICTORY PAUSE! Starting 10-second pause before game restart.");
             
             // Collect player scores with mock data
-            var playerScores = await GeneratePlayerScores();
+            var playerScores = GeneratePlayerScores();
             
             // Send victory pause message to all players
             var victoryPauseMessage = new VictoryPauseMessage(playerScores, _victoryPauseTime, 10);
-            await NotifyAllPlayersVictoryPause(victoryPauseMessage);
+            NotifyAllPlayersVictoryPause(victoryPauseMessage);
             
             // Send initial victory chat message with scores
-            await SendVictoryScoresMessage(playerScores);
+            SendVictoryScoresMessage(playerScores);
             
             // Notify the WorldManager about game over for round tracking
             var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
@@ -2279,7 +2279,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         }
     }
     
-    private async Task NotifyAllPlayersVictoryPause(VictoryPauseMessage victoryPauseMessage)
+    private void NotifyAllPlayersVictoryPause(VictoryPauseMessage victoryPauseMessage)
     {
         try
         {
@@ -2471,7 +2471,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         }
     }
     
-    private async Task<List<PlayerScore>> GeneratePlayerScores()
+    private List<PlayerScore> GeneratePlayerScores()
     {
         var playerScores = new List<PlayerScore>();
         var random = new Random();
@@ -2504,7 +2504,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
         return playerScores.OrderByDescending(s => s.TotalScore).ToList();
     }
     
-    private async Task SendVictoryScoresMessage(List<PlayerScore> playerScores)
+    private void SendVictoryScoresMessage(List<PlayerScore> playerScores)
     {
         var scoreText = "🎉 Victory! Final Scores:\n" + string.Join("\n", 
             playerScores.Take(5).Select((s, i) => 
@@ -2555,7 +2555,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             _logger.LogInformation("Victory pause ended, entering game over phase");
             
             // Generate scores again for GameOver message
-            var playerScores = await GeneratePlayerScores();
+            var playerScores = GeneratePlayerScores();
             var gameOverMessage = new GameOverMessage(playerScores, _gameOverTime, 15);
             await NotifyAllPlayersGameOver(gameOverMessage);
         }

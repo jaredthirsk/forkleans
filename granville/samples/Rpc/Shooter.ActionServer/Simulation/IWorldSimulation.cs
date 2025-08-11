@@ -34,4 +34,7 @@ public interface IWorldSimulation
     
     // Bullet management
     void RemoveBullet(string bulletId);
+    
+    // Game phase tracking
+    GamePhase GetCurrentPhase();
 }

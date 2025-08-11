@@ -147,11 +147,11 @@
     private int _actualZoneCount = 0;
     
     // Chat related fields
-    private List<ChatMessage> _chatMessages = new();
+    private List<ChatDisplayMessage> _chatMessages = new();
     private string _chatInput = "";
     private ElementReference _chatScrollAnchor;
     
-    private class ChatMessage
+    private class ChatDisplayMessage
     {
         public DateTime Timestamp { get; set; } = DateTime.Now;
         public string Sender { get; set; } = "";
@@ -655,7 +655,7 @@
     
     private void AddChatMessage(string sender, string text, string color = "#000000")
     {
-        _chatMessages.Add(new ChatMessage
+        _chatMessages.Add(new ChatDisplayMessage
         {
             Sender = sender,
             Text = text,
@@ -975,7 +975,7 @@
         });
     }
     
-    private void OnChatMessageReceived(ChatMessage message)
+    private void OnChatMessageReceived(Shooter.Shared.Models.ChatMessage message)
     {
         _ = InvokeAsync(() =>
         {
