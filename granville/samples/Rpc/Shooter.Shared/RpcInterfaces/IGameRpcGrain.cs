@@ -111,6 +111,14 @@ public interface IGameRpcGrain : Granville.Rpc.IRpcGrainInterfaceWithStringKey
     Task SendChatMessage(ChatMessage message);
     
     /// <summary>
+    /// Receive a chat message forwarded from another zone/server.
+    /// This prevents infinite recursion by not forwarding the message again.
+    /// </summary>
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    [OneWay]
+    Task ReceiveChatMessageFromOtherZone(ChatMessage message);
+    
+    /// <summary>
     /// Get recent chat messages for polling fallback when observer pattern is not supported.
     /// </summary>
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]

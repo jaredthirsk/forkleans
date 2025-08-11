@@ -23,6 +23,7 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
     private readonly Orleans.IClusterClient _orleansClient;
     private readonly ObserverManager<IGameRpcObserver> _observers;
     private readonly GameEventBroker _gameEventBroker;
+    private readonly CrossZoneRpcService _crossZoneRpc;
     private readonly List<ChatMessage> _recentChatMessages = new();
     private readonly TimeSpan _chatMessageRetention = TimeSpan.FromMinutes(5);
     private Timer? _networkStatsTimer;
@@ -33,13 +34,15 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
         IWorldSimulation worldSimulation,
         ILogger<GameRpcGrain> logger,
         Orleans.IClusterClient orleansClient,
-        GameEventBroker gameEventBroker)
+        GameEventBroker gameEventBroker,
+        CrossZoneRpcService crossZoneRpc)
     {
         _gameService = gameService;
         _worldSimulation = worldSimulation;
         _logger = logger;
         _orleansClient = orleansClient;
         _gameEventBroker = gameEventBroker;
+        _crossZoneRpc = crossZoneRpc;
         _observers = new ObserverManager<IGameRpcObserver>(TimeSpan.FromMinutes(5), logger);
         
         // Subscribe to GameEventBroker events
@@ -371,7 +374,7 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
         _observers.Notify(observer => observer.OnGameRestarted());
     }
     
-    public Task SendChatMessage(ChatMessage message)
+    public async Task SendChatMessage(ChatMessage message)
     {
         _logger.LogInformation("[CHAT_DEBUG] RPC: Received chat message from {Sender}: {Message}", 
             message.SenderName, message.Message);
@@ -393,6 +396,101 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
         
         // Also raise the chat message event for cross-zone broadcasting via SignalR
         _gameEventBroker.RaiseChatMessage(message);
+        
+        // Forward the message to all other ActionServers so players in different zones can see it
+        await ForwardChatMessageToAllZones(message);
+    }
+    
+    /// <summary>
+    /// Forwards a chat message to all other ActionServers so players in different zones can see it.
+    /// </summary>
+    private async Task ForwardChatMessageToAllZones(ChatMessage message)
+    {
+        try
+        {
+            _logger.LogInformation("[CHAT_DEBUG] Forwarding chat message to all zones from {Sender}", message.SenderName);
+            
+            // Get all ActionServers from the WorldManager
+            var worldManager = _orleansClient.GetGrain<IWorldManagerGrain>(0);
+            var allServers = await worldManager.GetAllActionServers();
+            
+            // Get our current server info to avoid forwarding to ourselves
+            var currentZone = _worldSimulation.GetAssignedSquare();
+            var forwardTasks = new List<Task>();
+            
+            foreach (var server in allServers)
+            {
+                // Skip our own server
+                if (server.AssignedSquare.Equals(currentZone))
+                {
+                    continue;
+                }
+                
+                // Forward the message to this server
+                var forwardTask = ForwardChatMessageToZone(server, message);
+                forwardTasks.Add(forwardTask);
+            }
+            
+            // Wait for all forwards to complete, but don't block indefinitely
+            await Task.WhenAll(forwardTasks.ToArray()).WaitAsync(TimeSpan.FromSeconds(5));
+            
+            _logger.LogInformation("[CHAT_DEBUG] Successfully forwarded chat message to {Count} other zones", forwardTasks.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[CHAT_DEBUG] Failed to forward chat message to other zones");
+        }
+    }
+    
+    /// <summary>
+    /// Forwards a chat message to a specific zone.
+    /// </summary>
+    private async Task ForwardChatMessageToZone(ActionServerInfo targetServer, ChatMessage message)
+    {
+        try
+        {
+            _logger.LogDebug("[CHAT_DEBUG] Forwarding message to zone ({ZoneX},{ZoneY}) server {ServerId}", 
+                targetServer.AssignedSquare.X, targetServer.AssignedSquare.Y, targetServer.ServerId);
+            
+            // Get the game grain for the target server
+            var targetGameGrain = await _crossZoneRpc.GetGameGrainForServer(targetServer);
+            
+            // Call ReceiveChatMessageFromOtherZone instead of SendChatMessage to avoid infinite recursion
+            await targetGameGrain.ReceiveChatMessageFromOtherZone(message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "[CHAT_DEBUG] Failed to forward message to zone ({ZoneX},{ZoneY})", 
+                targetServer.AssignedSquare.X, targetServer.AssignedSquare.Y);
+        }
+    }
+    
+    /// <summary>
+    /// Receives a chat message forwarded from another zone/server.
+    /// This method prevents infinite recursion by not forwarding the message again.
+    /// </summary>
+    public Task ReceiveChatMessageFromOtherZone(ChatMessage message)
+    {
+        _logger.LogInformation("[CHAT_DEBUG] RPC: Received forwarded chat message from {Sender} (other zone): {Message}", 
+            message.SenderName, message.Message);
+        
+        // Store message for polling fallback
+        lock (_recentChatMessages)
+        {
+            _recentChatMessages.Add(message);
+            
+            // Clean up old messages
+            var cutoff = DateTime.UtcNow - _chatMessageRetention;
+            _recentChatMessages.RemoveAll(m => m.Timestamp < cutoff);
+        }
+        
+        // Notify observers (connected clients) in this zone about the forwarded message
+        NotifyObserversChat(message);
+        
+        // Also raise the chat message event for local GameEventBroker (for SignalR etc.)
+        _gameEventBroker.RaiseChatMessage(message);
+        
+        // Important: Do NOT call ForwardChatMessageToAllZones() here to avoid infinite recursion
         
         return Task.CompletedTask;
     }

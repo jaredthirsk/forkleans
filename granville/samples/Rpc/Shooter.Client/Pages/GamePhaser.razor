@@ -16,7 +16,7 @@
     <StatusBar WarningMessage="@_warningMessage" />
     
     <div class="chat-container mt-3">
-        <div class="chat-history">
+        <div class="chat-history" @ref="_chatHistoryElement">
             @foreach (var message in _chatMessages)
             {
                 <div class="chat-message" style="color: @message.Color">
@@ -150,6 +150,7 @@
     private List<ChatDisplayMessage> _chatMessages = new();
     private string _chatInput = "";
     private ElementReference _chatScrollAnchor;
+    private ElementReference _chatHistoryElement;
     
     private class ChatDisplayMessage
     {
@@ -672,7 +673,38 @@
         {
             StateHasChanged();
             await Task.Delay(50); // Small delay to ensure render
-            await _chatScrollAnchor.FocusAsync();
+            
+            // Check if user was already at the bottom before adding the message
+            try
+            {
+                var isAtBottom = await JS.InvokeAsync<bool>("eval", 
+                    @"(function() {
+                        const element = document.querySelector('.chat-history');
+                        if (!element) return true;
+                        const threshold = 30; // pixels from bottom
+                        return element.scrollTop >= element.scrollHeight - element.clientHeight - threshold;
+                    })()");
+                
+                if (isAtBottom)
+                {
+                    // Auto-scroll to bottom
+                    await JS.InvokeVoidAsync("eval", 
+                        @"(function() {
+                            const element = document.querySelector('.chat-history');
+                            if (element) element.scrollTop = element.scrollHeight;
+                        })()");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Failed to auto-scroll chat");
+                // Fallback: always scroll to bottom
+                try
+                {
+                    await _chatScrollAnchor.FocusAsync();
+                }
+                catch { }
+            }
         });
     }
     
@@ -1099,7 +1131,7 @@
         border: 1px solid #444;
         border-radius: 4px;
         padding: 10px;
-        max-height: 200px;
+        max-height: 300px;
         display: flex;
         flex-direction: column;
         gap: 10px;
@@ -1108,11 +1140,12 @@
     .chat-history {
         flex: 1;
         overflow-y: auto;
-        max-height: 120px;
+        max-height: 220px;
         padding: 5px;
         background-color: #1a1a1a;
         border-radius: 4px;
         border: 1px solid #333;
+        scroll-behavior: smooth;
     }
     
     .chat-message {
