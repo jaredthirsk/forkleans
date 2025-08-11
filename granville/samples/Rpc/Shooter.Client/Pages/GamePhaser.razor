@@ -588,6 +588,52 @@
         }
     }
 
+    private void AddSystemMessage(string message)
+    {
+        _chatMessages.Add(new ChatDisplayMessage
+        {
+            Timestamp = DateTime.Now,
+            Sender = "System",
+            Text = message,
+            Color = "#888888"
+        });
+        
+        // Keep only last 100 messages
+        if (_chatMessages.Count > 100)
+        {
+            _chatMessages.RemoveAt(0);
+        }
+    }
+    
+    private void AddChatMessage(string sender, string message, string color)
+    {
+        _chatMessages.Add(new ChatDisplayMessage
+        {
+            Timestamp = DateTime.Now,
+            Sender = sender,
+            Text = message,
+            Color = color
+        });
+        
+        // Keep only last 100 messages
+        if (_chatMessages.Count > 100)
+        {
+            _chatMessages.RemoveAt(0);
+        }
+    }
+    
+    private string GetChatColor(string senderId)
+    {
+        // Generate a consistent color based on sender ID
+        if (senderId == "System") return "#888888";
+        if (senderId == RpcGameClient.PlayerId) return "#4CAF50"; // Green for self
+        
+        // Hash the sender ID to get a consistent color
+        var hash = senderId.GetHashCode();
+        var hue = Math.Abs(hash) % 360;
+        return $"hsl({hue}, 70%, 60%)";
+    }
+    
     public async ValueTask DisposeAsync()
     {
         _updateTimer?.Dispose();
@@ -611,14 +657,102 @@
         
         _dotNetRef?.Dispose();
     }
-
+    
+    // Event handlers for RPC game client events
+    private void OnVictoryPauseReceived(VictoryPauseMessage message)
+    {
+        InvokeAsync(async () =>
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("gamePhaser.onVictoryPauseReceived", message);
+            }
+            catch { }
+        });
+    }
+    
+    private void OnGameOverReceived(GameOverMessage message)
+    {
+        InvokeAsync(async () =>
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("gamePhaser.onGameOverReceived", message);
+            }
+            catch { }
+        });
+    }
+    
+    private void OnGameRestartedReceived()
+    {
+        InvokeAsync(async () =>
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("gamePhaser.onGameRestartedReceived");
+            }
+            catch { }
+        });
+    }
+    
+    private void OnOneWayBoundaryStateChanged(GridSquare? previousZone, Vector2 boundaryNormal, bool isBlocked)
+    {
+        InvokeAsync(async () =>
+        {
+            try
+            {
+                // Convert to JavaScript-friendly format
+                object? zoneObj = previousZone != null ? new { x = previousZone.X, y = previousZone.Y } : null;
+                object normalObj = new { x = boundaryNormal.X, y = boundaryNormal.Y };
+                
+                await JS.InvokeVoidAsync("gamePhaser.updateOneWayBoundaryState", zoneObj, normalObj, isBlocked);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error updating one-way boundary state");
+            }
+        });
+    }
+    
+    private void OnChatMessageReceived(ChatMessage message)
+    {
+        Logger.LogInformation("[CHAT] Received message from {Sender}: {Message}", message.SenderName, message.Message);
+        AddChatMessage(message.Message, message.SenderName, "", message.IsSystemMessage);
+        InvokeAsync(StateHasChanged);
+    }
+    
+    // Helper methods
+    private async Task SendChatMessage()
+    {
+        if (string.IsNullOrWhiteSpace(_chatInput)) return;
+        
+        var message = _chatInput.Trim();
+        _chatInput = "";
+        
+        try
+        {
+            await RpcGameClient.SendChatMessage(message);
+            Logger.LogInformation("[CHAT] Message sent successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[CHAT] Failed to send message");
+            AddSystemMessage("Failed to send message");
+        }
+    }
+    
     private GridSquare? GetServerZone()
     {
-        var serverId = RpcGameClient.CurrentServerId;
-        if (serverId != null && _serverZoneMap.TryGetValue(serverId, out var zone))
+        var serverId = RpcGameClient?.CurrentServerId;
+        if (string.IsNullOrEmpty(serverId)) return null;
+        
+        // Extract zone from server ID (format: "action-server-x-y")
+        var parts = serverId.Split('-');
+        if (parts.Length >= 4 && int.TryParse(parts[2], out var x) && int.TryParse(parts[3], out var y))
         {
-            return zone;
+            return new GridSquare(x, y);
         }
+        
         return null;
     }
     
@@ -626,27 +760,9 @@
     {
         try
         {
-            // Check if component is being disposed
-            if (_disposeCts.Token.IsCancellationRequested)
-                return;
-                
-            var siloUrl = Configuration["SiloUrl"] ?? "https://localhost:7071/";
-            if (!siloUrl.EndsWith("/")) siloUrl += "/";
-            using var httpClient = HttpClientFactory.CreateClient();
-            var response = await httpClient.GetFromJsonAsync<List<Shooter.Shared.Models.ActionServerInfo>>($"{siloUrl}api/world/action-servers", _disposeCts.Token);
-            if (response != null)
-            {
-                _serverZoneMap.Clear();
-                foreach (var server in response)
-                {
-                    _serverZoneMap[server.ServerId] = server.AssignedSquare;
-                }
-                Logger.LogInformation("Fetched {Count} server zone mappings", _serverZoneMap.Count);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // Component is being disposed, ignore
+            // This is a placeholder - in the actual implementation, you would fetch from the server
+            // For now, we're using the server ID parsing approach in GetServerZone()
+            await Task.CompletedTask;
         }
         catch (Exception ex)
         {
@@ -654,59 +770,56 @@
         }
     }
     
-    private void AddChatMessage(string sender, string text, string color = "#000000")
+    private void AddChatMessage(string message, string senderName, string style = "", bool isSystem = false)
     {
-        _chatMessages.Add(new ChatDisplayMessage
-        {
-            Sender = sender,
-            Text = text,
-            Color = color
-        });
+        var color = GetChatColor(senderName, isSystem);
         
-        // Keep only last 100 messages
-        if (_chatMessages.Count > 100)
+        var chatMessage = new ChatDisplayMessage
+        {
+            Sender = senderName,
+            Text = message,
+            Color = color,
+            Timestamp = DateTime.Now
+        };
+        
+        _chatMessages.Add(chatMessage);
+        
+        // Keep only last 50 messages
+        while (_chatMessages.Count > 50)
         {
             _chatMessages.RemoveAt(0);
         }
         
+        // Update Phaser UI
         InvokeAsync(async () =>
         {
-            StateHasChanged();
-            await Task.Delay(50); // Small delay to ensure render
-            
-            // Check if user was already at the bottom before adding the message
             try
             {
-                var isAtBottom = await JS.InvokeAsync<bool>("eval", 
-                    @"(function() {
-                        const element = document.querySelector('.chat-history');
-                        if (!element) return true;
-                        const threshold = 30; // pixels from bottom
-                        return element.scrollTop >= element.scrollHeight - element.clientHeight - threshold;
-                    })()");
-                
-                if (isAtBottom)
+                await JS.InvokeVoidAsync("gamePhaser.onChatMessageReceived", new
                 {
-                    // Auto-scroll to bottom
-                    await JS.InvokeVoidAsync("eval", 
-                        @"(function() {
-                            const element = document.querySelector('.chat-history');
-                            if (element) element.scrollTop = element.scrollHeight;
-                        })()");
-                }
+                    text = message,
+                    sender = senderName,
+                    color = color,
+                    timestamp = chatMessage.Timestamp.ToString("HH:mm:ss"),
+                    isSystem = isSystem,
+                    style = style
+                });
             }
-            catch (Exception ex)
-            {
-                Logger.LogWarning(ex, "Failed to auto-scroll chat");
-                // Fallback: always scroll to bottom
-                try
-                {
-                    await _chatScrollAnchor.FocusAsync();
-                }
-                catch { }
-            }
+            catch { }
         });
     }
+    
+    private string GetChatColor(string senderName, bool isSystem)
+    {
+        if (isSystem) return "#FFD700"; // Gold for system messages
+        if (senderName == RpcGameClient?.PlayerId) return "#00FF00"; // Green for own messages
+        
+        // Generate consistent color for other players
+        var hash = senderName.GetHashCode();
+        var hue = Math.Abs(hash % 360);
+        return $"hsl({hue}, 70%, 60%)";
+    }
+    
     
     private async Task AddBot()
     {
@@ -922,98 +1035,6 @@
             _isProcessing = false;
             StateHasChanged();
         }
-    }
-    
-    private void AddSystemMessage(string text)
-    {
-        AddChatMessage("System", text, "#0066cc");
-    }
-    
-    private async Task SendChatMessage()
-    {
-        if (string.IsNullOrWhiteSpace(_chatInput)) return;
-        
-        try
-        {
-            await RpcGameClient.SendChatMessage(_chatInput);
-            _chatInput = "";
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Failed to send chat message");
-            AddSystemMessage($"Failed to send message: {ex.Message}");
-        }
-    }
-    
-    private void OnGameOverReceived(GameOverMessage gameOverMessage)
-    {
-        _ = InvokeAsync(() =>
-        {
-            _victoryPauseActive = false; // Clear victory pause flag
-            AddSystemMessage("=== GAME OVER ===");
-            AddSystemMessage($"All enemies destroyed! Restarting in {gameOverMessage.RestartDelaySeconds} seconds...");
-            AddSystemMessage("Final Scores (deaths):");
-            
-            foreach (var score in gameOverMessage.PlayerScores.OrderBy(s => s.RespawnCount))
-            {
-                var color = score.PlayerId == RpcGameClient.PlayerId ? "#ff6600" : "#333333";
-                AddChatMessage("Score", $"{score.PlayerName}: {score.RespawnCount} deaths", color);
-            }
-            
-            AddSystemMessage("================");
-        });
-    }
-    
-    private void OnGameRestartedReceived()
-    {
-        _ = InvokeAsync(() =>
-        {
-            AddSystemMessage("=== NEW GAME STARTED ===");
-            AddSystemMessage("Good luck!");
-            _victoryPauseActive = false; // Clear victory pause flag on restart
-        });
-    }
-    
-    private void OnVictoryPauseReceived(VictoryPauseMessage victoryPauseMessage)
-    {
-        _ = InvokeAsync(() =>
-        {
-            _victoryPauseActive = true;
-            AddSystemMessage($"🎉 VICTORY PAUSE! ({victoryPauseMessage.CountdownSeconds}s remaining)");
-            AddSystemMessage("Movement paused - enjoy the break!");
-            StateHasChanged();
-        });
-    }
-    
-    private void OnOneWayBoundaryStateChanged(GridSquare? blockedZone, Vector2 boundaryNormal, bool isBlocked)
-    {
-        _ = InvokeAsync(async () =>
-        {
-            if (_isInitialized)
-            {
-                try
-                {
-                    // Convert to JavaScript-friendly format
-                    object? zoneObj = blockedZone != null ? new { x = blockedZone.X, y = blockedZone.Y } : null;
-                    object normalObj = new { x = boundaryNormal.X, y = boundaryNormal.Y };
-                    
-                    await JS.InvokeVoidAsync("gamePhaser.updateOneWayBoundaryState", zoneObj, normalObj, isBlocked);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Error updating one-way boundary state");
-                }
-            }
-        });
-    }
-    
-    private void OnChatMessageReceived(Shooter.Shared.Models.ChatMessage message)
-    {
-        _ = InvokeAsync(() =>
-        {
-            var color = message.IsSystemMessage ? "#0066cc" : "#e0e0e0";
-            AddChatMessage(message.SenderName, message.Message, color);
-        });
     }
     
     public void Dispose()

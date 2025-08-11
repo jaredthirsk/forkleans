@@ -27,6 +27,7 @@ public class GranvilleRpcGameClientService : IDisposable
     private readonly ILogger<GranvilleRpcGameClientService> _logger;
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly ZoneTransitionDebouncer _zoneDebouncer;
     private readonly RobustTimerManager _timerManager;
     private readonly ConnectionResilienceManager _connectionManager;
@@ -77,7 +78,10 @@ public class GranvilleRpcGameClientService : IDisposable
     private NetworkStatisticsTracker? _clientNetworkTracker = null;
     private Vector2? _lastKnownPlayerPosition = null; // Track last known player position
     private DateTime _lastPositionUpdateTime = DateTime.MinValue; // When position was last updated
+    private ZoneTransitionHealthMonitor? _healthMonitor = null; // Health monitoring for zone transitions
+    private Timer? _healthReportTimer = null; // Timer for periodic health reports
     private DateTime _zoneTransitionStartTime = DateTime.MinValue; // When zone transition started
+    private ZoneTransitionDebouncer? _zoneTransitionDebouncer = null; // Prevents rapid zone transitions
     
     // Connection distance thresholds with hysteresis
     private const float CONNECTION_CREATE_DISTANCE = 200f;    // Create connections when within this distance
@@ -117,11 +121,27 @@ public class GranvilleRpcGameClientService : IDisposable
         _logger = logger;
         _httpClient = httpClient;
         _configuration = configuration;
+        _loggerFactory = loggerFactory;
         
         // Initialize the protection components
         _zoneDebouncer = new ZoneTransitionDebouncer(loggerFactory.CreateLogger<ZoneTransitionDebouncer>());
         _timerManager = new RobustTimerManager(loggerFactory.CreateLogger<RobustTimerManager>());
         _connectionManager = new ConnectionResilienceManager(loggerFactory.CreateLogger<ConnectionResilienceManager>());
+        _healthMonitor = new ZoneTransitionHealthMonitor(loggerFactory.CreateLogger<ZoneTransitionHealthMonitor>());
+        _zoneTransitionDebouncer = new ZoneTransitionDebouncer(loggerFactory.CreateLogger<ZoneTransitionDebouncer>());
+        
+        // Set up periodic health reporting (every 30 seconds)
+        _healthReportTimer = new Timer(_ => 
+        {
+            try
+            {
+                _healthMonitor?.LogHealthReport();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error logging health report");
+            }
+        }, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
     }
     
     public async Task<bool> ConnectAsync(string playerName)
@@ -142,6 +162,9 @@ public class GranvilleRpcGameClientService : IDisposable
             PlayerName = registrationResponse.PlayerInfo?.Name ?? playerName;
             CurrentServerId = registrationResponse.ActionServer?.ServerId ?? "Unknown";
             _currentZone = registrationResponse.ActionServer?.AssignedSquare;
+            
+            // Report server zone to health monitor
+            _healthMonitor?.UpdateServerZone(_currentZone);
             
             // Validate PlayerId
             if (string.IsNullOrEmpty(PlayerId))
@@ -1159,6 +1182,9 @@ public class GranvilleRpcGameClientService : IDisposable
                         _lastKnownPlayerPosition = playerEntity.Position;
                         _lastPositionUpdateTime = DateTime.UtcNow;
                         
+                        // Report position update to health monitor
+                        _healthMonitor?.UpdatePlayerPosition(playerEntity.Position);
+                        
                         var detectedZone = GridSquare.FromPosition(playerEntity.Position);
                         var playerZone = ApplyOneWayHysteresis(detectedZone, playerEntity.Position);
                         
@@ -1250,6 +1276,9 @@ public class GranvilleRpcGameClientService : IDisposable
                             }
                         }
                     }
+                    
+                    // Record that we received a world state update
+                    _healthMonitor?.RecordWorldStateReceived();
                     
                     WorldStateUpdated?.Invoke(worldState);
                 }
@@ -1770,6 +1799,13 @@ public class GranvilleRpcGameClientService : IDisposable
                     .UseOrleansRpcClient(rpcBuilder =>
                     {
                         rpcBuilder.ConnectTo(resolvedHost, rpcPort);
+                        
+                        // Register the network statistics tracker BEFORE configuring transport
+                        if (_clientNetworkTracker != null)
+                        {
+                            rpcBuilder.Services.AddSingleton<Granville.Rpc.Telemetry.INetworkStatisticsTracker>(_clientNetworkTracker);
+                        }
+                        
                         var transportType = _configuration["RpcTransport"] ?? "litenetlib";
                         switch (transportType.ToLowerInvariant())
                         {
@@ -1981,6 +2017,13 @@ public class GranvilleRpcGameClientService : IDisposable
                 .UseOrleansRpcClient(rpcBuilder =>
                 {
                     rpcBuilder.ConnectTo(resolvedHost, rpcPort);
+                    
+                    // Register the network statistics tracker BEFORE configuring transport
+                    if (_clientNetworkTracker != null)
+                    {
+                        rpcBuilder.Services.AddSingleton<Granville.Rpc.Telemetry.INetworkStatisticsTracker>(_clientNetworkTracker);
+                    }
+                    
                     // Configure transport based on configuration
                     var transportType = _configuration["RpcTransport"] ?? "litenetlib";
                     TransportType = transportType.ToLowerInvariant();
@@ -2687,6 +2730,13 @@ public class GranvilleRpcGameClientService : IDisposable
                 .UseOrleansRpcClient(rpcBuilder =>
                 {
                     rpcBuilder.ConnectTo(resolvedHost, rpcPort);
+                    
+                    // Register the network statistics tracker BEFORE configuring transport
+                    if (_clientNetworkTracker != null)
+                    {
+                        rpcBuilder.Services.AddSingleton<Granville.Rpc.Telemetry.INetworkStatisticsTracker>(_clientNetworkTracker);
+                    }
+                    
                     // Configure transport based on configuration
                     var transportType = _configuration["RpcTransport"] ?? "litenetlib";
                     TransportType = transportType.ToLowerInvariant();
@@ -2789,6 +2839,9 @@ public class GranvilleRpcGameClientService : IDisposable
             
             connection.IsConnecting = false;
             _preEstablishedConnections[connectionKey] = connection;
+            
+            // Report connection status to health monitor
+            _healthMonitor?.UpdatePreEstablishedConnection(serverInfo.ServerId, connection.IsConnected, false);
             
             // Notify UI about connection state change
             NotifyConnectionsUpdated();
@@ -3156,6 +3209,18 @@ public class GranvilleRpcGameClientService : IDisposable
             .UseOrleansRpcClient(rpcBuilder =>
             {
                 rpcBuilder.ConnectTo(resolvedHost, rpcPort);
+                
+                // Register the network statistics tracker BEFORE configuring transport
+                // Only for the main connection, not pre-established connections
+                if (playerId != null && _clientNetworkTracker == null)
+                {
+                    rpcBuilder.Services.AddSingleton<Granville.Rpc.Telemetry.INetworkStatisticsTracker>(sp =>
+                    {
+                        _clientNetworkTracker = new NetworkStatisticsTracker(playerId);
+                        return _clientNetworkTracker;
+                    });
+                }
+                
                 // Configure transport based on configuration
                 var transportType = _configuration["RpcTransport"] ?? "litenetlib";
                 TransportType = transportType.ToLowerInvariant();
@@ -3190,16 +3255,8 @@ public class GranvilleRpcGameClientService : IDisposable
                     serializer.AddAssembly(typeof(PlayerInfo).Assembly);
                 });
                 
-                // Register the network statistics tracker as a singleton
-                // Only for the main connection, not pre-established connections
-                if (playerId != null && _clientNetworkTracker == null)
-                {
-                    services.AddSingleton<Granville.Rpc.Telemetry.INetworkStatisticsTracker>(sp =>
-                    {
-                        _clientNetworkTracker = new NetworkStatisticsTracker(playerId);
-                        return _clientNetworkTracker;
-                    });
-                }
+                // NOTE: Network statistics tracker is now registered in the rpcBuilder.ConfigureServices above
+                // to ensure it's available when the transport is created
             })
             .Build();
             
@@ -3222,6 +3279,7 @@ public class GranvilleRpcGameClientService : IDisposable
         _timerManager?.Dispose();
         _zoneDebouncer?.Reset();
         _connectionManager?.Reset();
+        _healthReportTimer?.Dispose();
         
         PlayerId = null;  // Clear PlayerId only on final dispose
     }
@@ -3388,6 +3446,250 @@ public class GranvilleRpcGameClientService : IDisposable
     public NetworkStatistics? GetClientNetworkStats()
     {
         return _clientNetworkTracker?.GetStats();
+    }
+    
+    /// <summary>
+    /// Checks if the player has moved to a different zone and initiates a server transition if needed.
+    /// This is called periodically from the Game.razor component when world state is updated.
+    /// </summary>
+    public async Task CheckAndHandleZoneTransition(Vector2 playerPosition)
+    {
+        if (!IsConnected || _isTransitioning || _gameGrain == null)
+        {
+            return;
+        }
+        
+        try
+        {
+            // Determine the player's current zone based on position
+            var playerZone = GridSquare.FromPosition(playerPosition);
+            
+            // If we don't have a current zone recorded, set it
+            if (_currentZone == null)
+            {
+                _currentZone = playerZone;
+                _logger.LogInformation("[ZONE_TRANSITION] Initial zone set to ({X},{Y})", playerZone.X, playerZone.Y);
+                return;
+            }
+            
+            // Check if player has moved to a different zone
+            if (playerZone.X != _currentZone.X || playerZone.Y != _currentZone.Y)
+            {
+                _logger.LogInformation("[ZONE_TRANSITION] Player moved from zone ({OldX},{OldY}) to ({NewX},{NewY})",
+                    _currentZone.X, _currentZone.Y, playerZone.X, playerZone.Y);
+                
+                // Use the zone transition debouncer to prevent rapid transitions
+                if (_zoneTransitionDebouncer == null)
+                {
+                    _zoneTransitionDebouncer = new ZoneTransitionDebouncer(
+                        _loggerFactory.CreateLogger<ZoneTransitionDebouncer>());
+                }
+                
+                // Attempt zone transition with debouncing
+                var transitioned = await _zoneTransitionDebouncer.ShouldTransitionAsync(
+                    playerZone,
+                    playerPosition,
+                    async () => await PerformZoneTransition(playerZone));
+                
+                if (transitioned)
+                {
+                    _currentZone = playerZone;
+                    _logger.LogInformation("[ZONE_TRANSITION] Successfully transitioned to zone ({X},{Y})", 
+                        playerZone.X, playerZone.Y);
+                    
+                    // Report successful transition to health monitor
+                    var transitionDuration = DateTime.UtcNow - _zoneTransitionStartTime;
+                    _healthMonitor?.RecordTransitionComplete(true, transitionDuration);
+                    _healthMonitor?.UpdateServerZone(playerZone);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ZONE_TRANSITION] Error checking zone transition");
+        }
+    }
+    
+    /// <summary>
+    /// Performs the actual zone transition by connecting to the appropriate server.
+    /// </summary>
+    private async Task PerformZoneTransition(GridSquare newZone)
+    {
+        _isTransitioning = true;
+        _zoneTransitionStartTime = DateTime.UtcNow;
+        
+        // Record transition start in health monitor
+        _healthMonitor?.RecordTransitionStart(_currentZone ?? newZone, newZone);
+        
+        try
+        {
+            _logger.LogInformation("[ZONE_TRANSITION] Starting transition to zone ({X},{Y})", newZone.X, newZone.Y);
+            
+            // Query the silo for the correct action server for this zone
+            var siloUrl = _configuration["SiloUrl"] ?? "https://localhost:7071";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            // Get player's current server assignment
+            var response = await _httpClient.GetAsync($"{siloUrl}api/world/players/{PlayerId}/server");
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("[ZONE_TRANSITION] Failed to get server assignment: {Status}", response.StatusCode);
+                return;
+            }
+            
+            var serverInfo = await response.Content.ReadFromJsonAsync<ActionServerInfo>();
+            if (serverInfo == null)
+            {
+                _logger.LogError("[ZONE_TRANSITION] No server assigned for zone ({X},{Y})", newZone.X, newZone.Y);
+                return;
+            }
+            
+            // Check if we're already connected to the correct server
+            if (serverInfo.ServerId == CurrentServerId)
+            {
+                _logger.LogInformation("[ZONE_TRANSITION] Already connected to correct server {ServerId} for zone ({X},{Y})",
+                    serverInfo.ServerId, newZone.X, newZone.Y);
+                return;
+            }
+            
+            _logger.LogInformation("[ZONE_TRANSITION] Switching from server {OldServer} to {NewServer} for zone ({X},{Y})",
+                CurrentServerId, serverInfo.ServerId, newZone.X, newZone.Y);
+            
+            // Save current state
+            var oldGameGrain = _gameGrain;
+            var oldHost = _rpcHost;
+            
+            try
+            {
+                // Connect to new server
+                await ConnectToActionServer(serverInfo.IpAddress, serverInfo.RpcPort, serverInfo.ServerId);
+                
+                // If successful, clean up old connection
+                if (oldHost != null)
+                {
+                    try
+                    {
+                        await oldHost.StopAsync();
+                        oldHost.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "[ZONE_TRANSITION] Error disposing old RPC host");
+                    }
+                }
+                
+                // Update current server ID
+                CurrentServerId = serverInfo.ServerId;
+                
+                // Fire server changed event
+                ServerChanged?.Invoke(CurrentServerId);
+                
+                _logger.LogInformation("[ZONE_TRANSITION] Successfully transitioned to server {ServerId} for zone ({X},{Y})",
+                    serverInfo.ServerId, newZone.X, newZone.Y);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[ZONE_TRANSITION] Failed to connect to new server {ServerId}", serverInfo.ServerId);
+                
+                // Restore old connection on failure
+                _gameGrain = oldGameGrain;
+                _rpcHost = oldHost;
+                throw;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ZONE_TRANSITION] Zone transition failed");
+            
+            // Record failed transition in health monitor
+            var transitionDuration = DateTime.UtcNow - _zoneTransitionStartTime;
+            _healthMonitor?.RecordTransitionComplete(false, transitionDuration);
+            
+            // Reset transition state on failure
+            _isTransitioning = false;
+            _zoneTransitionStartTime = DateTime.MinValue;
+            
+            // Optionally trigger a full reconnect if the transition failed catastrophically
+            if (!IsConnected && _gameGrain == null)
+            {
+                _logger.LogWarning("[ZONE_TRANSITION] Lost connection during failed transition, attempting full reconnect");
+                await ConnectAsync(PlayerName ?? "Player");
+            }
+        }
+        finally
+        {
+            _isTransitioning = false;
+            _zoneTransitionStartTime = DateTime.MinValue;
+        }
+    }
+    
+    /// <summary>
+    /// Connects to a specific action server for zone transitions.
+    /// </summary>
+    private async Task ConnectToActionServer(string serverHost, int rpcPort, string serverId)
+    {
+        _logger.LogInformation("[ZONE_TRANSITION] Connecting to action server at {Host}:{Port}", serverHost, rpcPort);
+        
+        // Resolve hostname to IP if needed
+        string resolvedHost = serverHost;
+        try
+        {
+            if (!System.Net.IPAddress.TryParse(serverHost, out _))
+            {
+                var hostEntry = await System.Net.Dns.GetHostEntryAsync(serverHost);
+                var ipAddress = hostEntry.AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                if (ipAddress != null)
+                {
+                    resolvedHost = ipAddress.ToString();
+                }
+                else
+                {
+                    resolvedHost = "127.0.0.1";
+                }
+            }
+        }
+        catch
+        {
+            resolvedHost = "127.0.0.1";
+        }
+        
+        // Build new RPC host for the target server
+        var newHost = BuildRpcHost(resolvedHost, rpcPort, PlayerId!);
+        
+        // Start the host in the background
+        _ = newHost.RunAsync();
+        
+        // Give the host time to start services
+        await Task.Delay(500);
+        
+        // Get the RPC client from the new host
+        var rpcClient = newHost.Services.GetRequiredService<Granville.Rpc.IRpcClient>();
+        if (rpcClient == null)
+        {
+            throw new InvalidOperationException("Failed to get RPC client from host");
+        }
+        
+        // Get the game grain
+        var gameGrain = rpcClient.GetGrain<IGameRpcGrain>(PlayerId!);
+        if (gameGrain == null)
+        {
+            throw new InvalidOperationException("Failed to get game grain");
+        }
+        
+        // Perform handshake with the new server
+        var handshakeResult = await gameGrain.ConnectPlayer(PlayerId!);
+        if (handshakeResult != "SUCCESS")
+        {
+            throw new InvalidOperationException($"Handshake failed: {handshakeResult}");
+        }
+        
+        // Update internal state
+        _rpcHost = newHost;
+        _rpcClient = rpcClient;
+        _gameGrain = gameGrain;
+        CurrentServerId = serverId;
+        
+        _logger.LogInformation("[ZONE_TRANSITION] Successfully connected to action server {ServerId}", serverId);
     }
 }
 

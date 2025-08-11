@@ -21,9 +21,6 @@ public class NetworkStatisticsTracker : Granville.Rpc.Telemetry.INetworkStatisti
     public NetworkStatisticsTracker(string clientId)
     {
         _clientId = clientId;
-        
-        // TODO: Wire up to actual RPC transport once Granville packages are built
-        // For now, this uses real tracking methods but no data is sent from transport
     }
     
     public void RecordPacketSent(int bytes)
