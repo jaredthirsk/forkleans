@@ -10,6 +10,7 @@ using Orleans.Serialization;
 using Orleans.Hosting;
 using Shooter.Shared.RpcInterfaces;
 using Shooter.Shared.Models;
+using Shooter.ActionServer.Grains;
 
 namespace Shooter.ActionServer.Services;
 
@@ -116,11 +117,14 @@ public class CrossZoneRpcService : IHostedService, IDisposable
                 })
                 .ConfigureServices(services =>
                 {
+                    // Use the same simple configuration pattern as the working game client
                     services.AddSerializer(serializer =>
                     {
                         serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
                         // Add RPC protocol assembly for RPC message serialization
                         serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
+                        // Add Shooter.Shared assembly for game models (Player, WorldState, etc.)
+                        serializer.AddAssembly(typeof(Shooter.Shared.Models.PlayerInfo).Assembly);
                     });
                 })
                 .ConfigureLogging(logging =>
@@ -134,13 +138,10 @@ public class CrossZoneRpcService : IHostedService, IDisposable
 
             var rpcClient = hostBuilder.Services.GetRequiredService<IRpcClient>();
             
-            // Properly wait for connection establishment by attempting a simple operation
+            // Properly wait for connection establishment
             try
             {
                 _logger.LogDebug("Testing RPC connection to server {ServerId}...", targetServer.ServerId);
-                
-                // Try to get a grain to verify the connection works
-                var testGrain = rpcClient.GetGrain<IGameRpcGrain>("connection-test");
                 
                 // Give the connection some time to establish
                 var connectionEstablished = false;

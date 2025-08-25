@@ -219,9 +219,9 @@ foreach (var type in generatedTypes)
 }
 
 // Configure dynamic HTTP port assignment
-if (builder.Environment.IsDevelopment())
+if (builder.Environment.IsDevelopment() && string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
 {
-    // Don't use a specific port in development - let the system assign one
+    // Only use dynamic port assignment if ASPNETCORE_URLS isn't set (i.e., not running under Aspire)
     builder.WebHost.ConfigureKestrel(options =>
     {
         options.Listen(IPAddress.Any, 0); // 0 means let the OS assign a port
@@ -332,8 +332,7 @@ var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
-// Map health checks
-app.MapHealthChecks("/health");
+// Map additional health checks (MapDefaultEndpoints already maps /health)
 app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains("ready")
@@ -395,18 +394,36 @@ if (enablePhaserView)
     app.UseStaticFiles();
     
     app.MapGet("/phaser", () => {
-        Console.WriteLine("📡 Phaser view requested");
+        Console.WriteLine("📡 Phaser view requested (default zone)");
+        return Results.Content(PhaserViewHtml.GetHtml(), "text/html");
+    });
+    
+    app.MapGet("/phaser/{x:int}/{y:int}", (int x, int y) => {
+        Console.WriteLine($"📡 Phaser view requested for zone ({x}, {y})");
         return Results.Content(PhaserViewHtml.GetHtml(), "text/html");
     });
     
     app.MapHub<WorldStateHub>("/worldStateHub");
     
-    app.MapGet("/api/phaser/config", (IWorldSimulation simulation, CrossZoneRpcService crossZoneRpc, RpcServerPortProvider rpcPortProvider) =>
+    app.MapGet("/api/phaser/config", (IWorldSimulation simulation, CrossZoneRpcService crossZoneRpc, RpcServerPortProvider rpcPortProvider, HttpContext context) =>
     {
         var assignedSquare = simulation.GetAssignedSquare();
+        
+        // Check if zone coordinates are provided in query parameters
+        int? requestedX = null, requestedY = null;
+        if (context.Request.Query.TryGetValue("x", out var xValue) && int.TryParse(xValue, out var x))
+            requestedX = x;
+        if (context.Request.Query.TryGetValue("y", out var yValue) && int.TryParse(yValue, out var y))
+            requestedY = y;
+            
+        var targetZone = (requestedX.HasValue && requestedY.HasValue) 
+            ? new { X = requestedX.Value, Y = requestedY.Value }
+            : new { assignedSquare.X, assignedSquare.Y };
+            
         return new
         {
             AssignedZone = new { assignedSquare.X, assignedSquare.Y },
+            TargetZone = targetZone,
             RpcPort = rpcPortProvider.Port,
             ServerInstanceId = Environment.GetEnvironmentVariable("ASPIRE_INSTANCE_ID") ?? "default"
         };

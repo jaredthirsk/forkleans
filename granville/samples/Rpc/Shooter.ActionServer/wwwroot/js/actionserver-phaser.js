@@ -437,9 +437,35 @@ window.addEventListener('load', async () => {
     
     // Load initial configuration
     try {
-        const response = await fetch('/api/phaser/config');
+        // Check if we have a target zone from the URL
+        const targetZone = window.phaserViewConfig?.targetZone;
+        let configUrl = '/api/phaser/config';
+        
+        if (targetZone) {
+            configUrl += `?x=${targetZone.x}&y=${targetZone.y}`;
+        }
+        
+        const response = await fetch(configUrl);
         const config = await response.json();
-        document.getElementById('instanceInfo').textContent = config.serverInstanceId;
+        
+        // Update UI to show the target zone instead of assigned zone if viewing a specific zone
+        const displayZone = config.TargetZone || config.AssignedZone;
+        if (displayZone) {
+            document.getElementById('zoneInfo').textContent = `(${displayZone.X || displayZone.x}, ${displayZone.Y || displayZone.y})`;
+        } else {
+            document.getElementById('zoneInfo').textContent = 'Zone: Unknown';
+            console.warn('No zone information received from server:', config);
+        }
+        document.getElementById('instanceInfo').textContent = config.ServerInstanceId || 'Unknown';
+        
+        // Store the full config for later use
+        serverConfig = config;
+        currentZone = displayZone;
+        
+        console.log("Server config received:", config);
+        if (targetZone) {
+            console.log(`Viewing zone (${targetZone.x}, ${targetZone.y}) - may be different from server's assigned zone`);
+        }
     } catch (err) {
         console.error("Failed to load config:", err);
     }
