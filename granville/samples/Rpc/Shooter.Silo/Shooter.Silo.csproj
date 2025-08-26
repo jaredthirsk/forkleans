@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
 
     <!-- Granville Orleans packages only - no Microsoft Orleans references to avoid conflicts -->
     <PackageReference Include="Granville.Orleans.Sdk" />
@@ -26,12 +27,13 @@
     <PackageReference Include="Microsoft.Orleans.Serialization" />
     <PackageReference Include="Microsoft.Orleans.Serialization.Abstractions" />
     <PackageReference Include="Microsoft.Orleans.Runtime" />
+    <PackageReference Include="Microsoft.Orleans.Reminders" />
     <!-- Explicit references to force shim versions for transitive dependencies -->
     <PackageReference Include="Microsoft.Orleans.Analyzers" />
     <PackageReference Include="Microsoft.Orleans.CodeGenerator" />
 
-    <!-- UFX.Orleans.SignalRBackplane disabled due to Orleans 8.x dependency conflicts -->
-    <!-- <PackageReference Include="UFX.Orleans.SignalRBackplane" /> -->
+    <!-- UFX.Orleans.SignalRBackplane now enabled with shim packages -->
+    <PackageReference Include="UFX.Orleans.SignalRBackplane" />
     
     <!-- Orleans Dashboard disabled due to Orleans version conflicts -->
     <!-- <PackageReference Include="OrleansDashboard" /> -->

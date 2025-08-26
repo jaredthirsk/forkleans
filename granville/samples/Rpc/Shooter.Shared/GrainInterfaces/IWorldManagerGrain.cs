@@ -31,4 +31,12 @@ public interface IWorldManagerGrain : Orleans.IGrainWithIntegerKey
     // ActionServer monitoring
     Task UpdateActionServerStatus(ActionServerStatus status);
     Task<List<ActionServerStatus>> GetActionServerStatuses();
+    Task UpdateActionServerHeartbeat(string serverId);
+    
+    // Player information for scoreboard
+    Task<List<PlayerInfo>> GetAllPlayers();
+    
+    // Zone management
+    Task<GridSquare> RequestNewZone();
+    Task<bool> RemoveLastZone();
 }

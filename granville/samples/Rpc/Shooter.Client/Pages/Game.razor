@@ -752,27 +752,27 @@
         Navigation.NavigateTo("/");
     }
     
-    private async Task HandleMove(Vector2 direction)
+    private void HandleMove(Vector2 direction)
     {
         _currentMoveDirection = direction * _currentSpeed * 100; // Scale movement speed appropriately
         _isMoving = direction.Length() > 0;
-        await UpdatePlayerInput();
+        UpdatePlayerInput();
     }
     
-    private async Task HandleShoot(bool isShooting)
+    private void HandleShoot(bool isShooting)
     {
         _currentIsShooting = isShooting;
-        await UpdatePlayerInput();
+        UpdatePlayerInput();
     }
     
-    private async Task HandleSpeedChange(float speed)
+    private void HandleSpeedChange(float speed)
     {
         _currentSpeed = speed;
         // Update movement with new speed
         if (_currentMoveDirection.Length() > 0)
         {
             _currentMoveDirection = _currentMoveDirection.Normalized() * _currentSpeed;
-            await UpdatePlayerInput();
+            UpdatePlayerInput();
         }
     }
     
@@ -865,17 +865,17 @@
                             var distance = player.Position.DistanceTo(nearestTarget.Position);
                             if (distance > 150f) // Keep some distance
                             {
-                                await HandleMove(direction);
+                                HandleMove(direction);
                             }
                             else if (distance < 80f) // Too close, back away
                             {
-                                await HandleMove(direction * -1f);
+                                HandleMove(direction * -1f);
                             }
                             else
                             {
                                 // Strafe around the target
                                 var strafeDir = new Vector2(-direction.Y, direction.X);
-                                await HandleMove(strafeDir);
+                                HandleMove(strafeDir);
                             }
                         }
                         else
@@ -888,14 +888,14 @@
                                 var targetZone = zonesWithEnemies.OrderBy(z => 
                                     player.Position.DistanceTo(z.GetCenter())).First();
                                 var direction = (targetZone.GetCenter() - player.Position).Normalized();
-                                await HandleMove(direction);
+                                HandleMove(direction);
                             }
                             else
                             {
                                 // No enemies anywhere, move randomly
                                 var randomAngle = Random.Shared.NextSingle() * MathF.PI * 2;
                                 var randomDir = new Vector2(MathF.Cos(randomAngle), MathF.Sin(randomAngle));
-                                await HandleMove(randomDir);
+                                HandleMove(randomDir);
                             }
                         }
                     }
@@ -911,7 +911,7 @@
         finally
         {
             // Stop moving when auto-pilot is disabled
-            await HandleMove(Vector2.Zero);
+            HandleMove(Vector2.Zero);
         }
     }
     
@@ -976,9 +976,9 @@
                                 _shootDirection = shootDir;
                                 
                                 // Shoot burst
-                                await HandleShoot(true);
+                                HandleShoot(true);
                                 await Task.Delay(200, token); // Shoot for 200ms
-                                await HandleShoot(false);
+                                HandleShoot(false);
                                 await Task.Delay(300, token); // Wait 300ms before next burst
                             }
                         }
@@ -995,7 +995,7 @@
         finally
         {
             // Stop shooting when auto-shoot is disabled
-            await HandleShoot(false);
+            HandleShoot(false);
         }
     }
     
@@ -1193,7 +1193,7 @@
         }
     }
     
-    private async Task HandleMouseClick((float x, float y) position)
+    private void HandleMouseClick((float x, float y) position)
     {
         if (!_isConnected || _currentWorldState == null) return;
         
@@ -1203,10 +1203,10 @@
         _shootDirection = new Vector2(position.x - centerX, position.y - centerY).Normalized();
         
         _currentIsShooting = true;
-        await UpdatePlayerInput();
+        UpdatePlayerInput();
     }
     
-    private async Task HandleMouseRightClick((float x, float y) position)
+    private void HandleMouseRightClick((float x, float y) position)
     {
         if (!_isConnected || _currentWorldState == null) return;
         
@@ -1216,18 +1216,18 @@
         var direction = new Vector2(position.x - centerX, position.y - centerY).Normalized();
         
         _currentMoveDirection = direction * _currentSpeed * 40; // Scale movement speed to 40% of normal
-        await UpdatePlayerInput();
+        UpdatePlayerInput();
     }
     
-    private async Task HandleMouseRelease()
+    private void HandleMouseRelease()
     {
         if (!_isConnected) return;
         
         _currentIsShooting = false;
-        await UpdatePlayerInput();
+        UpdatePlayerInput();
     }
     
-    private async Task UpdatePlayerInput()
+    private void UpdatePlayerInput()
     {
         if (!_isConnected) return;
         
@@ -1235,7 +1235,7 @@
         Vector2? moveDir = _currentMoveDirection.Length() > 0 ? _currentMoveDirection : null;
         Vector2? shootDir = _currentIsShooting && _shootDirection.Length() > 0 ? _shootDirection : null;
         
-        await RpcGameClient.SendPlayerInputEx(moveDir, shootDir);
+        RpcGameClient.SendPlayerInputEx(moveDir, shootDir);
     }
     
     private void ToggleRenderer()

@@ -53,7 +53,7 @@ namespace Granville.Rpc
                 throw new InvalidOperationException($"Stream {streamId} already exists");
             }
 
-            _logger.LogDebug("Created async enumerable operation {StreamId} for type {Type}", streamId, typeof(T).Name);
+            _logger.LogTrace("Created async enumerable operation {StreamId} for type {Type}", streamId, typeof(T).Name);
 
             // Register cancellation
             cancellationToken.Register(() => CancelStream(streamId));
@@ -86,7 +86,7 @@ namespace Granville.Rpc
                     else
                     {
                         // Stream completed successfully
-                        _logger.LogDebug("Stream {StreamId} completed", item.StreamId);
+                        _logger.LogTrace("Stream {StreamId} completed", item.StreamId);
                         await operation.Complete();
                     }
                     
@@ -118,7 +118,7 @@ namespace Granville.Rpc
         {
             if (_activeOperations.TryRemove(streamId, out var operation))
             {
-                _logger.LogDebug("Cancelling stream {StreamId}", streamId);
+                _logger.LogTrace("Cancelling stream {StreamId}", streamId);
                 operation.Cancel();
             }
         }

@@ -76,7 +76,7 @@ namespace Granville.Rpc
             _transportOptions = transportOptions?.Value ?? throw new ArgumentNullException(nameof(transportOptions));
             _transportFactory = transportFactory ?? throw new ArgumentNullException(nameof(transportFactory));
             
-            _logger.LogInformation("OutsideRpcClient constructor called. ClientId: {ClientId}, Endpoints: {EndpointCount}", 
+            _logger.LogTrace("OutsideRpcClient constructor called. ClientId: {ClientId}, Endpoints: {EndpointCount}", 
                 _clientOptions.ClientId, _clientOptions.ServerEndpoints.Count);
             _connectionManager = new RpcConnectionManager(loggerFactory.CreateLogger<RpcConnectionManager>());
             _sessionFactory = sessionFactory ?? throw new ArgumentNullException(nameof(sessionFactory));
@@ -85,7 +85,7 @@ namespace Granville.Rpc
             _sessionPool = serviceProvider.GetRequiredService<SerializerSessionPool>();
             _asyncEnumerableManager = new RpcAsyncEnumerableManager(loggerFactory.CreateLogger<RpcAsyncEnumerableManager>(), _serializer);
             
-            _logger.LogDebug("OutsideRpcClient constructor completed");
+            _logger.LogTrace("OutsideRpcClient constructor completed");
         }
 
         /// <summary>
@@ -103,14 +103,14 @@ namespace Granville.Rpc
                 
                 try
                 {
-                    _logger.LogDebug("ConsumeServices called");
+                    _logger.LogTrace("ConsumeServices called");
                     
                     // Note: We delay the actual service resolution to avoid circular dependencies during startup
                     // The services will be resolved on first use instead
-                    _logger.LogDebug("ConsumeServices marking as consumed without resolving services (lazy initialization)");
+                    _logger.LogTrace("ConsumeServices marking as consumed without resolving services (lazy initialization)");
                     
                     _servicesConsumed = true;
-                    _logger.LogInformation("ConsumeServices completed (services will be resolved on first use)");
+                    _logger.LogTrace("ConsumeServices completed (services will be resolved on first use)");
                 }
                 catch (Exception ex)
                 {
@@ -131,27 +131,27 @@ namespace Granville.Rpc
                 
                 try
                 {
-                    _logger.LogDebug("EnsureServicesResolved: Resolving services on first use");
+                    _logger.LogTrace("EnsureServicesResolved: Resolving services on first use");
                     
                     if (_manifestProvider == null)
                     {
-                        _logger.LogDebug("Attempting to resolve IClusterManifestProvider with key 'rpc'");
+                        _logger.LogTrace("Attempting to resolve IClusterManifestProvider with key 'rpc'");
                         _manifestProvider = ServiceProvider.GetRequiredKeyedService<IClusterManifestProvider>("rpc");
-                        _logger.LogDebug("Successfully resolved IClusterManifestProvider: {Type}", _manifestProvider?.GetType().FullName ?? "null");
+                        _logger.LogTrace("Successfully resolved IClusterManifestProvider: {Type}", _manifestProvider?.GetType().FullName ?? "null");
                     }
                     
                     if (_internalGrainFactory == null)
                     {
-                        _logger.LogDebug("Attempting to resolve IGrainFactory with key 'rpc'");
+                        _logger.LogTrace("Attempting to resolve IGrainFactory with key 'rpc'");
                         _internalGrainFactory = ServiceProvider.GetRequiredKeyedService<IGrainFactory>("rpc") as IInternalGrainFactory;
-                        _logger.LogDebug("Successfully resolved IGrainFactory: {Type}", _internalGrainFactory?.GetType().FullName ?? "null");
+                        _logger.LogTrace("Successfully resolved IGrainFactory: {Type}", _internalGrainFactory?.GetType().FullName ?? "null");
                     }
                     
                     if (_zoneDetectionStrategy == null)
                     {
-                        _logger.LogDebug("Attempting to resolve IZoneDetectionStrategy");
+                        _logger.LogTrace("Attempting to resolve IZoneDetectionStrategy");
                         _zoneDetectionStrategy = ServiceProvider.GetService<IZoneDetectionStrategy>();
-                        _logger.LogDebug("Resolved IZoneDetectionStrategy: {Type}", _zoneDetectionStrategy?.GetType().FullName ?? "null");
+                        _logger.LogTrace("Resolved IZoneDetectionStrategy: {Type}", _zoneDetectionStrategy?.GetType().FullName ?? "null");
                         
                         // Set zone detection strategy if available
                         if (_zoneDetectionStrategy != null)
@@ -178,7 +178,7 @@ namespace Granville.Rpc
             {
                 // Note: We don't call ConsumeServices here anymore to avoid potential deadlocks
                 // during IHostedService startup. Services will be resolved on first use instead.
-                _logger.LogDebug("StartAsync: Marking services as consumed for lazy initialization");
+                _logger.LogTrace("StartAsync: Marking services as consumed for lazy initialization");
                 lock (_servicesLock)
                 {
                     _servicesConsumed = true;
@@ -276,26 +276,26 @@ namespace Granville.Rpc
             connection.ConnectionClosed += OnConnectionClosed;
             
             // Track the transport BEFORE connecting so event handlers are ready
-            _logger.LogDebug("RPC Client: Tracking transport for {ServerId} before connection", serverId);
+            _logger.LogTrace("RPC Client: Tracking transport for {ServerId} before connection", serverId);
             _transports[serverId] = transport;
             
             // Add to connection manager BEFORE connecting so it's ready to handle events
-            _logger.LogDebug("RPC Client: Adding connection to manager for {ServerId} before connection", serverId);
+            _logger.LogTrace("RPC Client: Adding connection to manager for {ServerId} before connection", serverId);
             await _connectionManager.AddConnectionAsync(serverId, connection);
             
             try
             {
                 // Connect to the server - now all event handlers are ready
-                _logger.LogDebug("RPC Client: About to call transport.ConnectAsync for {ServerId} at {Endpoint}", serverId, endpoint);
+                _logger.LogTrace("RPC Client: About to call transport.ConnectAsync for {ServerId} at {Endpoint}", serverId, endpoint);
                 await transport.ConnectAsync(endpoint, cancellationToken);
-                _logger.LogDebug("RPC Client: transport.ConnectAsync completed successfully for {ServerId}", serverId);
+                _logger.LogTrace("RPC Client: transport.ConnectAsync completed successfully for {ServerId}", serverId);
                 
                 stopwatch.Stop();
                 
                 // Send handshake
-                _logger.LogDebug("RPC Client: About to send handshake to {ServerId}", serverId);
+                _logger.LogTrace("RPC Client: About to send handshake to {ServerId}", serverId);
                 await SendHandshake(connection);
-                _logger.LogDebug("RPC Client: Handshake sent successfully to {ServerId}", serverId);
+                _logger.LogTrace("RPC Client: Handshake sent successfully to {ServerId}", serverId);
                 
                 _logger.LogInformation("Successfully connected to RPC server {ServerId}", serverId);
                 
@@ -344,7 +344,7 @@ namespace Granville.Rpc
         private void EnsureConnected()
         {
             var connectionCount = _connectionManager?.GetAllConnections().Count ?? 0;
-            _logger.LogDebug("EnsureConnected called, connection count = {ConnectionCount}", connectionCount);
+            _logger.LogTrace("EnsureConnected called, connection count = {ConnectionCount}", connectionCount);
             if (connectionCount == 0)
             {
                 throw new InvalidOperationException("RPC client is not connected to any servers");
@@ -357,13 +357,13 @@ namespace Granville.Rpc
         {
             try
             {
-                _logger.LogDebug("RPC Client OnDataReceived: Received {ByteCount} bytes from {Endpoint}, ConnectionId: {ConnectionId}", 
+                _logger.LogTrace("RPC Client OnDataReceived: Received {ByteCount} bytes from {Endpoint}, ConnectionId: {ConnectionId}", 
                     e.Data.Length, e.RemoteEndPoint, e.ConnectionId);
                 
                 // Deserialize the message
                 var messageSerializer = _serviceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
                 var message = messageSerializer.DeserializeMessage(e.Data);
-                _logger.LogDebug("RPC Client OnDataReceived: Deserialized message type: {MessageType}", message.GetType().Name);
+                _logger.LogTrace("RPC Client OnDataReceived: Deserialized message type: {MessageType}", message.GetType().Name);
 
                 // Handle different message types
                 switch (message)
@@ -453,7 +453,7 @@ namespace Granville.Rpc
 
         private void HandleResponse(Protocol.RpcResponse response)
         {
-            _logger.LogDebug("RPC Client HandleResponse: Received response for request {RequestId}, Success: {Success}, ErrorMessage: {ErrorMessage}", 
+            _logger.LogTrace("RPC Client HandleResponse: Received response for request {RequestId}, Success: {Success}, ErrorMessage: {ErrorMessage}", 
                 response.RequestId, response.Success, response.ErrorMessage);
                 
             if (_pendingRequests.TryRemove(response.RequestId, out var tcs))
@@ -476,7 +476,7 @@ namespace Granville.Rpc
 
         private Task SendHandshake(RpcConnection connection)
         {
-            _logger.LogDebug("RPC Client SendHandshake: Creating handshake message for {ServerId}", connection.ServerId);
+            _logger.LogTrace("RPC Client SendHandshake: Creating handshake message for {ServerId}", connection.ServerId);
             var handshake = new Protocol.RpcHandshake
             {
                 ClientId = _clientOptions.ClientId,
@@ -484,16 +484,16 @@ namespace Granville.Rpc
                 Features = new[] { "basic-rpc" }
             };
 
-            _logger.LogDebug("RPC Client SendHandshake: Getting message serializer");
+            _logger.LogTrace("RPC Client SendHandshake: Getting message serializer");
             var messageSerializer = _serviceProvider.GetRequiredService<Protocol.RpcMessageSerializer>();
-            _logger.LogDebug("RPC Client SendHandshake: Serializing handshake message");
+            _logger.LogTrace("RPC Client SendHandshake: Serializing handshake message");
             var data = messageSerializer.SerializeMessage(handshake);
-            _logger.LogDebug("RPC Client SendHandshake: Handshake serialized to {ByteCount} bytes", data.Length);
+            _logger.LogTrace("RPC Client SendHandshake: Handshake serialized to {ByteCount} bytes", data.Length);
             
             _logger.LogInformation("Sent handshake to server {ServerId}", connection.ServerId);
-            _logger.LogDebug("RPC Client SendHandshake: About to call connection.SendAsync");
+            _logger.LogTrace("RPC Client SendHandshake: About to call connection.SendAsync");
             var sendTask = connection.SendAsync(data, CancellationToken.None);
-            _logger.LogDebug("RPC Client SendHandshake: connection.SendAsync call initiated");
+            _logger.LogTrace("RPC Client SendHandshake: connection.SendAsync call initiated");
             return sendTask;
         }
 
@@ -576,7 +576,7 @@ namespace Granville.Rpc
                 
                 RpcClientTelemetry.MessageSize.Record(data.Length, new KeyValuePair<string, object?>("direction", "outbound"));
                 
-                _logger.LogInformation("RPC Client: Sending request {MessageId} to server {ServerId}, data size: {DataSize} bytes", 
+                _logger.LogTrace("RPC Client: Sending request {MessageId} to server {ServerId}, data size: {DataSize} bytes", 
                     request.MessageId, connection.ServerId, data.Length);
                     
                 RpcClientTelemetry.RequestsSent.Add(1,
@@ -601,7 +601,7 @@ namespace Granville.Rpc
             {
                 stopwatch.Stop();
                 _pendingRequests.TryRemove(request.MessageId, out _);
-                _logger.LogError("Request {MessageId} timed out after {TimeoutMs}ms", request.MessageId, request.TimeoutMs);
+                _logger.LogTrace("Request {MessageId} timed out after {TimeoutMs}ms", request.MessageId, request.TimeoutMs);
                 
                 RpcClientTelemetry.RecordRequest("unknown", request.MethodId.ToString(), stopwatch.Elapsed.TotalMilliseconds, false, true);
                 
@@ -691,7 +691,7 @@ namespace Granville.Rpc
             catch (OperationCanceledException)
             {
                 _pendingRequests.TryRemove(messageId, out _);
-                _logger.LogError("Message {MessageId} timed out", messageId);
+                _logger.LogTrace("Message {MessageId} timed out", messageId);
                 throw new TimeoutException($"RPC message {messageId} timed out");
             }
             catch (Exception ex)
@@ -845,7 +845,7 @@ namespace Granville.Rpc
             if (interfaceToTypeResolver.TryGetGrainType(interfaceType, out var resolvedGrainType))
             {
                 grainType = resolvedGrainType;
-                _logger.LogInformation("Successfully resolved grain type {GrainType} for interface {InterfaceType}", grainType, interfaceType);
+                _logger.LogTrace("Successfully resolved grain type {GrainType} for interface {InterfaceType}", grainType, interfaceType);
             }
             else
             {
@@ -874,7 +874,7 @@ namespace Granville.Rpc
                                     if (implementedInterface == interfaceType.ToString())
                                     {
                                         grainType = grain.Key;
-                                        _logger.LogInformation("Found grain type {GrainType} in manifest for interface {InterfaceType}", grainType, interfaceType);
+                                        _logger.LogTrace("Found grain type {GrainType} in manifest for interface {InterfaceType}", grainType, interfaceType);
                                         goto foundInManifest;
                                     }
                                 }
@@ -891,7 +891,7 @@ namespace Granville.Rpc
                 foundInManifest:;
             }
             
-            _logger.LogInformation("Creating GrainId with grainType={GrainType}, grainKey={GrainKey}", grainType, grainKey);
+            _logger.LogTrace("Creating GrainId with grainType={GrainType}, grainKey={GrainKey}", grainType, grainKey);
             var grainId = GrainId.Create(grainType, IdSpan.Create(grainKey));
 
             var request = new Protocol.RpcRequest

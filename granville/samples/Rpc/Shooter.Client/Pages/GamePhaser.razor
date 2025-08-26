@@ -205,13 +205,13 @@
                 
                 // Start auto features timer (automove and autoshoot)
                 _autoMoveTimer = new System.Timers.Timer(100); // 100ms update rate
-                _autoMoveTimer.Elapsed += async (sender, e) => 
+                _autoMoveTimer.Elapsed += (sender, e) => 
                 {
                     try 
                     {
                         if (!_disposeCts.Token.IsCancellationRequested)
                         {
-                            await UpdateAutoFeatures();
+                            UpdateAutoFeatures();
                         }
                     }
                     catch (ObjectDisposedException)
@@ -389,7 +389,7 @@
     }
 
     [JSInvokable]
-    public async Task OnMovementInput(float x, float y)
+    public void OnMovementInput(float x, float y)
     {
         try
         {
@@ -401,7 +401,7 @@
             }
             
             var moveDir = new Vector2(x, y).Length() > 0 ? new Vector2(x, y) : (Vector2?)null;
-            await RpcGameClient.SendPlayerInputEx(moveDir, null);
+            RpcGameClient.SendPlayerInputEx(moveDir, null);
         }
         catch (Exception ex)
         {
@@ -410,7 +410,7 @@
     }
 
     [JSInvokable]
-    public async Task OnShootInput(float x, float y)
+    public void OnShootInput(float x, float y)
     {
         try
         {
@@ -421,7 +421,7 @@
                 return;
             }
             
-            await RpcGameClient.SendPlayerInputEx(null, new Vector2(x, y));
+            RpcGameClient.SendPlayerInputEx(null, new Vector2(x, y));
         }
         catch (Exception ex)
         {
@@ -529,7 +529,7 @@
         StateHasChanged();
     }
 
-    private async Task UpdateAutoFeatures()
+    private void UpdateAutoFeatures()
     {
         if (_lastWorldState == null || !RpcGameClient.IsConnected || _victoryPauseActive)
         {
@@ -579,7 +579,7 @@
             // Only send input if we have something to send
             if (moveDirection.HasValue || shootDirection.HasValue)
             {
-                await RpcGameClient.SendPlayerInputEx(moveDirection, shootDirection);
+                RpcGameClient.SendPlayerInputEx(moveDirection, shootDirection);
             }
         }
         catch (Exception ex)

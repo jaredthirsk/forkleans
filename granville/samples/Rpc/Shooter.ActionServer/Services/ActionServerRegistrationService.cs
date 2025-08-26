@@ -82,7 +82,7 @@ public class ActionServerRegistrationService : BackgroundService
             var rpcPort = _rpcPortProvider.Port;
             
             var httpEndpoint = $"http://{advertisedHost}:{httpPort}";
-            var webUrl = actualAddress; // Use the actual listening address
+            var webUrl = $"http://{advertisedHost}:{httpPort}"; // Use the same logic as httpEndpoint
             var hasPhaserView = _phaserConfig.IsEnabled;
             
             _logger.LogInformation("Registering ActionServer {ServerId} with Silo - HTTP endpoint: {HttpEndpoint}, Web URL: {WebUrl}, RPC port: {RpcPort}, Phaser view: {HasPhaserView}", 
@@ -110,8 +110,16 @@ public class ActionServerRegistrationService : BackgroundService
             {
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
                 
-                // In a production system, you might want to re-register periodically
-                // to handle cases where the silo was restarted
+                try
+                {
+                    // Send heartbeat to WorldManager
+                    await worldManager.UpdateActionServerHeartbeat(_serverId);
+                    _logger.LogDebug("Sent heartbeat for ActionServer {ServerId}", _serverId);
+                }
+                catch (Exception heartbeatEx)
+                {
+                    _logger.LogWarning(heartbeatEx, "Failed to send heartbeat for ActionServer {ServerId}", _serverId);
+                }
             }
         }
         catch (Exception ex)

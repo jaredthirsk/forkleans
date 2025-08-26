@@ -278,7 +278,7 @@ public class BotService : BackgroundService
         }
         
         // Send input to server
-        await _gameClient.SendPlayerInputEx(moveDirection, shootDirection);
+        _gameClient.SendPlayerInputEx(moveDirection, shootDirection);
         
         // Log mode changes
         var currentMode = _autoMoveController.CurrentMode;

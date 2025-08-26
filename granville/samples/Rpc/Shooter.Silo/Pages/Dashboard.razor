@@ -1,8 +1,12 @@
 @page "/"
 @using Microsoft.AspNetCore.SignalR
 @using System.Timers
+@using System.Net.Http.Json
+@using Shooter.Shared.GrainInterfaces
+@using Shooter.Shared.Models
 @inject Orleans.IGrainFactory GrainFactory
 @inject IJSRuntime JS
+@inject IHttpClientFactory HttpClientFactory
 @implements IAsyncDisposable
 
 <PageTitle>Shooter Silo Dashboard</PageTitle>
@@ -18,44 +22,47 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-8">
+                    <div class="col-md-5">
                         <WorldMinimap ActionServers="_actionServers" />
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="row">
-                            <div class="col-6 mb-3">
+                            <div class="col-12 mb-3">
                                 <div class="card bg-primary">
                                     <div class="card-body text-center">
-                                        <h5 class="card-title">Active Zones</h5>
-                                        <h2 class="mb-0">@_actionServers.Count</h2>
+                                        <h6 class="card-title mb-1">Active Zones</h6>
+                                        <h3 class="mb-0">@_actionServers.Count</h3>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6 mb-3">
+                            <div class="col-12 mb-3">
                                 <div class="card bg-success">
                                     <div class="card-body text-center">
-                                        <h5 class="card-title">Total Players</h5>
-                                        <h2 class="mb-0">@_totalPlayers</h2>
+                                        <h6 class="card-title mb-1">Total Players</h6>
+                                        <h3 class="mb-0">@_totalPlayers</h3>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6 mb-3">
+                            <div class="col-12 mb-3">
                                 <div class="card bg-warning text-dark">
                                     <div class="card-body text-center">
-                                        <h5 class="card-title">Enemies</h5>
-                                        <h2 class="mb-0">@_totalEnemies</h2>
+                                        <h6 class="card-title mb-1">Enemies</h6>
+                                        <h3 class="mb-0">@_totalEnemies</h3>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6 mb-3">
+                            <div class="col-12 mb-3">
                                 <div class="card bg-info text-dark">
                                     <div class="card-body text-center">
-                                        <h5 class="card-title">Factories</h5>
-                                        <h2 class="mb-0">@_totalFactories</h2>
+                                        <h6 class="card-title mb-1">Factories</h6>
+                                        <h3 class="mb-0">@_totalFactories</h3>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-md-4">
+                        <ChatBox />
                     </div>
                 </div>
             </div>
@@ -66,8 +73,17 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">🖥️ Action Servers</h4>
+                <div class="zone-controls">
+                    <button class="btn btn-sm btn-success me-2" @onclick="AddZone" title="Add new zone">
+                        <i class="bi bi-plus-circle"></i> Add Zone
+                    </button>
+                    <button class="btn btn-sm btn-danger" @onclick="RemoveZone" 
+                            disabled="@(!_actionServers.Any())" title="Remove last zone">
+                        <i class="bi bi-dash-circle"></i> Remove Zone
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 @if (_actionServers.Any())
@@ -79,7 +95,7 @@
                                     <th>Zone</th>
                                     <th>Server ID</th>
                                     <th>Status</th>
-                                    <th>Phaser View</th>
+                                    <th>Debug View</th>
                                     <th>RPC Port</th>
                                     <th>Last Seen</th>
                                     <th>Actions</th>
@@ -121,7 +137,7 @@
                                             <small>@GetTimeAgoString(server.LastHeartbeat)</small>
                                         </td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-info" @onclick="() => ViewServerDetails(server)">
+                                            <button class="btn btn-sm btn-outline-info" @onclick="() => ViewServerDetails(server)" data-bs-toggle="modal" data-bs-target="#serverDetailsModal">
                                                 Details
                                             </button>
                                         </td>
@@ -142,16 +158,228 @@
     </div>
 </div>
 
+<!-- Server Details Modal -->
+<div class="modal fade" id="serverDetailsModal" tabindex="-1" aria-labelledby="serverDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title" id="serverDetailsModalLabel">
+                    ActionServer Details
+                    @if (_selectedServer != null)
+                    {
+                        <small class="text-muted ms-2">(@_selectedServer.AssignedSquare.X, @_selectedServer.AssignedSquare.Y)</small>
+                    }
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (_selectedServer != null)
+                {
+                    var serverStatus = _serverStatuses.FirstOrDefault(s => s.ServerId == _selectedServer.ServerId);
+                    var timeSinceLastSeen = DateTime.UtcNow - _selectedServer.LastHeartbeat;
+                    var isOnline = timeSinceLastSeen < TimeSpan.FromMinutes(2);
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-3">🖥️ Server Information</h6>
+                            <dl class="row">
+                                <dt class="col-sm-4">Server ID:</dt>
+                                <dd class="col-sm-8"><code>@_selectedServer.ServerId</code></dd>
+                                
+                                <dt class="col-sm-4">Zone:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-secondary">(@_selectedServer.AssignedSquare.X, @_selectedServer.AssignedSquare.Y)</span>
+                                </dd>
+                                
+                                <dt class="col-sm-4">Status:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge @(isOnline ? "bg-success" : "bg-danger")">
+                                        @(isOnline ? "Online" : "Offline")
+                                    </span>
+                                </dd>
+                                
+                                <dt class="col-sm-4">IP Address:</dt>
+                                <dd class="col-sm-8">@_selectedServer.IpAddress</dd>
+                                
+                                <dt class="col-sm-4">HTTP Endpoint:</dt>
+                                <dd class="col-sm-8">
+                                    <a href="@_selectedServer.HttpEndpoint" target="_blank" class="text-info">@_selectedServer.HttpEndpoint</a>
+                                </dd>
+                                
+                                <dt class="col-sm-4">RPC Port:</dt>
+                                <dd class="col-sm-8">@_selectedServer.RpcPort</dd>
+                                
+                                <dt class="col-sm-4">Registered:</dt>
+                                <dd class="col-sm-8">@_selectedServer.RegisteredAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                                
+                                <dt class="col-sm-4">Last Heartbeat:</dt>
+                                <dd class="col-sm-8">@GetTimeAgoString(_selectedServer.LastHeartbeat)</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-3">📊 Live Statistics</h6>
+                            @if (serverStatus != null)
+                            {
+                                <dl class="row">
+                                    <dt class="col-sm-4">Total Entities:</dt>
+                                    <dd class="col-sm-8"><strong>@serverStatus.EntityCount</strong></dd>
+                                    
+                                    <dt class="col-sm-4">Players:</dt>
+                                    <dd class="col-sm-8">
+                                        <span class="badge bg-success">@serverStatus.PlayerCount</span>
+                                    </dd>
+                                    
+                                    <dt class="col-sm-4">Enemies:</dt>
+                                    <dd class="col-sm-8">
+                                        <span class="badge bg-warning text-dark">@serverStatus.EnemyCount</span>
+                                    </dd>
+                                    
+                                    <dt class="col-sm-4">Factories:</dt>
+                                    <dd class="col-sm-8">
+                                        <span class="badge bg-info text-dark">@serverStatus.FactoryCount</span>
+                                    </dd>
+                                    
+                                    <dt class="col-sm-4">FPS:</dt>
+                                    <dd class="col-sm-8">@serverStatus.ServerFps.ToString("F1")</dd>
+                                    
+                                    <dt class="col-sm-4">Memory:</dt>
+                                    <dd class="col-sm-8">@(serverStatus.MemoryUsage / (1024 * 1024)).ToString("F1") MB</dd>
+                                    
+                                    <dt class="col-sm-4">Last Updated:</dt>
+                                    <dd class="col-sm-8">@GetTimeAgoString(serverStatus.LastUpdate)</dd>
+                                </dl>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No statistics available</p>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="mb-3">🎮 Actions</h6>
+                            <div class="d-flex gap-2 flex-wrap">
+                                @if (_selectedServer.HasPhaserView && !string.IsNullOrEmpty(_selectedServer.WebUrl))
+                                {
+                                    <a href="@GetPhaserUrl(_selectedServer.WebUrl)" target="_blank" class="btn btn-primary">
+                                        🎮 Open Debug View
+                                    </a>
+                                }
+                                <a href="@(_selectedServer.HttpEndpoint + "/status")" target="_blank" class="btn btn-outline-info">
+                                    📊 Status Endpoint
+                                </a>
+                                <a href="@(_selectedServer.HttpEndpoint + "/health")" target="_blank" class="btn btn-outline-success">
+                                    ❤️ Health Check
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No server selected</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silos Section -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">🌐 Silos</h4>
+                <div class="silo-controls">
+                    <button class="btn btn-sm btn-success me-2" @onclick="AddSilo" title="Add new silo">
+                        <i class="bi bi-plus-circle"></i> Add Silo
+                    </button>
+                    <button class="btn btn-sm btn-danger" @onclick="RemoveSilo" 
+                            disabled="@(!_silos.Any())" title="Remove silo">
+                        <i class="bi bi-dash-circle"></i> Remove Silo
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (_silos.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Silo ID</th>
+                                    <th>Address</th>
+                                    <th>Status</th>
+                                    <th>Uptime</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var silo in _silos.OrderBy(s => s.SiloId))
+                                {
+                                    var isOnline = DateTime.UtcNow - silo.LastHeartbeat < TimeSpan.FromMinutes(5);
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary">@silo.SiloId</span>
+                                            @if (silo.IsPrimary)
+                                            {
+                                                <small class="text-warning ms-1">👑 Primary</small>
+                                            }
+                                        </td>
+                                        <td>@silo.IpAddress:@silo.HttpsPort</td>
+                                        <td>
+                                            <span class="badge @(isOnline ? "bg-success" : "bg-danger")">
+                                                @(isOnline ? "Online" : "Offline")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <small>@GetTimeAgoString(silo.LastHeartbeat)</small>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No silos registered</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scoreboard Section -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">🏆 Scoreboard</h4>
+            </div>
+            <div class="card-body">
+                <Scoreboard />
+            </div>
+        </div>
+    </div>
+</div>
+
 @code {
     private List<ActionServerInfo> _actionServers = new();
     private List<ActionServerStatus> _serverStatuses = new();
+    private List<SiloInfo> _silos = new();
     private Timer? _refreshTimer;
     private int _totalPlayers = 0;
     private int _totalEnemies = 0;
     private int _totalFactories = 0;
+    private ActionServerInfo? _selectedServer = null;
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine("Dashboard OnInitializedAsync: Starting initial data refresh");
         await RefreshData();
         
         // Set up periodic refresh
@@ -168,6 +396,7 @@
             }
         };
         _refreshTimer.Start();
+        Console.WriteLine("Dashboard OnInitializedAsync: Timer started");
     }
 
     private async Task RefreshData()
@@ -177,6 +406,20 @@
             var worldManager = GrainFactory.GetGrain<IWorldManagerGrain>(0);
             _actionServers = await worldManager.GetAllActionServers();
             _serverStatuses = await worldManager.GetActionServerStatuses();
+            
+            // Get silos from registry
+            try
+            {
+                var siloRegistry = GrainFactory.GetGrain<ISiloRegistryGrain>(0);
+                _silos = await siloRegistry.GetActiveSilos();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching silos: {ex.Message}");
+                _silos = new List<SiloInfo>(); // Empty list if registry not available
+            }
+            
+            Console.WriteLine($"Dashboard RefreshData: Found {_actionServers.Count} ActionServers, {_serverStatuses.Count} statuses, {_silos.Count} silos");
             
             // Calculate totals from server statuses
             _totalPlayers = _serverStatuses.Sum(s => s.PlayerCount);
@@ -215,7 +458,142 @@
 
     private void ViewServerDetails(ActionServerInfo server)
     {
-        // TODO: Implement server details modal or navigate to details page
+        _selectedServer = server;
+    }
+    
+    // Zone Management Methods
+    private async Task AddZone()
+    {
+        try
+        {
+            Console.WriteLine("Starting new ActionServer...");
+            
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync("/api/world/action-servers/add", null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var newServer = await response.Content.ReadFromJsonAsync<ActionServerInfo>();
+                Console.WriteLine($"Successfully started ActionServer {newServer?.ServerId[..8]}... for zone ({newServer?.AssignedSquare.X}, {newServer?.AssignedSquare.Y})");
+                
+                // Refresh data to show the new server
+                await RefreshData();
+            }
+            else
+            {
+                var errorText = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Failed to add ActionServer: {response.StatusCode} - {errorText}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error starting ActionServer: {ex.Message}");
+        }
+    }
+    
+    private async Task RemoveZone()
+    {
+        try
+        {
+            if (!_actionServers.Any())
+            {
+                Console.WriteLine("No zones available to remove.");
+                return;
+            }
+            
+            var lastServer = _actionServers.OrderByDescending(s => s.AssignedSquare.Y).ThenByDescending(s => s.AssignedSquare.X).First();
+            
+            Console.WriteLine($"Stopping ActionServer {lastServer.ServerId} for zone ({lastServer.AssignedSquare.X}, {lastServer.AssignedSquare.Y})...");
+            
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync($"/api/world/action-servers/{lastServer.ServerId}/remove", null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Successfully stopped ActionServer {lastServer.ServerId[..8]}... - zone ({lastServer.AssignedSquare.X}, {lastServer.AssignedSquare.Y}) removed");
+                await RefreshData();
+            }
+            else
+            {
+                var errorText = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Failed to remove ActionServer: {response.StatusCode} - {errorText}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error stopping ActionServer: {ex.Message}");
+        }
+    }
+    
+    // Silo Management Methods
+    private async Task AddSilo()
+    {
+        try
+        {
+            Console.WriteLine("Starting new silo...");
+            
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync("/api/world/silos/add", null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var newSilo = await response.Content.ReadFromJsonAsync<SiloInfo>();
+                Console.WriteLine($"Successfully added silo: {newSilo?.SiloId} at {newSilo?.IpAddress}:{newSilo?.HttpsPort}");
+                
+                // Refresh data to show the new silo
+                await RefreshData();
+            }
+            else
+            {
+                var errorText = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Failed to add silo: {response.StatusCode} - {errorText}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding silo: {ex.Message}");
+        }
+    }
+    
+    private async Task RemoveSilo()
+    {
+        try
+        {
+            if (!_silos.Any())
+            {
+                Console.WriteLine("No silos available to remove.");
+                return;
+            }
+            
+            if (_silos.Count <= 1)
+            {
+                Console.WriteLine("Cannot remove the last silo from the cluster.");
+                return;
+            }
+            
+            Console.WriteLine("Removing silo...");
+            
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync("/api/world/silos/remove", null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var resultText = await response.Content.ReadAsStringAsync();
+                Console.WriteLine("Successfully removed silo from cluster.");
+                
+                // Refresh data to reflect the removal
+                await RefreshData();
+            }
+            else
+            {
+                var errorText = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Failed to remove silo: {response.StatusCode} - {errorText}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error removing silo: {ex.Message}");
+        }
     }
 
     public async ValueTask DisposeAsync()

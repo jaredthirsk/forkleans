@@ -89,7 +89,7 @@ namespace Granville.Rpc
             // 1. The transport might be shared between multiple connections
             // 2. The RpcClient manages the transport lifecycle
             // 3. Disposing the transport here causes "ObjectDisposedException" when trying to send subsequent messages
-            _logger.LogDebug("RpcConnection {ServerId} disposed (transport not disposed)", ServerId);
+            _logger.LogTrace("RpcConnection {ServerId} disposed (transport not disposed)", ServerId);
         }
     }
 }

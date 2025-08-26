@@ -77,16 +77,39 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 _logger.LogWarning("[DUPLICATE_PLAYER] Player {PlayerId} ({PlayerName}) already exists in simulation at position {Position} with state {State}, health {Health}, velocity {Velocity}. Request to add rejected.", 
                     playerId, existingEntity.PlayerName, existingEntity.Position, existingEntity.State, existingEntity.Health, existingEntity.Velocity);
                 
-                // If the existing entity is dead or disconnected, remove it first
+                // Check if existing player should be removed to allow reconnection
+                bool shouldRemoveExisting = false;
+                string removalReason = "";
+                
+                // Remove if dead or has no health
                 if (existingEntity.State == EntityStateType.Dead || existingEntity.Health <= 0)
                 {
-                    _logger.LogInformation("[DUPLICATE_PLAYER] Removing dead existing player {PlayerId} to allow re-add", playerId);
+                    shouldRemoveExisting = true;
+                    removalReason = "dead/no health";
+                }
+                // Remove if player hasn't sent input recently (likely a stale connection)
+                else if (_playerInputs.ContainsKey(playerId))
+                {
+                    var input = _playerInputs[playerId];
+                    var timeSinceInput = DateTime.UtcNow - input.LastUpdated;
+                    if (timeSinceInput.TotalSeconds > 10) // More aggressive than the 30s timeout
+                    {
+                        shouldRemoveExisting = true;
+                        removalReason = $"stale connection ({timeSinceInput.TotalSeconds:F1}s since input)";
+                    }
+                }
+                
+                if (shouldRemoveExisting)
+                {
+                    _logger.LogInformation("[DUPLICATE_PLAYER] Removing existing player {PlayerId} ({Reason}) to allow reconnection", 
+                        playerId, removalReason);
                     _entities.TryRemove(playerId, out _);
                     _playerInputs.TryRemove(playerId, out _);
                     // Continue with adding the new player
                 }
                 else
                 {
+                    _logger.LogWarning("[DUPLICATE_PLAYER] Existing player {PlayerId} is still active, rejecting duplicate connection", playerId);
                     return false; // Return false to indicate the player was not added
                 }
             }

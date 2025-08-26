@@ -2,7 +2,7 @@ using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Serialization;
-// using Orleans.Reminders; // Not available in Granville packages
+using Orleans.Reminders;
 using Shooter.Silo;
 using Shooter.Silo.Configuration;
 using Shooter.Silo.Controllers;
@@ -17,8 +17,7 @@ using System.Linq;
 using Orleans.Serialization.Configuration;
 // TODO: Uncomment when Granville.Orleans.Shims package is available
 // using Granville.Orleans.Shims;
-// UFX disabled due to Orleans version conflicts
-// using UFX.Orleans.SignalRBackplane;
+using UFX.Orleans.SignalRBackplane;
 
 // Assembly redirect system disabled - relying on proper shim compilation instead
 // Shooter.Shared.AssemblyRedirectHelper.Initialize();
@@ -81,10 +80,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
+// Add Dashboard Chat Service
+builder.Services.AddSingleton<Shooter.Silo.Services.DashboardChatService>();
+
 builder.Services.AddHealthChecks()
     .AddCheck<Shooter.Silo.HealthChecks.OrleansHealthCheck>("orleans", tags: new[] { "ready" });
 
-// Add SignalR
+// Add SignalR - Orleans backplane will be configured in the silo builder
 builder.Services.AddSignalR();
 
 // Add metrics health check  
@@ -161,10 +163,10 @@ builder.Host.UseOrleans(siloBuilder =>
         .AddMemoryGrainStorage("worldStore")
         .AddMemoryGrainStorage("playerStore")
         .AddMemoryGrainStorage("statsStore")
-        // UFX SignalR disabled due to Orleans version conflicts
-        // .AddMemoryGrainStorage(UFX.Orleans.SignalRBackplane.Constants.StorageName)
-        // .UseInMemoryReminderService()
-        // .AddSignalRBackplane()
+        // UFX SignalR backplane storage
+        .AddMemoryGrainStorage(UFX.Orleans.SignalRBackplane.Constants.StorageName)
+        .UseInMemoryReminderService()
+        .AddSignalRBackplane()
         ;
         
         // Orleans Dashboard is currently disabled due to compatibility issues with Orleans 9.1.2

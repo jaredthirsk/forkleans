@@ -335,7 +335,7 @@ namespace Granville.Rpc.Transport.Ruffles
             var buffer = new byte[data.Count];
             Buffer.BlockCopy(data.Array, data.Offset, buffer, 0, data.Count);
             
-            _logger.LogDebug("Received {ByteCount} bytes from connection {ConnectionId}", 
+            _logger.LogTrace("Received {ByteCount} bytes from connection {ConnectionId}", 
                 buffer.Length, connectionId);
             
             // Create a proper endpoint - Ruffles might not expose the actual client port

@@ -19,6 +19,7 @@ namespace Shooter.Client.Common
         private GridSquare? _currentPlayerZone;
         private GridSquare? _currentServerZone;
         private DateTime _lastZoneMismatchDetected = DateTime.MinValue;
+        private DateTime _lastConsecutiveMismatchIncrement = DateTime.MinValue;
         private DateTime _lastWorldStateReceived = DateTime.UtcNow;
         private DateTime _lastPositionUpdate = DateTime.UtcNow;
         private DateTime _transitionStartTime = DateTime.MinValue;
@@ -95,6 +96,7 @@ namespace Shooter.Client.Common
                     _logger.LogInformation("[HEALTH_MONITOR] Connected to server for zone ({X},{Y})", serverZone.X, serverZone.Y);
                     _currentServerZone = serverZone;
                     _consecutiveMismatchCount = 0; // Reset on successful connection
+                    _lastConsecutiveMismatchIncrement = DateTime.MinValue; // Reset timing
                 }
             }
         }
@@ -226,11 +228,30 @@ namespace Shooter.Client.Common
                     if (_lastZoneMismatchDetected == DateTime.MinValue)
                     {
                         _lastZoneMismatchDetected = now;
+                        _lastConsecutiveMismatchIncrement = DateTime.MinValue; // Reset increment tracking
                     }
                     
                     var mismatchDuration = (now - _lastZoneMismatchDetected).TotalMilliseconds;
-                    _consecutiveMismatchCount++;
                     
+                    // Only increment consecutive count once per second to avoid spam from frequent world state updates
+                    var timeSinceLastIncrement = _lastConsecutiveMismatchIncrement == DateTime.MinValue ? 
+                        TimeSpan.MaxValue : 
+                        (now - _lastConsecutiveMismatchIncrement);
+                    
+                    if (timeSinceLastIncrement.TotalMilliseconds >= 1000) // 1 second debounce
+                    {
+                        _consecutiveMismatchCount++;
+                        _lastConsecutiveMismatchIncrement = now;
+                        
+                        // Log chronic mismatch immediately when it happens
+                        if (_consecutiveMismatchCount > MAX_CONSECUTIVE_MISMATCHES)
+                        {
+                            _logger.LogError("[HEALTH_MONITOR] CHRONIC_MISMATCH: Zone mismatch detected {Count} times consecutively!",
+                                _consecutiveMismatchCount);
+                        }
+                    }
+                    
+                    // Still check for prolonged mismatch on every update
                     if (mismatchDuration > MAX_MISMATCH_DURATION_MS)
                     {
                         _logger.LogError("[HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone ({PlayerX},{PlayerY}) but connected to server for zone ({ServerX},{ServerY}) for {Duration}ms",
@@ -238,16 +259,11 @@ namespace Shooter.Client.Common
                             _currentServerZone.X, _currentServerZone.Y,
                             mismatchDuration);
                     }
-                    
-                    if (_consecutiveMismatchCount > MAX_CONSECUTIVE_MISMATCHES)
-                    {
-                        _logger.LogError("[HEALTH_MONITOR] CHRONIC_MISMATCH: Zone mismatch detected {Count} times consecutively!",
-                            _consecutiveMismatchCount);
-                    }
                 }
                 else
                 {
                     _lastZoneMismatchDetected = DateTime.MinValue;
+                    _lastConsecutiveMismatchIncrement = DateTime.MinValue;
                     _consecutiveMismatchCount = 0;
                 }
             }

@@ -15,6 +15,7 @@ namespace Shooter.ActionServer.Grains;
 /// This grain runs in the ActionServer process and has direct access to game services.
 /// Note: This uses Orleans.Grain for RPC compatibility.
 /// </summary>
+[GrainType("game-rpc-grain")]
 public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
 {
     private readonly GameService _gameService;

@@ -78,7 +78,7 @@ namespace Granville.Rpc.Transport.LiteNetLib
 
         public async Task ConnectAsync(IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
         {
-            _logger.LogDebug("ConnectAsync called for endpoint {Endpoint}", remoteEndpoint);
+            _logger.LogTrace("ConnectAsync called for endpoint {Endpoint}", remoteEndpoint);
             
             if (_netManager != null)
             {
@@ -86,7 +86,7 @@ namespace Granville.Rpc.Transport.LiteNetLib
             }
 
             _isServer = false;
-            _logger.LogDebug("Creating NetManager for client mode");
+            _logger.LogTrace("Creating NetManager for client mode");
             _netManager = new NetManager(this)
             {
                 AutoRecycle = true,
@@ -95,20 +95,20 @@ namespace Granville.Rpc.Transport.LiteNetLib
                 NatPunchEnabled = false
             };
 
-            _logger.LogDebug("Starting NetManager in client mode");
+            _logger.LogTrace("Starting NetManager in client mode");
             if (!_netManager.Start())
             {
                 _logger.LogError("Failed to start NetManager in client mode");
                 throw new InvalidOperationException("Failed to start LiteNetLib in client mode");
             }
-            _logger.LogDebug("NetManager started successfully in client mode");
+            _logger.LogTrace("NetManager started successfully in client mode");
 
             // Start polling thread
-            _logger.LogDebug("Starting event polling thread");
+            _logger.LogTrace("Starting event polling thread");
             _ = Task.Run(() => PollEvents(cancellationToken), cancellationToken);
 
             // Connect to the server
-            _logger.LogDebug("Initiating connection to {Address}:{Port}", remoteEndpoint.Address, remoteEndpoint.Port);
+            _logger.LogTrace("Initiating connection to {Address}:{Port}", remoteEndpoint.Address, remoteEndpoint.Port);
             var peer = _netManager.Connect(remoteEndpoint.Address.ToString(), remoteEndpoint.Port, "RpcConnection");
             if (peer == null)
             {
@@ -128,7 +128,7 @@ namespace Granville.Rpc.Transport.LiteNetLib
                 if (loopCount % 100 == 0) // Log every second
                 {
                     var elapsed = DateTime.UtcNow - startTime;
-                    _logger.LogDebug("Connection wait loop iteration {LoopCount}, peer state: {State}, elapsed: {Elapsed}ms", 
+                    _logger.LogTrace("Connection wait loop iteration {LoopCount}, peer state: {State}, elapsed: {Elapsed}ms", 
                         loopCount, peer.ConnectionState, elapsed.TotalMilliseconds);
                 }
                 await Task.Delay(10, cancellationToken);
@@ -231,12 +231,12 @@ namespace Granville.Rpc.Transport.LiteNetLib
             var deliveryMethod = _options.EnableReliableDelivery ? DeliveryMethod.ReliableOrdered : DeliveryMethod.Unreliable;
             var dataArray = data.ToArray();
             
-            _logger.LogDebug("SendToConnectionAsync: Sending {ByteCount} bytes to peer {PeerId} (connectionId: {ConnectionId}) via {DeliveryMethod}, peer state: {State}", 
+            _logger.LogTrace("SendToConnectionAsync: Sending {ByteCount} bytes to peer {PeerId} (connectionId: {ConnectionId}) via {DeliveryMethod}, peer state: {State}", 
                 dataArray.Length, peerId, connectionId, deliveryMethod, peer.ConnectionState);
             
             peer.Send(dataArray, deliveryMethod);
             
-            _logger.LogDebug("SendToConnectionAsync: Send completed to peer {PeerId}", peerId);
+            _logger.LogTrace("SendToConnectionAsync: Send completed to peer {PeerId}", peerId);
             
             // Track statistics
             _networkStatisticsTracker?.RecordPacketSent(dataArray.Length);
@@ -331,9 +331,9 @@ namespace Granville.Rpc.Transport.LiteNetLib
                 // Accept connections with proper key or empty key for backward compatibility
                 if (string.IsNullOrEmpty(connectionKey) || connectionKey == "RpcConnection")
                 {
-                    _logger.LogDebug("Accepting connection request from {Endpoint} with key '{Key}'", request.RemoteEndPoint, connectionKey);
+                    _logger.LogTrace("Accepting connection request from {Endpoint} with key '{Key}'", request.RemoteEndPoint, connectionKey);
                     request.Accept();
-                    _logger.LogDebug("Connection request accepted from {Endpoint}", request.RemoteEndPoint);
+                    _logger.LogTrace("Connection request accepted from {Endpoint}", request.RemoteEndPoint);
                 }
                 else
                 {

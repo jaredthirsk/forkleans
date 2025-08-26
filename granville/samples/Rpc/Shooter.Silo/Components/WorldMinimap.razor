@@ -7,11 +7,11 @@
         <div class="d-flex flex-wrap gap-3">
             <div class="legend-item">
                 <div class="legend-color bg-success"></div>
-                <small>Active Zone</small>
+                <small>Online</small>
             </div>
             <div class="legend-item">
                 <div class="legend-color bg-warning"></div>
-                <small>Phaser View</small>
+                <small>Debug Enabled</small>
             </div>
             <div class="legend-item">
                 <div class="legend-color bg-danger"></div>
@@ -48,6 +48,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        Console.WriteLine($"WorldMinimap OnParametersSetAsync: ActionServers.Count = {ActionServers.Count}, _isInitialized = {_isInitialized}");
         if (_isInitialized)
         {
             await UpdateMinimap();
@@ -68,7 +69,15 @@
                 webUrl = server.WebUrl
             }).ToArray();
 
-            await JS.InvokeVoidAsync("worldMinimap.update", minimapData);
+            Console.WriteLine($"UpdateMinimap: Found {ActionServers.Count} ActionServers, {minimapData.Length} minimap entries");
+            
+            if (minimapData.Length > 0)
+            {
+                Console.WriteLine($"Sample server: ({minimapData[0].x},{minimapData[0].y}) - Online: {minimapData[0].isOnline}");
+            }
+
+            await JS.InvokeVoidAsync("worldMinimap.update", (object)minimapData);
+            Console.WriteLine("JavaScript worldMinimap.update called successfully");
         }
         catch (Exception ex)
         {
@@ -132,9 +141,17 @@
         dotNetRef: null,
         
         init: function(dotNetRef, canvasId) {
+            console.log('WorldMinimap init called', canvasId);
             this.dotNetRef = dotNetRef;
             this.canvas = document.getElementById(canvasId);
+            
+            if (!this.canvas) {
+                console.error('Canvas element not found:', canvasId);
+                return;
+            }
+            
             this.ctx = this.canvas.getContext('2d');
+            console.log('Canvas context obtained', this.ctx);
             
             // Add click handler
             this.canvas.addEventListener('click', (e) => {
@@ -146,14 +163,22 @@
                 const gridX = Math.floor(x / 40); // 40px per grid cell (400/10)
                 const gridY = Math.floor(y / 40);
                 
+                console.log('Zone clicked:', gridX, gridY);
                 dotNetRef.invokeMethodAsync('OnZoneClick', gridX, gridY);
             });
             
             // Draw initial empty grid
             this.drawGrid();
+            console.log('Initial grid drawn');
         },
         
         drawGrid: function() {
+            if (!this.ctx) {
+                console.error('Canvas context not available for drawGrid');
+                return;
+            }
+            
+            console.log('Drawing grid...');
             this.ctx.clearRect(0, 0, 400, 400);
             
             // Draw grid lines
@@ -178,6 +203,21 @@
         },
         
         update: function(servers) {
+            console.log('WorldMinimap update called with servers:', servers);
+            console.log('Type of servers:', typeof servers, 'Is array:', Array.isArray(servers));
+            
+            // Handle case where servers might be passed as first argument instead of named parameter
+            if (!servers && arguments.length > 0) {
+                servers = arguments[0];
+                console.log('Using first argument as servers:', servers);
+            }
+            
+            if (!servers || !Array.isArray(servers)) {
+                console.error('Invalid servers data received:', servers);
+                return;
+            }
+            
+            console.log('Drawing grid and', servers.length, 'servers');
             this.drawGrid();
             
             // Draw zones
@@ -190,9 +230,9 @@
                 if (!server.isOnline) {
                     color = '#dc3545'; // Red for offline
                 } else if (server.hasPhaserView) {
-                    color = '#ffc107'; // Yellow for Phaser view
+                    color = '#ffc107'; // Yellow for online with debug view
                 } else {
-                    color = '#28a745'; // Green for active
+                    color = '#28a745'; // Green for online without debug view
                 }
                 
                 // Fill the zone

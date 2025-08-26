@@ -203,12 +203,12 @@ namespace Granville.Rpc
                 var result = _sessionFactory.DeserializeWithIsolatedSession<object[]>(_serializer, serializedArguments);
                 
                 // Log deserialized arguments for debugging
-                if (_logger.IsEnabled(LogLevel.Debug))
+                if (_logger.IsEnabled(LogLevel.Trace))
                 {
-                    _logger.LogDebug("[RPC_SERVER] Deserialized {Count} arguments", result.Length);
+                    _logger.LogTrace("[RPC_SERVER] Deserialized {Count} arguments", result.Length);
                     for (int i = 0; i < result.Length; i++)
                     {
-                        _logger.LogDebug("[RPC_SERVER] Deserialized argument[{Index}]: Type={Type}, Value={Value}",
+                        _logger.LogTrace("[RPC_SERVER] Deserialized argument[{Index}]: Type={Type}, Value={Value}",
                             i, result[i]?.GetType()?.Name ?? "null", result[i]?.ToString() ?? "null");
                     }
                 }
@@ -293,7 +293,7 @@ namespace Granville.Rpc
 
             var method = methods[request.MethodId];
             
-            _logger.LogInformation("[RPC_SERVER] Method mapping - MethodId: {MethodId}, Method: {MethodName}, Interface: {InterfaceType}",
+            _logger.LogTrace("[RPC_SERVER] Method mapping - MethodId: {MethodId}, Method: {MethodName}, Interface: {InterfaceType}",
                 request.MethodId, method.Name, interfaceType.Name);
 
             // Deserialize arguments
@@ -308,7 +308,7 @@ namespace Granville.Rpc
                     arguments = DeserializeArguments(request.Arguments);
                     
                     // Log method invocation details
-                    _logger.LogDebug("[RPC_SERVER] Invoking method {Method} on grain {GrainId} with {ArgCount} arguments",
+                    _logger.LogTrace("[RPC_SERVER] Invoking method {Method} on grain {GrainId} with {ArgCount} arguments",
                         method.Name, request.GrainId, arguments?.Length ?? 0);
                     
                     // Ensure we have the right number of arguments

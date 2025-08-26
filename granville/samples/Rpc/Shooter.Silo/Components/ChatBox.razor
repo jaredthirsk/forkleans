@@ -1,0 +1,375 @@
+@using Microsoft.AspNetCore.SignalR.Client
+@using Shooter.Shared.Models
+@using Shooter.Silo.Services
+@inject DashboardChatService ChatService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<div class="chat-container">
+    <div class="chat-header">
+        <h6 class="mb-0">
+            <i class="bi bi-chat-dots me-2"></i>
+            Global Chat
+        </h6>
+        <small class="connection-status @GetConnectionStatusClass()">
+            @connectionStatus | Messages: @chatMessages.Count
+        </small>
+    </div>
+    
+    <div class="chat-messages" id="chatMessages">
+        @if (chatMessages.Count == 0)
+        {
+            <div class="text-muted text-center p-3">
+                <i class="bi bi-chat-dots-fill me-2"></i>
+                No messages yet. Send a message to start the conversation!
+            </div>
+        }
+        @foreach (var message in chatMessages.TakeLast(50))
+        {
+            <div class="chat-message @(message.IsSystemMessage ? "system-message" : "user-message")">
+                <div class="message-header">
+                    <span class="sender-name @(message.SenderName.StartsWith("silo-") ? "silo-sender" : "")">
+                        @message.SenderName
+                    </span>
+                    <span class="message-time">
+                        @message.Timestamp.ToLocalTime().ToString("HH:mm:ss")
+                    </span>
+                </div>
+                <div class="message-content">
+                    @message.Message
+                </div>
+            </div>
+        }
+    </div>
+    
+    <div class="chat-input">
+        <div class="input-group">
+            <input @bind="currentMessage" @onkeypress="HandleKeyPress" 
+                   class="form-control form-control-sm" 
+                   placeholder="Type a message as @ChatService.SiloName..." 
+                   disabled="@(!ChatService.IsConnected)" />
+            <button class="btn btn-primary btn-sm" @onclick="SendMessage" disabled="@(!ChatService.IsConnected)">
+                <i class="bi bi-send"></i>
+            </button>
+            <button class="btn btn-secondary btn-sm ms-1" @onclick="TestAddMessage" title="Add test message">
+                Test
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .chat-container {
+        background: rgba(33, 37, 41, 0.95);
+        border: 1px solid #495057;
+        border-radius: 8px;
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+        backdrop-filter: blur(10px);
+    }
+    
+    .chat-header {
+        padding: 12px;
+        background: rgba(52, 58, 64, 0.9);
+        border-bottom: 1px solid #495057;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .chat-header h6 {
+        color: #e9ecef;
+        margin: 0;
+    }
+    
+    .connection-status {
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-weight: 500;
+    }
+    
+    .connection-status.connected {
+        background: rgba(40, 167, 69, 0.2);
+        color: #40a745;
+        border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+    
+    .connection-status.disconnected {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid rgba(220, 53, 69, 0.3);
+    }
+    
+    .connection-status.reconnecting {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+    
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .chat-message {
+        padding: 6px 8px;
+        border-radius: 6px;
+        margin-bottom: 2px;
+    }
+    
+    .user-message {
+        background: rgba(108, 117, 125, 0.1);
+        border-left: 3px solid #6c757d;
+    }
+    
+    .system-message {
+        background: rgba(23, 162, 184, 0.1);
+        border-left: 3px solid #17a2b8;
+        font-style: italic;
+    }
+    
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2px;
+    }
+    
+    .sender-name {
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #adb5bd;
+    }
+    
+    .silo-sender {
+        color: #20c997 !important;
+        font-weight: 700;
+    }
+    
+    .message-time {
+        font-size: 0.7rem;
+        color: #6c757d;
+        opacity: 0.8;
+    }
+    
+    .message-content {
+        color: #e9ecef;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+    
+    .chat-input {
+        padding: 8px;
+        background: rgba(52, 58, 64, 0.5);
+        border-top: 1px solid #495057;
+        border-radius: 0 0 8px 8px;
+    }
+    
+    .chat-input .form-control {
+        background: rgba(73, 80, 87, 0.8);
+        border: 1px solid #6c757d;
+        color: #e9ecef;
+    }
+    
+    .chat-input .form-control:focus {
+        background: rgba(73, 80, 87, 1);
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        color: #e9ecef;
+    }
+    
+    .chat-input .form-control::placeholder {
+        color: #adb5bd;
+        opacity: 0.8;
+    }
+    
+    .chat-input .btn-primary {
+        background: #0d6efd;
+        border-color: #0d6efd;
+    }
+    
+    .chat-input .btn-primary:hover {
+        background: #0b5ed7;
+        border-color: #0a58ca;
+    }
+    
+    .chat-input .btn-primary:disabled {
+        background: #495057;
+        border-color: #495057;
+        opacity: 0.6;
+    }
+    
+    /* Bootstrap icons */
+    .bi {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        vertical-align: -.125em;
+        fill: currentcolor;
+    }
+    
+    /* Scrollbar styling */
+    .chat-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .chat-messages::-webkit-scrollbar-track {
+        background: rgba(73, 80, 87, 0.3);
+        border-radius: 3px;
+    }
+    
+    .chat-messages::-webkit-scrollbar-thumb {
+        background: rgba(173, 181, 189, 0.5);
+        border-radius: 3px;
+    }
+    
+    .chat-messages::-webkit-scrollbar-thumb:hover {
+        background: rgba(173, 181, 189, 0.8);
+    }
+</style>
+
+@code {
+    private List<ChatMessage> chatMessages = new();
+    private string currentMessage = string.Empty;
+    private string connectionStatus = "Connecting...";
+
+    protected override Task OnInitializedAsync()
+    {
+        // Don't subscribe to events yet - wait until after service is initialized
+        return Task.CompletedTask;
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Console.WriteLine("[CHATBOX] First render - initializing chat service");
+            
+            // Initialize after first render to ensure the web server is ready
+            await Task.Delay(1000); // Give the server a moment to be fully ready
+            await ChatService.InitializeAsync();
+            
+            // Subscribe to events AFTER the service is initialized
+            Console.WriteLine("[CHATBOX] Subscribing to chat events");
+            ChatService.ChatMessageReceived += OnChatMessageReceived;
+            ChatService.ConnectionStatusChanged += OnConnectionStatusChanged;
+            
+            Console.WriteLine("[CHATBOX] Initialization complete");
+        }
+    }
+
+    private async void OnChatMessageReceived(ChatMessage message)
+    {
+        Console.WriteLine($"[CHATBOX] OnChatMessageReceived called with message from {message.SenderName}: {message.Message}");
+        
+        await InvokeAsync(() =>
+        {
+            Console.WriteLine($"[CHATBOX] Adding message to chatMessages collection. Current count: {chatMessages.Count}");
+            chatMessages.Add(message);
+            
+            // Keep only the last 100 messages to prevent memory issues
+            if (chatMessages.Count > 100)
+            {
+                chatMessages.RemoveRange(0, chatMessages.Count - 100);
+            }
+            
+            Console.WriteLine($"[CHATBOX] Messages count after adding: {chatMessages.Count}. Calling StateHasChanged()");
+            StateHasChanged();
+            
+            // Scroll to bottom
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(50); // Small delay to ensure DOM is updated
+                await JSRuntime.InvokeVoidAsync("scrollToBottom", "chatMessages");
+            });
+        });
+    }
+
+    private async void OnConnectionStatusChanged(string status)
+    {
+        await InvokeAsync(() =>
+        {
+            connectionStatus = status;
+            StateHasChanged();
+        });
+    }
+
+    private string GetConnectionStatusClass()
+    {
+        return connectionStatus.ToLower() switch
+        {
+            "connected" => "connected",
+            "disconnected" => "disconnected",
+            "connection failed" => "disconnected",
+            _ => "reconnecting"
+        };
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(currentMessage))
+            return;
+
+        Console.WriteLine($"[CHATBOX] SendMessage called with message: '{currentMessage}'");
+        Console.WriteLine($"[CHATBOX] ChatService.IsConnected: {ChatService.IsConnected}");
+        
+        await ChatService.SendMessageAsync(currentMessage);
+        Console.WriteLine($"[CHATBOX] SendMessageAsync completed");
+        
+        currentMessage = string.Empty;
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SendMessage();
+        }
+    }
+    
+    private void TestAddMessage()
+    {
+        var testMessage = new ChatMessage(
+            "test-user",
+            "Test User", 
+            $"Test message at {DateTime.Now:HH:mm:ss}",
+            DateTime.UtcNow,
+            false
+        );
+        
+        Console.WriteLine($"[CHATBOX] Adding test message directly to collection");
+        chatMessages.Add(testMessage);
+        StateHasChanged();
+        Console.WriteLine($"[CHATBOX] Test message added, total messages: {chatMessages.Count}");
+    }
+
+    public void Dispose()
+    {
+        try
+        {
+            ChatService.ChatMessageReceived -= OnChatMessageReceived;
+            ChatService.ConnectionStatusChanged -= OnConnectionStatusChanged;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[CHATBOX] Error during disposal: {ex.Message}");
+        }
+    }
+}
+
+<script>
+    window.scrollToBottom = (elementId) => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.scrollTop = element.scrollHeight;
+        }
+    };
+</script>

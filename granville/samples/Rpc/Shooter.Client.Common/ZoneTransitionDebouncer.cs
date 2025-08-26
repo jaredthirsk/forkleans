@@ -25,7 +25,7 @@ namespace Shooter.Client.Common
         private const int DEBOUNCE_DELAY_MS = 150; // Wait 150ms to confirm zone change (reduced from 300ms)
         private const int MAX_RAPID_TRANSITIONS = 8; // Max transitions before forcing cooldown (increased tolerance)
         private const int COOLDOWN_PERIOD_MS = 1000; // 1 second cooldown after rapid transitions (reduced from 2000ms)
-        private const float ZONE_HYSTERESIS_DISTANCE = 20f; // Must move 20 units into new zone
+        private const float ZONE_HYSTERESIS_DISTANCE = 2f; // Must move 2 units into new zone (reduced to prevent stuck transitions)
 
         public bool IsInCooldown { get; private set; }
         public int RapidTransitionCount => _rapidTransitionCount;
@@ -81,8 +81,20 @@ namespace Shooter.Client.Common
                 // Check if player has moved far enough into the new zone (hysteresis)
                 if (!IsWellInsideZone(playerPosition, newZone))
                 {
-                    _logger.LogDebug("[ZONE_DEBOUNCE] Player not far enough into zone {Zone} at position {Position}",
-                        newZone, playerPosition);
+                    // Log at Warning level so it's visible in production logs
+                    var (min, max) = newZone.GetBounds();
+                    var distFromBorders = new {
+                        Left = playerPosition.X - min.X,
+                        Right = max.X - playerPosition.X,
+                        Bottom = playerPosition.Y - min.Y,
+                        Top = max.Y - playerPosition.Y
+                    };
+                    _logger.LogWarning("[ZONE_DEBOUNCE] BLOCKED: Player not far enough into zone {Zone} at position {Position}. " +
+                        "Distances from borders: L={Left:F1}, R={Right:F1}, B={Bottom:F1}, T={Top:F1} (need {Required}+ units)",
+                        newZone, playerPosition, 
+                        distFromBorders.Left, distFromBorders.Right, 
+                        distFromBorders.Bottom, distFromBorders.Top,
+                        ZONE_HYSTERESIS_DISTANCE);
                     return false;
                 }
 

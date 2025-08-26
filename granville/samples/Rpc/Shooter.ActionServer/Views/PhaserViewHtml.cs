@@ -10,7 +10,7 @@ public static class PhaserViewHtml
 <head>
     <meta charset='UTF-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>ActionServer Phaser View</title>
+    <title>ActionServer</title>
     <script src='https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js'></script>
     <script src='https://cdn.jsdelivr.net/npm/@microsoft/signalr@8.0.0/dist/browser/signalr.min.js'></script>
     <style>
@@ -241,7 +241,7 @@ public static class PhaserViewHtml
     <div class='container'>
         <div class='header'>
             <div class='title'>
-                ActionServer Phaser View (Read-Only)
+                ActionServer
             </div>
             <div class='server-info'>
                 <div class='info-item'>
@@ -336,6 +336,25 @@ public static class PhaserViewHtml
         </div>
     </div>
     
+    <script>
+        // Extract zone coordinates from URL path if present
+        // URL format: /phaser/{x}/{y} or /phaser (default zone)
+        const pathParts = window.location.pathname.split('/').filter(p => p);
+        let targetZone = null;
+        
+        if (pathParts.length >= 3 && pathParts[0] === 'phaser') {
+            const x = parseInt(pathParts[1]);
+            const y = parseInt(pathParts[2]);
+            if (!isNaN(x) && !isNaN(y)) {
+                targetZone = { x: x, y: y };
+            }
+        }
+        
+        // Make zone coordinates available to the main script
+        window.phaserViewConfig = {
+            targetZone: targetZone
+        };
+    </script>
     <script src='/js/actionserver-phaser.js'></script>
 </body>
 </html>

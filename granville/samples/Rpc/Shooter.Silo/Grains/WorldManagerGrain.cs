@@ -54,6 +54,8 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
             _gridToServer[server.AssignedSquare] = server;
             _serverIdToInfo[server.ServerId] = server;
         }
+        
+        _logger.LogInformation("WorldManagerGrain activated: Restored {ServerCount} ActionServers from persistent state", _state.State.ActionServers.Count);
 
         // Initialize activation time if not set
         if (!_state.State.FirstActivationTime.HasValue)
@@ -165,7 +167,9 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
 
     public Task<List<ActionServerInfo>> GetAllActionServers()
     {
-        return Task.FromResult(_serverIdToInfo.Values.ToList());
+        var servers = _serverIdToInfo.Values.ToList();
+        _logger.LogInformation("GetAllActionServers called, returning {Count} servers", servers.Count);
+        return Task.FromResult(servers);
     }
 
     public async Task<PlayerInfo> RegisterPlayer(string playerId, string name)
@@ -600,6 +604,94 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
     {
         await Task.CompletedTask;
         return _serverStatuses.Values.ToList();
+    }
+    
+    public Task UpdateActionServerHeartbeat(string serverId)
+    {
+        if (_serverIdToInfo.TryGetValue(serverId, out var serverInfo))
+        {
+            // Update the heartbeat timestamp
+            var updatedServerInfo = serverInfo with { LastHeartbeat = DateTime.UtcNow };
+            _serverIdToInfo[serverId] = updatedServerInfo;
+            _gridToServer[serverInfo.AssignedSquare] = updatedServerInfo;
+            
+            // Update in persistent state
+            var existingIndex = _state.State.ActionServers.FindIndex(s => s.ServerId == serverId);
+            if (existingIndex >= 0)
+            {
+                _state.State.ActionServers[existingIndex] = updatedServerInfo;
+            }
+            
+            _logger.LogDebug("Updated heartbeat for ActionServer {ServerId}", serverId);
+        }
+        else
+        {
+            _logger.LogWarning("Received heartbeat from unknown ActionServer {ServerId}", serverId);
+        }
+        
+        return Task.CompletedTask;
+    }
+    
+    public Task<List<PlayerInfo>> GetAllPlayers()
+    {
+        var players = _state.State.Players.Values.ToList();
+        _logger.LogDebug("GetAllPlayers returning {Count} players", players.Count);
+        return Task.FromResult(players);
+    }
+    
+    public Task<GridSquare> RequestNewZone()
+    {
+        // Calculate the next zone position using the same logic as RegisterActionServer
+        var totalServers = _gridToServer.Count + 1;
+        var gridSize = (int)Math.Ceiling(Math.Sqrt(totalServers));
+        
+        GridSquare newZone;
+        
+        // Find the first available zone in row-by-row order
+        for (int y = 0; y < gridSize; y++)
+        {
+            for (int x = 0; x < gridSize; x++)
+            {
+                var candidate = new GridSquare(x, y);
+                if (!_gridToServer.ContainsKey(candidate))
+                {
+                    newZone = candidate;
+                    _logger.LogInformation("Requested new zone at ({X},{Y}) - deployment needed", newZone.X, newZone.Y);
+                    return Task.FromResult(newZone);
+                }
+            }
+        }
+        
+        // If no available zones in current grid, expand it
+        newZone = new GridSquare(0, gridSize);
+        _logger.LogInformation("Requested new zone at ({X},{Y}) - expanding grid to accommodate", newZone.X, newZone.Y);
+        return Task.FromResult(newZone);
+    }
+    
+    public async Task<bool> RemoveLastZone()
+    {
+        if (!_gridToServer.Any())
+        {
+            _logger.LogWarning("Cannot remove zone - no zones exist");
+            return false;
+        }
+        
+        // Find the "last" server (highest Y, then highest X)
+        var lastServer = _gridToServer.Values
+            .OrderByDescending(s => s.AssignedSquare.Y)
+            .ThenByDescending(s => s.AssignedSquare.X)
+            .First();
+            
+        _logger.LogInformation("Removing zone ({X},{Y}) with server {ServerId}", 
+            lastServer.AssignedSquare.X, lastServer.AssignedSquare.Y, lastServer.ServerId);
+        
+        // Remove from mappings
+        _gridToServer.Remove(lastServer.AssignedSquare);
+        _serverIdToInfo.Remove(lastServer.ServerId);
+        _state.State.ActionServers.RemoveAll(s => s.ServerId == lastServer.ServerId);
+        await _state.WriteStateAsync();
+        
+        return true;
     }
 }
 
