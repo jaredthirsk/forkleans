@@ -1,9 +1,11 @@
 ﻿@using Microsoft.JSInterop
 @using Shooter.Client.Common
+@using Shooter.Client.Services
 @using Shooter.Shared.Models
 @using Shooter.Shared.Movement
 @inject IJSRuntime JS
 @inject GranvilleRpcGameClientService RpcGameClient
+@inject SignalRChatService SignalRChat
 @inject NavigationManager Navigation
 @inject ILogger<GamePhaser> Logger
 @inject IHttpClientFactory HttpClientFactory
@@ -195,10 +197,18 @@
                 RpcGameClient.GameOverReceived += OnGameOverReceived;
                 RpcGameClient.GameRestartedReceived += OnGameRestartedReceived;
                 RpcGameClient.OneWayBoundaryStateChanged += OnOneWayBoundaryStateChanged;
-                RpcGameClient.ChatMessageReceived += OnChatMessageReceived;
+                // Remove RPC chat subscription - we'll use SignalR instead
+                // RpcGameClient.ChatMessageReceived += OnChatMessageReceived;
+                
+                // Subscribe to SignalR chat messages
+                SignalRChat.ChatMessageReceived += OnSignalRChatMessageReceived;
+                
+                // Connect to SignalR chat
+                // Use playerId as the player name for now (GamePhaser doesn't have a name input)
+                await SignalRChat.ConnectAsync(playerId, playerId);
                 
                 // Add initial system message
-                AddSystemMessage("Connected to game server");
+                AddSystemMessage("Connected to game server and chat");
                 
                 // Create automove controller
                 _autoMoveController = new AutoMoveController(Logger, playerId, _isTestMode);
@@ -745,7 +755,14 @@
     
     private void OnChatMessageReceived(ChatMessage message)
     {
-        Logger.LogInformation("[CHAT] Received message from {Sender}: {Message}", message.SenderName, message.Message);
+        Logger.LogInformation("[CHAT] Received RPC message from {Sender}: {Message}", message.SenderName, message.Message);
+        AddChatMessage(message.Message, message.SenderName, "", message.IsSystemMessage);
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private void OnSignalRChatMessageReceived(ChatMessage message)
+    {
+        Logger.LogInformation("[CHAT] Received SignalR message from {Sender}: {Message}", message.SenderName, message.Message);
         AddChatMessage(message.Message, message.SenderName, "", message.IsSystemMessage);
         InvokeAsync(StateHasChanged);
     }
@@ -760,12 +777,13 @@
         
         try
         {
-            await RpcGameClient.SendChatMessage(message);
-            Logger.LogInformation("[CHAT] Message sent successfully");
+            // Use SignalR for chat instead of RPC
+            await SignalRChat.SendMessageAsync(message);
+            Logger.LogInformation("[CHAT] Message sent successfully via SignalR");
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[CHAT] Failed to send message");
+            Logger.LogError(ex, "[CHAT] Failed to send message via SignalR");
             AddSystemMessage("Failed to send message");
         }
     }
@@ -1088,7 +1106,10 @@
         RpcGameClient.GameOverReceived -= OnGameOverReceived;
         RpcGameClient.GameRestartedReceived -= OnGameRestartedReceived;
         RpcGameClient.OneWayBoundaryStateChanged -= OnOneWayBoundaryStateChanged;
-        RpcGameClient.ChatMessageReceived -= OnChatMessageReceived;
+        // RpcGameClient.ChatMessageReceived -= OnChatMessageReceived; // No longer using RPC chat
+        
+        // Unsubscribe from SignalR chat
+        SignalRChat.ChatMessageReceived -= OnSignalRChatMessageReceived;
         
         // Destroy Phaser game
         if (_isInitialized)
