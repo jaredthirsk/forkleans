@@ -55,6 +55,14 @@
                 document.getElementById('blazor-error-ui').style.display = 'none';
             }
         };
+        
+        // Chat helper functions
+        window.scrollToBottom = function(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.scrollTop = element.scrollHeight;
+            }
+        };
     </script>
 </body>
 </html>

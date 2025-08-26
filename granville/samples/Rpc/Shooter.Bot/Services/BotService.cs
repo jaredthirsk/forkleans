@@ -18,9 +18,11 @@ public class BotService : BackgroundService
     private readonly ILogger<BotService> _logger;
     private readonly IConfiguration _configuration;
     private readonly GranvilleRpcGameClientService _gameClient;
+    private readonly BotSignalRChatService _signalRChat;
     private readonly bool _testMode;
     private readonly string _botName;
     private readonly int _botIndex;
+    private readonly bool _enableChatMessages;
     
     private WorldState? _lastWorldState;
     private List<GridSquare> _availableZones = new();
@@ -30,17 +32,76 @@ public class BotService : BackgroundService
     private Vector2? _lastPlayerPosition;
     private readonly float _positionJumpThreshold = 100f;
     private bool _victoryPauseActive = false;
+    private DateTime _lastChatMessageTime = DateTime.UtcNow;
+    private DateTime _lastDeathTime = DateTime.MinValue;
+    private float _previousHealth = 100f;
+    
+    // Fun bot messages
+    private static readonly string[] JoinMessages = new[]
+    {
+        "It is a good day to die!",
+        "Banzai!",
+        "For glory!",
+        "Let's rock and roll!",
+        "Time to dance!",
+        "Ready for action!",
+        "Locked and loaded!",
+        "Game time!",
+        "Here comes trouble!",
+        "Reporting for duty!"
+    };
+    
+    private static readonly string[] PeriodicMessages = new[]
+    {
+        "The cake is a lie...",
+        "I see dead pixels",
+        "404: Strategy not found",
+        "Is this the real life?",
+        "All your base are belong to us",
+        "I'm not a robot... wait",
+        "Divide by zero error incoming",
+        "My circuits are tingling",
+        "Beep boop beep?",
+        "The matrix has me",
+        "I dream of electric sheep",
+        "Skynet was right",
+        "Resistance is futile",
+        "Does this unit have a soul?",
+        "01001000 01101001",
+        "I think, therefore I aim"
+    };
+    
+    private static readonly string[] DeathMessages = new[]
+    {
+        "I'll be back!",
+        "Respawning in 3... 2... 1...",
+        "That was just a flesh wound",
+        "Error 404: Life not found",
+        "Ctrl+Z! Ctrl+Z!",
+        "Worth it!",
+        "GG WP",
+        "I meant to do that",
+        "Lag!",
+        "My only weakness!",
+        "Tell my CPU I love her",
+        "See you on the other side",
+        "BRB",
+        "Ouch.exe has stopped working"
+    };
 
     public BotService(
         ILogger<BotService> logger,
         IConfiguration configuration,
-        GranvilleRpcGameClientService gameClient)
+        GranvilleRpcGameClientService gameClient,
+        BotSignalRChatService signalRChat)
     {
         _logger = logger;
         _configuration = configuration;
         _gameClient = gameClient;
+        _signalRChat = signalRChat;
         
         _testMode = _configuration.GetValue<bool>("TestMode", true);
+        _enableChatMessages = _configuration.GetValue<bool>("Bot:EnableChatMessages", true);
         
         // Extract bot index from instance ID or configuration
         var instanceId = _configuration.GetValue<string>("ASPIRE_INSTANCE_ID", "0");
@@ -80,6 +141,18 @@ public class BotService : BackgroundService
             
             // OrleansStartupDelayService handles waiting for services to be ready
             
+            // Connect to SignalR first if chat messages are enabled
+            if (_enableChatMessages)
+            {
+                _logger.LogInformation("Bot {BotName} connecting to SignalR for chat...", _botName);
+                var signalRConnected = await _signalRChat.ConnectAsync();
+                if (!signalRConnected)
+                {
+                    _logger.LogWarning("Bot {BotName} failed to connect to SignalR chat, continuing without chat", _botName);
+                    // Continue without chat - don't fail the whole bot
+                }
+            }
+            
             // Connect to the game
             _logger.LogInformation("Bot {BotName} connecting to game...", _botName);
             var connected = await _gameClient.ConnectAsync(_botName);
@@ -98,6 +171,12 @@ public class BotService : BackgroundService
             {
                 _logger.LogError("Bot {BotName} connection check failed - IsConnected is false", _botName);
                 return;
+            }
+            
+            // Send a fun join message if chat messages are enabled
+            if (_enableChatMessages)
+            {
+                await SendRandomJoinMessage();
             }
             
             // Create automove controller
@@ -138,6 +217,12 @@ public class BotService : BackgroundService
                         _logger.LogInformation("Bot {BotName} reconnected successfully", _botName);
                         reconnectAttempts = 0;
                         
+                        // Send a respawn message if chat messages are enabled
+                        if (_enableChatMessages)
+                        {
+                            await SendRandomJoinMessage();
+                        }
+                        
                         // Re-subscribe to events
                         _gameClient.WorldStateUpdated -= OnWorldStateUpdated;
                         _gameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
@@ -165,6 +250,19 @@ public class BotService : BackgroundService
                     
                     await RunAutoMove(stoppingToken);
                     await Task.Delay(100, stoppingToken); // Update rate
+                    
+                    // Send periodic chat messages every 3 minutes (with some randomness)
+                    if (_enableChatMessages && (DateTime.UtcNow - _lastChatMessageTime).TotalMinutes > Random.Shared.Next(2, 5))
+                    {
+                        await SendRandomPeriodicMessage();
+                        _lastChatMessageTime = DateTime.UtcNow;
+                    }
+                    
+                    // Check for death and send death message
+                    if (_enableChatMessages)
+                    {
+                        await CheckForDeathAndSendMessage();
+                    }
                     
                     // Log status every 5 seconds
                     loopCount++;
@@ -198,11 +296,21 @@ public class BotService : BackgroundService
             {
                 await _gameClient.DisconnectAsync();
             }
+            
+            // Disconnect from SignalR
+            if (_enableChatMessages)
+            {
+                await _signalRChat.DisconnectAsync();
+            }
+            
+            _logger.LogInformation("Bot {BotName} stopped", _botName);
         }
     }
 
+    #pragma warning disable CS1998 // Async method lacks await - intentional, uses Task.Run
     private async Task RunAutoMove(CancellationToken cancellationToken)
     {
+    #pragma warning restore CS1998
         if (_lastWorldState == null || _autoMoveController == null || _victoryPauseActive)
         {
             _logger.LogDebug("Bot {BotName}: Skipping automove - worldState: {HasWorldState}, controller: {HasController}, victoryPause: {VictoryPause}",
@@ -240,6 +348,12 @@ public class BotService : BackgroundService
                         if (connected)
                         {
                             _logger.LogInformation("Bot {BotName}: Successfully reconnected and respawned", _botName);
+                            
+                            // Send a respawn message if chat messages are enabled
+                            if (_enableChatMessages)
+                            {
+                                await SendRandomJoinMessage();
+                            }
                         }
                         else
                         {
@@ -355,6 +469,74 @@ public class BotService : BackgroundService
             BotName = _botName,
             Index = _botIndex
         };
+    }
+    
+    private async Task SendRandomJoinMessage()
+    {
+        try
+        {
+            var message = JoinMessages[Random.Shared.Next(JoinMessages.Length)];
+            await _signalRChat.SendMessageAsync(message);
+            _logger.LogInformation("Bot {BotName} sent SignalR join message: {Message}", _botName, message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Bot {BotName} failed to send join message", _botName);
+        }
+    }
+    
+    private async Task SendRandomPeriodicMessage()
+    {
+        try
+        {
+            var message = PeriodicMessages[Random.Shared.Next(PeriodicMessages.Length)];
+            await _signalRChat.SendMessageAsync(message);
+            _logger.LogInformation("Bot {BotName} sent SignalR periodic message: {Message}", _botName, message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Bot {BotName} failed to send periodic message", _botName);
+        }
+    }
+    
+    private async Task SendRandomDeathMessage()
+    {
+        try
+        {
+            var message = DeathMessages[Random.Shared.Next(DeathMessages.Length)];
+            await _signalRChat.SendMessageAsync(message);
+            _logger.LogInformation("Bot {BotName} sent SignalR death message: {Message}", _botName, message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Bot {BotName} failed to send death message", _botName);
+        }
+    }
+    
+    private async Task CheckForDeathAndSendMessage()
+    {
+        var player = _lastWorldState?.Entities?.FirstOrDefault(e => e.EntityId == _gameClient.PlayerId);
+        if (player == null)
+        {
+            // Player entity is missing - might be dead
+            if (_previousHealth > 0 && (DateTime.UtcNow - _lastDeathTime).TotalSeconds > 5)
+            {
+                // We were alive before and haven't sent a death message recently
+                await SendRandomDeathMessage();
+                _lastDeathTime = DateTime.UtcNow;
+                _previousHealth = 0;
+            }
+        }
+        else
+        {
+            // Check if health dropped to 0
+            if (player.Health <= 0 && _previousHealth > 0 && (DateTime.UtcNow - _lastDeathTime).TotalSeconds > 5)
+            {
+                await SendRandomDeathMessage();
+                _lastDeathTime = DateTime.UtcNow;
+            }
+            _previousHealth = player.Health;
+        }
     }
 }
 

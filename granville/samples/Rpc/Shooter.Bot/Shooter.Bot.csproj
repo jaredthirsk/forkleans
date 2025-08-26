@@ -21,6 +21,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" />
     <PackageReference Include="Granville.Rpc.Client" />
     <PackageReference Include="Granville.Rpc.Transport.LiteNetLib" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
   </ItemGroup>
 
 </Project>

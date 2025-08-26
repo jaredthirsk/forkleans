@@ -145,6 +145,9 @@ builder.Services.AddSingleton<GranvilleRpcGameClientService>(serviceProvider =>
     return new GranvilleRpcGameClientService(logger, httpClient, configuration, loggerFactory);
 });
 
+// Add SignalR chat service for bot
+builder.Services.AddSingleton<BotSignalRChatService>();
+
 // Add bot service
 builder.Services.AddSingleton<BotService>();
 builder.Services.AddHostedService<BotService>(provider => provider.GetRequiredService<BotService>());

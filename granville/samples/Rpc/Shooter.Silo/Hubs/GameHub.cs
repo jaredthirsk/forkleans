@@ -109,11 +109,17 @@ public class GameHub : Hub<IGameHubClient>
 
         try
         {
-            // Broadcast through Orleans
-            var worldManager = _grainFactory.GetGrain<IWorldManagerGrain>(0);
-            _logger.LogInformation("[CHAT_HUB] Sending message to WorldManagerGrain for broadcast");
-            await worldManager.BroadcastChatMessage(chatMessage);
-            _logger.LogInformation("[CHAT_HUB] Message successfully sent to WorldManagerGrain");
+            // Broadcast directly through SignalR (UFX.Orleans.SignalRBackplane will handle multi-silo sync)
+            _logger.LogInformation("[CHAT_HUB] Broadcasting message directly through SignalR with UFX backplane");
+            
+            // Send in both formats for compatibility
+            await Clients.All.ReceiveChatMessage(chatMessage);
+            await Clients.All.ReceiveMessage(chatMessage.SenderName, chatMessage.Message);
+            
+            _logger.LogInformation("[CHAT_HUB] Message broadcast successfully through UFX.Orleans.SignalRBackplane");
+            
+            // TODO: Also send to WorldManagerGrain for game-specific processing (e.g., logging, persistence)
+            // For now, we're just using SignalR backplane for broadcasting
         }
         catch (Exception ex)
         {

@@ -33,7 +33,10 @@
                 <button @onclick="JoinGame" disabled="@_isConnecting" class="engine-btn join-btn">
                     @if (_isConnecting)
                     {
-                        <span>Joining</span>
+                        <div class="join-spinner">
+                            <div class="spinner"></div>
+                            <span>Joining...</span>
+                        </div>
                     }
                     else
                     {
@@ -236,6 +239,27 @@
     .engine-btn:disabled {
         background-color: #666;
         cursor: not-allowed;
+    }
+    
+    .join-spinner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid transparent;
+        border-top: 2px solid currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
     
     .error {
@@ -523,6 +547,7 @@
         _isConnecting = true;
         _errorMessage = "";
         _usePhaser = usePhaser;
+        StateHasChanged(); // Update UI to show spinner immediately
         
         try
         {
@@ -577,6 +602,10 @@
                 {
                     StartAutoJoinRetry();
                 }
+                else
+                {
+                    StateHasChanged(); // Update UI to show error message
+                }
             }
         }
         catch (Exception ex)
@@ -588,10 +617,15 @@
             {
                 StartAutoJoinRetry();
             }
+            else
+            {
+                StateHasChanged(); // Update UI to show error message
+            }
         }
         finally
         {
             _isConnecting = false;
+            StateHasChanged(); // Update UI to hide spinner
         }
     }
     

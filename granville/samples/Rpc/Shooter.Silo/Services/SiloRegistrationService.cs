@@ -107,7 +107,7 @@ public class SiloRegistrationService : BackgroundService
         var httpPort = _configuration.GetValue<int>("Aspire:Shooter:Silo:http:0:Port", 
             _configuration.GetValue<int>("Aspire:Shooter:Silo:0:Port", 7071));
         var httpsPort = _configuration.GetValue<int>("Aspire:Shooter:Silo:https:0:Port", 
-            _configuration.GetValue<int>("Aspire:Shooter:Silo:1:Port", 7171));
+            _configuration.GetValue<int>("Aspire:Shooter:Silo:1:Port", 7071));
         
         // Check if we're running in development or with specific URLs
         var urls = _configuration["ASPNETCORE_URLS"] ?? $"http://localhost:{httpPort};https://localhost:{httpsPort}";

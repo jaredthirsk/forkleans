@@ -38,6 +38,7 @@
     <PackageVersion Include="Granville.Orleans.Server" Version="9.1.2.191" />
     <PackageVersion Include="Granville.Orleans.Client" Version="9.1.2.191" />
     <PackageVersion Include="Granville.Orleans.Analyzers" Version="9.1.2.191" />
+    <PackageVersion Include="Granville.Orleans.Reminders" Version="9.1.2.191" />
     
     <!-- Note: Microsoft Orleans shim packages are not used in this project to avoid conflicts -->
     <!-- All Orleans functionality comes from Granville.Orleans packages -->

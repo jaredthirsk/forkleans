@@ -44,7 +44,7 @@
     
     <div class="chat-input">
         <div class="input-group">
-            <input @bind="currentMessage" @onkeypress="HandleKeyPress" 
+            <input @bind="currentMessage" @bind:event="oninput" @onkeydown="HandleKeyPress" 
                    class="form-control form-control-sm" 
                    placeholder="Type a message as @ChatService.SiloName..." 
                    disabled="@(!ChatService.IsConnected)" />
@@ -364,12 +364,3 @@
         }
     }
 }
-
-<script>
-    window.scrollToBottom = (elementId) => {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.scrollTop = element.scrollHeight;
-        }
-    };
-</script>

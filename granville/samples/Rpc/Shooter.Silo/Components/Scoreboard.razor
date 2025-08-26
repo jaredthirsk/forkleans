@@ -13,10 +13,8 @@
                     <tr>
                         <th>Rank</th>
                         <th>Player</th>
-                        <th>Score</th>
-                        <th>Kills</th>
-                        <th>Deaths</th>
-                        <th>K/D</th>
+                        <th>Health Score</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -27,8 +25,8 @@
                     {
                         var player = rankedPlayers[i];
                         var rank = i + 1;
-                        var kdRatio = player.Deaths > 0 ? (float)player.EnemiesKilled / player.Deaths : player.EnemiesKilled;
-                        <tr>
+                        var isAlive = player.TotalScore > 100; // Alive bonus was 100, so > 100 means alive
+                        <tr class="@(isAlive ? "player-alive" : "player-dead")">
                             <td>
                                 <span class="rank-badge @GetRankBadgeClass(rank)">
                                     @GetRankDisplay(rank)
@@ -42,9 +40,11 @@
                                 }
                             </td>
                             <td class="score-value">@player.TotalScore</td>
-                            <td>@player.EnemiesKilled</td>
-                            <td>@player.Deaths</td>
-                            <td>@kdRatio.ToString("F1")</td>
+                            <td>
+                                <span class="badge @(isAlive ? "bg-success" : "bg-danger")">
+                                    @(isAlive ? "Alive" : "Dead")
+                                </span>
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -207,11 +207,15 @@
             // Get all registered players
             var players = await worldManager.GetAllPlayers();
             
-            // Convert PlayerInfo to PlayerScore with basic scoring
-            var playerScores = new List<PlayerScore>();
+            // Use a dictionary to prevent duplicates based on PlayerId
+            var playerScores = new Dictionary<string, PlayerScore>();
             
             foreach (var player in players)
             {
+                // Skip if we already processed this player
+                if (playerScores.ContainsKey(player.PlayerId))
+                    continue;
+                
                 // Get additional info from player grain
                 try
                 {
@@ -226,15 +230,15 @@
                     var playerScore = new PlayerScore(
                         PlayerId: player.PlayerId,
                         PlayerName: player.Name,
-                        RespawnCount: 0, // Would need to track this
-                        EnemiesKilled: 0, // Would need to track this
-                        PlayerKills: 0, // Would need to track this  
-                        Deaths: 0, // Would need to track this
-                        AccuracyPercent: 0.0f, // Would need to track this
+                        RespawnCount: 0, // Not implemented yet
+                        EnemiesKilled: 0, // Not implemented yet
+                        PlayerKills: 0, // Not implemented yet  
+                        Deaths: 0, // Not implemented yet
+                        AccuracyPercent: 0.0f, // Not implemented yet
                         TotalScore: basicScore
                     );
                     
-                    playerScores.Add(playerScore);
+                    playerScores[player.PlayerId] = playerScore;
                 }
                 catch (Exception ex)
                 {
@@ -252,42 +256,22 @@
                         TotalScore: (int)(player.Health * 0.5f)
                     );
                     
-                    playerScores.Add(fallbackScore);
+                    playerScores[player.PlayerId] = fallbackScore;
                 }
             }
             
-            // If no players, show some example data
-            if (!playerScores.Any())
-            {
-                playerScores = GenerateMockScores();
-            }
-            
-            _playerData = playerScores;
+            _playerData = playerScores.Values.ToList();
             
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error refreshing scoreboard: {ex.Message}");
-            // Fallback to mock data on error
-            _playerData = GenerateMockScores();
+            // Keep existing data on error instead of showing mock data
             await InvokeAsync(StateHasChanged);
         }
     }
     
-    private List<PlayerScore> GenerateMockScores()
-    {
-        // Generate some mock PlayerScore data using the actual PlayerScore record
-        return new List<PlayerScore>
-        {
-            new("player1", "AlphaWarrior", 2, 15, 3, 2, 85.5f, 1250),
-            new("player2", "BetaStriker", 1, 12, 2, 1, 92.3f, 980),
-            new("bot1", "TestBot_001", 3, 8, 1, 4, 75.0f, 750),
-            new("player3", "GammaShooter", 1, 6, 0, 3, 88.1f, 650),
-            new("bot2", "TestBot_002", 0, 4, 1, 2, 70.5f, 400),
-            new("player4", "DeltaHunter", 2, 3, 2, 5, 60.2f, 300)
-        };
-    }
     
     private string GetRankBadgeClass(int rank)
     {

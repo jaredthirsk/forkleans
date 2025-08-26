@@ -17,6 +17,7 @@
     <!-- Granville Orleans packages only - no Microsoft Orleans references to avoid conflicts -->
     <PackageReference Include="Granville.Orleans.Sdk" />
     <PackageReference Include="Granville.Orleans.Server" />
+    <PackageReference Include="Granville.Orleans.Reminders" />
     
     <!-- Orleans Persistence packages -->
     <PackageReference Include="Microsoft.Orleans.Persistence.Memory" />

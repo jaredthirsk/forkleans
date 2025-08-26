@@ -237,13 +237,46 @@ public class DashboardChatService : IDisposable
         var urls = _configuration["ASPNETCORE_URLS"];
         if (!string.IsNullOrEmpty(urls))
         {
-            var firstUrl = urls.Split(';')[0];
-            _logger.LogInformation("Using server URL from ASPNETCORE_URLS: {Url}", firstUrl);
-            return firstUrl.EndsWith("/") ? firstUrl : firstUrl + "/";
+            // ASPNETCORE_URLS may contain both HTTP and HTTPS URLs
+            // We need to use the HTTPS one for SignalR
+            var urlArray = urls.Split(';');
+            string selectedUrl = urlArray[0];
+            
+            // Prefer HTTPS URL if available
+            foreach (var url in urlArray)
+            {
+                if (url.StartsWith("https://"))
+                {
+                    selectedUrl = url;
+                    break;
+                }
+            }
+            
+            _logger.LogInformation("Using server URL from ASPNETCORE_URLS: {Url}", selectedUrl);
+            return selectedUrl.EndsWith("/") ? selectedUrl : selectedUrl + "/";
         }
         
-        // Fallback to common Silo URL
-        var fallback = "https://localhost:7071/";
+        // Try to get HTTP port and construct HTTPS URL
+        var httpPort = _configuration.GetValue<int?>("ASPNETCORE_HTTP_PORT");
+        var httpsPort = _configuration.GetValue<int?>("ASPNETCORE_HTTPS_PORT");
+        
+        if (httpsPort.HasValue)
+        {
+            var url = $"https://localhost:{httpsPort}/";
+            _logger.LogInformation("Using server URL from ASPNETCORE_HTTPS_PORT: {Url}", url);
+            return url;
+        }
+        
+        if (httpPort.HasValue)
+        {
+            // HTTPS port is typically HTTP port + 1
+            var url = $"https://localhost:{httpPort + 1}/";
+            _logger.LogInformation("Using server URL derived from ASPNETCORE_HTTP_PORT: {Url}", url);
+            return url;
+        }
+        
+        // Fallback to common Silo URL (HTTP port 7071, HTTPS port 7072)
+        var fallback = "https://localhost:7072/";
         _logger.LogWarning("Using fallback server URL: {Url} - this may cause connection issues", fallback);
         return fallback;
     }
