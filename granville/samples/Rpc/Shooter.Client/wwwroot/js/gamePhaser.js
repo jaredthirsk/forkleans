@@ -27,6 +27,9 @@ class GamePhaser {
         this.dotNetReference = dotNetReference;
         this.playerId = playerId;
         console.log('GamePhaser initialized with playerId:', playerId);
+        
+        // Start periodic camera check
+        this.startCameraCheck();
 
         // Get container element to determine responsive dimensions
         const container = document.getElementById(containerId);
@@ -698,8 +701,12 @@ class GamePhaser {
                 if (sprite) {
                     // Always ensure camera follows the current player sprite
                     if (!this.scene.cameras.main.target || this.scene.cameras.main.target !== sprite) {
+                        console.log(`[CAMERA] Setting camera to follow player ${entity.entityId}`);
                         this.scene.cameras.main.startFollow(sprite, true, 0.1, 0.1);
+                        this.scene.cameras.main.setBounds(0, 0, 10000, 10000); // Ensure camera bounds are set
                     }
+                } else {
+                    console.error(`[CAMERA] Player sprite is null for playerId ${entity.entityId}!`);
                 }
             }
         }
@@ -1292,7 +1299,9 @@ class GamePhaser {
         // Find player position
         const playerSprite = this.sprites.get(this.playerId);
         if (!playerSprite) {
-            console.warn(`[INPUT] No sprite found for playerId: ${this.playerId}`);
+            console.error(`[ERROR] No sprite found for playerId: ${this.playerId}. Available sprites: ${Array.from(this.sprites.keys()).join(', ')}`);
+            // Try to recover camera tracking
+            this.recoverCameraTracking();
             return;
         }
 
@@ -1310,6 +1319,51 @@ class GamePhaser {
             const shootY = dy / length;
             // Player shooting input processed
             this.dotNetReference.invokeMethodAsync('OnShootInput', shootX, shootY);
+        }
+    }
+
+    startCameraCheck() {
+        // Check camera tracking every 2 seconds
+        if (this.cameraCheckInterval) {
+            clearInterval(this.cameraCheckInterval);
+        }
+        
+        this.cameraCheckInterval = setInterval(() => {
+            if (this.scene && this.playerId) {
+                const playerSprite = this.sprites.get(this.playerId);
+                if (playerSprite) {
+                    // Check if camera is following the player
+                    const camera = this.scene.cameras.main;
+                    if (!camera.target || camera.target !== playerSprite) {
+                        console.warn('[CAMERA] Camera lost tracking, recovering...');
+                        camera.startFollow(playerSprite, true, 0.1, 0.1);
+                        camera.setBounds(0, 0, 10000, 10000);
+                    }
+                } else if (this.sprites.size > 0) {
+                    console.warn(`[CAMERA] Player sprite missing. PlayerId: ${this.playerId}, Available: ${Array.from(this.sprites.keys()).join(', ')}`);
+                }
+            }
+        }, 2000);
+    }
+
+    recoverCameraTracking() {
+        // Try to find the player sprite and restore camera tracking
+        if (!this.playerId) {
+            console.error('[CAMERA] No playerId set, cannot recover camera tracking');
+            return;
+        }
+        
+        const playerSprite = this.sprites.get(this.playerId);
+        if (playerSprite) {
+            console.log(`[CAMERA] Recovering camera tracking for player ${this.playerId}`);
+            this.scene.cameras.main.startFollow(playerSprite, true, 0.1, 0.1);
+            this.scene.cameras.main.setBounds(0, 0, 10000, 10000);
+        } else {
+            console.error(`[CAMERA] Cannot recover - no sprite for player ${this.playerId}. Total sprites: ${this.sprites.size}`);
+            // Log all sprite IDs for debugging
+            if (this.sprites.size > 0) {
+                console.log('[CAMERA] Available sprite IDs:', Array.from(this.sprites.keys()));
+            }
         }
     }
 

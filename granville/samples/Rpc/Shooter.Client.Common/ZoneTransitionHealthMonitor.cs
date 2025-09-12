@@ -15,6 +15,9 @@ namespace Shooter.Client.Common
         private readonly ILogger<ZoneTransitionHealthMonitor> _logger;
         private readonly object _lock = new object();
         
+        // Event for prolonged zone mismatch detection
+        public event Action<GridSquare, GridSquare, double>? OnProlongedMismatchDetected;
+        
         // Tracking state
         private GridSquare? _currentPlayerZone;
         private GridSquare? _currentServerZone;
@@ -258,6 +261,9 @@ namespace Shooter.Client.Common
                             _currentPlayerZone.X, _currentPlayerZone.Y,
                             _currentServerZone.X, _currentServerZone.Y,
                             mismatchDuration);
+                        
+                        // Fire event to trigger forced reconnection
+                        OnProlongedMismatchDetected?.Invoke(_currentPlayerZone, _currentServerZone, mismatchDuration);
                     }
                 }
                 else

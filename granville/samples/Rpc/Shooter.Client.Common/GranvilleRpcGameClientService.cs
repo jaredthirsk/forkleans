@@ -2612,21 +2612,28 @@ public class GranvilleRpcGameClientService : IDisposable
         }
         catch (TimeoutException)
         {
-            _logger.LogError("Test GetWorldState timed out after 3 seconds");
-            IsConnected = false;
-            return;
+            _logger.LogWarning("[ZONE_TRANSITION] Test GetWorldState timed out after 3 seconds, but continuing with zone transition");
+            // Update zone anyway to prevent being stuck - the connection might still be valid
+            _currentZone = serverInfo.AssignedSquare;
+            _zoneTransitionStartTime = DateTime.MinValue;
+            // Don't set IsConnected = false; let the connection remain and see if it recovers
         }
         catch (OperationCanceledException)
         {
-            _logger.LogError("Test GetWorldState was cancelled");
-            IsConnected = false;
-            return;
+            _logger.LogWarning("[ZONE_TRANSITION] Test GetWorldState was cancelled, but continuing with zone transition");
+            // Update zone anyway to prevent being stuck
+            _currentZone = serverInfo.AssignedSquare;
+            _zoneTransitionStartTime = DateTime.MinValue;
+            // Don't set IsConnected = false; let the connection remain
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Test GetWorldState failed after reconnection");
-            IsConnected = false;
-            return;
+            _logger.LogError(ex, "[ZONE_TRANSITION] Test GetWorldState failed, but tentatively updating zone to prevent deadlock");
+            // CRITICAL FIX: Update zone even on failure to prevent being permanently stuck
+            _currentZone = serverInfo.AssignedSquare;
+            _zoneTransitionStartTime = DateTime.MinValue;
+            // Keep connection but mark as potentially unstable
+            _logger.LogWarning("[ZONE_TRANSITION] Connection may be unstable, will retry if needed");
         }
         
         // Restore player velocity after zone transition
