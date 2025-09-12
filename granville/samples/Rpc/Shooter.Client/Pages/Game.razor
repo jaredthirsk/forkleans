@@ -426,7 +426,7 @@
         RpcGameClient.WorldStateUpdated += OnWorldStateUpdated;
         RpcGameClient.AvailableZonesUpdated += OnAvailableZonesUpdated;
         RpcGameClient.ServerChanged += OnServerChanged;
-        RpcGameClient.ChatMessageReceived += OnChatMessageReceived;
+        // Note: Chat messages now come through SignalR only
         
         // Subscribe to SignalR chat events
         SignalRChat.ChatMessageReceived += OnSignalRChatMessageReceived;
@@ -1100,21 +1100,6 @@
         });
     }
     
-    private void OnChatMessageReceived(ChatMessage message)
-    {
-        InvokeAsync(() =>
-        {
-            _chatMessages.Add(message);
-            
-            // Keep only last 100 messages
-            if (_chatMessages.Count > 100)
-            {
-                _chatMessages.RemoveAt(0);
-            }
-            
-            StateHasChanged();
-        });
-    }
     
     private async Task HandleChatMessage(string message)
     {
@@ -1196,6 +1181,13 @@
     
     private void UpdateServerZone()
     {
+        // Handle case where _currentServerId might be null or empty during transitions
+        if (string.IsNullOrEmpty(_currentServerId))
+        {
+            _currentServerZone = "Transitioning...";
+            return;
+        }
+        
         // Try to find the zone for this server
         if (_serverZoneMap.TryGetValue(_currentServerId, out var zone))
         {
@@ -1203,8 +1195,17 @@
         }
         else
         {
-            _currentServerZone = "Unknown Zone";
-            _logger.LogDebug("No zone mapping found for server {ServerId}", _currentServerId);
+            // During zone transitions, server may not be in map yet
+            // Try to get zone from RpcGameClient if available
+            if (RpcGameClient?.CurrentGridSquare != null)
+            {
+                _currentServerZone = $"{RpcGameClient.CurrentGridSquare.X}, {RpcGameClient.CurrentGridSquare.Y}";
+            }
+            else
+            {
+                _currentServerZone = "Unknown Zone";
+                _logger.LogDebug("No zone mapping found for server {ServerId}", _currentServerId);
+            }
         }
         
         // Check if player is in the correct zone
@@ -1432,7 +1433,7 @@
         RpcGameClient.WorldStateUpdated -= OnWorldStateUpdated;
         RpcGameClient.AvailableZonesUpdated -= OnAvailableZonesUpdated;
         RpcGameClient.ServerChanged -= OnServerChanged;
-        RpcGameClient.ChatMessageReceived -= OnChatMessageReceived;
+        // Note: Chat messages now come through SignalR only
         
         // Unsubscribe from SignalR events
         SignalRChat.ChatMessageReceived -= OnSignalRChatMessageReceived;

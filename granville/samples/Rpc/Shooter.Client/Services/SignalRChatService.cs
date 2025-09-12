@@ -157,26 +157,11 @@ public class SignalRChatService : IDisposable
             
             // Register event handlers
             
-            // Listen for the full ChatMessage object (preferred)
+            // Listen for the full ChatMessage object
             _hubConnection.On<ChatMessage>("ReceiveChatMessage", (chatMessage) =>
             {
                 _logger.LogInformation("[SIGNALR_CHAT] Received chat message from {User}: {Message}", 
                     chatMessage.SenderName, chatMessage.Message);
-                ChatMessageReceived?.Invoke(chatMessage);
-            });
-            
-            // Also listen for the simple format for backward compatibility
-            _hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
-            {
-                var chatMessage = new ChatMessage(
-                    SenderId: "unknown", // We don't have sender ID in current implementation
-                    SenderName: user,
-                    Message: message,
-                    Timestamp: DateTime.UtcNow,
-                    IsSystemMessage: false
-                );
-                
-                _logger.LogInformation("[SIGNALR_CHAT] Received message from {User}: {Message}", user, message);
                 ChatMessageReceived?.Invoke(chatMessage);
             });
             

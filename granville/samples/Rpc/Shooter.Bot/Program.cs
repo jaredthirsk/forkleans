@@ -6,6 +6,7 @@ using Shooter.Bot;
 using Shooter.Bot.Services;
 using Shooter.Client.Common;
 using Shooter.ServiceDefaults;
+using System.Net.Http;
 using System.Runtime.Loader;
 using System.Reflection;
 
@@ -132,6 +133,17 @@ if (!siloUrl.EndsWith("/"))
 builder.Services.AddHttpClient("SiloClient", client =>
 {
     client.BaseAddress = new Uri(siloUrl);
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    var handler = new HttpClientHandler();
+    // Bypass certificate validation in development
+    if (builder.Environment.IsDevelopment())
+    {
+        handler.ServerCertificateCustomValidationCallback = 
+            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+    }
+    return handler;
 });
 
 // Register the RPC game client service

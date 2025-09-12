@@ -1,0 +1,362 @@
+#!/usr/bin/env pwsh
+<#
+.SYNOPSIS
+    AI-driven development loop for Shooter application debugging.
+    
+.DESCRIPTION
+    This script enables Claude to monitor, analyze, and fix issues automatically:
+    1. Starts Shooter components with full logging
+    2. Monitors for errors/issues in real-time
+    3. Pauses on errors and saves context for AI analysis
+    4. Waits for AI to investigate and fix
+    5. Restarts and continues testing
+    
+.PARAMETER MaxIterations
+    Maximum number of fix attempts
+    Default: 10
+    
+.PARAMETER RunDuration
+    How long to run before considering it stable (seconds)
+    Default: 60
+    
+.PARAMETER AutoFix
+    Whether to automatically attempt fixes (requires AI interaction)
+    Default: true
+    
+.EXAMPLE
+    ./ai-dev-loop.ps1
+    # Claude can then read the error files and fix issues
+#>
+param(
+    [int]$MaxIterations = 10,
+    [int]$RunDuration = 60,
+    [bool]$AutoFix = $true
+)
+
+$ErrorActionPreference = "Stop"
+
+# Session setup
+$sessionId = Get-Date -Format "yyyyMMdd-HHmmss"
+$workDir = "ai-dev-loop/$sessionId"
+New-Item -ItemType Directory -Force -Path $workDir | Out-Null
+
+# State file for AI to read
+$stateFile = "$workDir/current-state.json"
+$errorFile = "$workDir/last-error.txt"
+$contextFile = "$workDir/error-context.log"
+$instructionsFile = "$workDir/ai-instructions.txt"
+
+# Statistics
+$stats = @{
+    Iteration = 0
+    ErrorsFound = 0
+    FixesApplied = 0
+    SuccessfulRuns = 0
+    StartTime = Get-Date
+    LastError = $null
+    State = "Starting"
+}
+
+function Write-State {
+    param($State, $Message = "")
+    
+    $stats.State = $State
+    $stats.LastUpdate = Get-Date
+    $stats.Message = $Message
+    
+    $stats | ConvertTo-Json -Depth 3 | Out-File $stateFile
+    
+    $color = switch($State) {
+        "Running" { "Green" }
+        "Error" { "Red" }
+        "Investigating" { "Yellow" }
+        "Fixing" { "Cyan" }
+        "Success" { "Green" }
+        default { "White" }
+    }
+    
+    Write-Host "[$State] $Message" -ForegroundColor $color
+}
+
+function Start-ShooterWithLogging {
+    Write-State "Starting" "Launching Shooter components with full logging..."
+    
+    $processes = @()
+    
+    # Kill any existing processes
+    @("Shooter.Silo", "Shooter.Client", "Shooter.ActionServer", "Shooter.Bot") | ForEach-Object {
+        Get-Process -Name $_ -ErrorAction SilentlyContinue | Stop-Process -Force
+    }
+    Start-Sleep -Seconds 2
+    
+    # Start Silo with detailed logging
+    $siloLog = "$workDir/silo-$($stats.Iteration).log"
+    $siloProc = Start-Process -FilePath "dotnet" `
+        -ArgumentList "run --project ../Shooter.Silo --no-launch-profile -- --environment Development" `
+        -WorkingDirectory ".." `
+        -RedirectStandardOutput $siloLog `
+        -RedirectStandardError "$workDir/silo-$($stats.Iteration)-err.log" `
+        -PassThru
+    $processes += @{Name="Silo"; Process=$siloProc; LogFile=$siloLog}
+    
+    Start-Sleep -Seconds 5
+    
+    # Start ActionServer
+    $actionLog = "$workDir/action-$($stats.Iteration).log"
+    $actionProc = Start-Process -FilePath "dotnet" `
+        -ArgumentList "run --project ../Shooter.ActionServer --no-launch-profile -- --environment Development" `
+        -WorkingDirectory ".." `
+        -RedirectStandardOutput $actionLog `
+        -RedirectStandardError "$workDir/action-$($stats.Iteration)-err.log" `
+        -PassThru
+    $processes += @{Name="ActionServer"; Process=$actionProc; LogFile=$actionLog}
+    
+    Start-Sleep -Seconds 3
+    
+    # Start Client
+    $clientLog = "$workDir/client-$($stats.Iteration).log"
+    $clientProc = Start-Process -FilePath "dotnet" `
+        -ArgumentList "run --project ../Shooter.Client --no-launch-profile -- --environment Development" `
+        -WorkingDirectory ".." `
+        -RedirectStandardOutput $clientLog `
+        -RedirectStandardError "$workDir/client-$($stats.Iteration)-err.log" `
+        -PassThru
+    $processes += @{Name="Client"; Process=$clientProc; LogFile=$clientLog}
+    
+    # Start Bot for activity
+    $botLog = "$workDir/bot-$($stats.Iteration).log"
+    $botProc = Start-Process -FilePath "dotnet" `
+        -ArgumentList "run --project ../Shooter.Bot --no-launch-profile -- --BotName AITestBot --environment Development" `
+        -WorkingDirectory ".." `
+        -RedirectStandardOutput $botLog `
+        -RedirectStandardError "$workDir/bot-$($stats.Iteration)-err.log" `
+        -PassThru
+    $processes += @{Name="Bot"; Process=$botProc; LogFile=$botLog}
+    
+    Write-State "Running" "All components started. Monitoring for issues..."
+    return $processes
+}
+
+function Monitor-ForErrors {
+    param($Processes, $Duration)
+    
+    $startTime = Get-Date
+    $errorFound = $false
+    $errorDetails = $null
+    
+    Write-Host "Monitoring for $Duration seconds..." -ForegroundColor Cyan
+    
+    while ((Get-Date) -lt $startTime.AddSeconds($Duration)) {
+        foreach ($proc in $Processes) {
+            # Check if process crashed
+            if ($proc.Process.HasExited) {
+                $exitCode = $proc.Process.ExitCode
+                if ($exitCode -ne 0) {
+                    $errorFound = $true
+                    $errorDetails = "$($proc.Name) crashed with exit code $exitCode"
+                    break
+                }
+            }
+            
+            # Check log for errors
+            if (Test-Path $proc.LogFile) {
+                $recentLines = Get-Content $proc.LogFile -Tail 100 -ErrorAction SilentlyContinue
+                
+                $errorPatterns = @(
+                    "Unhandled exception",
+                    "FATAL",
+                    "System\..*Exception",
+                    "ERROR\]",
+                    "Connection refused",
+                    "Timeout waiting",
+                    "Deadlock detected"
+                )
+                
+                foreach ($line in $recentLines) {
+                    foreach ($pattern in $errorPatterns) {
+                        if ($line -match $pattern) {
+                            $errorFound = $true
+                            $errorDetails = "$($proc.Name): $line"
+                            
+                            # Capture context
+                            Get-Content $proc.LogFile -Tail 200 | Out-File $contextFile
+                            $errorDetails | Out-File $errorFile
+                            
+                            break
+                        }
+                    }
+                    if ($errorFound) { break }
+                }
+            }
+            
+            if ($errorFound) { break }
+        }
+        
+        if ($errorFound) { break }
+        
+        # Show we're alive
+        Write-Host "." -NoNewline
+        Start-Sleep -Seconds 2
+    }
+    
+    Write-Host "" # New line after dots
+    
+    if ($errorFound) {
+        $stats.ErrorsFound++
+        $stats.LastError = $errorDetails
+        Write-State "Error" "Error detected: $errorDetails"
+        return $false
+    }
+    
+    $stats.SuccessfulRuns++
+    Write-State "Success" "No errors detected during $Duration second run"
+    return $true
+}
+
+function Wait-ForAIFix {
+    Write-State "Investigating" "Error captured. Ready for AI analysis."
+    
+    # Create instructions for AI
+    $instructions = @"
+=== AI DEBUGGING INSTRUCTIONS ===
+
+An error has been detected in iteration $($stats.Iteration):
+$($stats.LastError)
+
+Files available for analysis:
+- Error details: $errorFile
+- Full context (last 200 lines): $contextFile
+- All logs: $workDir/*.log
+
+To fix this issue:
+1. Read the error file: Read $errorFile
+2. Read the context: Read $contextFile
+3. Analyze the specific component logs if needed
+4. Identify the root cause
+5. Apply fixes to the source code
+6. Signal completion by writing "FIXED" to: $workDir/fix-complete.txt
+
+The script will automatically restart and test your fix.
+
+Current statistics:
+- Iterations: $($stats.Iteration)
+- Errors found: $($stats.ErrorsFound)
+- Fixes applied: $($stats.FixesApplied)
+- Successful runs: $($stats.SuccessfulRuns)
+"@
+    
+    $instructions | Out-File $instructionsFile
+    
+    Write-Host "`n$instructions" -ForegroundColor Yellow
+    
+    if ($AutoFix) {
+        Write-Host "`nWaiting for AI to analyze and fix the issue..." -ForegroundColor Cyan
+        Write-Host "AI should read: $errorFile" -ForegroundColor Gray
+        Write-Host "When fixed, AI should write 'FIXED' to: $workDir/fix-complete.txt" -ForegroundColor Gray
+        
+        # Wait for AI to signal fix is complete
+        $fixSignalFile = "$workDir/fix-complete.txt"
+        $timeout = 300 # 5 minutes
+        $waited = 0
+        
+        while (-not (Test-Path $fixSignalFile) -and $waited -lt $timeout) {
+            Start-Sleep -Seconds 5
+            $waited += 5
+            
+            if ($waited % 30 -eq 0) {
+                Write-Host "Still waiting for fix... ($waited seconds)" -ForegroundColor Gray
+            }
+        }
+        
+        if (Test-Path $fixSignalFile) {
+            $stats.FixesApplied++
+            Write-State "Fixing" "Fix applied! Restarting to test..."
+            Remove-Item $fixSignalFile
+            return $true
+        }
+        else {
+            Write-State "Investigating" "Timeout waiting for fix. Manual intervention needed."
+            return $false
+        }
+    }
+    else {
+        Write-Host "`nPress Enter when you've fixed the issue..." -ForegroundColor Yellow
+        Read-Host
+        return $true
+    }
+}
+
+function Stop-AllProcesses {
+    @("Shooter.Silo", "Shooter.Client", "Shooter.ActionServer", "Shooter.Bot") | ForEach-Object {
+        Get-Process -Name $_ -ErrorAction SilentlyContinue | Stop-Process -Force
+    }
+}
+
+# Main loop
+Write-Host "=== AI Development Loop ===" -ForegroundColor Green
+Write-Host "Session: $sessionId" -ForegroundColor Cyan
+Write-Host "Working directory: $workDir" -ForegroundColor Cyan
+Write-Host "Max iterations: $MaxIterations" -ForegroundColor Cyan
+Write-Host "Run duration: $RunDuration seconds" -ForegroundColor Cyan
+Write-Host ""
+
+try {
+    for ($i = 1; $i -le $MaxIterations; $i++) {
+        $stats.Iteration = $i
+        Write-Host "`n=== Iteration $i ===" -ForegroundColor Cyan
+        
+        # Start services
+        $processes = Start-ShooterWithLogging
+        
+        # Monitor for errors
+        $success = Monitor-ForErrors -Processes $processes -Duration $RunDuration
+        
+        # Stop all processes
+        Stop-AllProcesses
+        Start-Sleep -Seconds 2
+        
+        if ($success) {
+            Write-State "Success" "Run completed successfully!"
+            
+            # Run longer test to confirm stability
+            if ($i -lt $MaxIterations) {
+                Write-Host "Running extended test (2x duration) to confirm stability..." -ForegroundColor Green
+                $processes = Start-ShooterWithLogging
+                $success = Monitor-ForErrors -Processes $processes -Duration ($RunDuration * 2)
+                Stop-AllProcesses
+                
+                if ($success) {
+                    Write-State "Success" "System is stable! No errors in extended test."
+                    break
+                }
+            }
+        }
+        else {
+            # Error found - wait for fix
+            $fixed = Wait-ForAIFix
+            
+            if (-not $fixed) {
+                Write-Host "Fix not applied. Stopping loop." -ForegroundColor Red
+                break
+            }
+        }
+    }
+}
+finally {
+    Stop-AllProcesses
+    
+    # Final report
+    $runtime = (Get-Date) - $stats.StartTime
+    Write-Host "`n=== Final Report ===" -ForegroundColor Green
+    Write-Host "Total runtime: $($runtime.ToString('hh\:mm\:ss'))" -ForegroundColor Cyan
+    Write-Host "Iterations: $($stats.Iteration)" -ForegroundColor Cyan
+    Write-Host "Errors found: $($stats.ErrorsFound)" -ForegroundColor $(if ($stats.ErrorsFound -gt 0) { "Yellow" } else { "Green" })
+    Write-Host "Fixes applied: $($stats.FixesApplied)" -ForegroundColor Cyan
+    Write-Host "Successful runs: $($stats.SuccessfulRuns)" -ForegroundColor Green
+    Write-Host "Session data: $workDir" -ForegroundColor Gray
+    
+    # Save final state
+    Write-State "Completed" "Dev loop completed"
+}
+
+Write-Host "`nDev loop session complete. Results in: $workDir" -ForegroundColor Cyan

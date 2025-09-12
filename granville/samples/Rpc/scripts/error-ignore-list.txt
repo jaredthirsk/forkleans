@@ -1,0 +1,13 @@
+# Ignore list for error monitoring
+# Add patterns (regex) to ignore, one per line
+Development environment
+development certificate
+Graceful shutdown
+Cleaning up
+Using development
+Development mode
+ASPNETCORE_ENVIRONMENT
+DOTNET_ENVIRONMENT
+# HTTPS redirect warnings in development
+Failed to determine the https port for redirect
+HttpsRedirectionMiddleware

@@ -385,8 +385,6 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
         {
             _logger.LogInformation("[CHAT_BROADCAST] HubContext available, sending to all SignalR clients");
             await _hubContext.Clients.All.ReceiveChatMessage(message);
-            // Also send in the simple format for compatibility
-            await _hubContext.Clients.All.ReceiveMessage(message.SenderName, message.Message);
             _logger.LogInformation("[CHAT_BROADCAST] Successfully broadcast chat message to all SignalR clients");
         }
         else

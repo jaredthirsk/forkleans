@@ -542,6 +542,13 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
         return Task.FromResult(stats);
     }
     
+    public Task<DateTime> GetServerTime()
+    {
+        // Simple lightweight method that returns server time
+        // Used for heartbeat/connectivity checks
+        return Task.FromResult(DateTime.UtcNow);
+    }
+    
     private void SendNetworkStats(object? state)
     {
         try

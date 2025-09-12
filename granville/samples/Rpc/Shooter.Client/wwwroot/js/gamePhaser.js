@@ -695,8 +695,11 @@ class GamePhaser {
                 this.healthText.setText(`Health: ${Math.round(entity.health)}`);
                 
                 // Ensure camera is following player sprite
-                if (!this.scene.cameras.main.target && sprite) {
-                    this.scene.cameras.main.startFollow(sprite, true, 0.1, 0.1);
+                if (sprite) {
+                    // Always ensure camera follows the current player sprite
+                    if (!this.scene.cameras.main.target || this.scene.cameras.main.target !== sprite) {
+                        this.scene.cameras.main.startFollow(sprite, true, 0.1, 0.1);
+                    }
                 }
             }
         }
@@ -1241,8 +1244,20 @@ class GamePhaser {
         this.serverZone = serverZone;
         this.serverText.setText(`Server: ${serverId || 'Unknown'}`);
         
+        // Update zone display immediately when server changes
+        if (serverZone && this.zoneText) {
+            this.zoneText.setText(`Zone: ${serverZone.x}, ${serverZone.y}`);
+        }
+        
         // Redraw grid with new server zone info
         this.drawGrid();
+    }
+    
+    // Method to update zone display during transitions
+    updateZoneDisplay(zone) {
+        if (this.zoneText && zone) {
+            this.zoneText.setText(`Zone: ${zone.x}, ${zone.y}`);
+        }
     }
     
     updateOneWayBoundaryState(blockedZone, boundaryNormal, isBlocked) {
@@ -1568,3 +1583,10 @@ class GamePhaser {
 
 // Create a single instance
 window.gamePhaser = new GamePhaser();
+
+// Global function to update zone display
+window.updateGamePhaserZone = function(zone) {
+    if (window.gamePhaser && zone) {
+        window.gamePhaser.updateZoneDisplay(zone);
+    }
+};

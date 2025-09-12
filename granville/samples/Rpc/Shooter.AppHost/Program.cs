@@ -58,8 +58,8 @@ for (int i = 0; i < SiloCount; i++)
     var blockIndex = FindAvailablePortBlock(i);
     var basePort = 7070 + (blockIndex * 10);
     var httpPort = basePort + 1;        // 7071, 7081, etc.
-    var httpsPort = basePort + 2;       // 7072, 7082, etc.
-    var dashboardPort = basePort + 3;   // 7073, 7083, etc.
+    var httpsPort = basePort + 10;      // 7080, 7090, etc. - avoid conflict with ActionServer ports
+    var dashboardPort = basePort + 11;  // 7081, 7091, etc. - avoid conflict with ActionServer ports
     var siloName = $"shooter-silo-{i}";
     
     var silo = builder.AddProject<Projects.Shooter_Silo>(siloName)
@@ -108,11 +108,12 @@ var actionServers = new List<IResourceBuilder<ProjectResource>>();
 for (int i = 0; i < InitialActionServerCount; i++)
 {
     var rpcPort = 12000 + i;
+    var httpPort = 7072 + i;  // ActionServers need specific ports 7072-7075
     // Distribute action servers across silos using round-robin
     var targetSilo = silos[i % silos.Count];
     
     var server = builder.AddProject<Projects.Shooter_ActionServer>($"shooter-actionserver-{i}")
-        .WithHttpEndpoint()  // Let Aspire assign a dynamic HTTP endpoint
+        .WithHttpEndpoint(httpPort, httpPort, isProxied: false)  // Bind to specific port
         .WithEnvironment("Orleans__SiloUrl", targetSilo.GetEndpoint("https"))
         .WithEnvironment("Orleans__GatewayEndpoint", targetSilo.GetEndpoint("orleans-gateway"))
         .WithEnvironment("Orleans__ClusterId", "shooter-cluster")

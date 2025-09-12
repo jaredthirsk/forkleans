@@ -521,53 +521,65 @@ public class GranvilleRpcGameClientService : IDisposable
             }
             
             // Start timers using RobustTimerManager for protected execution
-            _timerManager.CreateTimer("worldState", async _ => 
+            _timerManager.CreateTimer("worldState", _ => 
             {
-                try
+                Task.Run(async () =>
                 {
-                    await PollWorldState();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "[TIMER_CALLBACK] Unhandled exception in world state timer callback. ExceptionType={ExceptionType}, State: IsConnected={IsConnected}, IsTransitioning={IsTransitioning}, ThreadId={ThreadId}, GameGrainNull={GameGrainNull}, CancellationRequested={CancellationRequested}",
-                        ex.GetType().FullName, IsConnected, _isTransitioning, Thread.CurrentThread.ManagedThreadId, _gameGrain == null, _cancellationTokenSource?.Token.IsCancellationRequested ?? true);
-                }
+                    try
+                    {
+                        await PollWorldState();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "[TIMER_CALLBACK] Unhandled exception in world state timer callback. ExceptionType={ExceptionType}, State: IsConnected={IsConnected}, IsTransitioning={IsTransitioning}, ThreadId={ThreadId}, GameGrainNull={GameGrainNull}, CancellationRequested={CancellationRequested}",
+                            ex.GetType().FullName, IsConnected, _isTransitioning, Thread.CurrentThread.ManagedThreadId, _gameGrain == null, _cancellationTokenSource?.Token.IsCancellationRequested ?? true);
+                    }
+                });
             }, 33); // 30 FPS
             
-            _timerManager.CreateTimer("heartbeat", async _ => 
+            _timerManager.CreateTimer("heartbeat", _ => 
             {
-                try
+                Task.Run(async () =>
                 {
-                    await SendHeartbeat();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Unhandled exception in heartbeat timer callback");
-                }
+                    try
+                    {
+                        await SendHeartbeat();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Unhandled exception in heartbeat timer callback");
+                    }
+                });
             }, 5000);
             
-            _timerManager.CreateTimer("availableZones", async _ => 
+            _timerManager.CreateTimer("availableZones", _ => 
             {
-                try
+                Task.Run(async () =>
                 {
-                    await PollAvailableZones();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Unhandled exception in available zones timer callback");
-                }
+                    try
+                    {
+                        await PollAvailableZones();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Unhandled exception in available zones timer callback");
+                    }
+                });
             }, 10000);
             
-            _timerManager.CreateTimer("networkStats", async _ => 
+            _timerManager.CreateTimer("networkStats", _ => 
             {
-                try
+                Task.Run(async () =>
                 {
-                    await PollNetworkStats();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Unhandled exception in network stats timer callback");
-                }
+                    try
+                    {
+                        await PollNetworkStats();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Unhandled exception in network stats timer callback");
+                    }
+                });
             }, 1000);
             
             _timerManager.CreateTimer("watchdog", _ => { CheckPollingHealth(); }, 5000);
@@ -575,6 +587,11 @@ public class GranvilleRpcGameClientService : IDisposable
             // Initialize position tracking
             _lastKnownPlayerPosition = null;
             _lastPositionUpdateTime = DateTime.MinValue;
+            
+            // Initialize recovery timestamps
+            _connectionStartTime = DateTime.UtcNow;
+            _lastSuccessfulHeartbeat = DateTime.UtcNow;
+            _lastWorldStateReceived = DateTime.UtcNow;
             
             _logger.LogInformation("Connected to game via Orleans RPC");
             return true;
@@ -1070,6 +1087,9 @@ public class GranvilleRpcGameClientService : IDisposable
         }
     }
     
+    private DateTime? _lastWorldStateReceived;
+    private const int WORLD_STATE_TIMEOUT_SECONDS = 10;
+    
     private async Task PollWorldState()
     {
         if (_gameGrain == null || !IsConnected || _cancellationTokenSource?.Token.IsCancellationRequested == true || _isTransitioning)
@@ -1084,8 +1104,39 @@ public class GranvilleRpcGameClientService : IDisposable
         {
             _logger.LogWarning("[RPC_CHECK] RPC client reports disconnected, skipping poll and marking connection as lost");
             IsConnected = false;
-            _ = Task.Run(async () => await AttemptReconnection());
+            RunSafeFireAndForget(async () => await AttemptReconnection(), "AttemptReconnection");
             return;
+        }
+        
+        // Check for stale world state timeout
+        if (_lastWorldStateReceived.HasValue)
+        {
+            var timeSinceLastUpdate = DateTime.UtcNow - _lastWorldStateReceived.Value;
+            if (timeSinceLastUpdate.TotalSeconds > WORLD_STATE_TIMEOUT_SECONDS)
+            {
+                _logger.LogError("[WORLD_STATE] No updates for {Seconds}s - connection likely broken",
+                    timeSinceLastUpdate.TotalSeconds);
+                
+                // Don't wait for zone mismatch - directly verify connection
+                RunSafeFireAndForget(async () => await ValidateAndCorrectZoneConnection(), "ValidateAndCorrectZoneConnection");
+                
+                // Reset the timer to avoid repeated triggers
+                _lastWorldStateReceived = DateTime.UtcNow;
+            }
+        }
+        else if (IsConnected)
+        {
+            // If we've never received world state but should be connected, that's also a problem
+            var timeSinceConnection = DateTime.UtcNow - _connectionStartTime;
+            if (timeSinceConnection.TotalSeconds > WORLD_STATE_TIMEOUT_SECONDS)
+            {
+                _logger.LogError("[WORLD_STATE] Never received world state after {Seconds}s of connection - triggering recovery",
+                    timeSinceConnection.TotalSeconds);
+                
+                // Initialize the timestamp and trigger recovery
+                _lastWorldStateReceived = DateTime.UtcNow;
+                RunSafeFireAndForget(async () => await ValidateAndCorrectZoneConnection(), "ValidateAndCorrectZoneConnection");
+            }
         }
         
         _logger.LogTrace("PollWorldState executing for player {PlayerId}", PlayerId);
@@ -1096,6 +1147,9 @@ public class GranvilleRpcGameClientService : IDisposable
             var worldState = await _gameGrain.GetWorldState();
             if (worldState != null)
             {
+                // Update timestamp for successful world state receipt
+                _lastWorldStateReceived = DateTime.UtcNow;
+                
                 // Check sequence number to discard out-of-order updates
                 if (worldState.SequenceNumber <= _lastSequenceNumber)
                 {
@@ -1358,7 +1412,7 @@ public class GranvilleRpcGameClientService : IDisposable
                 if (_worldStatePollFailures == 1)
                 {
                     _logger.LogInformation("[RPC_RECONNECT] Attempting immediate reconnection after RPC disconnect");
-                    _ = Task.Run(async () => await AttemptReconnection());
+                    RunSafeFireAndForget(async () => await AttemptReconnection(), "AttemptReconnection");
                 }
             }
             
@@ -1377,26 +1431,64 @@ public class GranvilleRpcGameClientService : IDisposable
             if (_worldStatePollFailures >= 10)
             {
                 _logger.LogWarning("Too many consecutive world state poll failures ({Count}), attempting reconnection", _worldStatePollFailures);
-                _ = Task.Run(async () => await AttemptReconnection());
+                RunSafeFireAndForget(async () => await AttemptReconnection(), "AttemptReconnection");
             }
         }
     }
+    
+    private DateTime _lastSuccessfulHeartbeat = DateTime.UtcNow;
+    private DateTime _connectionStartTime = DateTime.UtcNow;
+    private const int HEARTBEAT_TIMEOUT_SECONDS = 10;
     
     private async Task SendHeartbeat()
     {
         if (_gameGrain == null || !IsConnected || _cancellationTokenSource?.Token.IsCancellationRequested == true)
         {
+            _logger.LogDebug("[HEARTBEAT] Skipping - not connected or shutting down");
             return;
         }
         
+        _logger.LogDebug("[HEARTBEAT] Sending heartbeat...");
         try
         {
-            // The UpdatePlayerInput with zero movement acts as a heartbeat
-            await _gameGrain.UpdatePlayerInput(PlayerId!, Vector2.Zero, false);
+            // Use the new lightweight GetServerTime method for heartbeat
+            var serverTime = await _gameGrain.GetServerTime().WaitAsync(TimeSpan.FromSeconds(2));
+            
+            _lastSuccessfulHeartbeat = DateTime.UtcNow;
+            _logger.LogInformation("[HEARTBEAT] Server responded at {Time}", serverTime);
+        }
+        catch (TimeoutException)
+        {
+            var timeSinceLastHeartbeat = DateTime.UtcNow - _lastSuccessfulHeartbeat;
+            
+            if (timeSinceLastHeartbeat.TotalSeconds > HEARTBEAT_TIMEOUT_SECONDS)
+            {
+                _logger.LogError("[HEARTBEAT] No successful heartbeat for {Seconds}s - triggering recovery",
+                    timeSinceLastHeartbeat.TotalSeconds);
+                
+                // Mark connection as broken
+                IsConnected = false;
+                
+                // Trigger recovery
+                RunSafeFireAndForget(async () => await RecoverFromBrokenConnection(), "RecoverFromBrokenConnection");
+            }
+            else
+            {
+                _logger.LogWarning("[HEARTBEAT] Heartbeat timed out but within tolerance ({Seconds}s since last success)",
+                    timeSinceLastHeartbeat.TotalSeconds);
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send heartbeat");
+            _logger.LogError(ex, "[HEARTBEAT] Failed to send heartbeat");
+            
+            var timeSinceLastHeartbeat = DateTime.UtcNow - _lastSuccessfulHeartbeat;
+            if (timeSinceLastHeartbeat.TotalSeconds > HEARTBEAT_TIMEOUT_SECONDS)
+            {
+                _logger.LogError("[HEARTBEAT] Heartbeat failures exceeded threshold - triggering recovery");
+                IsConnected = false;
+                RunSafeFireAndForget(async () => await RecoverFromBrokenConnection(), "RecoverFromBrokenConnection");
+            }
         }
     }
     
@@ -1433,7 +1525,7 @@ public class GranvilleRpcGameClientService : IDisposable
                     if (!IsConnected)
                     {
                         _logger.LogWarning("Polling stopped and client is disconnected. Attempting reconnection.");
-                        _ = Task.Run(async () => await AttemptReconnection());
+                        RunSafeFireAndForget(async () => await AttemptReconnection(), "AttemptReconnection");
                     }
                     else
                     {
@@ -1509,6 +1601,185 @@ public class GranvilleRpcGameClientService : IDisposable
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during reconnection attempt");
+        }
+    }
+    
+    private async Task RecoverFromBrokenConnection()
+    {
+        _logger.LogInformation("[RECOVERY] Starting connection recovery process");
+        
+        if (_isTransitioning)
+        {
+            _logger.LogInformation("[RECOVERY] Already transitioning, skipping recovery");
+            return;
+        }
+        
+        try
+        {
+            // First try to validate and correct zone connection
+            await ValidateAndCorrectZoneConnection();
+            
+            // If that didn't work, try standard reconnection
+            if (!IsConnected)
+            {
+                await AttemptReconnection();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[RECOVERY] Failed during connection recovery");
+        }
+    }
+    
+    private async Task ValidateAndCorrectZoneConnection()
+    {
+        _logger.LogInformation("[ZONE_VALIDATION] Checking if connected to correct zone");
+        
+        try
+        {
+            // Get authoritative player zone from Orleans
+            var authoritativeZone = await GetAuthoritativePlayerZone();
+            
+            if (authoritativeZone == null)
+            {
+                _logger.LogWarning("[ZONE_VALIDATION] Could not determine authoritative player zone");
+                return;
+            }
+            
+            // Compare with current connection
+            if (_currentZone != null && !authoritativeZone.Equals(_currentZone))
+            {
+                _logger.LogWarning("[ZONE_CORRECTION] Connected to zone {Current} but player is actually in zone {Actual}",
+                    _currentZone, authoritativeZone);
+                
+                // Force transition to correct zone
+                await ForceZoneTransition(authoritativeZone);
+            }
+            else
+            {
+                _logger.LogInformation("[ZONE_VALIDATION] Already connected to correct zone {Zone}", _currentZone);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ZONE_VALIDATION] Failed to validate zone connection");
+        }
+    }
+    
+    private async Task<GridSquare?> GetAuthoritativePlayerZone()
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(PlayerId))
+            {
+                _logger.LogWarning("[ZONE_LOOKUP] No player ID available");
+                return null;
+            }
+            
+            // Query the Orleans Silo via HTTP for player info
+            var siloUrl = _configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await _httpClient.GetAsync($"{siloUrl}api/world/player/{PlayerId}/info");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var playerInfo = await response.Content.ReadFromJsonAsync<PlayerInfo>();
+                if (playerInfo != null)
+                {
+                    // Calculate zone from player position
+                    var playerZone = GridSquare.FromPosition(playerInfo.Position);
+                    _logger.LogInformation("[ZONE_LOOKUP] Player {PlayerId} at position {Position} is authoritatively in zone {Zone}",
+                        PlayerId, playerInfo.Position, playerZone);
+                    return playerZone;
+                }
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                _logger.LogWarning("[ZONE_LOOKUP] Player {PlayerId} not found in WorldManager", PlayerId);
+            }
+            else
+            {
+                _logger.LogWarning("[ZONE_LOOKUP] Failed to get player info: {Status}", response.StatusCode);
+            }
+            
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ZONE_LOOKUP] Failed to get authoritative player zone");
+            return null;
+        }
+    }
+    
+    private async Task ForceZoneTransition(GridSquare targetZone)
+    {
+        _logger.LogInformation("[FORCE_TRANSITION] Forcing transition to zone {Zone}", targetZone);
+        
+        // Bypass debouncing for forced transitions
+        _isTransitioning = true;
+        
+        try
+        {
+            // Look up the server for the target zone
+            var serverInfo = await GetServerInfoForZone(targetZone);
+            if (serverInfo == null)
+            {
+                _logger.LogError("[FORCE_TRANSITION] No server found for zone {Zone}", targetZone);
+                return;
+            }
+            
+            // Disconnect from current server
+            if (_gameGrain != null)
+            {
+                try
+                {
+                    await DisconnectAsync();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "[FORCE_TRANSITION] Error disconnecting from current server");
+                }
+            }
+            
+            // Connect to correct server
+            await ConnectToActionServer(serverInfo.IpAddress, serverInfo.RpcPort, serverInfo.ServerId);
+            
+            _logger.LogInformation("[FORCE_TRANSITION] Successfully forced transition to zone {Zone}", targetZone);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[FORCE_TRANSITION] Failed to force transition to zone {Zone}", targetZone);
+        }
+        finally
+        {
+            _isTransitioning = false;
+        }
+    }
+    
+    private async Task<ActionServerInfo?> GetServerInfoForZone(GridSquare zone)
+    {
+        try
+        {
+            // Query via HTTP API
+            var siloUrl = _configuration["SiloUrl"] ?? "https://localhost:7071/";
+            if (!siloUrl.EndsWith("/")) siloUrl += "/";
+            
+            var response = await _httpClient.GetAsync($"{siloUrl}api/world/action-servers");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var servers = await response.Content.ReadFromJsonAsync<List<ActionServerInfo>>();
+                return servers?.FirstOrDefault(s => s.AssignedSquare.Equals(zone));
+            }
+            
+            _logger.LogWarning("[ZONE_LOOKUP] Failed to get action servers: {Status}", response.StatusCode);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get server info for zone {Zone}", zone);
+            return null;
         }
     }
     
@@ -2374,11 +2645,11 @@ public class GranvilleRpcGameClientService : IDisposable
         }
         
         // Use RobustTimerManager to create protected timers
-        _timerManager.CreateTimer("worldState", async _ => await PollWorldState(), 33); // 30 FPS
-        _timerManager.CreateTimer("heartbeat", async _ => await SendHeartbeat(), 5000);
-        _timerManager.CreateTimer("availableZones", async _ => await PollAvailableZones(), 10000);
-        _timerManager.CreateTimer("networkStats", async _ => await PollNetworkStats(), 1000);
-        _timerManager.CreateTimer("watchdog", _ => { CheckPollingHealth(); }, 5000);
+        _timerManager.CreateTimer("worldState", _ => { RunSafeFireAndForget(async () => await PollWorldState(), "PollWorldState"); }, 33); // 30 FPS
+        _timerManager.CreateTimer("heartbeat", _ => { RunSafeFireAndForget(async () => await SendHeartbeat(), "SendHeartbeat"); }, 5000);
+        _timerManager.CreateTimer("availableZones", _ => { RunSafeFireAndForget(async () => await PollAvailableZones(), "PollAvailableZones"); }, 10000);
+        _timerManager.CreateTimer("networkStats", _ => { RunSafeFireAndForget(async () => await PollNetworkStats(), "PollNetworkStats"); }, 1000);
+        _timerManager.CreateTimer("watchdog", _ => { RunSafeFireAndForget(async () => await CheckPollingHealth(), "CheckPollingHealth"); }, 5000);
         
         // Restart chat polling if it was active
         if (_observer == null)
@@ -3379,7 +3650,7 @@ public class GranvilleRpcGameClientService : IDisposable
         var allKeys = _preEstablishedConnections.Keys.ToList();
         foreach (var key in allKeys)
         {
-            _ = Task.Run(async () => await CleanupPreEstablishedConnection(key));
+            RunSafeFireAndForget(async () => await CleanupPreEstablishedConnection(key), $"CleanupPreEstablishedConnection-{key}");
         }
         _preEstablishedConnections.Clear();
         
@@ -3429,6 +3700,32 @@ public class GranvilleRpcGameClientService : IDisposable
         ChatMessageReceived?.Invoke(message);
     }
     
+    /// <summary>
+    /// Safely runs a task in the background with proper exception handling to prevent unobserved task exceptions
+    /// </summary>
+    private void RunSafeFireAndForget(Func<Task> taskFactory, string operationName)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await taskFactory();
+            }
+            catch (TimeoutException tex)
+            {
+                _logger.LogWarning(tex, "[FIRE_AND_FORGET] Operation '{Operation}' timed out", operationName);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogDebug("[FIRE_AND_FORGET] Operation '{Operation}' was cancelled", operationName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[FIRE_AND_FORGET] Operation '{Operation}' failed", operationName);
+            }
+        });
+    }
+
     public async Task SendChatMessage(string message)
     {
         if (!IsConnected || _gameGrain == null)

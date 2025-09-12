@@ -137,6 +137,13 @@ public interface IGameRpcGrain : Granville.Rpc.IRpcGrainInterfaceWithStringKey
     /// </summary>
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
     Task<NetworkStatistics> GetNetworkStatistics();
+    
+    /// <summary>
+    /// Gets the current server time for heartbeat/connectivity checks.
+    /// This is a lightweight call that should always succeed if the connection is alive.
+    /// </summary>
+    [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
+    Task<DateTime> GetServerTime();
 }
 
 /// <summary>

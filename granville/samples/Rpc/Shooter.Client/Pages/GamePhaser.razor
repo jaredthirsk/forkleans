@@ -352,6 +352,12 @@
                     // Get server zone from parent component if available
                     var serverZone = GetServerZone();
                     await JS.InvokeVoidAsync("gamePhaser.updateServerInfo", RpcGameClient.CurrentServerId, serverZone);
+                    
+                    // Also update zone display if we have current zone info
+                    if (RpcGameClient?.CurrentGridSquare != null)
+                    {
+                        await JS.InvokeVoidAsync("updateGamePhaserZone", RpcGameClient.CurrentGridSquare);
+                    }
                 }
                 catch { }
             });

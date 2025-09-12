@@ -133,6 +133,22 @@ public class WorldController : ControllerBase
         return Ok(info);
     }
     
+    [HttpGet("player/{playerId}/info")]
+    public async Task<ActionResult<PlayerInfo>> GetPlayerInfo(string playerId)
+    {
+        try
+        {
+            var playerGrain = _grainFactory.GetGrain<IPlayerGrain>(playerId);
+            var info = await playerGrain.GetInfo();
+            return Ok(info);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to get player info for {PlayerId}", playerId);
+            return NotFound();
+        }
+    }
+    
     [HttpGet("players/{playerId}/server")]
     public async Task<ActionResult<ActionServerInfo>> GetPlayerServer(string playerId)
     {

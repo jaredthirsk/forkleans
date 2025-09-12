@@ -11,7 +11,6 @@ namespace Shooter.Silo.Hubs;
 public interface IGameHubClient
 {
     Task ReceiveChatMessage(ChatMessage message);
-    Task ReceiveMessage(string user, string message); // For compatibility with simple clients
     Task ReceiveSystemMessage(string message);
     Task ReceiveZoneStats(GlobalZoneStats stats);
     Task GameOver(GameOverMessage message);
@@ -112,9 +111,8 @@ public class GameHub : Hub<IGameHubClient>
             // Broadcast directly through SignalR (UFX.Orleans.SignalRBackplane will handle multi-silo sync)
             _logger.LogInformation("[CHAT_HUB] Broadcasting message directly through SignalR with UFX backplane");
             
-            // Send in both formats for compatibility
+            // Send only the new ChatMessage format to avoid duplication
             await Clients.All.ReceiveChatMessage(chatMessage);
-            await Clients.All.ReceiveMessage(chatMessage.SenderName, chatMessage.Message);
             
             _logger.LogInformation("[CHAT_HUB] Message broadcast successfully through UFX.Orleans.SignalRBackplane");
             
