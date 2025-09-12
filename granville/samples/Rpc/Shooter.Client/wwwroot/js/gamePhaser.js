@@ -592,8 +592,11 @@ class GamePhaser {
                 
                 // Make camera follow the player
                 if (entityType === 0 && entity.entityId === this.playerId) {
-                    this.scene.cameras.main.startFollow(sprite, true, 0.1, 0.1);
-                    console.log('Camera now following player sprite');
+                    const camera = this.scene.cameras.main;
+                    camera.startFollow(sprite, true, 0.1, 0.1);
+                    camera.setBounds(0, 0, 10000, 10000);
+                    camera.centerOn(entity.x, entity.y); // Immediately center on player
+                    console.log(`[CAMERA] Initial setup - following player sprite at (${entity.x}, ${entity.y})`);
                 }
             }
 
@@ -699,11 +702,14 @@ class GamePhaser {
                 
                 // Ensure camera is following player sprite
                 if (sprite) {
-                    // Always ensure camera follows the current player sprite
-                    if (!this.scene.cameras.main.target || this.scene.cameras.main.target !== sprite) {
-                        console.log(`[CAMERA] Setting camera to follow player ${entity.entityId}`);
-                        this.scene.cameras.main.startFollow(sprite, true, 0.1, 0.1);
-                        this.scene.cameras.main.setBounds(0, 0, 10000, 10000); // Ensure camera bounds are set
+                    const camera = this.scene.cameras.main;
+                    // Always ensure camera follows the current player sprite (check internal _follow property)
+                    if (!camera._follow || camera._follow !== sprite) {
+                        console.log(`[CAMERA] Updating camera to follow player ${entity.entityId} at (${entity.x}, ${entity.y})`);
+                        camera.stopFollow(); // Clear any existing follow
+                        camera.startFollow(sprite, true, 0.1, 0.1);
+                        camera.setBounds(0, 0, 10000, 10000);
+                        camera.centerOn(entity.x, entity.y); // Immediately center
                     }
                 } else {
                     console.error(`[CAMERA] Player sprite is null for playerId ${entity.entityId}!`);
@@ -1332,18 +1338,25 @@ class GamePhaser {
             if (this.scene && this.playerId) {
                 const playerSprite = this.sprites.get(this.playerId);
                 if (playerSprite) {
-                    // Check if camera is following the player
+                    // Check if camera is following the player using Phaser's internal property
                     const camera = this.scene.cameras.main;
-                    if (!camera.target || camera.target !== playerSprite) {
+                    if (!camera._follow || camera._follow !== playerSprite) {
                         console.warn('[CAMERA] Camera lost tracking, recovering...');
+                        camera.stopFollow(); // Stop any existing follow first
                         camera.startFollow(playerSprite, true, 0.1, 0.1);
                         camera.setBounds(0, 0, 10000, 10000);
+                        // Immediately center on player
+                        if (playerSprite.x && playerSprite.y) {
+                            camera.centerOn(playerSprite.x, playerSprite.y);
+                        }
                     }
                 } else if (this.sprites.size > 0) {
                     console.warn(`[CAMERA] Player sprite missing. PlayerId: ${this.playerId}, Available: ${Array.from(this.sprites.keys()).join(', ')}`);
+                    // Try to recover
+                    this.recoverCameraTracking();
                 }
             }
-        }, 2000);
+        }, 1000); // Check more frequently - every 1 second
     }
 
     recoverCameraTracking() {
