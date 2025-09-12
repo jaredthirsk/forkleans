@@ -92,7 +92,7 @@ function Start-ShooterWithLogging {
     # Start Silo with detailed logging
     $siloLog = "$workDir/silo-$($stats.Iteration).log"
     $siloProc = Start-Process -FilePath "dotnet" `
-        -ArgumentList "run --project ../Shooter.Silo --no-launch-profile -- --environment Development" `
+        -ArgumentList "run --project Shooter.Silo --no-launch-profile -- --environment Development" `
         -WorkingDirectory ".." `
         -RedirectStandardOutput $siloLog `
         -RedirectStandardError "$workDir/silo-$($stats.Iteration)-err.log" `
@@ -104,7 +104,7 @@ function Start-ShooterWithLogging {
     # Start ActionServer
     $actionLog = "$workDir/action-$($stats.Iteration).log"
     $actionProc = Start-Process -FilePath "dotnet" `
-        -ArgumentList "run --project ../Shooter.ActionServer --no-launch-profile -- --environment Development" `
+        -ArgumentList "run --project Shooter.ActionServer --no-launch-profile -- --environment Development" `
         -WorkingDirectory ".." `
         -RedirectStandardOutput $actionLog `
         -RedirectStandardError "$workDir/action-$($stats.Iteration)-err.log" `
@@ -116,7 +116,7 @@ function Start-ShooterWithLogging {
     # Start Client
     $clientLog = "$workDir/client-$($stats.Iteration).log"
     $clientProc = Start-Process -FilePath "dotnet" `
-        -ArgumentList "run --project ../Shooter.Client --no-launch-profile -- --environment Development" `
+        -ArgumentList "run --project Shooter.Client --no-launch-profile -- --environment Development" `
         -WorkingDirectory ".." `
         -RedirectStandardOutput $clientLog `
         -RedirectStandardError "$workDir/client-$($stats.Iteration)-err.log" `
@@ -126,7 +126,7 @@ function Start-ShooterWithLogging {
     # Start Bot for activity
     $botLog = "$workDir/bot-$($stats.Iteration).log"
     $botProc = Start-Process -FilePath "dotnet" `
-        -ArgumentList "run --project ../Shooter.Bot --no-launch-profile -- --BotName AITestBot --environment Development" `
+        -ArgumentList "run --project Shooter.Bot --no-launch-profile -- --BotName AITestBot --environment Development" `
         -WorkingDirectory ".." `
         -RedirectStandardOutput $botLog `
         -RedirectStandardError "$workDir/bot-$($stats.Iteration)-err.log" `
