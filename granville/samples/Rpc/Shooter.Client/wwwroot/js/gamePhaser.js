@@ -167,8 +167,24 @@ class GamePhaser {
     createEnemySprites() {
         console.log('Creating enemy sprite textures');
         
-        // Kamikaze - small red triangle (aggressive shape)
+        // Asteroid - gray irregular shape
         let graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
+        const astSize = 20;
+        graphics.fillStyle(0x808080, 1);
+        graphics.beginPath();
+        graphics.moveTo(astSize * 0.3, 2);
+        graphics.lineTo(astSize * 1.7, astSize * 0.2);
+        graphics.lineTo(astSize * 2 - 2, astSize * 0.8);
+        graphics.lineTo(astSize * 1.6, astSize * 1.6);
+        graphics.lineTo(astSize * 0.8, astSize * 2 - 2);
+        graphics.lineTo(2, astSize * 1.5);
+        graphics.lineTo(2, astSize * 0.5);
+        graphics.closePath();
+        graphics.fillPath();
+        graphics.generateTexture('asteroid', astSize * 2, astSize * 2);
+        
+        // Kamikaze - small red triangle (aggressive shape)
+        graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
         const kamSize = 10;
         graphics.fillStyle(0xff4444, 1);
         graphics.beginPath();
@@ -594,9 +610,12 @@ class GamePhaser {
                 if (entityType === 0 && entity.entityId === this.playerId) {
                     const camera = this.scene.cameras.main;
                     camera.startFollow(sprite, true, 0.1, 0.1);
-                    camera.setBounds(0, 0, 10000, 10000);
-                    camera.centerOn(entity.x, entity.y); // Immediately center on player
-                    console.log(`[CAMERA] Initial setup - following player sprite at (${entity.x}, ${entity.y})`);
+                    // Remove bounds to allow camera to follow player anywhere
+                    camera.removeBounds();
+                    if (sprite.x !== undefined && sprite.y !== undefined) {
+                        camera.centerOn(sprite.x, sprite.y); // Immediately center on player using sprite position
+                    }
+                    console.log(`[CAMERA] Initial setup - following player sprite at (${sprite.x}, ${sprite.y})`);
                 }
             }
 
@@ -703,13 +722,15 @@ class GamePhaser {
                 // Ensure camera is following player sprite
                 if (sprite) {
                     const camera = this.scene.cameras.main;
-                    // Always ensure camera follows the current player sprite (check internal _follow property)
-                    if (!camera._follow || camera._follow !== sprite) {
-                        console.log(`[CAMERA] Updating camera to follow player ${entity.entityId} at (${entity.x}, ${entity.y})`);
+                    // Always ensure camera follows the current player sprite
+                    if (!camera.target || camera.target !== sprite) {
+                        console.log(`[CAMERA] Updating camera to follow player ${entity.entityId} at (${sprite.x}, ${sprite.y})`);
                         camera.stopFollow(); // Clear any existing follow
                         camera.startFollow(sprite, true, 0.1, 0.1);
-                        camera.setBounds(0, 0, 10000, 10000);
-                        camera.centerOn(entity.x, entity.y); // Immediately center
+                        camera.removeBounds(); // Remove bounds to follow player anywhere
+                        if (sprite.x !== undefined && sprite.y !== undefined) {
+                            camera.centerOn(sprite.x, sprite.y); // Immediately center using sprite position
+                        }
                     }
                 } else {
                     console.error(`[CAMERA] Player sprite is null for playerId ${entity.entityId}!`);
@@ -1338,13 +1359,13 @@ class GamePhaser {
             if (this.scene && this.playerId) {
                 const playerSprite = this.sprites.get(this.playerId);
                 if (playerSprite) {
-                    // Check if camera is following the player using Phaser's internal property
+                    // Check if camera is following the player
                     const camera = this.scene.cameras.main;
-                    if (!camera._follow || camera._follow !== playerSprite) {
+                    if (!camera.target || camera.target !== playerSprite) {
                         console.warn('[CAMERA] Camera lost tracking, recovering...');
                         camera.stopFollow(); // Stop any existing follow first
                         camera.startFollow(playerSprite, true, 0.1, 0.1);
-                        camera.setBounds(0, 0, 10000, 10000);
+                        camera.removeBounds(); // Remove bounds to follow player anywhere
                         // Immediately center on player
                         if (playerSprite.x && playerSprite.y) {
                             camera.centerOn(playerSprite.x, playerSprite.y);
@@ -1369,13 +1390,32 @@ class GamePhaser {
         const playerSprite = this.sprites.get(this.playerId);
         if (playerSprite) {
             console.log(`[CAMERA] Recovering camera tracking for player ${this.playerId}`);
-            this.scene.cameras.main.startFollow(playerSprite, true, 0.1, 0.1);
-            this.scene.cameras.main.setBounds(0, 0, 10000, 10000);
+            const camera = this.scene.cameras.main;
+            camera.stopFollow();
+            camera.startFollow(playerSprite, true, 0.1, 0.1);
+            camera.removeBounds(); // Remove bounds to follow player anywhere
         } else {
             console.error(`[CAMERA] Cannot recover - no sprite for player ${this.playerId}. Total sprites: ${this.sprites.size}`);
             // Log all sprite IDs for debugging
             if (this.sprites.size > 0) {
                 console.log('[CAMERA] Available sprite IDs:', Array.from(this.sprites.keys()));
+                
+                // Try to find any player-looking sprite as a last resort
+                for (const [id, sprite] of this.sprites.entries()) {
+                    // Check if this might be a player sprite (starts with a GUID pattern)
+                    if (id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+                        console.warn(`[CAMERA] Found potential player sprite with ID ${id}, attempting to follow it`);
+                        this.playerId = id; // Update our player ID
+                        const camera = this.scene.cameras.main;
+                        camera.stopFollow();
+                        camera.startFollow(sprite, true, 0.1, 0.1);
+                        camera.removeBounds();
+                        if (sprite.x !== undefined && sprite.y !== undefined) {
+                            camera.centerOn(sprite.x, sprite.y);
+                        }
+                        break;
+                    }
+                }
             }
         }
     }
