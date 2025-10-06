@@ -129,7 +129,28 @@ public class GranvilleRpcGameClientService : IDisposable
         _connectionManager = new ConnectionResilienceManager(loggerFactory.CreateLogger<ConnectionResilienceManager>());
         _healthMonitor = new ZoneTransitionHealthMonitor(loggerFactory.CreateLogger<ZoneTransitionHealthMonitor>());
         _zoneTransitionDebouncer = new ZoneTransitionDebouncer(loggerFactory.CreateLogger<ZoneTransitionDebouncer>());
-        
+
+        // Subscribe to prolonged mismatch events for forced reconnection
+        _healthMonitor.OnProlongedMismatchDetected += (playerZone, serverZone, duration) =>
+        {
+            _logger.LogWarning("[FORCED_RECONNECT] Triggering forced reconnection due to prolonged zone mismatch. " +
+                "Player in zone ({PlayerX},{PlayerY}), server expects ({ServerX},{ServerY}), duration: {Duration}ms",
+                playerZone.X, playerZone.Y, serverZone.X, serverZone.Y, duration);
+
+            // Initiate forced zone transition to correct zone
+            RunSafeFireAndForget(async () =>
+            {
+                // Small delay to avoid rapid reconnections
+                await Task.Delay(500);
+
+                // Force transition to the player's actual zone
+                await ForceZoneTransition(playerZone);
+
+                _logger.LogInformation("[FORCED_RECONNECT] Successfully forced transition to zone ({X},{Y})",
+                    playerZone.X, playerZone.Y);
+            }, "ForceZoneTransition");
+        };
+
         // Set up periodic health reporting (every 30 seconds)
         _healthReportTimer = new Timer(_ => 
         {
@@ -521,65 +542,24 @@ public class GranvilleRpcGameClientService : IDisposable
             }
             
             // Start timers using RobustTimerManager for protected execution
-            _timerManager.CreateTimer("worldState", _ => 
+            _timerManager.CreateTimer("worldState", _ =>
             {
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        await PollWorldState();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "[TIMER_CALLBACK] Unhandled exception in world state timer callback. ExceptionType={ExceptionType}, State: IsConnected={IsConnected}, IsTransitioning={IsTransitioning}, ThreadId={ThreadId}, GameGrainNull={GameGrainNull}, CancellationRequested={CancellationRequested}",
-                            ex.GetType().FullName, IsConnected, _isTransitioning, Thread.CurrentThread.ManagedThreadId, _gameGrain == null, _cancellationTokenSource?.Token.IsCancellationRequested ?? true);
-                    }
-                });
+                RunSafeFireAndForget(async () => await PollWorldState(), "PollWorldState");
             }, 33); // 30 FPS
             
-            _timerManager.CreateTimer("heartbeat", _ => 
+            _timerManager.CreateTimer("heartbeat", _ =>
             {
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        await SendHeartbeat();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Unhandled exception in heartbeat timer callback");
-                    }
-                });
+                RunSafeFireAndForget(async () => await SendHeartbeat(), "SendHeartbeat");
             }, 5000);
             
-            _timerManager.CreateTimer("availableZones", _ => 
+            _timerManager.CreateTimer("availableZones", _ =>
             {
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        await PollAvailableZones();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Unhandled exception in available zones timer callback");
-                    }
-                });
+                RunSafeFireAndForget(async () => await PollAvailableZones(), "PollAvailableZones");
             }, 10000);
             
-            _timerManager.CreateTimer("networkStats", _ => 
+            _timerManager.CreateTimer("networkStats", _ =>
             {
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        await PollNetworkStats();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Unhandled exception in network stats timer callback");
-                    }
-                });
+                RunSafeFireAndForget(async () => await PollNetworkStats(), "PollNetworkStats");
             }, 1000);
             
             _timerManager.CreateTimer("watchdog", _ => { CheckPollingHealth(); }, 5000);
@@ -1715,10 +1695,10 @@ public class GranvilleRpcGameClientService : IDisposable
     private async Task ForceZoneTransition(GridSquare targetZone)
     {
         _logger.LogInformation("[FORCE_TRANSITION] Forcing transition to zone {Zone}", targetZone);
-        
+
         // Bypass debouncing for forced transitions
         _isTransitioning = true;
-        
+
         try
         {
             // Look up the server for the target zone
@@ -1728,8 +1708,52 @@ public class GranvilleRpcGameClientService : IDisposable
                 _logger.LogError("[FORCE_TRANSITION] No server found for zone {Zone}", targetZone);
                 return;
             }
-            
-            // Disconnect from current server
+
+            // Check if we're already connected to the correct server
+            if (serverInfo.ServerId == CurrentServerId)
+            {
+                _logger.LogInformation("[FORCE_TRANSITION] Already connected to correct server {ServerId} for zone {Zone}. " +
+                    "Player might be in wrong zone on this server. Attempting reconnect to same server.",
+                    serverInfo.ServerId, targetZone);
+
+                // Disconnect and reconnect to the SAME server to reset player state
+                if (_gameGrain != null && !string.IsNullOrEmpty(PlayerId))
+                {
+                    try
+                    {
+                        // Explicitly disconnect player from server
+                        await _gameGrain.DisconnectPlayer(PlayerId);
+                        _logger.LogInformation("[FORCE_TRANSITION] Disconnected player {PlayerId} from server {ServerId}",
+                            PlayerId, CurrentServerId);
+
+                        // Wait a moment for server to process the disconnect
+                        await Task.Delay(100);
+
+                        // Reconnect to the same server
+                        var reconnectResult = await _gameGrain.ConnectPlayer(PlayerId);
+                        if (reconnectResult != "SUCCESS")
+                        {
+                            _logger.LogError("[FORCE_TRANSITION] Failed to reconnect to same server: {Result}", reconnectResult);
+                            // Fall through to full reconnection below
+                            Cleanup();
+                            await ConnectToActionServer(serverInfo.IpAddress, serverInfo.RpcPort, serverInfo.ServerId);
+                        }
+                        else
+                        {
+                            _logger.LogInformation("[FORCE_TRANSITION] Successfully reconnected to same server {ServerId}", CurrentServerId);
+                            return;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "[FORCE_TRANSITION] Error during same-server reconnect, attempting full reconnect");
+                        // Fall through to full reconnection below
+                        Cleanup();
+                    }
+                }
+            }
+
+            // Different server - do full disconnect and reconnect
             if (_gameGrain != null)
             {
                 try
@@ -1741,10 +1765,10 @@ public class GranvilleRpcGameClientService : IDisposable
                     _logger.LogWarning(ex, "[FORCE_TRANSITION] Error disconnecting from current server");
                 }
             }
-            
+
             // Connect to correct server
             await ConnectToActionServer(serverInfo.IpAddress, serverInfo.RpcPort, serverInfo.ServerId);
-            
+
             _logger.LogInformation("[FORCE_TRANSITION] Successfully forced transition to zone {Zone}", targetZone);
         }
         catch (Exception ex)
