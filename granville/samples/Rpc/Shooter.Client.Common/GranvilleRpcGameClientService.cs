@@ -1729,8 +1729,10 @@ public class GranvilleRpcGameClientService : IDisposable
                         _logger.LogInformation("[FORCE_TRANSITION] Disconnected player {PlayerId} from server {ServerId}",
                             PlayerId, CurrentServerId);
 
-                        // Wait a moment for server to process the disconnect
-                        await Task.Delay(100);
+                        // Wait for server to process the disconnect and remove player from simulation
+                        // The server's AddPlayer checks if a player sent input in the last 10s and rejects duplicates
+                        // We need to wait long enough for the server's simulation tick to process the disconnect
+                        await Task.Delay(500);
 
                         // Reconnect to the same server
                         var reconnectResult = await _gameGrain.ConnectPlayer(PlayerId);

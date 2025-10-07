@@ -138,63 +138,13 @@ public class CrossZoneRpcService : IHostedService, IDisposable
 
             var rpcClient = hostBuilder.Services.GetRequiredService<IRpcClient>();
             
-            // Properly wait for connection establishment
-            try
-            {
-                _logger.LogDebug("Testing RPC connection to server {ServerId}...", targetServer.ServerId);
-                
-                // Give the connection some time to establish
-                var connectionEstablished = false;
-                var maxAttempts = 10;
-                var attemptDelay = 200; // Start with 200ms
-                
-                for (int i = 0; i < maxAttempts; i++)
-                {
-                    try
-                    {
-                        // Test the connection by checking if we can get a grain reference
-                        // This doesn't actually call the grain, just verifies the connection is ready
-                        var connectionCount = rpcClient.GetType().GetProperty("_connectionManager", 
-                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                            ?.GetValue(rpcClient);
-                            
-                        if (connectionCount != null)
-                        {
-                            var getConnectionsMethod = connectionCount.GetType().GetMethod("GetAllConnections");
-                            if (getConnectionsMethod != null)
-                            {
-                                var connections = getConnectionsMethod.Invoke(connectionCount, null) as System.Collections.ICollection;
-                                if (connections != null && connections.Count > 0)
-                                {
-                                    connectionEstablished = true;
-                                    _logger.LogDebug("RPC connection established to server {ServerId} after {Attempt} attempts", 
-                                        targetServer.ServerId, i + 1);
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        await Task.Delay(attemptDelay);
-                        attemptDelay = Math.Min(attemptDelay * 2, 1000); // Exponential backoff up to 1 second
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogDebug("Connection attempt {Attempt} failed: {Error}", i + 1, ex.Message);
-                        await Task.Delay(attemptDelay);
-                    }
-                }
-                
-                if (!connectionEstablished)
-                {
-                    throw new InvalidOperationException($"Failed to establish RPC connection to server {targetServer.ServerId} after {maxAttempts} attempts");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to verify RPC connection to server {ServerId}, proceeding anyway: {Message}", 
-                    targetServer.ServerId, ex.Message);
-                // Don't fail completely - the connection might still work
-            }
+            // Give the connection a moment to establish asynchronously
+            // We don't need to verify it here - it will be validated on first use
+            // and the RPC framework has built-in retry logic
+            await Task.Delay(100); // Brief delay to let connection start establishing
+
+            _logger.LogDebug("RPC connection initiated to server {ServerId}, will be validated on first use",
+                targetServer.ServerId);
 
             connectionInfo = new RpcConnectionInfo
             {
