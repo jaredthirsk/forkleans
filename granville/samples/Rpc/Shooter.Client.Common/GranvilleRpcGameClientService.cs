@@ -1120,11 +1120,14 @@ public class GranvilleRpcGameClientService : IDisposable
         }
         
         _logger.LogTrace("PollWorldState executing for player {PlayerId}", PlayerId);
-        
+
         try
         {
             _lastWorldStatePollTime = DateTime.UtcNow;
-            var worldState = await _gameGrain.GetWorldState();
+
+            // Add timeout to prevent hung RPC calls from blocking forever
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            var worldState = await _gameGrain.GetWorldState().WaitAsync(cts.Token);
             if (worldState != null)
             {
                 // Update timestamp for successful world state receipt
