@@ -222,7 +222,7 @@ builder.Services.AddSerializer(serializerBuilder =>
     serializerBuilder.AddAssembly(typeof(Shooter.Shared.GrainInterfaces.IWorldManagerGrain).Assembly);
     
     // TODO: Add RPC interfaces when RPC client is properly configured
-    // serializerBuilder.AddAssembly(typeof(Shooter.Shared.RpcInterfaces.IGameRpcGrain).Assembly);
+    // serializerBuilder.AddAssembly(typeof(Shooter.Shared.RpcInterfaces.IGameGranule).Assembly);
 });
 
 // Configure to use the ObjectCopier for types without specific copiers (development only)

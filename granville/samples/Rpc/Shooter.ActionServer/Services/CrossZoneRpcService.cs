@@ -70,12 +70,12 @@ public class CrossZoneRpcService : IHostedService, IDisposable
         return Task.CompletedTask;
     }
 
-    public async Task<IGameRpcGrain> GetGameGrainForServer(ActionServerInfo targetServer)
+    public async Task<IGameGranule> GetGameGrainForServer(ActionServerInfo targetServer)
     {
         return await GetGameGrainForZone(targetServer, null);
     }
     
-    public async Task<IGameRpcGrain> GetGameGrainForZone(ActionServerInfo targetServer, GridSquare? targetZone, bool bypassZoneCheck = false)
+    public async Task<IGameGranule> GetGameGrainForZone(ActionServerInfo targetServer, GridSquare? targetZone, bool bypassZoneCheck = false)
     {
         var connectionKey = GetConnectionKey(targetServer);
         
@@ -83,7 +83,7 @@ public class CrossZoneRpcService : IHostedService, IDisposable
         if (_connections.TryGetValue(connectionKey, out var connectionInfo))
         {
             connectionInfo.LastUsed = DateTime.UtcNow;
-            return connectionInfo.Client.GetGrain<IGameRpcGrain>("game");
+            return connectionInfo.Client.GetGrain<IGameGranule>("game");
         }
 
         // Create new connection
@@ -94,7 +94,7 @@ public class CrossZoneRpcService : IHostedService, IDisposable
             if (_connections.TryGetValue(connectionKey, out connectionInfo))
             {
                 connectionInfo.LastUsed = DateTime.UtcNow;
-                return connectionInfo.Client.GetGrain<IGameRpcGrain>("game");
+                return connectionInfo.Client.GetGrain<IGameGranule>("game");
             }
 
             _logger.LogInformation("Creating new RPC connection to server {ServerId} at {Host}:{Port} for zone ({ZoneX},{ZoneY})", 
@@ -120,7 +120,7 @@ public class CrossZoneRpcService : IHostedService, IDisposable
                     // Use the same simple configuration pattern as the working game client
                     services.AddSerializer(serializer =>
                     {
-                        serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                        serializer.AddAssembly(typeof(IGameGranule).Assembly);
                         // Add RPC protocol assembly for RPC message serialization
                         serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
                         // Add Shooter.Shared assembly for game models (Player, WorldState, etc.)
@@ -158,7 +158,7 @@ public class CrossZoneRpcService : IHostedService, IDisposable
             
             _logger.LogInformation("Successfully connected to server {ServerId}", targetServer.ServerId);
 
-            return rpcClient.GetGrain<IGameRpcGrain>("game");
+            return rpcClient.GetGrain<IGameGranule>("game");
         }
         catch (Exception ex)
         {

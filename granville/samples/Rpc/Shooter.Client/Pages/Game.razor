@@ -467,24 +467,41 @@
                 if (!string.IsNullOrEmpty(rememberedName))
                 {
                     _playerName = rememberedName;
-                    // Don't auto-connect, let user choose engine
-                    StateHasChanged();
                 }
-                
-                // Load auto-move and auto-shoot settings
+                else
+                {
+                    // Generate random default player name if none saved
+                    var random = new Random();
+                    _playerName = $"Player{random.Next(100, 1000)}";
+                    _logger.LogInformation("Generated default player name: {PlayerName}", _playerName);
+                }
+
+                // Load auto-move and auto-shoot settings (default to true if not saved)
                 var autoMoveStr = await JS.InvokeAsync<string>("localStorage.getItem", "autoMove");
                 var autoShootStr = await JS.InvokeAsync<string>("localStorage.getItem", "autoShoot");
-                
+
                 if (!string.IsNullOrEmpty(autoMoveStr) && bool.TryParse(autoMoveStr, out var autoMove))
                 {
                     _autoMove = autoMove;
                 }
-                
+                else
+                {
+                    // Enable auto-move by default for automated testing
+                    _autoMove = true;
+                    _logger.LogInformation("Auto-move enabled by default");
+                }
+
                 if (!string.IsNullOrEmpty(autoShootStr) && bool.TryParse(autoShootStr, out var autoShoot))
                 {
                     _autoShoot = autoShoot;
                 }
-                
+                else
+                {
+                    // Enable auto-shoot by default for automated testing
+                    _autoShoot = true;
+                    _logger.LogInformation("Auto-shoot enabled by default");
+                }
+
                 // Load client type and auto-join settings
                 var clientTypeStr = await JS.InvokeAsync<string>("localStorage.getItem", "clientType");
                 if (!string.IsNullOrEmpty(clientTypeStr))
@@ -492,13 +509,22 @@
                     _selectedClientType = clientTypeStr;
                     _usePhaser = clientTypeStr == "phaser";
                 }
-                
+
                 var autoJoinStr = await JS.InvokeAsync<string>("localStorage.getItem", "autoJoin");
                 if (!string.IsNullOrEmpty(autoJoinStr) && bool.TryParse(autoJoinStr, out var autoJoin))
                 {
                     _autoJoinEnabled = autoJoin;
                 }
-                
+                else
+                {
+                    // Enable auto-join by default for automated testing
+                    _autoJoinEnabled = true;
+                    _logger.LogInformation("Auto-join enabled by default");
+                }
+
+                // Update UI with loaded/default settings
+                StateHasChanged();
+
                 // Start auto-join countdown if enabled and player name is set
                 if (_autoJoinEnabled && !string.IsNullOrEmpty(_playerName))
                 {

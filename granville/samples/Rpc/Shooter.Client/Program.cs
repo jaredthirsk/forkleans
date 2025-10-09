@@ -1,6 +1,7 @@
 using Shooter.Client;
 using Shooter.Client.Data;
 using Shooter.Client.Common;
+using Shooter.Client.Common.Services;
 using Shooter.Client.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -62,6 +63,10 @@ TaskScheduler.UnobservedTaskException += (sender, args) =>
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
+
+// Add heartbeat monitoring service
+builder.Services.AddSingleton<ClientHeartbeatService>();
+builder.Services.AddHostedService<ClientHeartbeatService>(provider => provider.GetRequiredService<ClientHeartbeatService>());
 
 // Add Orleans RPC game client service as singleton
 var siloUrl = builder.Configuration["SiloUrl"] ?? "https://localhost:61311/";

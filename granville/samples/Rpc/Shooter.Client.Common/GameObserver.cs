@@ -7,12 +7,12 @@ namespace Shooter.Client.Common;
 /// <summary>
 /// Client-side implementation of the game observer for receiving push updates.
 /// </summary>
-public class GameRpcObserver : IGameRpcObserver
+public class GameObserver : IGameObserver
 {
-    private readonly ILogger<GameRpcObserver> _logger;
+    private readonly ILogger<GameObserver> _logger;
     private readonly GranvilleRpcGameClientService _clientService;
     
-    public GameRpcObserver(ILogger<GameRpcObserver> logger, GranvilleRpcGameClientService clientService)
+    public GameObserver(ILogger<GameObserver> logger, GranvilleRpcGameClientService clientService)
     {
         _logger = logger;
         _clientService = clientService;

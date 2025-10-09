@@ -319,7 +319,7 @@ public class GameService : IGameService, IHostedService
                 {
                     services.AddSerializer(serializer =>
                     {
-                        serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                        serializer.AddAssembly(typeof(IGameGranule).Assembly);
                         // Add RPC protocol assembly for RPC message serialization
                         serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
                     });
@@ -335,7 +335,7 @@ public class GameService : IGameService, IHostedService
                 // Wait for connection
                 await Task.Delay(500);
                 
-                var gameGrain = rpcClient.GetGrain<IGameRpcGrain>("game");
+                var gameGrain = rpcClient.GetGrain<IGameGranule>("game");
                 var transferred = await gameGrain.TransferEntityIn(
                     entity.EntityId, 
                     entity.Type, 

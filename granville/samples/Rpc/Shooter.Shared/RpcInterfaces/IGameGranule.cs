@@ -19,11 +19,11 @@ public record ConnectPlayerResult
 }
 
 /// <summary>
-/// Grain interface that can be accessed via Orleans RPC.
-/// Orleans RPC exposes grain interfaces over UDP/TCP.
-/// Uses Orleans RPC types for RPC compatibility.
+/// Granule interface that can be accessed via Granville RPC.
+/// Granville RPC exposes granule interfaces over UDP/TCP for high-performance game communication.
+/// The term "Granule" distinguishes RPC grains from Orleans grains to avoid naming conflicts.
 /// </summary>
-public interface IGameRpcGrain : Granville.Rpc.IRpcGrainInterfaceWithStringKey
+public interface IGameGranule : Granville.Rpc.IRpcGrainInterfaceWithStringKey
 {
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
     Task<string> ConnectPlayer(string playerId);
@@ -77,13 +77,13 @@ public interface IGameRpcGrain : Granville.Rpc.IRpcGrainInterfaceWithStringKey
     /// Subscribe to game updates via observer pattern.
     /// </summary>
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
-    Task Subscribe(IGameRpcObserver observer);
-    
+    Task Subscribe(IGameObserver observer);
+
     /// <summary>
     /// Unsubscribe from game updates.
     /// </summary>
     [RpcMethod(DeliveryMode = RpcDeliveryMode.Reliable)]
-    Task Unsubscribe(IGameRpcObserver observer);
+    Task Unsubscribe(IGameObserver observer);
     
     /// <summary>
     /// Stream world state updates continuously.

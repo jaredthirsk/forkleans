@@ -11,18 +11,18 @@ using System.Threading;
 namespace Shooter.ActionServer.Grains;
 
 /// <summary>
-/// Grain implementation that exposes game functionality via Orleans RPC.
-/// This grain runs in the ActionServer process and has direct access to game services.
-/// Note: This uses Orleans.Grain for RPC compatibility.
+/// Granule implementation that exposes game functionality via Granville RPC.
+/// This granule runs in the ActionServer process and has direct access to game services.
+/// Note: This inherits from Orleans.Grain for serialization and lifecycle compatibility.
 /// </summary>
-[GrainType("game-rpc-grain")]
-public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
+[GrainType("game-granule")]
+public class GameGranule : Orleans.Grain, IGameGranule
 {
     private readonly GameService _gameService;
     private readonly IWorldSimulation _worldSimulation;
-    private readonly ILogger<GameRpcGrain> _logger;
+    private readonly ILogger<GameGranule> _logger;
     private readonly Orleans.IClusterClient _orleansClient;
-    private readonly ObserverManager<IGameRpcObserver> _observers;
+    private readonly ObserverManager<IGameObserver> _observers;
     private readonly GameEventBroker _gameEventBroker;
     private readonly CrossZoneRpcService _crossZoneRpc;
     private readonly List<ChatMessage> _recentChatMessages = new();
@@ -30,10 +30,10 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
     private Timer? _networkStatsTimer;
     private readonly NetworkStatisticsTracker _networkStatsTracker;
 
-    public GameRpcGrain(
+    public GameGranule(
         GameService gameService,
         IWorldSimulation worldSimulation,
-        ILogger<GameRpcGrain> logger,
+        ILogger<GameGranule> logger,
         Orleans.IClusterClient orleansClient,
         GameEventBroker gameEventBroker,
         CrossZoneRpcService crossZoneRpc)
@@ -44,14 +44,14 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
         _orleansClient = orleansClient;
         _gameEventBroker = gameEventBroker;
         _crossZoneRpc = crossZoneRpc;
-        _observers = new ObserverManager<IGameRpcObserver>(TimeSpan.FromMinutes(5), logger);
+        _observers = new ObserverManager<IGameObserver>(TimeSpan.FromMinutes(5), logger);
         
         // Subscribe to GameEventBroker events
         _gameEventBroker.SubscribeToGameOver(NotifyObserversGameOver);
         _gameEventBroker.SubscribeToVictoryPause(NotifyObserversVictoryPause);
         _gameEventBroker.SubscribeToGameRestart(NotifyObserversGameRestarted);
         _gameEventBroker.SubscribeToChatMessage(NotifyObserversChat);
-        _logger.LogInformation("GameRpcGrain subscribed to GameEventBroker events");
+        _logger.LogInformation("GameGranule subscribed to GameEventBroker events");
         
         // Initialize network stats tracker
         _networkStatsTracker = new NetworkStatisticsTracker(_worldSimulation.GetAssignedSquare().ToString());
@@ -214,14 +214,14 @@ public class GameRpcGrain : Orleans.Grain, IGameRpcGrain
         return Task.CompletedTask;
     }
     
-    public Task Subscribe(IGameRpcObserver observer)
+    public Task Subscribe(IGameObserver observer)
     {
         _observers.Subscribe(observer, observer);
         _logger.LogInformation("[CHAT_DEBUG] RPC: Observer subscribed to game updates. Total observers: {ObserverCount}", _observers.Count);
         return Task.CompletedTask;
     }
     
-    public Task Unsubscribe(IGameRpcObserver observer)
+    public Task Unsubscribe(IGameObserver observer)
     {
         _observers.Unsubscribe(observer);
         _logger.LogInformation("RPC: Observer unsubscribed from game updates");

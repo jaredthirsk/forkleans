@@ -379,7 +379,7 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
     public async Task BroadcastChatMessage(ChatMessage message)
     {
         _logger.LogInformation("[CHAT_BROADCAST] Broadcasting chat message from {Sender}: {Message}", message.SenderName, message.Message);
-        
+
         // Broadcast to all SignalR web clients
         if (_hubContext != null)
         {
@@ -391,30 +391,9 @@ public class WorldManagerGrain : Orleans.Grain, IWorldManagerGrain
         {
             _logger.LogWarning("[CHAT_BROADCAST] HubContext is null - cannot broadcast to SignalR clients!");
         }
-        
-        // Also send to all action servers for zone-local distribution
-        var servers = await GetAllActionServers();
-        
-        // Send the chat message to each action server
-        foreach (var server in servers)
-        {
-            try
-            {
-                // Get the GameRpcGrain for this server's zone
-                // Note: RPC clients connect to GameRpcGrain using "game" as the grain ID
-                var grainId = "game";
-                var gameGrain = GrainFactory.GetGrain<IGameRpcGrain>(grainId);
-                
-                // Send chat message to this zone
-                await gameGrain.SendChatMessage(message);
-                _logger.LogDebug("Sent chat message to zone ({X},{Y})", server.AssignedSquare.X, server.AssignedSquare.Y);
-            }
-            catch (Exception ex)
-            {
-                // This is expected when servers disconnect, so only log at debug level
-                _logger.LogDebug(ex, "Failed to send chat message to server {ServerId} - server may have disconnected", server.ServerId);
-            }
-        }
+
+        // Note: Cross-zone chat forwarding is handled by GameGranule.ForwardChatMessageToAllZones()
+        // WorldManagerGrain only needs to broadcast to SignalR web clients
     }
     
     public async Task NotifyGameOver()

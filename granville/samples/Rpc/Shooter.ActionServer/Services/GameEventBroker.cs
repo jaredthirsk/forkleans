@@ -6,7 +6,7 @@ namespace Shooter.ActionServer.Services;
 
 /// <summary>
 /// Broker service that connects WorldSimulation events to RPC grain notifications.
-/// This solves the issue where GameRpcGrain can't directly subscribe to WorldSimulation
+/// This solves the issue where GameGranule can't directly subscribe to WorldSimulation
 /// because it's created dynamically by the RPC framework.
 /// </summary>
 public class GameEventBroker
@@ -71,7 +71,7 @@ public class GameEventBroker
         }
     }
 
-    // Methods for GameRpcGrain to subscribe
+    // Methods for GameGranule to subscribe
     public void SubscribeToGameOver(Action<GameOverMessage> handler)
     {
         _gameOverHandlers.Add(handler);

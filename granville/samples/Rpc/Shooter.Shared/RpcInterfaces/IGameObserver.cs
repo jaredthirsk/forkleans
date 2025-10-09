@@ -4,9 +4,9 @@ using Shooter.Shared.Models;
 namespace Shooter.Shared.RpcInterfaces;
 
 /// <summary>
-/// Observer interface for receiving game updates from the server.
+/// Observer interface for receiving game updates from the server via RPC callbacks.
 /// </summary>
-public interface IGameRpcObserver : IGrainObserver
+public interface IGameObserver : IGrainObserver
 {
     /// <summary>
     /// Called when zone statistics are updated.

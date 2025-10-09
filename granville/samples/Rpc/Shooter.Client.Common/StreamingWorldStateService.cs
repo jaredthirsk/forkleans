@@ -10,14 +10,14 @@ namespace Shooter.Client.Common;
 public class StreamingWorldStateService
 {
     private readonly ILogger<StreamingWorldStateService> _logger;
-    private readonly IGameRpcGrain _gameGrain;
+    private readonly IGameGranule _gameGrain;
     private CancellationTokenSource? _streamCancellation;
     
     public event Action<WorldState>? WorldStateUpdated;
     public event Action<ZoneStatistics>? ZoneStatsUpdated;
     public event Action<Dictionary<string, List<EntityState>>>? AdjacentEntitiesUpdated;
     
-    public StreamingWorldStateService(ILogger<StreamingWorldStateService> logger, IGameRpcGrain gameGrain)
+    public StreamingWorldStateService(ILogger<StreamingWorldStateService> logger, IGameGranule gameGrain)
     {
         _logger = logger;
         _gameGrain = gameGrain;

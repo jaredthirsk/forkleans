@@ -33,7 +33,7 @@ public class GranvilleRpcGameClientService : IDisposable
     private readonly ConnectionResilienceManager _connectionManager;
     private Granville.Rpc.IRpcClient? _rpcClient;
     private IHost? _rpcHost;
-    private IGameRpcGrain? _gameGrain;
+    private IGameGranule? _gameGrain;
     private Timer? _worldStateTimer;
     private Timer? _heartbeatTimer;
     private Timer? _availableZonesTimer;
@@ -71,7 +71,7 @@ public class GranvilleRpcGameClientService : IDisposable
     private DateTime _lastWorldStateError = DateTime.MinValue;
     private bool _playerInputErrorLogged = false;
     private DateTime _lastPlayerInputError = DateTime.MinValue;
-    private GameRpcObserver? _observer;
+    private GameObserver? _observer;
     private List<GridSquare> _cachedAvailableZones = new();
     private Dictionary<string, List<EntityState>> _cachedAdjacentEntities = new();
     private NetworkStatistics? _latestNetworkStats = null;
@@ -362,7 +362,7 @@ public class GranvilleRpcGameClientService : IDisposable
                     
                     try
                     {
-                        _logger.LogInformation("Attempting to get IGameRpcGrain, attempt {Attempt}/{MaxRetries}", i + 1, maxRetries);
+                        _logger.LogInformation("Attempting to get IGameGranule, attempt {Attempt}/{MaxRetries}", i + 1, maxRetries);
                         
                         // Wrap GetGrain in a task with timeout
                         var getGrainTask = Task.Run(() => 
@@ -378,7 +378,7 @@ public class GranvilleRpcGameClientService : IDisposable
                                     return null;
                                 }
                                 
-                                _logger.LogInformation("Calling _rpcClient.GetGrain<IGameRpcGrain>(\"game\")");
+                                _logger.LogInformation("Calling _rpcClient.GetGrain<IGameGranule>(\"game\")");
                                 _logger.LogInformation("RpcClient type check: {Type}, HashCode: {HashCode}", 
                                     _rpcClient.GetType().FullName, _rpcClient.GetHashCode());
                                 
@@ -388,11 +388,11 @@ public class GranvilleRpcGameClientService : IDisposable
                                     Thread.CurrentThread.IsBackground, 
                                     Thread.CurrentThread.IsThreadPoolThread);
                                 
-                                IGameRpcGrain? grain = null;
+                                IGameGranule? grain = null;
                                 try
                                 {
                                     _logger.LogInformation("About to invoke GetGrain method");
-                                    grain = _rpcClient.GetGrain<IGameRpcGrain>("game");
+                                    grain = _rpcClient.GetGrain<IGameGranule>("game");
                                     _logger.LogInformation("GetGrain method returned");
                                 }
                                 catch (Exception innerEx)
@@ -431,7 +431,7 @@ public class GranvilleRpcGameClientService : IDisposable
                         else
                         {
                             var totalElapsed = DateTime.UtcNow - startTime;
-                            _logger.LogError("🚨 All grain acquisition attempts failed after {TotalMs}ms. ActionServer may not be running or may not have registered IGameRpcGrain implementation.", totalElapsed.TotalMilliseconds);
+                            _logger.LogError("🚨 All grain acquisition attempts failed after {TotalMs}ms. ActionServer may not be running or may not have registered IGameGranule implementation.", totalElapsed.TotalMilliseconds);
                             throw new InvalidOperationException(
                                 $"Failed to get game grain after {maxRetries} attempts. " +
                                 "The RPC server may not have registered the grain implementation.", ex);
@@ -517,10 +517,10 @@ public class GranvilleRpcGameClientService : IDisposable
                     _logger.LogWarning("Could not get logger factory for observer");
                     return true;
                 }
-                _observer = new GameRpcObserver(loggerFactory.CreateLogger<GameRpcObserver>(), this);
+                _observer = new GameObserver(loggerFactory.CreateLogger<GameObserver>(), this);
                 
                 // Create an observer reference
-                var observerRef = _rpcClient?.CreateObjectReference<IGameRpcObserver>(_observer);
+                var observerRef = _rpcClient?.CreateObjectReference<IGameObserver>(_observer);
                 if (observerRef != null && _gameGrain != null)
                 {
                     await _gameGrain.Subscribe(observerRef);
@@ -2222,7 +2222,7 @@ public class GranvilleRpcGameClientService : IDisposable
                     {
                         services.AddSerializer(serializer =>
                         {
-                            serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                            serializer.AddAssembly(typeof(IGameGranule).Assembly);
                             // Add RPC protocol assembly for RPC message serialization
                             serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
                             // Add Shooter.Shared assembly for game models (Player, WorldState, etc.)
@@ -2277,7 +2277,7 @@ public class GranvilleRpcGameClientService : IDisposable
                             await Task.Delay(retryDelayMs, combinedCts.Token); // Fixed 50ms delay instead of progressive
                         }
                         
-                        var getGrainTask = Task.Run(() => _rpcClient.GetGrain<IGameRpcGrain>("game"), combinedCts.Token);
+                        var getGrainTask = Task.Run(() => _rpcClient.GetGrain<IGameGranule>("game"), combinedCts.Token);
                         _gameGrain = await getGrainTask.WaitAsync(TimeSpan.FromSeconds(2), combinedCts.Token);
                         _logger.LogInformation("[ZONE_TRANSITION] Successfully obtained game grain on independent connection (attempt {Attempt})", retryCount + 1);
                         break;
@@ -2441,7 +2441,7 @@ public class GranvilleRpcGameClientService : IDisposable
                 {
                     services.AddSerializer(serializer =>
                     {
-                        serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                        serializer.AddAssembly(typeof(IGameGranule).Assembly);
                         // Add RPC protocol assembly for RPC message serialization
                         serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
                         // Add Shooter.Shared assembly for game models (Player, WorldState, etc.)
@@ -2501,7 +2501,7 @@ public class GranvilleRpcGameClientService : IDisposable
                     }
                     
                     // Get the game grain with timeout
-                    var getGrainTask = Task.Run(() => _rpcClient.GetGrain<IGameRpcGrain>("game"), combinedCts.Token);
+                    var getGrainTask = Task.Run(() => _rpcClient.GetGrain<IGameGranule>("game"), combinedCts.Token);
                     _gameGrain = await getGrainTask.WaitAsync(TimeSpan.FromSeconds(2), combinedCts.Token);
                     _logger.LogInformation("[ZONE_TRANSITION] Successfully obtained game grain on attempt {Attempt}", retryCount + 1);
                     break;
@@ -3170,7 +3170,7 @@ public class GranvilleRpcGameClientService : IDisposable
                 {
                     services.AddSerializer(serializer =>
                     {
-                        serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                        serializer.AddAssembly(typeof(IGameGranule).Assembly);
                         // Add RPC protocol assembly for RPC message serialization
                         serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
                         // Add Shooter.Shared assembly for game models (Player, WorldState, etc.)
@@ -3211,7 +3211,7 @@ public class GranvilleRpcGameClientService : IDisposable
                 try
                 {
                     // Get the game grain
-                    connection.GameGrain = connection.RpcClient.GetGrain<IGameRpcGrain>("game");
+                    connection.GameGrain = connection.RpcClient.GetGrain<IGameGranule>("game");
                     
                     // Test the connection
                     var testState = await connection.GameGrain.GetWorldState();
@@ -3663,7 +3663,7 @@ public class GranvilleRpcGameClientService : IDisposable
                 // Add serialization for the grain interfaces and shared models
                 services.AddSerializer(serializer =>
                 {
-                    serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                    serializer.AddAssembly(typeof(IGameGranule).Assembly);
                     // Add RPC protocol assembly for RPC message serialization
                     serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
                     // Add Shooter.Shared assembly for game models (PlayerInfo, WorldState, etc.)
@@ -3996,6 +3996,11 @@ public class GranvilleRpcGameClientService : IDisposable
             {
                 _logger.LogInformation("[ZONE_TRANSITION] Already connected to correct server {ServerId} for zone ({X},{Y})",
                     serverInfo.ServerId, newZone.X, newZone.Y);
+
+                // Still need to update our zone tracking even if server hasn't changed
+                _currentZone = newZone;
+                _healthMonitor?.UpdateServerZone(newZone);
+
                 return;
             }
             
@@ -4051,15 +4056,22 @@ public class GranvilleRpcGameClientService : IDisposable
         catch (Exception ex)
         {
             _logger.LogError(ex, "[ZONE_TRANSITION] Zone transition failed");
-            
+
+            // CRITICAL: Even though transition failed, update _currentZone to match physical position
+            // This prevents prolonged zone mismatches when RPC calls timeout
+            _currentZone = newZone;
+            _healthMonitor?.UpdateServerZone(newZone);
+            _logger.LogWarning("[ZONE_TRANSITION] Updated zone tracking to ({X},{Y}) despite failed transition to prevent mismatch",
+                newZone.X, newZone.Y);
+
             // Record failed transition in health monitor
             var transitionDuration = DateTime.UtcNow - _zoneTransitionStartTime;
             _healthMonitor?.RecordTransitionComplete(false, transitionDuration);
-            
+
             // Reset transition state on failure
             _isTransitioning = false;
             _zoneTransitionStartTime = DateTime.MinValue;
-            
+
             // Optionally trigger a full reconnect if the transition failed catastrophically
             if (!IsConnected && _gameGrain == null)
             {
@@ -4121,7 +4133,7 @@ public class GranvilleRpcGameClientService : IDisposable
         }
         
         // Get the game grain
-        var gameGrain = rpcClient.GetGrain<IGameRpcGrain>(PlayerId!);
+        var gameGrain = rpcClient.GetGrain<IGameGranule>(PlayerId!);
         if (gameGrain == null)
         {
             throw new InvalidOperationException("Failed to get game grain");
@@ -4152,7 +4164,7 @@ internal class PreEstablishedConnection
 {
     public IHost? RpcHost { get; set; }
     public Granville.Rpc.IRpcClient? RpcClient { get; set; }
-    public IGameRpcGrain? GameGrain { get; set; }
+    public IGameGranule? GameGrain { get; set; }
     public Shooter.Shared.Models.ActionServerInfo ServerInfo { get; set; } = null!;
     public DateTime EstablishedAt { get; set; }
     public DateTime LastUsedTime { get; set; }

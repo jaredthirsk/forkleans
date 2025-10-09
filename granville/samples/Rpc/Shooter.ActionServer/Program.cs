@@ -309,8 +309,8 @@ builder.Host.UseOrleansRpc(rpcBuilder =>
     }
     
     // Add assemblies containing grains
-    rpcBuilder.AddAssemblyContaining<GameRpcGrain>()           // Grain implementations
-             .AddAssemblyContaining<IGameRpcGrain>()           // Grain interfaces
+    rpcBuilder.AddAssemblyContaining<GameGranule>()           // Granule implementations
+             .AddAssemblyContaining<IGameGranule>()           // Granule interfaces
              .AddAssemblyContaining<Shooter.Shared.Models.PlayerInfo>();  // Shared models for serialization
 });
 
