@@ -1,53 +1,62 @@
-# Shooter Game Critical Issues
+# Shooter RPC Sample - Known Issues
 
-This directory contains documentation for critical issues discovered during testing of the Shooter RPC sample application.
+This directory documents known issues with the Shooter RPC sample application, including active problems and resolved issues for historical reference.
 
-## Issue Priority
+## Issue Categories
 
-### 🔴 CRITICAL - Must Fix
-1. **[Zone Transition Deadlock](./zone-transition-deadlock/README.md)**
-   - Players get stuck between zones for 28+ seconds
-   - Game becomes unplayable when crossing zone boundaries
-   - Root cause of many other issues
+### Active Issues
+- **[001-client-hang](./001-client-hang/README.md)** - Client experiences 42-45 second hangs with no error messages
+- **[002-signalr-disconnection](./002-signalr-disconnection/README.md)** - SignalR connections unexpectedly closing
 
-### 🟠 HIGH - Should Fix Soon  
-2. **[Bot Connection Failures](./bot-connection-failures/README.md)**
-   - Bots cannot connect to the game
-   - HTTP connection refused errors
-   - Blocks automated testing
+### Resolved Issues
+- **[003-ssl-certificate-resolved](./003-ssl-certificate-resolved/README.md)** - SSL certificate trust issue (RESOLVED 2025-09-25)
 
-### 🟡 MEDIUM - Fix After Root Causes
-3. **[SignalR Connection Closures](./signalr-connection-closures/README.md)**
-   - Symptom of other issues
-   - Chat functionality breaks
-   - Should resolve after fixing #1 and #2
+## Quick Status Summary
 
-## Quick Summary
+| Issue ID | Title | Status | Severity | Last Updated |
+|----------|-------|--------|----------|--------------|
+| 001 | Client Hang (42-45s) | **Active** | Critical | 2025-09-25 |
+| 002 | SignalR Disconnection | **Active** | High | 2025-09-25 |
+| 003 | SSL Certificate Trust | **Resolved** | Critical | 2025-09-25 |
 
-All three issues are interconnected:
-- Zone transition deadlock causes clients to lose connection
-- Bot connection failures prevent testing
-- SignalR closures are symptoms of the above issues
+## Monitoring & Detection
 
-## Recommended Fix Order
-1. Fix zone transition deadlock first (root cause)
-2. Fix bot connection issues (enables testing)  
-3. Verify SignalR issues resolve themselves
-4. Add resilience/reconnection logic as needed
+### AI Development Loop
+The AI dev loop (`/scripts/ai-dev-loop.ps1`) continuously monitors for these issues with:
+- Real-time log analysis
+- Pattern matching for known errors
+- Hang detection via log inactivity monitoring
+- Automatic error report generation
 
-## Testing Configuration
-- **Environment**: .NET Aspire orchestrated
-- **Ports**: 
-  - Silo: 7071, 7080-7081
-  - ActionServers: 7072-7075
-  - RPC: 12000-12003
-- **Transport**: LiteNetLib (UDP)
-- **Date Discovered**: 2025-09-12
+### Enhanced Monitoring Features
+- **ClientHeartbeatService** - Detects client unresponsiveness
+- **Error Pattern Detection** - SSL, RPC, zone transition issues
+- **Log Inactivity Detection** - Identifies hangs when logs stop
 
-## Monitoring
-Use the monitoring script to detect new errors:
-```bash
-./scripts/monitor-for-errors.sh
-```
+## Common Patterns
 
-The script watches log files and alerts when errors occur (ignoring development warnings).
+### Related Issues
+- Issues 001 and 002 appear to be related - both occur around the same time
+- The 42-second hang affects all components simultaneously
+- SignalR disconnection may be a symptom of the broader hang issue
+
+### Environment
+- WSL2/Ubuntu environment
+- .NET 9.0
+- Aspire orchestration
+- Orleans/Granville RPC
+
+## Contributing
+When adding new issues:
+1. Create a new directory with format: `NNN-issue-name/`
+2. Include a `README.md` with the standard template
+3. Document evidence, symptoms, and potential causes
+4. Update this index file
+
+## Log Locations
+- AI dev loop sessions: `/mnt/c/forks/orleans/ai-dev-loop/`
+- Component logs: `../logs/`
+- Aspire dashboard: http://localhost:15033
+
+## Contact
+For questions about these issues, refer to the main [Shooter RPC documentation](../CLAUDE.md) or the [Granville fork documentation](../../../../CLAUDE.md).
