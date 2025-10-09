@@ -1,42 +1,39 @@
 ---
-description: Restart AppHost and monitor for errors in dev loop
+description: Run AI-driven development loop for Shooter debugging
 ---
 
-# Development Loop
+# AI Development Loop
 
-Restart the AppHost and start monitoring for errors. When an error is detected, the monitoring will stop so you can investigate.
+Start the AI-driven development loop that automatically monitors, detects errors, and waits for Claude to analyze and fix issues.
+
+**Parameters:**
+- Default: Skips clean step for faster iterations (20 min runtime)
+- Use `--clean` argument to force clean build (slower but thorough)
+
+**IMPORTANT FOR CLAUDE**: After starting this command in the background, you MUST proactively monitor the background bash process every 60-120 seconds by checking `BashOutput`. When the dev loop detects errors (you'll see "Still waiting for fix..." in the output), immediately:
+1. Read `/mnt/c/forks/orleans/granville/samples/Rpc/ai-dev-loop/[latest-session]/last-error.txt`
+2. Analyze the errors and apply fixes
+3. Write "FIXED" to the `fix-complete.txt` file
+
+Do NOT wait for the user to ask - monitor proactively!
 
 ```bash
 #!/bin/bash
 cd /mnt/c/forks/orleans/granville/samples/Rpc
 
-# First restart everything
-./scripts/kill-shooter-processes.sh
-sleep 2
-rm -f logs/*.log 2>/dev/null
+# Parse arguments
+CLEAN_ARG=""
+for arg in "$@"; do
+    if [[ "$arg" == "--clean" ]]; then
+        CLEAN_ARG=""  # Don't pass -SkipClean (defaults to cleaning)
+    fi
+done
 
-# Start AppHost
-cd Shooter.AppHost && nohup dotnet run > ../logs/apphost.log 2>&1 &
-echo "AppHost restarted. Dashboard will be available shortly."
-sleep 5
-
-# Get dashboard URL
-grep "Login to the dashboard" ../logs/apphost.log | tail -1
-
-# Start monitoring for errors
-echo "Starting error monitoring..."
-cd ..
-./scripts/monitor-for-errors.sh &
-MONITOR_PID=$!
-echo "Dev loop started. Monitoring PID: $MONITOR_PID"
-echo "Monitor will block until an error is detected."
-
-# Wait for monitor to complete
-wait $MONITOR_PID
-EXIT_CODE=$?
-if [ $EXIT_CODE -eq 0 ]; then
-    echo "ERROR DETECTED! Check logs for details."
+# Start the AI development loop in background
+# Default: -SkipClean for faster iterations (20 min runtime allows for build)
+if [[ -z "$CLEAN_ARG" && "$*" != *"--clean"* ]]; then
+    pwsh ./scripts/ai-dev-loop.ps1 -RunDuration 1200 -MaxIterations 3 -SkipClean &
 else
-    echo "Monitoring completed without errors."
+    pwsh ./scripts/ai-dev-loop.ps1 -RunDuration 1200 -MaxIterations 3 &
 fi
 ```

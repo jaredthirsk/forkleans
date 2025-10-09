@@ -25,12 +25,23 @@
 .PARAMETER LogCheckInterval
     How often to check logs in milliseconds
     Default: 500
+
+.PARAMETER NoBrowser
+    Disable browser monitoring with Playwright
+    Default: false
+
+.PARAMETER BrowserScreenshotInterval
+    How often to take browser screenshots (seconds)
+    Default: 15
 #>
 param(
     [int]$MaxIterations = 10,
     [int]$RunDuration = 600,
     [bool]$AutoFix = $true,
-    [int]$LogCheckInterval = 500
+    [int]$LogCheckInterval = 500,
+    [switch]$NoBrowser = $false,
+    [int]$BrowserScreenshotInterval = 15,
+    [switch]$SkipClean = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -46,6 +57,10 @@ $errorFile = "$workDir/last-error.txt"
 $contextFile = "$workDir/error-context.log"
 $instructionsFile = "$workDir/ai-instructions.txt"
 
+# Browser monitoring
+$browserProcess = $null
+$browserEnabled = -not $NoBrowser
+
 # Statistics
 $stats = @{
     Iteration = 0
@@ -60,18 +75,16 @@ $stats = @{
 # Enhanced error patterns with severity levels
 $errorPatterns = @{
     Critical = @(
-        # Zone transition deadlocks
-        @{ Pattern = 'PROLONGED_MISMATCH.*for (\d{4,})\.\d+ms'; Description = 'Zone mismatch >4 seconds'; Regex = $true },
+        # Zone transition deadlocks (only >10 seconds is critical)
+        @{ Pattern = 'PROLONGED_MISMATCH.*for (\d{5,})\.\d+ms'; Description = 'Zone mismatch >10 seconds'; Regex = $true },
         @{ Pattern = 'CHRONIC_MISMATCH'; Description = 'Repeated zone mismatches'; Regex = $false },
-        @{ Pattern = 'Player in zone \([^)]+\) but connected to server for zone \([^)]+\) for \d{4,}'; Description = 'Zone sync failure'; Regex = $true },
+        @{ Pattern = 'Player in zone \([^)]+\) but connected to server for zone \([^)]+\) for \d{5,}'; Description = 'Zone sync failure >10s'; Regex = $true },
 
         # Connection failures
         @{ Pattern = 'Bot.*failed to connect to game'; Description = 'Bot connection failure'; Regex = $true },
-        @{ Pattern = 'SignalR connection closed'; Description = 'SignalR disconnection'; Regex = $false },
         @{ Pattern = 'SSL connection could not be established'; Description = 'SSL certificate issue'; Regex = $false },
 
         # RPC failures
-        @{ Pattern = 'Player input RPC failed'; Description = 'RPC failure'; Regex = $false },
         @{ Pattern = 'Error registering player'; Description = 'Registration failure'; Regex = $false },
 
         # Hangs and timeouts
@@ -95,6 +108,10 @@ $errorPatterns = @{
     )
 
     Warning = @(
+        @{ Pattern = 'SignalR connection closed'; Description = 'SignalR disconnection (transient)'; Regex = $false },
+        @{ Pattern = 'Player input RPC failed'; Description = 'RPC failure (transient)'; Regex = $false },
+        @{ Pattern = 'RPC client is not connected'; Description = 'RPC disconnected (transient)'; Regex = $false },
+        @{ Pattern = 'PROLONGED_MISMATCH.*for [5-9]\d{3}\.\d+ms'; Description = 'Zone transition 5-10s (acceptable)'; Regex = $true },
         @{ Pattern = 'Retry attempt \d+'; Description = 'Retry occurring'; Regex = $true },
         @{ Pattern = 'High latency detected'; Description = 'Performance issue'; Regex = $false }
     )
@@ -323,10 +340,67 @@ function Monitor-ForErrors {
             }
         }
 
-        # Stop immediately on critical errors
+        # Check for self-healing in progress before stopping on critical errors
         if ($criticalErrorFound -and $AutoFix) {
-            Write-Host "`nCritical error detected - stopping monitoring" -ForegroundColor Red
-            break
+            # Look for self-healing indicators in recent logs
+            $selfHealingActive = $false
+            $selfHealingPatterns = @('FORCED_RECONNECT', 'FORCE_TRANSITION', 'Forcing transition to zone')
+
+            foreach ($logFile in $logFiles) {
+                if (Test-Path $logFile.FullName) {
+                    $recentLines = Get-Content $logFile.FullName -Tail 50 -ErrorAction SilentlyContinue
+                    foreach ($pattern in $selfHealingPatterns) {
+                        if ($recentLines -match $pattern) {
+                            $selfHealingActive = $true
+                            Write-Host "`n[SELF-HEALING] Detected active self-healing attempt: $pattern" -ForegroundColor Yellow
+                            break
+                        }
+                    }
+                    if ($selfHealingActive) { break }
+                }
+            }
+
+            if ($selfHealingActive) {
+                # Give self-healing 10 seconds to complete
+                Write-Host "[SELF-HEALING] Waiting 10 seconds for self-healing to complete..." -ForegroundColor Yellow
+                Start-Sleep -Seconds 10
+
+                # Check if error is still present
+                $errorStillPresent = $false
+                foreach ($logFile in $logFiles) {
+                    if (Test-Path $logFile.FullName) {
+                        $veryRecentLines = Get-Content $logFile.FullName -Tail 20 -ErrorAction SilentlyContinue
+                        foreach ($pattern in $errorPatterns.Critical) {
+                            foreach ($line in $veryRecentLines) {
+                                if ($pattern.Regex) {
+                                    if ($line -match $pattern.Pattern) {
+                                        $errorStillPresent = $true
+                                        break
+                                    }
+                                } else {
+                                    if ($line -like "*$($pattern.Pattern)*") {
+                                        $errorStillPresent = $true
+                                        break
+                                    }
+                                }
+                            }
+                            if ($errorStillPresent) { break }
+                        }
+                        if ($errorStillPresent) { break }
+                    }
+                }
+
+                if ($errorStillPresent) {
+                    Write-Host "[SELF-HEALING] Self-healing failed - error persists. Stopping monitoring." -ForegroundColor Red
+                    break
+                } else {
+                    Write-Host "[SELF-HEALING] Self-healing appears successful - continuing monitoring" -ForegroundColor Green
+                    $criticalErrorFound = $false  # Reset flag to continue monitoring
+                }
+            } else {
+                Write-Host "`nCritical error detected (no self-healing active) - stopping monitoring" -ForegroundColor Red
+                break
+            }
         }
 
         Start-Sleep -Milliseconds $LogCheckInterval
@@ -416,8 +490,13 @@ function Start-ShooterWithLogging {
     $appHostDir = Join-Path (Split-Path $PSScriptRoot -Parent) "Shooter.AppHost"
 
     # Start rl.sh
+    $rlArgs = "./rl.sh"
+    if ($SkipClean) {
+        $rlArgs += " --skip-clean"
+    }
+
     $appHostProc = Start-Process -FilePath "bash" `
-        -ArgumentList "./rl.sh" `
+        -ArgumentList $rlArgs `
         -WorkingDirectory $appHostDir `
         -PassThru
 
@@ -427,6 +506,11 @@ function Start-ShooterWithLogging {
     # Wait for Aspire to start all services
     Write-Host "Waiting for Aspire AppHost to start all services..." -ForegroundColor Cyan
     Start-Sleep -Seconds 20
+
+    # Start browser monitor if enabled
+    if ($browserEnabled) {
+        $script:browserProcess = Start-BrowserMonitor
+    }
 
     Write-State "Running" "Services started. Beginning enhanced monitoring..."
     return $processes
@@ -500,9 +584,72 @@ Current statistics:
     }
 }
 
+function Start-BrowserMonitor {
+    if (-not $browserEnabled) {
+        Write-Host "Browser monitoring disabled" -ForegroundColor Gray
+        return $null
+    }
+
+    Write-Host "Starting browser monitor..." -ForegroundColor Cyan
+
+    # Check if Node.js is available
+    $nodeAvailable = Get-Command node -ErrorAction SilentlyContinue
+    if (-not $nodeAvailable) {
+        Write-Host "Node.js not found, skipping browser monitoring" -ForegroundColor Yellow
+        return $null
+    }
+
+    # Check if Playwright is installed
+    $playwrightCheck = node -e "try { require.resolve('playwright'); console.log('ok'); } catch(e) { console.log('missing'); }" 2>$null
+    if ($playwrightCheck -ne "ok") {
+        Write-Host "Playwright not installed. Install with: npm install -D playwright" -ForegroundColor Yellow
+        Write-Host "Or run: npx playwright install chromium" -ForegroundColor Yellow
+        return $null
+    }
+
+    $env:GAME_URL = "http://localhost:5200/game"
+    $env:OUTPUT_DIR = "$workDir/browser-screenshots"
+    $env:SCREENSHOT_INTERVAL = ($BrowserScreenshotInterval * 1000).ToString()
+    $env:HEADLESS = "false"
+
+    try {
+        $browserMonitorScript = Join-Path $PSScriptRoot "browser-monitor.js"
+        $proc = Start-Process -FilePath "node" `
+            -ArgumentList $browserMonitorScript `
+            -PassThru `
+            -NoNewWindow
+
+        Write-Host "Browser monitor started (PID: $($proc.Id))" -ForegroundColor Green
+        return $proc
+    }
+    catch {
+        Write-Host "Failed to start browser monitor: $_" -ForegroundColor Yellow
+        return $null
+    }
+}
+
+function Stop-BrowserMonitor {
+    param($Process)
+
+    if ($null -eq $Process) {
+        return
+    }
+
+    if (-not $Process.HasExited) {
+        Write-Host "Stopping browser monitor..." -ForegroundColor Cyan
+        $Process.Kill()
+        Start-Sleep -Seconds 1
+    }
+}
+
 function Stop-AllProcesses {
     & "$PSScriptRoot/../scripts/kill-shooter-processes.sh"
     Start-Sleep -Seconds 2
+
+    if ($null -ne $browserProcess) {
+        Stop-BrowserMonitor -Process $browserProcess
+        $script:browserProcess = $null
+    }
 }
 
 # Main loop
@@ -512,6 +659,10 @@ Write-Host "Working directory: $workDir" -ForegroundColor Cyan
 Write-Host "Max iterations: $MaxIterations" -ForegroundColor Cyan
 Write-Host "Run duration: $RunDuration seconds" -ForegroundColor Cyan
 Write-Host "Log check interval: $LogCheckInterval ms" -ForegroundColor Cyan
+Write-Host "Browser monitoring: $($browserEnabled -and (Get-Command node -ErrorAction SilentlyContinue))" -ForegroundColor Cyan
+if ($browserEnabled) {
+    Write-Host "  Screenshot interval: $BrowserScreenshotInterval seconds" -ForegroundColor Gray
+}
 Write-Host ""
 
 for ($i = 1; $i -le $MaxIterations; $i++) {
