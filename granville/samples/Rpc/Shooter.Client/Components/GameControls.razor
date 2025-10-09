@@ -140,8 +140,8 @@
     [Parameter] public EventCallback<bool> OnAutoShootChange { get; set; }
     [Parameter] public EventCallback<bool> OnTestModeChange { get; set; }
     
-    private bool AutoMove { get; set; }
-    private bool AutoShoot { get; set; }
+    private bool AutoMove { get; set; } = true; // Enabled by default
+    private bool AutoShoot { get; set; } = true; // Enabled by default
     private bool TestMode { get; set; } = true; // Enabled by default
     
     private readonly Dictionary<string, bool> _keysPressed = new();
@@ -150,8 +150,13 @@
     {
         if (firstRender)
         {
-            await JS.InvokeVoidAsync("addKeyboardListeners", 
+            await JS.InvokeVoidAsync("addKeyboardListeners",
                 DotNetObjectReference.Create(this));
+
+            // Propagate default settings to parent on first render
+            await OnAutoMoveChange.InvokeAsync(AutoMove);
+            await OnAutoShootChange.InvokeAsync(AutoShoot);
+            await OnTestModeChange.InvokeAsync(TestMode);
         }
     }
     

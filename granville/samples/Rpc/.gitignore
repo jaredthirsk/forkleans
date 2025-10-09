@@ -20,6 +20,10 @@ dist/
 logs/
 *.log
 
+# AI dev loop sessions and browser monitoring
+ai-dev-loop/
+browser-screenshots*/
+
 # Package management
 node_modules/
 packages/

@@ -131,9 +131,9 @@
     private Dictionary<string, GridSquare> _serverZoneMap = new();
     private CancellationTokenSource _disposeCts = new();
     private AutoMoveController? _autoMoveController;
-    private bool _isAutoMoveEnabled = false;
-    private bool _isAutoShootEnabled = false;
-    private bool _isTestMode = false;
+    private bool _isAutoMoveEnabled = true; // Enabled by default for automated testing
+    private bool _isAutoShootEnabled = true; // Enabled by default for automated testing
+    private bool _isTestMode = true; // Enabled by default for automated testing
     private bool _victoryPauseActive = false;
     private System.Timers.Timer? _autoMoveTimer;
     private System.Timers.Timer? _statsUpdateTimer;
@@ -1137,25 +1137,29 @@
     {
         try
         {
+            // Load settings from localStorage or keep defaults (all true)
             var autoMoveValue = await JS.InvokeAsync<string?>("localStorage.getItem", "autoMove");
-            if (bool.TryParse(autoMoveValue, out var autoMove))
+            if (!string.IsNullOrEmpty(autoMoveValue) && bool.TryParse(autoMoveValue, out var autoMove))
             {
                 _isAutoMoveEnabled = autoMove;
             }
-            
+            // else keep default (true)
+
             var autoShootValue = await JS.InvokeAsync<string?>("localStorage.getItem", "autoShoot");
-            if (bool.TryParse(autoShootValue, out var autoShoot))
+            if (!string.IsNullOrEmpty(autoShootValue) && bool.TryParse(autoShootValue, out var autoShoot))
             {
                 _isAutoShootEnabled = autoShoot;
             }
-            
+            // else keep default (true)
+
             var testModeValue = await JS.InvokeAsync<string?>("localStorage.getItem", "testMode");
-            if (bool.TryParse(testModeValue, out var testMode))
+            if (!string.IsNullOrEmpty(testModeValue) && bool.TryParse(testModeValue, out var testMode))
             {
                 _isTestMode = testMode;
             }
-            
-            Logger.LogInformation("Settings loaded: AutoMove={AutoMove}, AutoShoot={AutoShoot}, TestMode={TestMode}", 
+            // else keep default (true)
+
+            Logger.LogInformation("Settings loaded: AutoMove={AutoMove}, AutoShoot={AutoShoot}, TestMode={TestMode}",
                 _isAutoMoveEnabled, _isAutoShootEnabled, _isTestMode);
         }
         catch (Exception ex)

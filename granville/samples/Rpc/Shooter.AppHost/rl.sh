@@ -4,13 +4,18 @@
 # Usage:
 #   ./rl.sh                    # Run with browser monitoring (default)
 #   ./rl.sh --no-browser       # Run without browser monitoring
+#   ./rl.sh --headless         # Run browser in headless mode (no visible window)
 #   ./rl.sh --browser-interval 30  # Custom screenshot interval (seconds)
+#   ./rl.sh --window-x 0 --window-y 300  # Position browser windows (default: 0,300)
 #   ./rl.sh --skip-clean       # Skip dotnet clean (faster startup)
 
 # Parse arguments
 ENABLE_BROWSER=true
+HEADLESS=false
 SCREENSHOT_INTERVAL=15
 GAME_URL="http://localhost:5200/game"
+WINDOW_X=0
+WINDOW_Y=300
 SKIP_CLEAN=false
 
 while [[ $# -gt 0 ]]; do
@@ -19,12 +24,24 @@ while [[ $# -gt 0 ]]; do
             ENABLE_BROWSER=false
             shift
             ;;
+        --headless)
+            HEADLESS=true
+            shift
+            ;;
         --browser-interval)
             SCREENSHOT_INTERVAL="$2"
             shift 2
             ;;
         --game-url)
             GAME_URL="$2"
+            shift 2
+            ;;
+        --window-x)
+            WINDOW_X="$2"
+            shift 2
+            ;;
+        --window-y)
+            WINDOW_Y="$2"
             shift 2
             ;;
         --skip-clean)
@@ -58,7 +75,9 @@ if [ "$ENABLE_BROWSER" = true ]; then
             export GAME_URL="$GAME_URL"
             export SCREENSHOT_INTERVAL=$((SCREENSHOT_INTERVAL * 1000))
             export OUTPUT_DIR="./browser-screenshots-$(date +%Y%m%d-%H%M%S)"
-            export HEADLESS="false"
+            export HEADLESS="$HEADLESS"
+            export WINDOW_X="$WINDOW_X"
+            export WINDOW_Y="$WINDOW_Y"
 
             # Start browser monitor in background
             MONITOR_SCRIPT="/mnt/c/forks/orleans/granville/samples/Rpc/scripts/browser-monitor.js"
@@ -101,15 +120,24 @@ cd "$TEMP_DIR"
 cd "$ORIGINAL_DIR"
 if [ "$SKIP_CLEAN" = false ]; then
     echo "[rl.sh] Running dotnet clean..."
-    dotnet clean 2>/dev/null || true
+    dotnet-win clean 2>/dev/null || true
 else
     echo "[rl.sh] Skipping dotnet clean (--skip-clean specified)"
 fi
+
+# Always build to ensure changes are compiled (use --no-restore to speed up)
+# Use dotnet-win for Windows filesystem to avoid timestamp sync issues with incremental builds
+echo "[rl.sh] Building projects..."
+dotnet-win build --no-restore 2>/dev/null || dotnet-win build
+
 cd "$TEMP_DIR"
 
+# Convert WSL path to Windows path for dotnet-win
+WINDOWS_PROJECT_PATH=$(wslpath -w "$ORIGINAL_DIR/Shooter.AppHost.csproj")
+
 echo "[rl.sh] Starting AppHost..."
-dotnet run --project "$ORIGINAL_DIR/Shooter.AppHost.csproj" -- "$@"
-#dotnet run --project "$ORIGINAL_DIR/Shooter.AppHost.csproj" -c Release -- "$@"
+dotnet-win run --no-build --project "$WINDOWS_PROJECT_PATH" -- "$@"
+#dotnet-win run --project "$WINDOWS_PROJECT_PATH" -c Release -- "$@"
 
 # Clean up and return
 cd "$ORIGINAL_DIR"

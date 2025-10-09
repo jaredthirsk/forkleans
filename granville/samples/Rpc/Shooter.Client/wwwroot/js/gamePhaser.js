@@ -722,8 +722,8 @@ class GamePhaser {
                 // Ensure camera is following player sprite
                 if (sprite) {
                     const camera = this.scene.cameras.main;
-                    // Always ensure camera follows the current player sprite
-                    if (!camera.target || camera.target !== sprite) {
+                    // Always ensure camera follows the current player sprite using Phaser's internal _follow property
+                    if (!camera._follow) {
                         console.log(`[CAMERA] Updating camera to follow player ${entity.entityId} at (${sprite.x}, ${sprite.y})`);
                         camera.stopFollow(); // Clear any existing follow
                         camera.startFollow(sprite, true, 0.1, 0.1);
@@ -1359,9 +1359,9 @@ class GamePhaser {
             if (this.scene && this.playerId) {
                 const playerSprite = this.sprites.get(this.playerId);
                 if (playerSprite) {
-                    // Check if camera is following the player
+                    // Check if camera is following the player using Phaser's internal _follow property
                     const camera = this.scene.cameras.main;
-                    if (!camera.target || camera.target !== playerSprite) {
+                    if (!camera._follow) {
                         console.warn('[CAMERA] Camera lost tracking, recovering...');
                         camera.stopFollow(); // Stop any existing follow first
                         camera.startFollow(playerSprite, true, 0.1, 0.1);

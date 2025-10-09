@@ -62,6 +62,18 @@ TaskScheduler.UnobservedTaskException += (sender, args) =>
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+
+// Configure SignalR hub options for long-running game sessions
+builder.Services.Configure<Microsoft.AspNetCore.SignalR.HubOptions>(options =>
+{
+    // Increase timeouts for long-running game sessions
+    // Default is 30 seconds - too aggressive for gaming
+    options.ClientTimeoutInterval = TimeSpan.FromMinutes(10);    // How long server waits for client activity
+    options.KeepAliveInterval = TimeSpan.FromSeconds(30);        // How often server pings client
+    options.HandshakeTimeout = TimeSpan.FromSeconds(30);         // Handshake timeout
+    options.MaximumReceiveMessageSize = 1024 * 1024;             // 1 MB max message size
+});
+
 builder.Services.AddSingleton<WeatherForecastService>();
 
 // Add heartbeat monitoring service

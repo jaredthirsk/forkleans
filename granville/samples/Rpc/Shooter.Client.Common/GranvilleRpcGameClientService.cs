@@ -1746,6 +1746,11 @@ public class GranvilleRpcGameClientService : IDisposable
                         else
                         {
                             _logger.LogInformation("[FORCE_TRANSITION] Successfully reconnected to same server {ServerId}", CurrentServerId);
+
+                            // CRITICAL: Update zone tracking to prevent health monitor from detecting false mismatch
+                            _currentZone = targetZone;
+                            _healthMonitor?.UpdateServerZone(targetZone);
+
                             return;
                         }
                     }
@@ -1773,6 +1778,11 @@ public class GranvilleRpcGameClientService : IDisposable
 
             // Connect to correct server
             await ConnectToActionServer(serverInfo.IpAddress, serverInfo.RpcPort, serverInfo.ServerId);
+
+            // CRITICAL: Update zone tracking to prevent health monitor from detecting false mismatch
+            // This is needed for cross-server transitions (same-server path already does this at line 1751)
+            _currentZone = targetZone;
+            _healthMonitor?.UpdateServerZone(targetZone);
 
             _logger.LogInformation("[FORCE_TRANSITION] Successfully forced transition to zone {Zone}", targetZone);
         }

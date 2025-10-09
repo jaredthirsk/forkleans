@@ -30,6 +30,10 @@
     Disable browser monitoring with Playwright
     Default: false
 
+.PARAMETER Headless
+    Run browser in headless mode (no visible window)
+    Default: false
+
 .PARAMETER BrowserScreenshotInterval
     How often to take browser screenshots (seconds)
     Default: 15
@@ -40,6 +44,7 @@ param(
     [bool]$AutoFix = $true,
     [int]$LogCheckInterval = 500,
     [switch]$NoBrowser = $false,
+    [switch]$Headless = $false,
     [int]$BrowserScreenshotInterval = 15,
     [switch]$SkipClean = $false
 )
@@ -48,8 +53,13 @@ $ErrorActionPreference = "Stop"
 
 # Session setup
 $sessionId = Get-Date -Format "yyyyMMdd-HHmmss"
-$workDir = "ai-dev-loop/$sessionId"
+
+# Always use the Shooter.AppHost directory as the base for ai-dev-loop sessions
+$shooterRpcRoot = Split-Path -Parent $PSScriptRoot
+$workDir = Join-Path $shooterRpcRoot "ai-dev-loop" $sessionId
 New-Item -ItemType Directory -Force -Path $workDir | Out-Null
+
+Write-Host "AI Dev Loop session directory: $workDir" -ForegroundColor Cyan
 
 # State file for AI to read
 $stateFile = "$workDir/current-state.json"
@@ -493,6 +503,9 @@ function Start-ShooterWithLogging {
     $rlArgs = "./rl.sh"
     if ($SkipClean) {
         $rlArgs += " --skip-clean"
+    }
+    if ($Headless) {
+        $rlArgs += " --headless"
     }
 
     $appHostProc = Start-Process -FilePath "bash" `
