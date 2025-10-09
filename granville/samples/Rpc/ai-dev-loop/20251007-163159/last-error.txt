@@ -1,0 +1,57 @@
+=== ENHANCED ERROR DETECTION REPORT ===
+Timestamp: 2025-10-07 16:52:30
+Monitoring Duration: 1200 seconds
+Total Issues Found: 164
+
+CRITICAL ERRORS (10):
+[16:37:21] Zone mismatch >10 seconds - Source: bot-0.log
+  2025-10-07 16:37:21.081 [Error] Shooter.Client.Common.ZoneTransitionHealthMonitor: [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (1,1) but connected to server for zone (0,0) for 21868.7927ms
+[16:37:21] Zone sync failure >10s - Source: bot-0.log
+  2025-10-07 16:37:21.081 [Error] Shooter.Client.Common.ZoneTransitionHealthMonitor: [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (1,1) but connected to server for zone (0,0) for 21868.7927ms
+[16:37:54] Zone mismatch >10 seconds - Source: bot-0.log
+  2025-10-07 16:37:53.207 [Error] Shooter.Client.Common.ZoneTransitionHealthMonitor: [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (1,1) but connected to server for zone (0,1) for 53995.0269ms
+[16:37:54] Zone sync failure >10s - Source: bot-0.log
+  2025-10-07 16:37:53.207 [Error] Shooter.Client.Common.ZoneTransitionHealthMonitor: [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (1,1) but connected to server for zone (0,1) for 53995.0269ms
+[16:38:25] Zone mismatch >10 seconds - Source: bot-0.log
+  2025-10-07 16:38:25.357 [Error] Shooter.Client.Common.ZoneTransitionHealthMonitor: [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (1,1) but connected to server for zone (0,0) for 86145.1295ms
+[16:38:25] Zone sync failure >10s - Source: bot-0.log
+  2025-10-07 16:38:25.357 [Error] Shooter.Client.Common.ZoneTransitionHealthMonitor: [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (1,1) but connected to server for zone (0,0) for 86145.1295ms
+[16:40:03] Zone mismatch >10 seconds - Source: bot-0.log
+  2025-10-07 16:40:01.741 [Error] Shooter.Client.Common.ZoneTransitionHealthMonitor: [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (1,1) but connected to server for zone (1,0) for 32123.5604ms
+[16:40:03] Zone sync failure >10s - Source: bot-0.log
+  2025-10-07 16:40:01.741 [Error] Shooter.Client.Common.ZoneTransitionHealthMonitor: [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (1,1) but connected to server for zone (1,0) for 32123.5604ms
+[16:42:45] Zone mismatch >10 seconds - Source: bot-0.log
+  2025-10-07 16:42:42.453 [Error] Shooter.Client.Common.ZoneTransitionHealthMonitor: [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (1,1) but connected to server for zone (0,1) for 32133.1007ms
+[16:42:45] Zone sync failure >10s - Source: bot-0.log
+  2025-10-07 16:42:42.453 [Error] Shooter.Client.Common.ZoneTransitionHealthMonitor: [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (1,1) but connected to server for zone (0,1) for 32133.1007ms
+
+
+SEVERE ERRORS (85):
+[16:32:37] Exception occurred - Source: bot-0-console.log
+[16:32:37] Exception occurred - Source: bot-0-console.log
+[16:32:37] Exception occurred - Source: bot-0-console.log
+[16:32:37] Exception occurred - Source: bot-0.log
+[16:32:37] Exception occurred - Source: bot-0.log
+[16:32:37] Exception occurred - Source: bot-0.log
+[16:34:10] Exception occurred - Source: client-console.log
+[16:34:32] Exception occurred - Source: client-console.log
+[16:35:14] Exception occurred - Source: client-console.log
+[16:35:14] Exception occurred - Source: client-console.log
+
+
+WARNINGS (69):
+[16:33:00] SignalR disconnection (transient)
+[16:33:00] SignalR disconnection (transient)
+[16:35:26] Zone transition 5-10s (acceptable)
+[16:35:26] Zone transition 5-10s (acceptable)
+[16:35:26] Zone transition 5-10s (acceptable)
+
+
+ANALYSIS:
+- Zone transition deadlock detected - players stuck between zones
+
+RECOMMENDED ACTIONS:
+1. For zone issues: Check zone transition logic and force reconnection
+2. For RPC failures: Verify network configuration and retry logic
+3. For SSL issues: Check certificate trust and SignalR endpoints
+4. For bot issues: Verify connection URLs and authentication

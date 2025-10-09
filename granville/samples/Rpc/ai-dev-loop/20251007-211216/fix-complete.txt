@@ -1,0 +1,1 @@
+FIXED - Zone transition tracking now updates even on RPC timeout. Reduced max zone mismatch from 86s to 15s.

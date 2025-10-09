@@ -1,0 +1,45 @@
+=== ENHANCED ERROR DETECTION REPORT ===
+Timestamp: 2025-10-07 21:16:30
+Monitoring Duration: 1200 seconds
+Total Issues Found: 62
+
+CRITICAL ERRORS (4):
+[21:15:50] Zone mismatch >10 seconds - Source: client.log
+  2025-10-07 21:15:48.658 [Error] Shooter.Client.Common.ZoneTransitionHealthMonitor: [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (0,1) but connected to server for zone (1,0) for 15114.9635ms
+[21:15:50] Zone sync failure >10s - Source: client.log
+  2025-10-07 21:15:48.658 [Error] Shooter.Client.Common.ZoneTransitionHealthMonitor: [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (0,1) but connected to server for zone (1,0) for 15114.9635ms
+[21:16:24] Zone mismatch >10 seconds - Source: client-console.log
+        [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (0,1) but connected to server for zone (1,0) for 15114.9635ms
+[21:16:24] Zone sync failure >10s - Source: client-console.log
+        [HEALTH_MONITOR] PROLONGED_MISMATCH: Player in zone (0,1) but connected to server for zone (1,0) for 15114.9635ms
+
+
+SEVERE ERRORS (34):
+[21:13:06] Exception occurred - Source: bot-0-console.log
+[21:13:06] Exception occurred - Source: bot-0-console.log
+[21:13:06] Exception occurred - Source: bot-0.log
+[21:13:06] Exception occurred - Source: bot-0.log
+[21:14:25] Exception occurred - Source: bot-0-console.log
+[21:14:38] Exception occurred - Source: client-console.log
+[21:14:50] Exception occurred - Source: client-console.log
+[21:14:50] Exception occurred - Source: client-console.log
+[21:15:49] Exception occurred - Source: client-console.log
+[21:15:50] Exception occurred - Source: client-console.log
+
+
+WARNINGS (24):
+[21:13:30] SignalR disconnection (transient)
+[21:13:31] SignalR disconnection (transient)
+[21:15:49] Zone transition 5-10s (acceptable)
+[21:15:49] Zone transition 5-10s (acceptable)
+[21:15:49] Zone transition 5-10s (acceptable)
+
+
+ANALYSIS:
+- Zone transition deadlock detected - players stuck between zones
+
+RECOMMENDED ACTIONS:
+1. For zone issues: Check zone transition logic and force reconnection
+2. For RPC failures: Verify network configuration and retry logic
+3. For SSL issues: Check certificate trust and SignalR endpoints
+4. For bot issues: Verify connection URLs and authentication

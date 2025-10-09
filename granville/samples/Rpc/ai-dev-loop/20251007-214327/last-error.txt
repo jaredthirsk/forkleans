@@ -1,0 +1,37 @@
+=== ENHANCED ERROR DETECTION REPORT ===
+Timestamp: 2025-10-07 22:04:03
+Monitoring Duration: 1200 seconds
+Total Issues Found: 623
+
+CRITICAL ERRORS (0):
+
+
+SEVERE ERRORS (477):
+[21:44:26] Exception occurred - Source: bot-0-console.log
+[21:44:26] Exception occurred - Source: bot-0-console.log
+[21:44:26] Exception occurred - Source: bot-0-console.log
+[21:44:26] Exception occurred - Source: bot-0.log
+[21:44:26] Exception occurred - Source: bot-0.log
+[21:44:26] Exception occurred - Source: bot-0.log
+[21:44:26] Exception occurred - Source: client-console.log
+[21:44:26] Exception occurred - Source: client-console.log
+[21:44:26] Exception occurred - Source: client.log
+[21:44:26] Exception occurred - Source: client.log
+
+
+WARNINGS (146):
+[21:44:59] SignalR disconnection (transient)
+[21:44:59] SignalR disconnection (transient)
+[21:45:04] SignalR disconnection (transient)
+[21:45:04] SignalR disconnection (transient)
+[21:45:40] Zone transition 5-10s (acceptable)
+
+
+ANALYSIS:
+
+
+RECOMMENDED ACTIONS:
+1. For zone issues: Check zone transition logic and force reconnection
+2. For RPC failures: Verify network configuration and retry logic
+3. For SSL issues: Check certificate trust and SignalR endpoints
+4. For bot issues: Verify connection URLs and authentication

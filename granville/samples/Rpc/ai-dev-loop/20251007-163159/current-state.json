@@ -1,0 +1,11 @@
+{
+  "FixesApplied": 0,
+  "State": "Complete",
+  "Message": "Session finished",
+  "StartTime": "2025-10-07T16:32:00.4748086-06:00",
+  "LastError": "10 critical, 85 severe, 69 warnings",
+  "Iteration": 1,
+  "ErrorsFound": 164,
+  "SuccessfulRuns": 0,
+  "LastUpdate": "2025-10-07T16:58:02.6202299-06:00"
+}
