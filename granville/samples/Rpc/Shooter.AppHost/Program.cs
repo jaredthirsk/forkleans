@@ -139,7 +139,9 @@ for (int i = 0; i < InitialActionServerCount; i++)
 
 // Add the Blazor client - it depends on the primary silo being ready
 // Client can connect to any silo through the gateway
+// Bind to 0.0.0.0 to make it accessible from both Windows and WSL
 builder.AddProject<Projects.Shooter_Client>("shooter-client")
+    .WithEnvironment("ASPNETCORE_URLS", "http://0.0.0.0:5200")
     .WithEnvironment("SiloUrl", primarySilo!.GetEndpoint("https"))
     .WithEnvironment("RpcTransport", transportType)
     .WithEnvironment("OTEL_EXPORTER_OTLP_ENDPOINT", builder.Configuration["DOTNET_DASHBOARD_OTLP_ENDPOINT_URL"] ?? "http://localhost:19265")

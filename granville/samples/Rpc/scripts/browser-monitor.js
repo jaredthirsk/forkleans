@@ -7,13 +7,45 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
+
+// Detect Windows host IP when running in WSL
+function getGameUrl() {
+    if (process.env.GAME_URL) {
+        return process.env.GAME_URL;
+    }
+
+    // Check if we're running in WSL
+    const isWSL = fs.existsSync('/proc/version') &&
+                  fs.readFileSync('/proc/version', 'utf8').toLowerCase().includes('microsoft');
+
+    if (isWSL) {
+        try {
+            // Get Windows host IP from WSL's resolv.conf
+            const resolvConf = fs.readFileSync('/etc/resolv.conf', 'utf8');
+            const match = resolvConf.match(/nameserver\s+(\d+\.\d+\.\d+\.\d+)/);
+            if (match) {
+                const windowsHostIP = match[1];
+                console.log(`[Browser] Detected WSL environment, using Windows host IP: ${windowsHostIP}`);
+                return `http://${windowsHostIP}:5200/game`;
+            }
+        } catch (error) {
+            console.log(`[Browser] Failed to detect Windows host IP: ${error.message}`);
+        }
+    }
+
+    // Fallback to localhost
+    return 'http://localhost:5200/game';
+}
 
 const config = {
-    gameUrl: process.env.GAME_URL || 'http://localhost:5200/game',
+    gameUrl: getGameUrl(),
     screenshotInterval: parseInt(process.env.SCREENSHOT_INTERVAL) || 15000, // 15 seconds
     outputDir: process.env.OUTPUT_DIR || './ai-dev-loop/browser-screenshots',
     maxScreenshots: parseInt(process.env.MAX_SCREENSHOTS) || 20,
     headless: process.env.HEADLESS === 'true',
+    windowX: parseInt(process.env.WINDOW_X) || 0,
+    windowY: parseInt(process.env.WINDOW_Y) || 300,  // Default 300px from top
 };
 
 let browser = null;
@@ -24,16 +56,30 @@ let consoleErrors = [];
 async function setupBrowser() {
     console.log('[Browser] Launching Chrome...');
 
+    const launchArgs = [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+    ];
+
+    // Add window position if not headless
+    if (!config.headless) {
+        launchArgs.push(`--window-position=${config.windowX},${config.windowY}`);
+        console.log(`[Browser] Window position: ${config.windowX},${config.windowY}`);
+    }
+
     browser = await chromium.launch({
         headless: config.headless,
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-        ],
+        args: launchArgs,
     });
 
-    page = await browser.newPage();
+    // Create page with large viewport for better screenshots
+    page = await browser.newPage({
+        viewport: {
+            width: 1920,
+            height: 1200
+        }
+    });
 
     // Monitor console messages
     page.on('console', msg => {
