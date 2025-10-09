@@ -43,7 +43,7 @@ class Program
             
             // Try to get a grain reference (this would previously timeout)
             Console.WriteLine("Getting grain reference...");
-            var gameGrain = rpcClient.GetGrain<IGameRpcGrain>(Guid.NewGuid());
+            var gameGrain = rpcClient.GetGrain<IGameGranule>(Guid.NewGuid());
             Console.WriteLine("✓ Grain reference obtained successfully!");
             Console.WriteLine($"  Grain type: {gameGrain.GetType().Name}");
             

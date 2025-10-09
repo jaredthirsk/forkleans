@@ -33,7 +33,7 @@ class Program
             {
                 services.AddSerializer(serializer =>
                 {
-                    serializer.AddAssembly(typeof(IGameRpcGrain).Assembly);
+                    serializer.AddAssembly(typeof(IGameGranule).Assembly);
                     serializer.AddAssembly(typeof(Granville.Rpc.Protocol.RpcMessage).Assembly);
                 });
             });
@@ -48,7 +48,7 @@ class Program
             await Task.Delay(1000);
             
             var client = host.Services.GetRequiredService<Orleans.IClusterClient>();
-            var gameGrain = client.GetGrain<IGameRpcGrain>("test");
+            var gameGrain = client.GetGrain<IGameGranule>("test");
             
             Console.WriteLine($"Calling ConnectPlayer with debug logging enabled...");
             var result = await gameGrain.ConnectPlayer(testPlayerId);

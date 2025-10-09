@@ -29,7 +29,7 @@ class Program
             await host.ConnectAsync("127.0.0.1", 12005);
             
             // Get the game grain
-            var gameGrain = host.GetGrain<IGameRpcGrain>("test-zone");
+            var gameGrain = host.GetGrain<IGameGranule>("test-zone");
             
             // Call ConnectPlayer with our test string
             Console.WriteLine($"Calling ConnectPlayer with: '{testPlayerId}'");
