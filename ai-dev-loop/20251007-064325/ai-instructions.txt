@@ -1,0 +1,23 @@
+=== AI DEBUGGING INSTRUCTIONS ===
+
+Critical errors detected requiring immediate attention!
+
+Files available for analysis:
+- Detailed error report: ai-dev-loop/20251007-064325/last-error.txt
+- Full error context: ai-dev-loop/20251007-064325/error-context.log
+- Session logs: ai-dev-loop/20251007-064325/*.log
+- Component logs: /mnt/c/forks/orleans/granville/samples/Rpc/scripts/../logs/*.log
+
+The enhanced monitoring detected real issues that need fixing.
+Please analyze the errors and apply appropriate fixes.
+
+To complete the fix:
+1. Read and analyze the error report
+2. Identify root causes
+3. Apply code fixes
+4. Signal completion by writing "FIXED" to: ai-dev-loop/20251007-064325/fix-complete.txt
+
+Current statistics:
+- Iterations: 1
+- Errors found: 40
+- Fixes applied: 0

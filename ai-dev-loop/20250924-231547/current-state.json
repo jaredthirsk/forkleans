@@ -1,0 +1,11 @@
+{
+  "State": "Investigating",
+  "FixesApplied": 2,
+  "Message": "Error captured. Ready for AI analysis.",
+  "LastError": "AppHost crashed with exit code 1",
+  "Iteration": 3,
+  "StartTime": "2025-09-24T23:15:49.1447594-06:00",
+  "ErrorsFound": 3,
+  "LastUpdate": "2025-09-24T23:18:13.5639263-06:00",
+  "SuccessfulRuns": 0
+}

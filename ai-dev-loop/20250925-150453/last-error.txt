@@ -1,0 +1,16 @@
+=== ERROR DETECTION REPORT ===
+Timestamp: 2025-09-25 15:06:01
+
+Critical Issues Found:
+- [Exception occurred] Exception: System.Net.Http.HttpRequestException: Connection refused (localhost:7080)
+- [Exception occurred] Exception: System.Net.Http.HttpRequestException: Connection refused (localhost:7080)
+- [Exception occurred]       System.Net.Http.HttpRequestException: Connection refused (localhost:7080)
+- [Exception occurred]       System.Net.Http.HttpRequestException: Connection refused (localhost:7080)
+
+
+Recommended Actions:
+1. Check zone transition configuration
+2. Verify SSL certificates are trusted
+3. Ensure all services are responding
+4. Check network connectivity
+5. Review RPC client configuration

@@ -1,0 +1,11 @@
+{
+  "Message": "Errors captured. Ready for AI analysis.",
+  "LastError": "2 critical, 30 severe, 8 warnings",
+  "State": "Investigating",
+  "ErrorsFound": 40,
+  "SuccessfulRuns": 0,
+  "StartTime": "2025-10-07T06:43:26.2078036-06:00",
+  "LastUpdate": "2025-10-07T06:48:15.3679521-06:00",
+  "FixesApplied": 0,
+  "Iteration": 1
+}

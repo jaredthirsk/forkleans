@@ -1,0 +1,11 @@
+{
+  "LastUpdate": "2025-09-25T09:41:56.1465969-06:00",
+  "Message": "Aspire AppHost started via rl.sh. Monitoring for issues...",
+  "ErrorsFound": 0,
+  "StartTime": "2025-09-25T09:40:02.5705153-06:00",
+  "LastError": null,
+  "Iteration": 1,
+  "SuccessfulRuns": 1,
+  "FixesApplied": 0,
+  "State": "Running"
+}

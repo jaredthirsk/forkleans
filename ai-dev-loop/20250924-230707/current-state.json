@@ -1,0 +1,11 @@
+{
+  "SuccessfulRuns": 0,
+  "Iteration": 5,
+  "StartTime": "2025-09-24T23:07:08.1570597-06:00",
+  "Message": "Error captured. Ready for AI analysis.",
+  "State": "Investigating",
+  "LastUpdate": "2025-09-24T23:11:56.3616776-06:00",
+  "ErrorsFound": 5,
+  "FixesApplied": 4,
+  "LastError": "AppHost crashed with exit code 134"
+}

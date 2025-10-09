@@ -1,0 +1,11 @@
+{
+  "Iteration": 1,
+  "Message": "Session finished",
+  "State": "Complete",
+  "StartTime": "2025-09-25T17:44:18.3491226-06:00",
+  "FixesApplied": 0,
+  "SuccessfulRuns": 0,
+  "ErrorsFound": 28,
+  "LastUpdate": "2025-09-25T17:50:59.6056282-06:00",
+  "LastError": "18 critical, 10 severe, 0 warnings"
+}

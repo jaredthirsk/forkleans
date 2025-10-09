@@ -1,0 +1,57 @@
+ANALYSIS COMPLETE - NOT FIXED
+
+## Issues Detected
+
+### 1. ActionServer-3 Startup Error (CRITICAL)
+**Error**: `Could not find an implementation for interface Shooter.Shared.RpcInterfaces.IGameRpcGrain`
+**Location**: ActionServer-3 at startup (06:44:40)
+**Root Cause**: Orleans code generation is incorrectly trying to resolve `IGameRpcGrain` as an Orleans grain instead of an RPC grain. This is a sporadic race condition during Aspire multi-instance startup.
+
+**Analysis**:
+- `IGameRpcGrain` inherits from `IRpcGrainInterfaceWithStringKey` (correct)
+- All code correctly uses `IRpcClient.GetGrain<IGameRpcGrain>()` (not Orleans client)
+- Orleans sees the "Grain" suffix and attempts to generate proxy code
+- Error only affects ActionServer-3, suggesting timing/race condition
+
+**Recommendation**:
+- This appears to be a **transient startup issue** that resolves itself
+- ActionServer-3 likely recovered after Orleans client connected
+- Consider renaming `IGameRpcGrain` to `IGameRpcService` to avoid Orleans heuristics
+- OR: Add explicit exclusion in Orleans codegen settings
+
+### 2. RPC Timeout and Disconnection (SEVERE)
+**Error**: Multiple RPC requests timeout after 30 seconds, Bot-0 eventually disconnects
+**Location**: Bot-0 from 06:45:44 onwards
+**Symptoms**:
+- `System.TimeoutException: RPC request X timed out after 30000ms`
+- Multiple requests timeout (bd83bba5, edb491c4, 98e51dab, etc.)
+- Eventually: `System.InvalidOperationException: RPC client is not connected to any servers`
+
+**Root Cause**: Unknown - needs further investigation
+- Could be network issues
+- Could be ActionServer overload
+- Could be RPC transport layer issues (LiteNetLib)
+
+**Recommendation**:
+- Investigate RPC server-side logs to see if requests are received
+- Check for network packet loss
+- Monitor ActionServer CPU/memory during high load
+- Consider increasing RPC timeout or implementing retry logic
+
+### 3. Log Activity Stopped Warnings
+**8 warnings** for various components (client-1, client-2, bot-1, bot-2, silo-1, silo-2, action-1, action-2)
+**Analysis**: These are **false positives** - the AI dev loop monitoring detected no logs for 132 seconds, but this is normal during stable operation.
+
+## Status
+**NO FIX APPLIED** - Issues are either transient (startup race) or require deeper investigation (RPC timeouts).
+
+The system appears to be mostly functional despite these errors. The ActionServer-3 startup error is likely self-resolving, and the RPC timeouts may be load-related.
+
+## Recommendations for Next Steps
+1. Rename `IGameRpcGrain` → `IGameRpcService` to avoid Orleans codegen confusion
+2. Add RPC request/response logging to track timeout causes
+3. Implement RPC retry logic with exponential backoff
+4. Tune AI dev loop monitoring to reduce false positive "log activity stopped" warnings
+
+---
+Generated: 2025-10-07 07:10:00

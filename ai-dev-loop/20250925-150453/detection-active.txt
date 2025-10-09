@@ -1,0 +1,17 @@
+=== AI DEV LOOP ACTIVE ===
+Started: 2025-09-25 15:04:55
+Session: 20250925-150453
+Monitoring for:
+- Zone transition issues (PROLONGED_MISMATCH, CHRONIC_MISMATCH)
+- SSL/Certificate errors
+- RPC failures
+- Bot connection issues
+- Process crashes
+
+This loop will:
+1. Detect errors automatically
+2. Stop affected services
+3. Wait for AI fixes
+4. Restart and verify fixes
+
+Working directory: ai-dev-loop/20250925-150453

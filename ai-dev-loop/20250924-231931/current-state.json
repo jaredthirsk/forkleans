@@ -1,0 +1,11 @@
+{
+  "Iteration": 1,
+  "LastError": null,
+  "FixesApplied": 0,
+  "LastUpdate": "2025-09-24T23:19:33.1725385-06:00",
+  "ErrorsFound": 0,
+  "StartTime": "2025-09-24T23:19:33.1384391-06:00",
+  "Message": "Launching Shooter via Aspire AppHost with full logging...",
+  "State": "Starting",
+  "SuccessfulRuns": 0
+}

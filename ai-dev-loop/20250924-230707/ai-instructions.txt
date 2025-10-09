@@ -1,0 +1,25 @@
+=== AI DEBUGGING INSTRUCTIONS ===
+
+An error has been detected in iteration 5:
+AppHost crashed with exit code 134
+
+Files available for analysis:
+- Error details: ai-dev-loop/20250924-230707/last-error.txt
+- Full context (last 200 lines): ai-dev-loop/20250924-230707/error-context.log
+- All logs: ai-dev-loop/20250924-230707/*.log
+
+To fix this issue:
+1. Read the error file: Read ai-dev-loop/20250924-230707/last-error.txt
+2. Read the context: Read ai-dev-loop/20250924-230707/error-context.log
+3. Analyze the specific component logs if needed
+4. Identify the root cause
+5. Apply fixes to the source code
+6. Signal completion by writing "FIXED" to: ai-dev-loop/20250924-230707/fix-complete.txt
+
+The script will automatically restart and test your fix.
+
+Current statistics:
+- Iterations: 5
+- Errors found: 5
+- Fixes applied: 4
+- Successful runs: 0
