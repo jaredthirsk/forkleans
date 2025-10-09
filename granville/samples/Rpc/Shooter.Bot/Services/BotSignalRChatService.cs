@@ -30,19 +30,25 @@ public class BotSignalRChatService : IDisposable
     {
         try
         {
-            // Get the Silo URL from configuration
-            var siloUrl = _configuration.GetValue<string>("SiloUrl", "https://localhost:7072");
-            if (!siloUrl.StartsWith("https://"))
+            // Get the Client URL from configuration (not Silo URL for SignalR)
+            // SignalR hub is hosted by the Client, not the Silo
+            var clientUrl = _configuration.GetValue<string>("ClientUrl", "");
+
+            // If ClientUrl is not specified, try to derive from environment or use default
+            if (string.IsNullOrEmpty(clientUrl))
             {
-                siloUrl = siloUrl.Replace("http://", "https://");
-                // Increment port by 1 for HTTPS (7071 -> 7072)
-                if (siloUrl.Contains(":7071"))
-                {
-                    siloUrl = siloUrl.Replace(":7071", ":7072");
-                }
+                // In Aspire environment, the client runs on port 7080 (HTTPS)
+                clientUrl = "https://localhost:7080";
+                _logger.LogInformation("ClientUrl not configured, using default: {ClientUrl}", clientUrl);
             }
-            
-            var hubUrl = $"{siloUrl}/gamehub";
+
+            // Ensure HTTPS for SignalR
+            if (!clientUrl.StartsWith("https://"))
+            {
+                clientUrl = clientUrl.Replace("http://", "https://");
+            }
+
+            var hubUrl = $"{clientUrl}/gamehub";
             _logger.LogInformation("Bot {BotName} connecting to SignalR hub at {HubUrl}", _botName, hubUrl);
             
             // Build the hub connection

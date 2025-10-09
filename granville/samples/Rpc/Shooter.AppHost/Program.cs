@@ -3,6 +3,7 @@ using Aspire.Hosting.ApplicationModel;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
+
 // Configuration
 const int InitialActionServerCount = 4;
 const int BotCount = 1; // Number of bots to start
