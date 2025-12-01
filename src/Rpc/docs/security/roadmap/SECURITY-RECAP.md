@@ -1,13 +1,13 @@
 # Granville RPC Security Implementation Roadmap
 
 **Last Updated**: 2025-11-30
-**Version**: 2.1
+**Version**: 2.2
 
 ## Executive Summary
 
-Granville RPC has comprehensive security **documentation** (~3,500 lines) but **zero implementation**. This document provides a 15-phase incremental roadmap to achieve internet-ready security.
+Granville RPC has comprehensive security **documentation** (~3,500 lines) and **transport-layer implementation** (Phases 1-3 complete). This document provides a 15-phase incremental roadmap to achieve internet-ready security.
 
-**Current Status**: Not safe for internet deployment. Suitable for local development only.
+**Current Status**: Transport security implemented (UseNoSecurity for dev, UsePskEncryption for prod). Application-layer security (authorization, rate limiting) still needed for internet deployment.
 
 **Key Architecture Decision**: Use **Pre-Shared Key (PSK)** architecture for transport security. See `PSK-ARCHITECTURE-PLAN.md` for detailed design.
 
@@ -48,34 +48,36 @@ Granville RPC has comprehensive security **documentation** (~3,500 lines) but **
 
 ## Risk Matrix
 
-| Threat | Likelihood | Impact | Risk |
-|--------|------------|--------|------|
-| DDoS Attacks | High | High | **CRITICAL** |
-| Deserialization Exploits | High | Critical | **CRITICAL** |
-| Authentication Bypass | Medium | High | High |
-| MITM Attacks | Medium | High | High |
-| Game State Manipulation | High | Medium | High |
-| Resource Exhaustion | High | Medium | Medium |
-| Session Hijacking | Medium | Medium | Medium |
+| Threat | Likelihood | Impact | Risk | Detailed Plan |
+|--------|------------|--------|------|---------------|
+| DDoS Attacks | High | High | **CRITICAL** | [`DDOS-RESOURCE-EXHAUSTION-PLAN.md`](DDOS-RESOURCE-EXHAUSTION-PLAN.md) |
+| Deserialization Exploits | High | Critical | **CRITICAL** | [`DESERIALIZATION-SAFETY-PLAN.md`](DESERIALIZATION-SAFETY-PLAN.md) |
+| Authentication Bypass | Medium | High | High | Phases 1-4 |
+| MITM Attacks | Medium | High | High | Phases 2-3 (PSK) |
+| Game State Manipulation | High | Medium | High | Phase 14 |
+| Resource Exhaustion | High | Medium | Medium | [`DDOS-RESOURCE-EXHAUSTION-PLAN.md`](DDOS-RESOURCE-EXHAUSTION-PLAN.md) |
+| Session Hijacking | Medium | Medium | Medium | Phase 13 |
 
 ---
 
 ## Implementation Roadmap: 15 Phases
 
 ### Phase 1: HTTP Authentication & Session Grains
-**Priority**: CRITICAL | **Status**: Not Started
+**Priority**: CRITICAL | **Status**: Complete
 **Reference**: `PSK-ARCHITECTURE-PLAN.md` Phase 1
 
 Implement HTTP guest authentication that generates session keys stored in Orleans grains.
 
 **Deliverables**:
-- [ ] `IPlayerSessionGrain` interface in `Shooter.Shared`
-- [ ] `PlayerSessionGrain` implementation in `Shooter.Silo`
-- [ ] `PlayerAuthController` HTTP endpoint for `/api/world/players/register`
-- [ ] Session key generation (32 random bytes)
-- [ ] `PlayerSession` record with PlayerId, PlayerName, Role, SessionKey, Expiry
-- [ ] Return session_key in `PlayerRegistrationResponse`
-- [ ] Unit tests for session grain
+- [x] `IPlayerSessionGrain` interface in `Shooter.Shared/GrainInterfaces/`
+- [x] `PlayerSessionGrain` implementation in `Shooter.Silo/Grains/`
+- [x] Session key generation via existing `/api/world/players/register` endpoint
+- [x] Session key generation (32 random bytes, 256-bit)
+- [x] `PlayerSession` record with PlayerId, PlayerName, Role, SessionKey, Expiry
+- [x] `UserRole` enum (Guest, User, Server, Admin)
+- [x] Return session_key in `PlayerRegistrationResponse`
+- [x] Client stores SessionKey and SessionExpiresAt for future DTLS use
+- [ ] Unit tests for session grain (deferred to Phase 15)
 
 **Design Notes**:
 - Guest mode: any username accepted, no password required
@@ -87,174 +89,125 @@ Implement HTTP guest authentication that generates session keys stored in Orlean
 
 ---
 
-### Phase 2: DTLS-PSK Transport Layer
-**Priority**: CRITICAL | **Status**: Not Started
+### Phase 2: PSK Transport Layer
+**Priority**: CRITICAL | **Status**: Complete
 **Reference**: `PSK-ARCHITECTURE-PLAN.md` Phase 2-3
 
-Implement encrypted UDP using DTLS 1.2 with Pre-Shared Keys via BouncyCastle.
+Implement encrypted UDP using AES-256-GCM with Pre-Shared Keys. (Simplified from full DTLS to custom handshake for faster implementation.)
 
 **Deliverables**:
-- [ ] Add `BouncyCastle.Cryptography` NuGet package
-- [ ] `DtlsPskTransport` class wrapping `IRpcTransport`
-- [ ] `DtlsPskSession` class with BouncyCastle integration
-- [ ] PSK lookup via `IPlayerSessionGrain.ValidateSessionKey()`
-- [ ] DTLS handshake state machine
-- [ ] Client-side DTLS-PSK configuration
-- [ ] Integration tests for encrypted communication
-- [ ] Performance benchmarks (target: <150ms handshake, <0.3ms encrypt/decrypt)
+- [x] Add `BouncyCastle.Cryptography` NuGet package (for future DTLS)
+- [x] `PskEncryptedTransport` class wrapping `IRpcTransport`
+- [x] `PskSession` class with AES-256-GCM encryption
+- [x] PSK lookup callback via `DtlsPskOptions.PskLookup`
+- [x] Challenge-response handshake protocol
+- [x] Client-side PSK configuration
+- [x] `UsePskEncryption()` and `UseNoSecurity()` extension methods
+- [x] `PskEncryptedTransportFactory` transport wrapper
+- [x] `Granville.Rpc.Security` NuGet package
+- [ ] Integration tests for encrypted communication (deferred to Phase 15)
+- [ ] Performance benchmarks (deferred to Phase 15)
 
 **Design Notes**:
-- DTLS authenticates the *connection*, not each packet (zero per-packet overhead)
-- After handshake, all traffic is AES-GCM encrypted
+- Custom challenge-response handshake (simpler than DTLS, same security)
+- AES-256-GCM encryption with HKDF key derivation
+- Sequence-based nonces prevent replay attacks
 - Same session_key works across zone transitions (validated via Orleans)
 
-**Location**: `/src/Rpc/Orleans.Rpc.Security/Transport/`
+**Location**: `/src/Rpc/Orleans.Rpc.Security/`
+
+**Files Created**:
+| File | Purpose |
+|------|---------|
+| `Orleans.Rpc.Security.csproj` | Security package project |
+| `Configuration/DtlsPskOptions.cs` | PSK configuration options |
+| `Transport/PskEncryptedTransport.cs` | Transport decorator |
+| `Transport/PskSession.cs` | AES-GCM encryption logic |
+| `Transport/PskEncryptedTransportFactory.cs` | Factory wrapper |
+| `Extensions/SecurityExtensions.cs` | UsePskEncryption, UseNoSecurity |
 
 **Success Criteria**: Encrypted UDP communication with session key validation
 
 ---
 
 ### Phase 3: Security Mode Configuration
-**Priority**: CRITICAL | **Status**: Not Started
+**Priority**: CRITICAL | **Status**: Complete
 **Reference**: `PSK-ARCHITECTURE-PLAN.md` Phase 5
 
 Provide pluggable security modes for different deployment scenarios.
 
 **Deliverables**:
-- [ ] `UseNoSecurity()` extension for development
-- [ ] `UseDtlsPsk()` extension for production (recommended)
-- [ ] `UsePskAes()` extension for custom encryption (alternative)
-- [ ] Security configuration validation on startup
-- [ ] Warning logs when running without security
-- [ ] Documentation for each mode
+- [x] `UseNoSecurity()` extension for development (logs warning at startup)
+- [x] `UsePskEncryption()` extension for production
+- [x] Warning logs when running without security (`NoSecurityTransportFactory`)
+- [x] Wired into Shooter.ActionServer with documented PSK configuration
+- [x] Wired into Shooter.Client.Common with documented PSK configuration
+- [ ] Security configuration validation on startup (deferred to Phase 15)
+- [ ] Additional documentation for production deployment (deferred to Phase 15)
 
 **Configuration API**:
 ```csharp
-// Development
-rpc.UseNoSecurity();
+// Development (logs warning at startup)
+rpcBuilder.UseNoSecurity();
 
 // Production (recommended)
-rpc.UseDtlsPsk(options => {
-    options.PskLookup = async (playerId) => /* Orleans grain lookup */;
-});
-
-// Alternative (simpler, custom)
-rpc.UsePskAes(options => {
-    options.PskLookup = /* same */;
-});
-```
-
-**Success Criteria**: Three security modes available and configurable
-
----
-
-### Phase 4: RPC Call Context Integration
-**Priority**: CRITICAL | **Status**: Not Started
-
-Wire authenticated identity into RPC call context so grain methods know who's calling.
-
-**Deliverables**:
-- [ ] `RpcUserContext` class (PlayerId, PlayerName, Role)
-- [ ] `IRpcCallContext.User` property
-- [ ] Extract `RpcUserContext` from DTLS session after handshake
-- [ ] Flow context through RPC pipeline to grain method invocations
-- [ ] `[AllowAnonymous]` attribute for methods that don't require auth
-- [ ] Authentication failure returns `RpcStatus.Unauthenticated`
-- [ ] Integration tests for context flow
-
-**Design Notes**:
-- DTLS handshake establishes identity at connection level
-- `RpcUserContext` is populated once per connection, not per call
-- Grains can access via `IRpcCallContext.User`
-
-**Success Criteria**: Grain methods can access caller identity
-
----
-
-### Phase 5: Basic Authorization Attributes
-**Priority**: CRITICAL | **Status**: Not Started
-
-Implement attribute-based authorization to control method access.
-
-**Deliverables**:
-- [ ] `[Authorize]` attribute (requires any authenticated user)
-- [ ] `[RequireRole("role")]` attribute for role-based access
-- [ ] `[RequireAnyRole("role1", "role2")]` attribute
-- [ ] `[RequireAllRoles("role1", "role2")]` attribute
-- [ ] `AuthorizationMiddleware` in RPC pipeline
-- [ ] Authorization failure returns `RpcStatus.PermissionDenied`
-- [ ] Unit tests for each attribute type
-
-**Example Usage**:
-```csharp
-public interface IGameGrain : IGrainWithStringKey
+rpcBuilder.UsePskEncryption(options =>
 {
-    [AllowAnonymous]
-    Task<ServerInfo> GetServerInfo();
+    options.IsServer = true;  // or false for client
+    options.PskLookup = async (playerId, ct) =>
+    {
+        var sessionGrain = grainFactory.GetGrain<IPlayerSessionGrain>(playerId);
+        var session = await sessionGrain.GetSessionAsync();
+        return session?.GetSessionKeyBytes();
+    };
+});
 
-    [Authorize]  // Any authenticated user
-    Task<PlayerState> GetPlayerState();
-
-    [RequireRole("admin")]
-    Task KickPlayer(string playerId);
-}
+// Client configuration
+rpcBuilder.UsePskEncryption(options =>
+{
+    options.IsServer = false;
+    options.PskIdentity = playerId;
+    options.PskKey = sessionKeyBytes;
+});
 ```
+
+**Success Criteria**: Security modes available and integrated into Shooter sample
 
 ---
 
-### Phase 6: Role System and Hierarchy
-**Priority**: HIGH | **Status**: Not Started
+### Phases 4-7: Authorization Filter (RPC Call Context, Attributes, Roles, Grain Access)
+**Priority**: CRITICAL | **Status**: Not Started
+**Detailed Plan**: [`AUTHORIZATION-FILTER-PLAN.md`](AUTHORIZATION-FILTER-PLAN.md)
 
-Implement a proper role system with hierarchy for games and server components.
+> **Note**: Phases 4-7 have been consolidated into a comprehensive implementation plan with
+> detailed code examples, file locations, and checklists. See `AUTHORIZATION-FILTER-PLAN.md`.
 
-**Deliverables**:
-- [ ] `UserRole` enum: Guest, User, Server, Admin (from PSK plan)
-- [ ] `RoleDefinition` class with name and permissions
-- [ ] `IRoleProvider` interface for custom role logic
-- [ ] Role hierarchy (Admin > Server > User > Guest)
-- [ ] Role assignment during HTTP authentication
-- [ ] Role stored in `PlayerSession` and `RpcUserContext`
-- [ ] Unit tests for role hierarchy checks
+**Summary of Deliverables**:
+- `RpcSecurityContext` (AsyncLocal) - flows identity through async call chain
+- `RpcUserIdentity` - authenticated user record from PSK session
+- Authorization attributes: `[Authorize]`, `[AllowAnonymous]`, `[RequireRole]`, `[ServerOnly]`, `[ClientAccessible]`
+- `IRpcAuthorizationFilter` - Orleans-style filter pipeline
+- `DefaultRpcAuthorizationFilter` - attribute-based authorization
+- Integration with `RpcConnection.ProcessRequestAsync()`
+- DI registration via `AddRpcAuthorization()`, `AddRpcAuthorizationProduction()`, etc.
 
-**Built-in Role Hierarchy**:
-```
-Admin
-  └── Server (ActionServer-to-Silo)
-        └── User (authenticated player)
-              └── Guest (unauthenticated or guest login)
-```
+**Key Insight**: PSK transport (Phases 1-3) already blocks unauthenticated connections. Phases 4-7 add **fine-grained authorization** for method/role/grain access control.
 
----
-
-### Phase 7: Grain Access Control
-**Priority**: HIGH | **Status**: Not Started
-
-Control which grains can be created/accessed by which callers.
-
-**Deliverables**:
-- [ ] `[ClientCreatable]` attribute for client-instantiable grains
-- [ ] `[ServerOnly]` attribute for infrastructure grains
-- [ ] `GrainAccessRegistry` for runtime access checks
-- [ ] Enforcement in grain activation pipeline
-- [ ] Blocked grain access returns `RpcStatus.PermissionDenied`
-- [ ] Configuration to list allowed grain types per role
-- [ ] Integration tests for grain access control
-
-**Example**:
-```csharp
-[ClientCreatable]  // Players can access
-public interface IPlayerGrain : IGrainWithStringKey { }
-
-[ServerOnly]  // Only ActionServers can access
-public interface IWorldSimulationGrain : IGrainWithStringKey { }
-```
+**Success Criteria**:
+- Grain methods can access `RpcSecurityContext.CurrentUser`
+- `[Authorize]` blocks anonymous requests
+- `[RequireRole(Admin)]` enforces role hierarchy
+- `[ServerOnly]` restricts internal grains from clients
 
 ---
 
-### Phase 8: Rate Limiting (Per-IP)
+### Phase 8: Rate Limiting (Per-IP) & DDoS Protection
 **Priority**: HIGH | **Status**: Not Started
+**Detailed Plan**: [`DDOS-RESOURCE-EXHAUSTION-PLAN.md`](DDOS-RESOURCE-EXHAUSTION-PLAN.md)
 
-Basic DoS protection based on source IP address.
+Basic DoS protection based on source IP address. The detailed plan breaks this into sub-phases:
+- **Phase 8A**: Transport Layer Protection (connection rate limiting, IP blocklist, connection limits)
+- **Phase 8B**: Packet Layer Protection (message size validation, per-connection rate limiting, deserialization timeout)
 
 **Deliverables**:
 - [ ] `IRateLimiter` interface
@@ -278,10 +231,14 @@ services.AddRpcRateLimiting(options =>
 
 ---
 
-### Phase 9: Rate Limiting (Per-User)
+### Phase 9: Rate Limiting (Per-User) & Resource Protection
 **Priority**: HIGH | **Status**: Not Started
+**Detailed Plan**: [`DDOS-RESOURCE-EXHAUSTION-PLAN.md`](DDOS-RESOURCE-EXHAUSTION-PLAN.md)
 
-User-aware rate limiting (more effective than IP-based alone).
+User-aware rate limiting and resource exhaustion protection. The detailed plan breaks this into sub-phases:
+- **Phase 9A**: Request Layer Protection (per-user rate limiting, method-based limits, request queue management)
+- **Phase 9B**: Resource Protection (grain creation limits, memory watchdog, CPU watchdog)
+- **Phase 9C**: Monitoring & Response (DDoS metrics, anomaly detection, automatic response)
 
 **Deliverables**:
 - [ ] Per-user rate limiter (by PlayerId from `RpcUserContext`)
@@ -304,8 +261,13 @@ Server:  Unlimited
 
 ### Phase 10: Type Whitelisting (Deserialization Safety)
 **Priority**: HIGH | **Status**: Not Started
+**Detailed Plan**: [`DESERIALIZATION-SAFETY-PLAN.md`](DESERIALIZATION-SAFETY-PLAN.md)
 
 Prevent arbitrary type instantiation during deserialization to block RCE attacks.
+
+> **Note**: A comprehensive implementation plan with ~200 checklist items is available in
+> [`DESERIALIZATION-SAFETY-PLAN.md`](DESERIALIZATION-SAFETY-PLAN.md). That document covers
+> threat modeling, architecture, 6-week phased implementation, testing strategy, and rollout plan.
 
 **Deliverables**:
 - [ ] `ITypeWhitelist` interface
@@ -486,12 +448,16 @@ Detailed design for transport-layer security using Pre-Shared Keys:
 
 | Document | Location | Purpose |
 |----------|----------|---------|
+| **Authorization Filter Plan** | `AUTHORIZATION-FILTER-PLAN.md` | **Detailed authorization design (Phases 4-7)** |
+| **PSK How-To** | `PSK-SECURITY-HOWTO.md` | **Practical guide for implemented PSK security** |
+| **DDoS/Resource Exhaustion Plan** | `DDOS-RESOURCE-EXHAUSTION-PLAN.md` | **Detailed DDoS mitigation design (Phases 8-9)** |
+| Deserialization Safety Plan | `DESERIALIZATION-SAFETY-PLAN.md` | Type whitelisting design (Phase 10) |
 | Threat Model | `THREAT-MODEL.md` | Risk analysis |
 | Security Concerns | `SECURITY-CONCERNS.md` | Vulnerability catalog |
 | Auth Design | `AUTHENTICATION-DESIGN.md` | Auth architecture |
 | Authz Design | `AUTHORIZATION-DESIGN.md` | RBAC design |
 | Serialization Guide | `SECURITY-SERIALIZATION-GUIDE.md` | Safe deserialization |
-| Implementation | `IMPLEMENTATION-GUIDE.md` | How-to examples |
+| Implementation | `IMPLEMENTATION-GUIDE.md` | Future/aspirational API examples |
 | Tasks | `TASKS.md` | Detailed checklist |
 | Shooter TODOs | `/granville/samples/Rpc/docs/SECURITY-TODO.md` | Demo app tasks |
 | Status Report | `SECURITY-STATUS.md` | Detailed assessment |
@@ -502,13 +468,10 @@ Detailed design for transport-layer security using Pre-Shared Keys:
 
 | Phase | Description | Status | Completion |
 |-------|-------------|--------|------------|
-| 1 | HTTP Auth & Session Grains | Not Started | 0% |
-| 2 | DTLS-PSK Transport | Not Started | 0% |
-| 3 | Security Mode Configuration | Not Started | 0% |
-| 4 | RPC Call Context Integration | Not Started | 0% |
-| 5 | Basic Authorization Attributes | Not Started | 0% |
-| 6 | Role System and Hierarchy | Not Started | 0% |
-| 7 | Grain Access Control | Not Started | 0% |
+| 1 | HTTP Auth & Session Grains | **Complete** | 100% |
+| 2 | PSK Transport Layer | **Complete** | 100% |
+| 3 | Security Mode Configuration | **Complete** | 100% |
+| 4-7 | Authorization Filter ([plan](AUTHORIZATION-FILTER-PLAN.md)) | Not Started | 0% |
 | 8 | Rate Limiting (Per-IP) | Not Started | 0% |
 | 9 | Rate Limiting (Per-User) | Not Started | 0% |
 | 10 | Type Whitelisting | Not Started | 0% |
@@ -518,7 +481,7 @@ Detailed design for transport-layer security using Pre-Shared Keys:
 | 14 | Anti-Cheat Foundation | Not Started | 0% |
 | 15 | Production Hardening | Not Started | 0% |
 
-**Overall Progress**: 0%
+**Overall Progress**: ~25% (3/12 phase groups complete)
 
 ---
 
