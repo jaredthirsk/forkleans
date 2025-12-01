@@ -112,6 +112,22 @@ public class GranvilleRpcGameClientService : IDisposable
     public bool IsBlockedFromPreviousZone => _isBlockedFromPreviousZone;
     public GridSquare? BlockedZone => _isBlockedFromPreviousZone ? _previousZone : null;
     public Vector2 BlockedBoundaryNormal => _blockedBoundaryNormal;
+
+    /// <summary>
+    /// The PSK session key for DTLS encryption (base64 encoded).
+    /// Used for establishing secure UDP connections to ActionServers.
+    /// </summary>
+    public string? SessionKey { get; private set; }
+
+    /// <summary>
+    /// When the current session expires. Client should re-authenticate before this time.
+    /// </summary>
+    public DateTime? SessionExpiresAt { get; private set; }
+
+    /// <summary>
+    /// Whether the current session is valid and not expired.
+    /// </summary>
+    public bool HasValidSession => !string.IsNullOrEmpty(SessionKey) && SessionExpiresAt > DateTime.UtcNow;
     
     public GranvilleRpcGameClientService(
         ILogger<GranvilleRpcGameClientService> logger,
@@ -196,6 +212,22 @@ public class GranvilleRpcGameClientService : IDisposable
             PlayerName = registrationResponse.PlayerInfo?.Name ?? playerName;
             CurrentServerId = registrationResponse.ActionServer?.ServerId ?? "Unknown";
             _currentZone = registrationResponse.ActionServer?.AssignedSquare;
+
+            // Store PSK session credentials for DTLS encryption
+            SessionKey = registrationResponse.SessionKey;
+            SessionExpiresAt = registrationResponse.SessionExpiresAt;
+
+            if (!string.IsNullOrEmpty(SessionKey))
+            {
+                _logger.LogInformation(
+                    "[SECURITY] Received PSK session key for player {PlayerId}, expires at {ExpiresAt}",
+                    PlayerId, SessionExpiresAt);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "[SECURITY] No session key received from server - DTLS encryption will not be available");
+            }
             
             // Report server zone to health monitor
             _healthMonitor?.UpdateServerZone(_currentZone);

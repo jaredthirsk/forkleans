@@ -114,14 +114,28 @@ public class WorldController : ControllerBase
     {
         var worldManager = _grainFactory.GetGrain<IWorldManagerGrain>(0);
         var playerInfo = await worldManager.RegisterPlayer(request.PlayerId, request.Name);
-        
+
         // Get the action server for this player's starting position
         var actionServer = await worldManager.GetActionServerForPosition(playerInfo.Position);
-        
+
+        // Create a session for this player with PSK for DTLS encryption
+        var sessionGrain = _grainFactory.GetGrain<IPlayerSessionGrain>(playerInfo.PlayerId);
+        var session = await sessionGrain.CreateSessionAsync(new CreateSessionRequest
+        {
+            PlayerName = playerInfo.Name,
+            Role = UserRole.User  // Guest authentication grants User role
+        });
+
+        _logger.LogInformation(
+            "Player {PlayerId} ({PlayerName}) registered with session expiring at {ExpiresAt}",
+            playerInfo.PlayerId, playerInfo.Name, session.ExpiresAt);
+
         return Ok(new PlayerRegistrationResponse
         {
             PlayerInfo = playerInfo,
-            ActionServer = actionServer
+            ActionServer = actionServer,
+            SessionKey = session.SessionKey,
+            SessionExpiresAt = session.ExpiresAt
         });
     }
 
@@ -497,4 +511,15 @@ public record PlayerRegistrationResponse
 {
     public required PlayerInfo PlayerInfo { get; init; }
     public ActionServerInfo? ActionServer { get; init; }
+
+    /// <summary>
+    /// The 256-bit session key for DTLS-PSK authentication (base64 encoded).
+    /// Client should store this securely and use it for UDP encryption handshake.
+    /// </summary>
+    public string? SessionKey { get; init; }
+
+    /// <summary>
+    /// When the session expires. Client should re-authenticate before this time.
+    /// </summary>
+    public DateTime? SessionExpiresAt { get; init; }
 }
