@@ -28,7 +28,8 @@ $rpcProjects = @(
     "src\Rpc\Orleans.Rpc.Server\Orleans.Rpc.Server.csproj",
     "src\Rpc\Orleans.Rpc.Sdk\Orleans.Rpc.Sdk.csproj",
     "src\Rpc\Orleans.Rpc.Transport.LiteNetLib\Orleans.Rpc.Transport.LiteNetLib.csproj",
-    "src\Rpc\Orleans.Rpc.Transport.Ruffles\Orleans.Rpc.Transport.Ruffles.csproj"
+    "src\Rpc\Orleans.Rpc.Transport.Ruffles\Orleans.Rpc.Transport.Ruffles.csproj",
+    "src\Rpc\Orleans.Rpc.Security\Orleans.Rpc.Security.csproj"
 )
 
 # Build and pack each project
