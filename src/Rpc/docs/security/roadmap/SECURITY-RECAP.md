@@ -176,28 +176,48 @@ rpcBuilder.UsePskEncryption(options =>
 ---
 
 ### Phases 4-7: Authorization Filter (RPC Call Context, Attributes, Roles, Grain Access)
-**Priority**: CRITICAL | **Status**: Not Started
+**Priority**: CRITICAL | **Status**: Complete
 **Detailed Plan**: [`AUTHORIZATION-FILTER-PLAN.md`](AUTHORIZATION-FILTER-PLAN.md)
 
-> **Note**: Phases 4-7 have been consolidated into a comprehensive implementation plan with
-> detailed code examples, file locations, and checklists. See `AUTHORIZATION-FILTER-PLAN.md`.
+**Deliverables** (All Complete):
+- [x] `RpcSecurityContext` (AsyncLocal) - flows identity through async call chain
+- [x] `RpcUserIdentity` - authenticated user record from PSK session
+- [x] Authorization attributes: `[Authorize]`, `[AllowAnonymous]`, `[RequireRole]`, `[ServerOnly]`, `[ClientAccessible]`
+- [x] `IRpcAuthorizationFilter` - Orleans-style filter pipeline
+- [x] `DefaultRpcAuthorizationFilter` - attribute-based authorization
+- [x] `IConnectionUserAccessor` - interface for retrieving user from connection
+- [x] `PskLookupWithIdentity` callback - returns PSK and user identity together
+- [x] Integration with `RpcConnection.ProcessRequestAsync()`
+- [x] DI registration via `AddRpcAuthorization()`, `AddRpcAuthorizationProduction()`, `AddRpcAuthorizationDevelopment()`, `AddRpcAuthorizationDisabled()`
+- [x] Shooter grain interfaces updated with authorization attributes
+- [x] Unit tests for authorization filter
 
-**Summary of Deliverables**:
-- `RpcSecurityContext` (AsyncLocal) - flows identity through async call chain
-- `RpcUserIdentity` - authenticated user record from PSK session
-- Authorization attributes: `[Authorize]`, `[AllowAnonymous]`, `[RequireRole]`, `[ServerOnly]`, `[ClientAccessible]`
-- `IRpcAuthorizationFilter` - Orleans-style filter pipeline
-- `DefaultRpcAuthorizationFilter` - attribute-based authorization
-- Integration with `RpcConnection.ProcessRequestAsync()`
-- DI registration via `AddRpcAuthorization()`, `AddRpcAuthorizationProduction()`, etc.
+**Files Created**:
+| File | Purpose |
+|------|---------|
+| `Orleans.Rpc.Abstractions/Security/RpcUserIdentity.cs` | User identity record |
+| `Orleans.Rpc.Abstractions/Security/UserRole.cs` | Role enum (Anonymous, Guest, User, Server, Admin) |
+| `Orleans.Rpc.Abstractions/Security/AuthorizeAttribute.cs` | Require authentication |
+| `Orleans.Rpc.Abstractions/Security/AllowAnonymousAttribute.cs` | Bypass authentication |
+| `Orleans.Rpc.Abstractions/Security/RequireRoleAttribute.cs` | Require minimum role |
+| `Orleans.Rpc.Abstractions/Security/ServerOnlyAttribute.cs` | Server-to-server only |
+| `Orleans.Rpc.Abstractions/Security/ClientAccessibleAttribute.cs` | Mark client-accessible grains |
+| `Orleans.Rpc.Abstractions/Security/IConnectionUserAccessor.cs` | Interface for user lookup |
+| `Orleans.Rpc.Security/Configuration/RpcSecurityOptions.cs` | Security configuration |
+| `Orleans.Rpc.Security/Authorization/RpcSecurityContext.cs` | AsyncLocal security context |
+| `Orleans.Rpc.Security/Authorization/IRpcAuthorizationFilter.cs` | Filter interface |
+| `Orleans.Rpc.Security/Authorization/RpcAuthorizationContext.cs` | Authorization context |
+| `Orleans.Rpc.Security/Authorization/AuthorizationResult.cs` | Authorization result |
+| `Orleans.Rpc.Security/Authorization/DefaultRpcAuthorizationFilter.cs` | Default filter implementation |
+| `Orleans.Rpc.Security/Extensions/RpcAuthorizationExtensions.cs` | DI extension methods |
 
 **Key Insight**: PSK transport (Phases 1-3) already blocks unauthenticated connections. Phases 4-7 add **fine-grained authorization** for method/role/grain access control.
 
-**Success Criteria**:
-- Grain methods can access `RpcSecurityContext.CurrentUser`
-- `[Authorize]` blocks anonymous requests
-- `[RequireRole(Admin)]` enforces role hierarchy
-- `[ServerOnly]` restricts internal grains from clients
+**Success Criteria** (All Met):
+- [x] Grain methods can access `RpcSecurityContext.CurrentUser`
+- [x] `[Authorize]` blocks anonymous requests
+- [x] `[RequireRole(Admin)]` enforces role hierarchy
+- [x] `[ServerOnly]` restricts internal grains from clients
 
 ---
 
@@ -449,7 +469,7 @@ Detailed design for transport-layer security using Pre-Shared Keys:
 | Document | Location | Purpose |
 |----------|----------|---------|
 | **Authorization Filter Plan** | `AUTHORIZATION-FILTER-PLAN.md` | **Detailed authorization design (Phases 4-7)** |
-| **PSK How-To** | `PSK-SECURITY-HOWTO.md` | **Practical guide for implemented PSK security** |
+| **PSK How-To** | `PSK-SECURITY-GUIDE.md` | **Practical guide for implemented PSK security** |
 | **DDoS/Resource Exhaustion Plan** | `DDOS-RESOURCE-EXHAUSTION-PLAN.md` | **Detailed DDoS mitigation design (Phases 8-9)** |
 | Deserialization Safety Plan | `DESERIALIZATION-SAFETY-PLAN.md` | Type whitelisting design (Phase 10) |
 | Threat Model | `THREAT-MODEL.md` | Risk analysis |
@@ -471,7 +491,7 @@ Detailed design for transport-layer security using Pre-Shared Keys:
 | 1 | HTTP Auth & Session Grains | **Complete** | 100% |
 | 2 | PSK Transport Layer | **Complete** | 100% |
 | 3 | Security Mode Configuration | **Complete** | 100% |
-| 4-7 | Authorization Filter ([plan](AUTHORIZATION-FILTER-PLAN.md)) | Not Started | 0% |
+| 4-7 | Authorization Filter ([plan](AUTHORIZATION-FILTER-PLAN.md)) | **Complete** | 100% |
 | 8 | Rate Limiting (Per-IP) | Not Started | 0% |
 | 9 | Rate Limiting (Per-User) | Not Started | 0% |
 | 10 | Type Whitelisting | Not Started | 0% |
@@ -481,7 +501,7 @@ Detailed design for transport-layer security using Pre-Shared Keys:
 | 14 | Anti-Cheat Foundation | Not Started | 0% |
 | 15 | Production Hardening | Not Started | 0% |
 
-**Overall Progress**: ~25% (3/12 phase groups complete)
+**Overall Progress**: ~50% (4/8 major phase groups complete)
 
 ---
 

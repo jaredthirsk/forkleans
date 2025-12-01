@@ -451,8 +451,195 @@ public static IRpcClientBuilder UseNoSecurity(
 | MSG_RESPONSE | 0x03 | Client sends HMAC response |
 | MSG_ENCRYPTED | 0x10 | Encrypted application data |
 
+## RPC Authorization
+
+Beyond transport-layer encryption, Granville RPC also provides application-layer authorization to control which users can call which methods.
+
+### Setting Up Authorization
+
+Add authorization services to your DI container:
+
+```csharp
+// Development mode - allows anonymous by default, logs all decisions
+builder.Services.AddRpcAuthorizationDevelopment();
+
+// OR Production mode - requires authentication by default
+builder.Services.AddRpcAuthorizationProduction();
+
+// OR Custom configuration
+builder.Services.AddRpcAuthorization(options =>
+{
+    options.EnableAuthorization = true;
+    options.DefaultPolicy = DefaultAuthorizationPolicy.RequireAuthentication;
+    options.EnforceClientAccessibleAttribute = true;
+    options.LogAuthorizationDecisions = false;
+});
+```
+
+### Authorization Attributes
+
+Apply these attributes to grain interfaces and methods:
+
+| Attribute | Usage | Description |
+|-----------|-------|-------------|
+| `[Authorize]` | Interface/Method | Requires authenticated user |
+| `[AllowAnonymous]` | Method | Allows unauthenticated access (overrides `[Authorize]`) |
+| `[RequireRole(UserRole.X)]` | Interface/Method | Requires minimum role level |
+| `[ServerOnly]` | Interface/Method | Only server components can call |
+| `[ClientAccessible]` | Interface | Mark grain as accessible by clients (when strict mode enabled) |
+
+### Example: Shooter Game Interfaces
+
+```csharp
+using Granville.Rpc.Security;
+
+// Player grain - accessible to clients, but some methods are server-only
+[ClientAccessible]
+[Authorize]
+public interface IPlayerGrain : IGrainWithStringKey
+{
+    // Anyone authenticated can read info
+    Task<PlayerInfo> GetInfo();
+
+    // Players can update their own position
+    Task UpdatePosition(Vector2 position, Vector2 velocity);
+
+    // Only servers can deal damage
+    [ServerOnly]
+    Task TakeDamage(float damage);
+
+    // Only servers can update health
+    [ServerOnly]
+    Task UpdateHealth(float health);
+}
+
+// Session grain - only servers can access
+[ServerOnly]
+public interface IPlayerSessionGrain : IGrainWithStringKey
+{
+    Task<PlayerSession> CreateSessionAsync(CreateSessionRequest request);
+    Task<PlayerSession?> GetSessionAsync();
+}
+
+// Stats grain - mixed access
+[Authorize]
+public interface IStatsCollectorGrain : IGrainWithIntegerKey
+{
+    // Servers report stats
+    [ServerOnly]
+    Task ReportZoneDamageStats(string serverId, ZoneDamageReport report);
+
+    // Anyone authenticated can read stats
+    [ClientAccessible]
+    Task<List<PlayerDamageStats>> GetTopPlayersByDamageDealt(int count = 10);
+}
+```
+
+### Role Hierarchy
+
+Roles are compared using `>=` semantics:
+
+```
+Anonymous (0) < Guest (1) < User (2) < Server (3) < Admin (4)
+```
+
+A `[RequireRole(User)]` check allows User, Server, and Admin roles.
+
+### Integrating with PSK Encryption
+
+When using PSK encryption with user identity:
+
+```csharp
+// Server-side: Use PskLookupWithIdentity to populate user identity
+rpcBuilder.UsePskEncryption(options =>
+{
+    options.IsServer = true;
+    options.PskLookupWithIdentity = async (playerId, ct) =>
+    {
+        var sessionGrain = grainFactory.GetGrain<IPlayerSessionGrain>(playerId);
+        var session = await sessionGrain.GetSessionAsync();
+        if (session == null) return null;
+
+        return new PskLookupResult
+        {
+            Psk = session.GetSessionKeyBytes(),
+            User = new RpcUserIdentity
+            {
+                UserId = session.PlayerId,
+                UserName = session.PlayerName,
+                Role = (Granville.Rpc.Security.UserRole)session.Role,
+                AuthenticatedAt = session.CreatedAt
+            }
+        };
+    };
+});
+```
+
+### Accessing Security Context in Grain Methods
+
+Use `RpcSecurityContext` to access the current user:
+
+```csharp
+using Granville.Rpc.Security.Authorization;
+
+public class MyGrain : Grain, IMyGrain
+{
+    public Task DoSomething()
+    {
+        // Access current user
+        var user = RpcSecurityContext.CurrentUser;
+        if (user != null)
+        {
+            _logger.LogInformation("Request from {UserId} with role {Role}",
+                user.UserId, user.Role);
+        }
+
+        // Check authentication
+        if (!RpcSecurityContext.IsAuthenticated)
+        {
+            throw new UnauthorizedAccessException("User not authenticated");
+        }
+
+        // Get other context
+        var connectionId = RpcSecurityContext.ConnectionId;
+        var remoteEndpoint = RpcSecurityContext.RemoteEndpoint;
+        var requestId = RpcSecurityContext.RequestId;
+
+        // ... do work
+    }
+}
+```
+
+### Custom Authorization Filters
+
+Implement `IRpcAuthorizationFilter` for custom logic:
+
+```csharp
+public class RateLimitAuthorizationFilter : IRpcAuthorizationFilter
+{
+    public int Order => 100; // Run after default filter
+
+    public async Task<AuthorizationResult> AuthorizeAsync(
+        RpcAuthorizationContext context,
+        CancellationToken cancellationToken)
+    {
+        // Check rate limit for this user/method combination
+        var key = $"{context.User?.UserId}:{context.Method.Name}";
+        if (await _rateLimiter.IsExceededAsync(key))
+        {
+            return AuthorizationResult.Fail("Rate limit exceeded", "RateLimit");
+        }
+        return AuthorizationResult.Success();
+    }
+}
+
+// Register in DI
+services.AddRpcAuthorizationFilter<RateLimitAuthorizationFilter>();
+```
+
 ## Related Documentation
 
 - [PSK Architecture Plan](roadmap/PSK-ARCHITECTURE-PLAN.md) - Detailed design document
 - [Security Roadmap](roadmap/SECURITY-RECAP.md) - Implementation progress
 - [Threat Model](THREAT-MODEL.md) - Security risk analysis
+- [Authorization Filter Plan](roadmap/AUTHORIZATION-FILTER-PLAN.md) - Authorization implementation details

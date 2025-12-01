@@ -29,7 +29,7 @@ Practical how-to documentation for implementing security features.
 
 | Guide | Description | Audience |
 |-------|-------------|----------|
-| [PSK-SECURITY-HOWTO.md](PSK-SECURITY-HOWTO.md) | **Start here!** How to use PSK encryption and UseNoSecurity | Developers |
+| [PSK-SECURITY-GUIDE.md](PSK-SECURITY-GUIDE.md) | **Start here!** How to use PSK encryption and UseNoSecurity | Developers |
 | [IMPLEMENTATION-GUIDE.md](IMPLEMENTATION-GUIDE.md) | Future/aspirational security APIs (not yet implemented) | Architects |
 | [SECURITY-SERIALIZATION-GUIDE.md](SECURITY-SERIALIZATION-GUIDE.md) | Safe deserialization practices | Developers |
 
@@ -60,7 +60,7 @@ rpcBuilder.UsePskEncryption(options =>
 });
 ```
 
-See [PSK-SECURITY-HOWTO.md](PSK-SECURITY-HOWTO.md) for complete examples.
+See [PSK-SECURITY-GUIDE.md](PSK-SECURITY-GUIDE.md) for complete examples.
 
 ---
 
@@ -157,7 +157,7 @@ granville/samples/Rpc/
 
 ## Getting Help
 
-- **Implementation questions**: Start with [PSK-SECURITY-HOWTO.md](PSK-SECURITY-HOWTO.md)
+- **Implementation questions**: Start with [PSK-SECURITY-GUIDE.md](PSK-SECURITY-GUIDE.md)
 - **Architecture decisions**: See [roadmap/SECURITY-RECAP.md](roadmap/SECURITY-RECAP.md)
 - **Threat analysis**: See [THREAT-MODEL.md](THREAT-MODEL.md)
 - **Future features**: See [IMPLEMENTATION-GUIDE.md](IMPLEMENTATION-GUIDE.md) (aspirational APIs)
@@ -169,5 +169,5 @@ granville/samples/Rpc/
 | Date | Change |
 |------|--------|
 | 2024-11-30 | Phases 1-3 complete (PSK transport security) |
-| 2024-11-30 | Created PSK-SECURITY-HOWTO.md |
+| 2024-11-30 | Created PSK-SECURITY-GUIDE.md |
 | 2024-11-30 | Created this README index |

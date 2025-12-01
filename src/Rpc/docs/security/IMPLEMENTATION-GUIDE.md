@@ -1,15 +1,15 @@
 # Granville RPC Security Implementation Guide
 
 > **Note**: This document describes **future/aspirational** security APIs that are not yet implemented.
-> For the **currently implemented** PSK transport security, see [PSK-SECURITY-HOWTO.md](PSK-SECURITY-HOWTO.md).
+> For the **currently implemented** PSK transport security, see [PSK-SECURITY-GUIDE.md](PSK-SECURITY-GUIDE.md).
 
 ## What's Implemented vs Planned
 
 | Feature | Status | Documentation |
 |---------|--------|---------------|
-| PSK Transport Encryption | **Implemented** | [PSK-SECURITY-HOWTO.md](PSK-SECURITY-HOWTO.md) |
-| UseNoSecurity() | **Implemented** | [PSK-SECURITY-HOWTO.md](PSK-SECURITY-HOWTO.md) |
-| Session Grains | **Implemented** | [PSK-SECURITY-HOWTO.md](PSK-SECURITY-HOWTO.md) |
+| PSK Transport Encryption | **Implemented** | [PSK-SECURITY-GUIDE.md](PSK-SECURITY-GUIDE.md) |
+| UseNoSecurity() | **Implemented** | [PSK-SECURITY-GUIDE.md](PSK-SECURITY-GUIDE.md) |
+| Session Grains | **Implemented** | [PSK-SECURITY-GUIDE.md](PSK-SECURITY-GUIDE.md) |
 | JWT Authentication | Planned | This document |
 | Authorization Attributes | Planned | This document |
 | Rate Limiting | Planned | This document |

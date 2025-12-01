@@ -16,6 +16,23 @@ This document provides a comprehensive, implementation-ready plan for securing G
 - **Existing Mitigations**: None enforced at runtime
 - **Documentation**: Extensive threat analysis exists but no implementation
 
+### Important Consideration: Orleans Codec Behavior
+
+Orleans **only generates codecs** for types marked with `[GenerateSerializer]`. This means:
+- Types without `[GenerateSerializer]` (like `System.Diagnostics.Process`) won't have codecs
+- Attempting to deserialize such types will fail with a codec lookup error
+- The attack surface is inherently limited to types the application explicitly marks as serializable
+
+**Why type whitelisting is still valuable (defense in depth)**:
+1. **Auditability**: Explicit list of allowed types for security review and compliance
+2. **Logging**: Detect and log attempted attacks, even if they would fail at codec lookup
+3. **Fallback serializers**: Orleans has some built-in codecs for common types
+4. **`ISerializable` types**: Some Orleans configurations support legacy serialization (potential gadget vectors)
+5. **Future-proofing**: Protection against Orleans serialization changes
+6. **Type confusion**: Additional validation even when codecs exist
+
+**Recommendation**: Type whitelisting is **optional but recommended** for internet-facing deployments. For internal/trusted networks, the Orleans codec requirement may provide sufficient protection.
+
 ### Target State
 
 - Strict type whitelisting with runtime enforcement

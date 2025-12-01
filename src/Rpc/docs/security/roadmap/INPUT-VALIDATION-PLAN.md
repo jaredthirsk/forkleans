@@ -176,116 +176,68 @@ public class ValidationContext
 
 ---
 
-## 2. Built-in Validators
+## 2. Built-in Validators (System.ComponentModel.DataAnnotations)
+
+**Decision**: Use `System.ComponentModel.DataAnnotations` as the primary validation API. This provides:
+- Familiarity for all .NET developers
+- Extensive ecosystem of existing validators
+- IDE support and tooling integration
+- No custom attributes to learn
 
 ### 2.1 [Required] Attribute
 
-Ensures value is not null and (for strings) not empty.
+Use `System.ComponentModel.DataAnnotations.RequiredAttribute`:
 
 ```csharp
-/// <summary>
-/// Declares that a parameter is required (non-null).
-/// </summary>
-[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
-public class RequiredAttribute : ValidationAttribute
-{
-    /// <summary>
-    /// Optional custom error message.
-    /// </summary>
-    public string? ErrorMessage { get; set; }
+using System.ComponentModel.DataAnnotations;
 
-    /// <summary>
-    /// Validate that value is not null.
-    /// </summary>
-    public override ValidationResult Validate(object? value)
-    {
-        if (value == null)
-        {
-            return ValidationResult.Failure(
-                ErrorMessage ?? "This field is required",
-                "REQUIRED_MISSING");
-        }
-
-        if (value is string str && string.IsNullOrWhiteSpace(str))
-        {
-            return ValidationResult.Failure(
-                ErrorMessage ?? "This field is required and cannot be empty",
-                "REQUIRED_EMPTY");
-        }
-
-        return ValidationResult.Success();
-    }
-}
-
-// Usage:
+// Usage - familiar to any .NET developer:
 Task MovePlayer(
     [Required] string playerId,      // Must be non-null, non-empty
-    [Required] float x,              // Can't use [Required] on value types
+    float x,
     float y);
 
-// Generated validator:
-public class MovePlayerValidator
+// On DTOs:
+[GenerateSerializer]
+public record PlayerMoveRequest
 {
-    public bool ValidatePlayerId(string? playerId)
-    {
-        return !string.IsNullOrWhiteSpace(playerId);
-    }
+    [Id(0)]
+    [Required(ErrorMessage = "Player ID is required")]
+    public string PlayerId { get; init; } = string.Empty;
+
+    [Id(1)]
+    public float X { get; init; }
+
+    [Id(2)]
+    public float Y { get; init; }
 }
 ```
 
 ### 2.2 [StringLength] Attribute
 
-Ensures string length is within bounds.
+Use `System.ComponentModel.DataAnnotations.StringLengthAttribute`:
 
 ```csharp
-/// <summary>
-/// Validates string length bounds.
-/// </summary>
-[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
-public class StringLengthAttribute : ValidationAttribute
-{
-    /// <summary>
-    /// Maximum allowed length.
-    /// </summary>
-    public int MaxLength { get; }
-
-    /// <summary>
-    /// Optional minimum length (default: 0).
-    /// </summary>
-    public int MinLength { get; set; } = 0;
-
-    public StringLengthAttribute(int maxLength)
-    {
-        MaxLength = maxLength;
-    }
-
-    public override ValidationResult Validate(object? value)
-    {
-        if (value == null) return ValidationResult.Success();
-
-        if (value is not string str)
-        {
-            return ValidationResult.Failure(
-                "StringLength can only validate strings",
-                "INVALID_TYPE");
-        }
-
-        if (str.Length < MinLength || str.Length > MaxLength)
-        {
-            return ValidationResult.Failure(
-                $"String length must be between {MinLength} and {MaxLength}",
-                "STRING_LENGTH_OUT_OF_RANGE",
-                new() { { "min", MinLength }, { "max", MaxLength }, { "actual", str.Length } });
-        }
-
-        return ValidationResult.Success();
-    }
-}
+using System.ComponentModel.DataAnnotations;
 
 // Usage:
 Task SetPlayerName(
     [Required] string playerId,
-    [StringLength(32, MinLength = 1)] string newName);
+    [StringLength(32, MinimumLength = 1)] string newName);
+
+// On DTOs:
+[GenerateSerializer]
+public record SetPlayerNameRequest
+{
+    [Id(0)]
+    [Required]
+    public string PlayerId { get; init; } = string.Empty;
+
+    [Id(1)]
+    [Required]
+    [StringLength(32, MinimumLength = 1, ErrorMessage = "Name must be 1-32 characters")]
+    public string NewName { get; init; } = string.Empty;
+}
 
 // Constraints:
 // - newName must be 1-32 characters
@@ -295,117 +247,53 @@ Task SetPlayerName(
 
 ### 2.3 [Range] Attribute
 
-Ensures numeric values are within bounds.
+Use `System.ComponentModel.DataAnnotations.RangeAttribute`:
 
 ```csharp
-/// <summary>
-/// Validates numeric value within range.
-/// </summary>
-[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
-public class RangeAttribute : ValidationAttribute
-{
-    /// <summary>
-    /// Minimum allowed value.
-    /// </summary>
-    public IComparable Minimum { get; }
-
-    /// <summary>
-    /// Maximum allowed value.
-    /// </summary>
-    public IComparable Maximum { get; }
-
-    public RangeAttribute(int minimum, int maximum)
-        : this((IComparable)minimum, (IComparable)maximum) { }
-
-    public RangeAttribute(double minimum, double maximum)
-        : this((IComparable)minimum, (IComparable)maximum) { }
-
-    public RangeAttribute(IComparable minimum, IComparable maximum)
-    {
-        Minimum = minimum;
-        Maximum = maximum;
-    }
-
-    public override ValidationResult Validate(object? value)
-    {
-        if (value == null) return ValidationResult.Success();
-
-        if (value is not IComparable comparable)
-        {
-            return ValidationResult.Failure(
-                "Value must be comparable",
-                "NOT_COMPARABLE");
-        }
-
-        if (comparable.CompareTo(Minimum) < 0 || comparable.CompareTo(Maximum) > 0)
-        {
-            return ValidationResult.Failure(
-                $"Value must be between {Minimum} and {Maximum}",
-                "VALUE_OUT_OF_RANGE",
-                new() { { "min", Minimum }, { "max", Maximum }, { "actual", value } });
-        }
-
-        return ValidationResult.Success();
-    }
-}
+using System.ComponentModel.DataAnnotations;
 
 // Usage - Game Coordinates:
 Task MovePlayer(
     [Required] string playerId,
-    [Range(-10000, 10000)] float x,        // World coordinates: -10km to +10km
-    [Range(-10000, 10000)] float y,
-    [Range(-1000, 1000)] float z);         // Vertical: -1km to +1km
+    [Range(-10000.0, 10000.0)] float x,    // World coordinates: -10km to +10km
+    [Range(-10000.0, 10000.0)] float y,
+    [Range(-1000.0, 1000.0)] float z);     // Vertical: -1km to +1km
 
 // Usage - Game State:
 Task TakeDamage(
     [Required] string targetPlayerId,
-    [Required] string sourceBuilderId,
+    [Required] string sourcePlayerId,
     [Range(1, 1000)] int damageAmount);    // 1-1000 damage per hit
 
 // Usage - Game Resources:
 Task SpendCurrency(
     [Required] string playerId,
     [Range(1, 1_000_000)] int goldAmount); // Max 1M gold per transaction
+
+// On DTOs:
+[GenerateSerializer]
+public record TakeDamageRequest
+{
+    [Id(0)]
+    [Required]
+    public string TargetPlayerId { get; init; } = string.Empty;
+
+    [Id(1)]
+    [Required]
+    public string SourcePlayerId { get; init; } = string.Empty;
+
+    [Id(2)]
+    [Range(1, 1000, ErrorMessage = "Damage must be between 1 and 1000")]
+    public int DamageAmount { get; init; }
+}
 ```
 
-### 2.4 [ValidateObject] Attribute
+### 2.4 Nested Object Validation
 
-Recursively validates nested objects.
+DataAnnotations supports recursive validation via `Validator.TryValidateObject()` with `validateAllProperties: true`. For complex nested objects, the `RpcValidationFilter` recursively validates:
 
 ```csharp
-/// <summary>
-/// Validates a complex object by validating its properties.
-/// </summary>
-[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
-public class ValidateObjectAttribute : ValidationAttribute
-{
-    public override ValidationResult Validate(object? value)
-    {
-        if (value == null) return ValidationResult.Success();
-
-        // Scan value's properties for validation attributes
-        var properties = value.GetType().GetProperties();
-
-        foreach (var prop in properties)
-        {
-            var propValue = prop.GetValue(value);
-            var validators = prop.GetCustomAttributes<ValidationAttribute>();
-
-            foreach (var validator in validators)
-            {
-                var result = validator.Validate(propValue);
-                if (!result.IsValid)
-                {
-                    return ValidationResult.Failure(
-                        $"Property '{prop.Name}': {result.ErrorMessage}",
-                        result.ErrorCode);
-                }
-            }
-        }
-
-        return ValidationResult.Success();
-    }
-}
+using System.ComponentModel.DataAnnotations;
 
 // Usage - Game Character State:
 [GenerateSerializer]
@@ -681,245 +569,166 @@ builder.UseRpc(rpc =>
 
 ## 5. Implementation
 
-### 5.1 Core Validation Interfaces
+### 5.1 Validation Strategy
 
-**File**: `/src/Rpc/Orleans.Rpc.Security/Validation/IValidator.cs` (NEW)
+**Primary validation**: Use `System.ComponentModel.DataAnnotations` for standard validation (Required, Range, StringLength, etc.)
 
-```csharp
-using System;
+**Custom validation**: Use `IRpcValidator<T>` interface for game-specific logic (speed-hack detection, coordinate validation, etc.)
 
-namespace Granville.Rpc.Security.Validation;
-
-/// <summary>
-/// Base interface for all validators.
-/// </summary>
-public interface IValidator
-{
-    /// <summary>
-    /// Validate a value.
-    /// </summary>
-    ValidationResult Validate(object? value, ValidationContext context);
-}
-
-/// <summary>
-/// Generic validator for type-safe validation.
-/// </summary>
-public interface IValidator<T> : IValidator
-{
-    /// <summary>
-    /// Validate a strongly-typed value.
-    /// </summary>
-    new ValidationResult Validate(T? value, ValidationContext context);
-}
-
-/// <summary>
-/// Result of validation.
-/// </summary>
-public record ValidationResult
-{
-    public required bool IsValid { get; init; }
-    public string? ErrorMessage { get; init; }
-    public string? ErrorCode { get; init; }
-    public Dictionary<string, object>? Metadata { get; init; }
-
-    public static ValidationResult Success() =>
-        new ValidationResult { IsValid = true };
-
-    public static ValidationResult Failure(
-        string message,
-        string? code = null,
-        Dictionary<string, object>? metadata = null) =>
-        new ValidationResult
-        {
-            IsValid = false,
-            ErrorMessage = message,
-            ErrorCode = code ?? "VALIDATION_FAILED",
-            Metadata = metadata
-        };
-}
-
-/// <summary>
-/// Context for validation.
-/// </summary>
-public class ValidationContext
-{
-    public string PropertyName { get; set; } = string.Empty;
-    public string HandlerName { get; set; } = string.Empty;
-    public RpcSecurityContext? SecurityContext { get; set; }
-    public string RequestId { get; set; } = string.Empty;
-}
-```
-
-### 5.2 Built-in Validators
-
-**File**: `/src/Rpc/Orleans.Rpc.Security/Validation/Validators/BuiltInValidators.cs` (NEW)
-
-```csharp
-using System;
-using System.Collections.Generic;
-
-namespace Granville.Rpc.Security.Validation;
-
-/// <summary>
-/// Attribute to mark parameters as required (non-null).
-/// </summary>
-[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
-public class RequiredAttribute : ValidationAttribute
-{
-    public string? ErrorMessage { get; set; }
-
-    public override ValidationResult Validate(object? value, ValidationContext context)
-    {
-        if (value == null)
-        {
-            return ValidationResult.Failure(
-                ErrorMessage ?? "This field is required",
-                "REQUIRED_MISSING");
-        }
-
-        if (value is string str && string.IsNullOrWhiteSpace(str))
-        {
-            return ValidationResult.Failure(
-                ErrorMessage ?? "This field is required and cannot be empty",
-                "REQUIRED_EMPTY");
-        }
-
-        return ValidationResult.Success();
-    }
-}
-
-/// <summary>
-/// Validates string length bounds.
-/// </summary>
-[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
-public class StringLengthAttribute : ValidationAttribute
-{
-    public int MaxLength { get; }
-    public int MinLength { get; set; } = 0;
-
-    public StringLengthAttribute(int maxLength)
-    {
-        MaxLength = maxLength;
-    }
-
-    public override ValidationResult Validate(object? value, ValidationContext context)
-    {
-        if (value == null) return ValidationResult.Success();
-
-        if (value is not string str)
-        {
-            return ValidationResult.Failure(
-                "StringLength can only validate strings",
-                "INVALID_TYPE");
-        }
-
-        if (str.Length < MinLength || str.Length > MaxLength)
-        {
-            return ValidationResult.Failure(
-                $"String length must be between {MinLength} and {MaxLength}",
-                "STRING_LENGTH_OUT_OF_RANGE",
-                new Dictionary<string, object>
-                {
-                    { "min", MinLength },
-                    { "max", MaxLength },
-                    { "actual", str.Length }
-                });
-        }
-
-        return ValidationResult.Success();
-    }
-}
-
-/// <summary>
-/// Validates numeric values within range.
-/// </summary>
-[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
-public class RangeAttribute : ValidationAttribute
-{
-    public IComparable Minimum { get; }
-    public IComparable Maximum { get; }
-
-    public RangeAttribute(int minimum, int maximum)
-        : this((IComparable)minimum, (IComparable)maximum) { }
-
-    public RangeAttribute(double minimum, double maximum)
-        : this((IComparable)minimum, (IComparable)maximum) { }
-
-    public RangeAttribute(IComparable minimum, IComparable maximum)
-    {
-        Minimum = minimum;
-        Maximum = maximum;
-    }
-
-    public override ValidationResult Validate(object? value, ValidationContext context)
-    {
-        if (value == null) return ValidationResult.Success();
-
-        if (value is not IComparable comparable)
-        {
-            return ValidationResult.Failure(
-                "Value must be comparable",
-                "NOT_COMPARABLE");
-        }
-
-        if (comparable.CompareTo(Minimum) < 0 || comparable.CompareTo(Maximum) > 0)
-        {
-            return ValidationResult.Failure(
-                $"Value must be between {Minimum} and {Maximum}",
-                "VALUE_OUT_OF_RANGE",
-                new Dictionary<string, object>
-                {
-                    { "min", Minimum },
-                    { "max", Maximum },
-                    { "actual", value }
-                });
-        }
-
-        return ValidationResult.Success();
-    }
-}
-
-/// <summary>
-/// Base class for validation attributes.
-/// </summary>
-public abstract class ValidationAttribute : Attribute
-{
-    public abstract ValidationResult Validate(object? value, ValidationContext context);
-}
-```
-
-### 5.3 Validation Filter
+### 5.2 DataAnnotations Integration
 
 **File**: `/src/Rpc/Orleans.Rpc.Server/Filters/RpcValidationFilter.cs` (NEW)
 
-See Section 4.1 for full implementation.
+```csharp
+using System.ComponentModel.DataAnnotations;
+
+/// <summary>
+/// RPC filter that validates parameters using DataAnnotations.
+/// </summary>
+public class RpcValidationFilter : IRpcInvokeFilter
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<RpcValidationFilter> _logger;
+
+    public async Task OnInvokeAsync(IInvokeContext context, Func<IInvokeContext, Task> next)
+    {
+        var method = context.Method;
+        var validateAttr = method.GetCustomAttribute<ValidateAttribute>();
+
+        if (validateAttr == null)
+        {
+            await next(context);
+            return;
+        }
+
+        var errors = new List<ValidationResult>();
+
+        // Validate each parameter using DataAnnotations
+        var parameters = method.GetParameters();
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            var param = parameters[i];
+            var value = context.Arguments[i];
+
+            // For complex objects, use Validator.TryValidateObject
+            if (value != null && !param.ParameterType.IsPrimitive && param.ParameterType != typeof(string))
+            {
+                var validationContext = new ValidationContext(value, _serviceProvider, null);
+                Validator.TryValidateObject(value, validationContext, errors, validateAllProperties: true);
+            }
+
+            // Validate parameter-level attributes
+            var paramAttrs = param.GetCustomAttributes<ValidationAttribute>();
+            foreach (var attr in paramAttrs)
+            {
+                var result = attr.GetValidationResult(value, new ValidationContext(value ?? new object())
+                {
+                    MemberName = param.Name
+                });
+
+                if (result != ValidationResult.Success && result != null)
+                {
+                    errors.Add(result);
+                }
+            }
+        }
+
+        if (errors.Count > 0)
+        {
+            _logger.LogWarning(
+                "[VALIDATION] Failed for {Method}: {Errors}",
+                method.Name,
+                string.Join(", ", errors.Select(e => e.ErrorMessage)));
+
+            context.Result = new RpcResponse
+            {
+                Status = RpcStatus.InvalidArgument,
+                Error = new RpcError
+                {
+                    Code = "VALIDATION_FAILED",
+                    Message = "One or more parameters are invalid",
+                    Details = errors.ToDictionary(
+                        e => e.MemberNames.FirstOrDefault() ?? "unknown",
+                        e => (object?)e.ErrorMessage)
+                }
+            };
+            return;
+        }
+
+        await next(context);
+    }
+}
+```
+
+### 5.3 Custom Validator Interface (for Game-Specific Logic)
+
+**File**: `/src/Rpc/Orleans.Rpc.Security/Validation/IRpcValidator.cs` (NEW)
+
+```csharp
+namespace Granville.Rpc.Security.Validation;
+
+/// <summary>
+/// Custom validator for RPC-specific validation (speed-hack detection, etc.).
+/// Use System.ComponentModel.DataAnnotations for standard validation.
+/// </summary>
+public interface IRpcValidator<T>
+{
+    /// <summary>
+    /// Validate a value with RPC context (security context, request ID, etc.).
+    /// </summary>
+    RpcValidationResult Validate(T? value, RpcValidationContext context);
+}
+
+/// <summary>
+/// Result from custom RPC validation.
+/// </summary>
+public record RpcValidationResult(bool IsValid, string? ErrorMessage = null, string? ErrorCode = null)
+{
+    public static RpcValidationResult Success() => new(true);
+    public static RpcValidationResult Failure(string message, string? code = null) => new(false, message, code);
+}
+
+/// <summary>
+/// Context for RPC validation (includes security context).
+/// </summary>
+public record RpcValidationContext(
+    string PropertyName,
+    string HandlerName,
+    RpcSecurityContext? SecurityContext,
+    string RequestId);
+```
 
 ---
 
 ## 6. Game-Specific Validators
 
-### 6.1 Movement Validation
+These validators use `IRpcValidator<T>` for game logic that requires RPC context (security context, player state, etc.). For simple range/required checks, use `System.ComponentModel.DataAnnotations` attributes instead.
+
+### 6.1 Movement Validation (Speed-Hack Detection)
 
 ```csharp
 /// <summary>
 /// Validates player movement for speed hacks and impossible teleportation.
+/// Uses IRpcValidator because it needs game state and security context.
 /// </summary>
-public class MovementValidator : IValidator<(float X, float Y, float Z)>
+public class MovementValidator : IRpcValidator<(float X, float Y, float Z)>
 {
     private readonly IZoneManager _zoneManager;
     private readonly IGameStateCache _gameState;
     private readonly ILogger _logger;
 
-    public ValidationResult Validate(
-        (float X, float Y, float Z) position,
-        ValidationContext context)
+    public RpcValidationResult Validate(
+        (float X, float Y, float Z)? position,
+        RpcValidationContext context)
     {
-        var (x, y, z) = position;
+        if (position == null) return RpcValidationResult.Success();
 
-        // 1. Check bounds
+        var (x, y, z) = position.Value;
+
+        // 1. Check bounds (could also use [Range] attribute on DTO)
         if (x < -10000 || x > 10000 || y < -10000 || y > 10000)
         {
-            return ValidationResult.Failure(
+            return RpcValidationResult.Failure(
                 $"Coordinates out of world bounds: ({x}, {y})",
                 "OUT_OF_BOUNDS");
         }
@@ -928,12 +737,12 @@ public class MovementValidator : IValidator<(float X, float Y, float Z)>
         var zone = _zoneManager.GetZone(x, y);
         if (zone == null || !zone.IsAccessible)
         {
-            return ValidationResult.Failure(
+            return RpcValidationResult.Failure(
                 $"Coordinates ({x}, {y}) are on inaccessible terrain",
                 "INACCESSIBLE_TERRAIN");
         }
 
-        // 3. Check for teleportation (speed hack)
+        // 3. Check for teleportation (speed hack) - requires security context
         var lastPosition = _gameState.GetPlayerPosition(context.SecurityContext?.PlayerId);
 
         if (lastPosition.HasValue)
@@ -955,44 +764,45 @@ public class MovementValidator : IValidator<(float X, float Y, float Z)>
                     distance,
                     maxExpectedDistance);
 
-                return ValidationResult.Failure(
+                return RpcValidationResult.Failure(
                     $"Movement of {distance:F1}m exceeds expected {maxExpectedDistance:F1}m",
                     "TELEPORT_DETECTED");
             }
         }
 
-        return ValidationResult.Success();
+        return RpcValidationResult.Success();
     }
 }
 ```
 
-### 6.2 Combat Validation
+### 6.2 Combat Validation (Fire-Rate Hack Detection)
 
 ```csharp
 /// <summary>
 /// Validates combat actions for unrealistic fire rates and damage.
+/// Uses IRpcValidator because it needs game state and security context.
 /// </summary>
-public class CombatValidator : IValidator<CombatAction>
+public class CombatValidator : IRpcValidator<CombatAction>
 {
     private readonly IGameStateCache _gameState;
 
-    public ValidationResult Validate(
+    public RpcValidationResult Validate(
         CombatAction? action,
-        ValidationContext context)
+        RpcValidationContext context)
     {
         if (action == null)
-            return ValidationResult.Success();
+            return RpcValidationResult.Success();
 
         // 1. Check weapon exists
         var weapon = _gameState.GetWeapon(action.WeaponId);
         if (weapon == null)
         {
-            return ValidationResult.Failure(
+            return RpcValidationResult.Failure(
                 $"Weapon {action.WeaponId} does not exist",
                 "INVALID_WEAPON");
         }
 
-        // 2. Check fire rate (no faster than weapon allows)
+        // 2. Check fire rate (no faster than weapon allows) - requires player state
         var lastAttackTime = _gameState.GetLastAttackTime(context.SecurityContext?.PlayerId, action.WeaponId);
 
         if (lastAttackTime.HasValue)
@@ -1002,21 +812,22 @@ public class CombatValidator : IValidator<CombatAction>
 
             if (elapsed < minCooldown)
             {
-                return ValidationResult.Failure(
+                return RpcValidationResult.Failure(
                     $"Weapon is on cooldown for {minCooldown - elapsed:F2}s",
                     "WEAPON_COOLDOWN");
             }
         }
 
         // 3. Check damage is within weapon limits
+        // Note: This could also be done with [Range] on the DTO
         if (action.DamageAmount < weapon.MinDamage || action.DamageAmount > weapon.MaxDamage)
         {
-            return ValidationResult.Failure(
+            return RpcValidationResult.Failure(
                 $"Damage {action.DamageAmount} outside weapon range [{weapon.MinDamage}, {weapon.MaxDamage}]",
                 "INVALID_DAMAGE");
         }
 
-        return ValidationResult.Success();
+        return RpcValidationResult.Success();
     }
 }
 ```
@@ -1030,57 +841,83 @@ public class CombatValidator : IValidator<CombatAction>
 **File**: `/granville/test/Rpc.Security.Tests/ValidationTests.cs` (NEW)
 
 ```csharp
-public class BuiltInValidatorTests
+using System.ComponentModel.DataAnnotations;
+
+public class DataAnnotationsValidationTests
 {
     [Fact]
     public void RequiredValidator_RejectsNull()
     {
-        // Arrange
-        var validator = new RequiredAttribute();
-        var context = new ValidationContext { PropertyName = "PlayerId" };
+        // Arrange - Use standard DataAnnotations
+        var dto = new PlayerMoveRequest { PlayerId = null!, X = 0, Y = 0 };
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(dto);
 
         // Act
-        var result = validator.Validate(null, context);
+        var isValid = Validator.TryValidateObject(dto, context, results, validateAllProperties: true);
 
         // Assert
-        Assert.False(result.IsValid);
-        Assert.Equal("REQUIRED_MISSING", result.ErrorCode);
+        Assert.False(isValid);
+        Assert.Contains(results, r => r.MemberNames.Contains("PlayerId"));
     }
 
     [Theory]
     [InlineData(-1)]
-    [InlineData(0)]
     [InlineData(101)]
     [InlineData(1000)]
     public void RangeValidator_RejectsOutOfRange(int value)
     {
         // Arrange
-        var validator = new RangeAttribute(0, 100);
-        var context = new ValidationContext { PropertyName = "Health" };
+        var dto = new TakeDamageRequest
+        {
+            TargetPlayerId = "target",
+            SourcePlayerId = "source",
+            DamageAmount = value  // Out of range [1, 100]
+        };
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(dto);
 
         // Act
-        var result = validator.Validate(value, context);
+        var isValid = Validator.TryValidateObject(dto, context, results, validateAllProperties: true);
 
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Equal("VALUE_OUT_OF_RANGE", result.ErrorCode);
+        // Assert - value of 1 is valid, others are not
+        if (value >= 1 && value <= 100)
+            Assert.True(isValid);
+        else
+            Assert.False(isValid);
     }
 
     [Theory]
-    [InlineData(0)]
+    [InlineData(1)]
     [InlineData(50)]
     [InlineData(100)]
     public void RangeValidator_AcceptsInRange(int value)
     {
         // Arrange
-        var validator = new RangeAttribute(0, 100);
+        var dto = new TakeDamageRequest
+        {
+            TargetPlayerId = "target",
+            SourcePlayerId = "source",
+            DamageAmount = value
+        };
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(dto);
 
         // Act
-        var result = validator.Validate(value, new ValidationContext());
+        var isValid = Validator.TryValidateObject(dto, context, results, validateAllProperties: true);
 
         // Assert
-        Assert.True(result.IsValid);
+        Assert.True(isValid);
     }
+}
+
+// Test DTOs with DataAnnotations
+[GenerateSerializer]
+public record TakeDamageRequest
+{
+    [Id(0)] [Required] public string TargetPlayerId { get; init; } = string.Empty;
+    [Id(1)] [Required] public string SourcePlayerId { get; init; } = string.Empty;
+    [Id(2)] [Range(1, 100)] public int DamageAmount { get; init; }
 }
 ```
 
