@@ -1,15 +1,37 @@
 # Security TODOs for Shooter Demo
 
-This document outlines security-related tasks that need to be implemented in the Shooter demo to demonstrate and validate Forkleans.Rpc security features.
+> **WARNING**: As of 2025-11-29, the Shooter demo has **0% security implementation**.
+> The demo is suitable for **local development and demonstrations only**.
+> Do NOT deploy to internet-facing environments.
+>
+> See the core RPC security documentation at `/src/Rpc/docs/security/SECURITY-STATUS.md`
+
+This document outlines security-related tasks that need to be implemented in the Shooter demo to demonstrate and validate Granville RPC security features.
 
 ## High Priority - Authentication & Authorization
 
 ### 1. Implement Authentication System
-- [ ] Add JWT token generation for clients and ActionServers
+
+**IMPORTANT**: Use **two-phase authentication** for optimal UDP game performance:
+- **Phase 1** (Initial): JWT over HTTPS for login/handshake (happens once)
+- **Phase 2** (Game): Lightweight session tokens for UDP packets (per-packet or per-batch)
+
+**Tasks:**
+- [ ] Add JWT token generation for **initial** client authentication (HTTPS/TCP handshake)
+- [ ] Implement lightweight **session token system** for UDP packet authentication (16-64 bytes)
+  - [ ] Design binary session token format (SessionID + Expiry + HMAC)
+  - [ ] Implement in-memory session cache for fast validation (< 0.1ms)
+  - [ ] Add session establishment after JWT authentication
 - [ ] Create authentication service in Silo
-- [ ] Add login endpoint for clients
+- [ ] Add login endpoint for clients (HTTPS)
 - [ ] Implement ActionServer authentication with "action-server" role
-- [ ] Add token validation middleware
+- [ ] Add session token validation middleware (cached, not per-packet crypto)
+
+**Why not JWT for every UDP packet?**
+- JWT is ~300-500 bytes (too large for real-time games)
+- Signature verification adds latency (1-5ms per packet)
+- At 60 FPS with 20-30 packets/sec, bandwidth overhead is prohibitive
+- Session tokens are 16-64 bytes with cached validation (< 0.1ms)
 
 ### 2. Apply Authorization Attributes
 - [ ] Add `[AuthenticationRequired(false)]` to public game query methods (e.g., GetZoneInfo)
@@ -79,10 +101,13 @@ This document outlines security-related tasks that need to be implemented in the
 
 ## Example Implementation Priority
 
-1. **Phase 1** (Do First):
-   - Basic JWT authentication (#1)
+1. **Phase 1** (Do First - CRITICAL for internet exposure):
+   - Two-phase authentication system (#1):
+     - JWT for initial HTTPS login
+     - Lightweight session tokens for UDP game packets
    - Apply `[AuthenticationRequired]` to existing interfaces (#2)
    - Basic input validation for player actions (#4)
+   - **DTLS transport encryption** (see core RPC docs)
 
 2. **Phase 2** (After Phase 1):
    - Implement `[ClientCreatable]` system (#3)
@@ -97,6 +122,11 @@ This document outlines security-related tasks that need to be implemented in the
 ## Notes for Implementation
 
 - Start with authentication to establish identity before implementing authorization
-- Use the Shooter demo as a testbed for security features before promoting to core Forkleans.Rpc
+- **Transport encryption (DTLS) is critical** - without it, all authentication tokens are visible on the network
+- **DO NOT use JWT for per-packet authentication** - use lightweight session tokens instead (see #1)
+  - JWT is for initial HTTPS login only
+  - UDP packets should carry 16-64 byte session IDs, not 300+ byte JWTs
+  - Session validation should use in-memory cache (< 0.1ms), not crypto verification per packet
+- Use the Shooter demo as a testbed for security features before promoting to core Granville RPC
 - Consider performance impact of security features, especially for real-time gameplay
 - Ensure security features are configurable for different deployment scenarios

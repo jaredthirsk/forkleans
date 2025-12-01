@@ -1,7 +1,14 @@
 # Granville RPC Security Tasks
 
+**Status as of 2025-11-29**: 0% implemented - See [SECURITY-STATUS.md](./SECURITY-STATUS.md) for assessment.
+
 ## Overview
 This document tracks all security-related tasks for implementing comprehensive security in Granville RPC. Tasks are organized hierarchically with checkboxes for tracking completion.
+
+**Legend**:
+- [ ] Not started
+- [~] In progress
+- [x] Completed
 
 ## Phase 1: Foundation & Assessment
 
