@@ -37,6 +37,10 @@
 .PARAMETER BrowserScreenshotInterval
     How often to take browser screenshots (seconds)
     Default: 15
+
+.PARAMETER BrowserCount
+    Number of browser instances to launch (simulates multiple players)
+    Default: 2
 #>
 param(
     [int]$MaxIterations = 10,
@@ -46,6 +50,7 @@ param(
     [switch]$NoBrowser = $false,
     [switch]$Headless = $false,
     [int]$BrowserScreenshotInterval = 15,
+    [int]$BrowserCount = 2,
     [switch]$SkipClean = $false
 )
 
@@ -507,6 +512,9 @@ function Start-ShooterWithLogging {
     if ($Headless) {
         $rlArgs += " --headless"
     }
+    if ($BrowserCount -ne 2) {  # Only add if not default
+        $rlArgs += " --browser-count $BrowserCount"
+    }
 
     $appHostProc = Start-Process -FilePath "bash" `
         -ArgumentList $rlArgs `
@@ -620,7 +628,8 @@ function Start-BrowserMonitor {
         return $null
     }
 
-    $env:GAME_URL = "http://localhost:5200/game"
+    # Don't set GAME_URL - let browser-monitor.js detect WSL and use the correct IP
+    # The script auto-detects WSL and uses the Windows LAN IP (192.168.1.136) when needed
     $env:OUTPUT_DIR = "$workDir/browser-screenshots"
     $env:SCREENSHOT_INTERVAL = ($BrowserScreenshotInterval * 1000).ToString()
     $env:HEADLESS = "false"

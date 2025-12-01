@@ -2,10 +2,11 @@
 # rl.sh - Run Shooter.AppHost with optional browser monitoring
 #
 # Usage:
-#   ./rl.sh                    # Run with browser monitoring (default)
+#   ./rl.sh                    # Run with browser monitoring (default: 2 browsers)
 #   ./rl.sh --no-browser       # Run without browser monitoring
 #   ./rl.sh --headless         # Run browser in headless mode (no visible window)
 #   ./rl.sh --browser-interval 30  # Custom screenshot interval (seconds)
+#   ./rl.sh --browser-count 2  # Number of browser instances (default: 2)
 #   ./rl.sh --window-x 0 --window-y 300  # Position browser windows (default: 0,300)
 #   ./rl.sh --skip-clean       # Skip dotnet clean (faster startup)
 
@@ -14,6 +15,7 @@ ENABLE_BROWSER=true
 HEADLESS=false
 SCREENSHOT_INTERVAL=15
 GAME_URL="http://localhost:5200/game"
+BROWSER_COUNT=2
 WINDOW_X=0
 WINDOW_Y=300
 SKIP_CLEAN=false
@@ -30,6 +32,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --browser-interval)
             SCREENSHOT_INTERVAL="$2"
+            shift 2
+            ;;
+        --browser-count)
+            BROWSER_COUNT="$2"
             shift 2
             ;;
         --game-url)
@@ -69,13 +75,14 @@ if [ "$ENABLE_BROWSER" = true ]; then
         PLAYWRIGHT_CHECK=$(node -e "try { require.resolve('playwright'); console.log('ok'); } catch(e) { console.log('missing'); }" 2>/dev/null)
 
         if [ "$PLAYWRIGHT_CHECK" = "ok" ]; then
-            echo "[rl.sh] Starting browser monitor..."
+            echo "[rl.sh] Starting browser monitor ($BROWSER_COUNT instance(s))..."
 
             # Set environment variables for browser monitor
-            export GAME_URL="$GAME_URL"
+            # Note: Do NOT set GAME_URL here - let browser-monitor.js detect WSL and use the correct IP
             export SCREENSHOT_INTERVAL=$((SCREENSHOT_INTERVAL * 1000))
             export OUTPUT_DIR="./browser-screenshots-$(date +%Y%m%d-%H%M%S)"
             export HEADLESS="$HEADLESS"
+            export BROWSER_COUNT="$BROWSER_COUNT"
             export WINDOW_X="$WINDOW_X"
             export WINDOW_Y="$WINDOW_Y"
 
@@ -120,7 +127,7 @@ cd "$TEMP_DIR"
 cd "$ORIGINAL_DIR"
 if [ "$SKIP_CLEAN" = false ]; then
     echo "[rl.sh] Running dotnet clean..."
-    dotnet-win clean 2>/dev/null || true
+    /home/jared/bin/dotnet_win clean 2>/dev/null || true
 else
     echo "[rl.sh] Skipping dotnet clean (--skip-clean specified)"
 fi
@@ -128,7 +135,7 @@ fi
 # Always build to ensure changes are compiled (use --no-restore to speed up)
 # Use dotnet-win for Windows filesystem to avoid timestamp sync issues with incremental builds
 echo "[rl.sh] Building projects..."
-dotnet-win build --no-restore 2>/dev/null || dotnet-win build
+/home/jared/bin/dotnet_win build --no-restore 2>/dev/null || /home/jared/bin/dotnet_win build
 
 cd "$TEMP_DIR"
 
@@ -136,7 +143,7 @@ cd "$TEMP_DIR"
 WINDOWS_PROJECT_PATH=$(wslpath -w "$ORIGINAL_DIR/Shooter.AppHost.csproj")
 
 echo "[rl.sh] Starting AppHost..."
-dotnet-win run --no-build --project "$WINDOWS_PROJECT_PATH" -- "$@"
+/home/jared/bin/dotnet_win run --no-build --project "$WINDOWS_PROJECT_PATH" -- "$@"
 #dotnet-win run --project "$WINDOWS_PROJECT_PATH" -c Release -- "$@"
 
 # Clean up and return

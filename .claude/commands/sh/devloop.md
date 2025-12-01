@@ -7,9 +7,10 @@ description: Run AI-driven development loop for Shooter debugging
 Start the AI-driven development loop that automatically monitors, detects errors, and waits for Claude to analyze and fix issues.
 
 **Parameters:**
-- Default: Skips clean step for faster iterations (20 min runtime), visible browsers
+- Default: Skips clean step for faster iterations (20 min runtime), 2 visible browsers
 - Use `--clean` argument to force clean build (slower but thorough)
 - Use `--headless` argument to run browsers in headless mode (no visible windows)
+- Use `--browser-count N` argument to set number of browser instances (default: 2)
 
 **IMPORTANT FOR CLAUDE**: After starting this command in the background, you MUST proactively monitor the background bash process every 60-120 seconds by checking `BashOutput`. When the dev loop detects errors (you'll see "Still waiting for fix..." in the output), immediately:
 1. Read `/mnt/c/forks/orleans/granville/samples/Rpc/ai-dev-loop/[latest-session]/last-error.txt`
@@ -36,17 +37,29 @@ cd /mnt/c/forks/orleans/granville/samples/Rpc
 # Parse arguments
 SKIP_CLEAN_ARG="-SkipClean"
 HEADLESS_ARG=""
+BROWSER_COUNT_ARG=""
 
-for arg in "$@"; do
-    if [[ "$arg" == "--clean" ]]; then
-        SKIP_CLEAN_ARG=""  # Don't pass -SkipClean (force clean)
-    fi
-    if [[ "$arg" == "--headless" ]]; then
-        HEADLESS_ARG="-Headless"
-    fi
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --clean)
+            SKIP_CLEAN_ARG=""  # Don't pass -SkipClean (force clean)
+            shift
+            ;;
+        --headless)
+            HEADLESS_ARG="-Headless"
+            shift
+            ;;
+        --browser-count)
+            BROWSER_COUNT_ARG="-BrowserCount $2"
+            shift 2
+            ;;
+        *)
+            shift
+            ;;
+    esac
 done
 
 # Start the AI development loop in background
 # Default: -SkipClean for faster iterations (20 min runtime allows for build)
-pwsh ./scripts/ai-dev-loop.ps1 -RunDuration 1200 -MaxIterations 3 $SKIP_CLEAN_ARG $HEADLESS_ARG &
+pwsh ./scripts/ai-dev-loop.ps1 -RunDuration 1200 -MaxIterations 3 $SKIP_CLEAN_ARG $HEADLESS_ARG $BROWSER_COUNT_ARG &
 ```
