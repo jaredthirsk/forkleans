@@ -19,6 +19,7 @@
     <PackageVersion Include="Granville.Rpc.Transport.LiteNetLib" Version="9.1.2.191" />
     <PackageVersion Include="Granville.Rpc.Transport.Ruffles" Version="9.1.2.191" />
     <PackageVersion Include="Granville.Rpc.Abstractions" Version="9.1.2.191" />
+    <PackageVersion Include="Granville.Rpc.Security" Version="9.1.2.191" />
     <PackageVersion Include="Granville.Server" Version="9.1.2" />
     <!-- Removed Granville.Persistence.Memory - using Microsoft.Orleans.Persistence.Memory instead -->
 

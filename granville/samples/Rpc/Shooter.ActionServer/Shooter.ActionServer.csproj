@@ -16,6 +16,7 @@
     <PackageReference Include="Granville.Rpc.Client" />
     <PackageReference Include="Granville.Rpc.Transport.LiteNetLib" />
     <PackageReference Include="Granville.Rpc.Transport.Ruffles" />
+    <PackageReference Include="Granville.Rpc.Security" />
     
     <!-- Granville Orleans packages -->
     <PackageReference Include="Granville.Orleans.Client" />

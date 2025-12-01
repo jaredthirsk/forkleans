@@ -16,6 +16,7 @@ using Granville.Rpc;
 using Granville.Rpc.Hosting;
 using Granville.Rpc.Transport.LiteNetLib;
 using Granville.Rpc.Transport.Ruffles;
+using Granville.Rpc.Security;
 using Orleans.Hosting;
 using Orleans.Serialization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -307,7 +308,25 @@ builder.Host.UseOrleansRpc(rpcBuilder =>
             rpcBuilder.UseLiteNetLib();
             break;
     }
-    
+
+    // Configure transport security
+    // TODO: Enable PSK encryption for production deployments:
+    // rpcBuilder.UsePskEncryption(options =>
+    // {
+    //     options.IsServer = true;
+    //     options.PskLookup = async (playerId, ct) =>
+    //     {
+    //         var grainFactory = builder.Services.BuildServiceProvider()
+    //             .GetRequiredService<Orleans.IGrainFactory>();
+    //         var sessionGrain = grainFactory.GetGrain<IPlayerSessionGrain>(playerId);
+    //         var session = await sessionGrain.GetSessionAsync();
+    //         return session?.GetSessionKeyBytes();
+    //     };
+    // });
+
+    // For development: explicitly disable security (logs warning at startup)
+    rpcBuilder.UseNoSecurity();
+
     // Add assemblies containing grains
     rpcBuilder.AddAssemblyContaining<GameGranule>()           // Granule implementations
              .AddAssemblyContaining<IGameGranule>()           // Granule interfaces

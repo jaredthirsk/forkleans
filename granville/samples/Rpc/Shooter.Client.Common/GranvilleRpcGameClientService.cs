@@ -4,6 +4,7 @@ using Orleans.Runtime;
 using Granville.Rpc;
 using Granville.Rpc.Transport.LiteNetLib;
 using Granville.Rpc.Transport.Ruffles;
+using Granville.Rpc.Security;
 using Orleans.Serialization;
 using Shooter.Shared.Models;
 using Shooter.Shared.RpcInterfaces;
@@ -3742,6 +3743,27 @@ public class GranvilleRpcGameClientService : IDisposable
                         TransportType = "litenetlib"; // Ensure we always have a value
                         break;
                 }
+
+                // Configure transport security
+                // TODO: Enable PSK encryption for production deployments:
+                // if (!string.IsNullOrEmpty(SessionKey))
+                // {
+                //     var sessionKeyBytes = Convert.FromBase64String(SessionKey);
+                //     rpcBuilder.UsePskEncryption(options =>
+                //     {
+                //         options.IsServer = false;
+                //         options.PskIdentity = PlayerId;
+                //         options.PskKey = sessionKeyBytes;
+                //     });
+                // }
+                // else
+                // {
+                //     _logger.LogWarning("[SECURITY] No session key available - using insecure transport");
+                //     rpcBuilder.UseNoSecurity();
+                // }
+
+                // For development: explicitly disable security (logs warning at startup)
+                rpcBuilder.UseNoSecurity();
             })
             .ConfigureServices(services =>
             {
