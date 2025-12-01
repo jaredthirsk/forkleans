@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>Granville.Rpc.Security</AssemblyName>
+    <RootNamespace>Granville.Rpc.Security</RootNamespace>
+    <Description>Security features for Orleans RPC including DTLS-PSK transport encryption</Description>
+    <PackageTags>$(PackageTags);RPC;Security;DTLS;PSK;Encryption</PackageTags>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Orleans.Rpc.Abstractions\Orleans.Rpc.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- BouncyCastle for DTLS-PSK implementation -->
+    <PackageReference Include="BouncyCastle.Cryptography" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+</Project>
