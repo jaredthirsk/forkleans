@@ -16,6 +16,7 @@
     <PackageReference Include="Granville.Orleans.Core" />
     <PackageReference Include="Granville.Orleans.Serialization" />
     <ProjectReference Include="..\Orleans.Rpc.Abstractions\Orleans.Rpc.Abstractions.csproj" />
+    <ProjectReference Include="..\Orleans.Rpc.Security\Orleans.Rpc.Security.csproj" />
   </ItemGroup>
 
   <ItemGroup>

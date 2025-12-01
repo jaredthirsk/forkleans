@@ -23,6 +23,8 @@ using Orleans.Serialization.Buffers;
 using Orleans.Serialization.Invocation;
 using Orleans.Serialization.Session;
 using Orleans.Utilities;
+using Granville.Rpc.Security;
+using Granville.Rpc.Security.Authorization;
 
 namespace Granville.Rpc
 {
@@ -46,6 +48,8 @@ namespace Granville.Rpc
         private readonly InterfaceToImplementationMappingCache _interfaceToImplementationMapping;
         private readonly Serializer _serializer;
         private readonly RpcSerializationSessionFactory _sessionFactory;
+        private readonly IRpcAuthorizationFilter? _authorizationFilter;
+        private readonly IConnectionUserAccessor? _connectionUserAccessor;
 
         private int _disposed;
 
@@ -59,7 +63,9 @@ namespace Granville.Rpc
             InterfaceToImplementationMappingCache interfaceToImplementationMapping,
             Serializer serializer,
             RpcSerializationSessionFactory sessionFactory,
-            ILogger<RpcConnection> logger)
+            ILogger<RpcConnection> logger,
+            IRpcAuthorizationFilter? authorizationFilter = null,
+            IConnectionUserAccessor? connectionUserAccessor = null)
         {
             _connectionId = connectionId ?? throw new ArgumentNullException(nameof(connectionId));
             _remoteEndPoint = remoteEndPoint ?? throw new ArgumentNullException(nameof(remoteEndPoint));
@@ -71,6 +77,8 @@ namespace Granville.Rpc
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _sessionFactory = sessionFactory ?? throw new ArgumentNullException(nameof(sessionFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _authorizationFilter = authorizationFilter;
+            _connectionUserAccessor = connectionUserAccessor;
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
@@ -95,8 +103,38 @@ namespace Granville.Rpc
                 return;
             }
 
+            // Get authenticated user from connection
+            var user = _connectionUserAccessor?.GetUserForConnection(_connectionId);
+
+            // Set security context for this request
+            using var securityScope = RpcSecurityContext.SetContext(
+                user,
+                _connectionId,
+                _remoteEndPoint,
+                request.MessageId);
+
             try
             {
+                // Authorization check
+                if (_authorizationFilter != null)
+                {
+                    var authResult = await AuthorizeRequestAsync(request, user);
+                    if (!authResult.IsAuthorized)
+                    {
+                        _logger.LogWarning(
+                            "[RPC] Authorization denied for {ConnectionId}: {Reason}",
+                            _connectionId, authResult.FailureReason);
+
+                        var errorResponse = new Protocol.RpcResponse
+                        {
+                            RequestId = request.MessageId,
+                            Success = false,
+                            ErrorMessage = $"Authorization denied: {authResult.FailureReason}"
+                        };
+                        await SendResponseAsync(errorResponse);
+                        return;
+                    }
+                }
 
                 // For now, let's use a simpler approach - invoke the grain method directly
                 // This bypasses Orleans' message pump but is simpler for RPC
@@ -110,7 +148,7 @@ namespace Granville.Rpc
                     Payload = SerializeResult(result)
                 };
 
-                _logger.LogDebug("RPC Connection: Sending success response for request {MessageId}, result type: {ResultType}, result value: {ResultValue}, payload size: {PayloadSize} bytes", 
+                _logger.LogDebug("RPC Connection: Sending success response for request {MessageId}, result type: {ResultType}, result value: {ResultValue}, payload size: {PayloadSize} bytes",
                     request.MessageId, result?.GetType()?.FullName ?? "null", result?.ToString() ?? "null", response.Payload?.Length ?? 0);
                 await SendResponseAsync(response);
             }
@@ -438,6 +476,87 @@ namespace Granville.Rpc
             {
                 throw tie.InnerException ?? tie;
             }
+        }
+
+        /// <summary>
+        /// Authorizes an RPC request using the configured authorization filter.
+        /// </summary>
+        private async Task<AuthorizationResult> AuthorizeRequestAsync(
+            Protocol.RpcRequest request,
+            RpcUserIdentity? user)
+        {
+            // Resolve interface type and method
+            var (interfaceType, method) = await ResolveInterfaceAndMethodAsync(request);
+
+            var context = new RpcAuthorizationContext
+            {
+                GrainInterface = interfaceType,
+                Method = method,
+                GrainId = request.GrainId,
+                User = user,
+                RemoteEndpoint = _remoteEndPoint,
+                ConnectionId = _connectionId,
+                RequestId = request.MessageId,
+                MethodId = request.MethodId
+            };
+
+            return await _authorizationFilter!.AuthorizeAsync(context);
+        }
+
+        /// <summary>
+        /// Resolves the interface type and method from an RPC request.
+        /// </summary>
+        private async Task<(Type interfaceType, MethodInfo method)> ResolveInterfaceAndMethodAsync(Protocol.RpcRequest request)
+        {
+            // Get or create the grain activation to find the interface type
+            var grainContext = await _catalog.GetOrCreateActivationAsync(request.GrainId);
+
+            if (grainContext?.GrainInstance == null)
+            {
+                throw new InvalidOperationException($"Grain not found: {request.GrainId}");
+            }
+
+            var grainType = grainContext.GrainInstance.GetType();
+
+            // Find grain interface (same logic as InvokeGrainMethodAsync)
+            Type? interfaceType = null;
+            foreach (var iface in grainType.GetInterfaces())
+            {
+                if (!iface.IsClass &&
+                    typeof(IGrain).IsAssignableFrom(iface) &&
+                    iface != typeof(IGrainObserver) &&
+                    iface != typeof(IAddressable) &&
+                    iface != typeof(IGrainExtension) &&
+                    iface != typeof(IGrain) &&
+                    iface != typeof(IGrainWithGuidKey) &&
+                    iface != typeof(IGrainWithIntegerKey) &&
+                    iface != typeof(IGrainWithGuidCompoundKey) &&
+                    iface != typeof(IGrainWithIntegerCompoundKey) &&
+                    iface != typeof(ISystemTarget))
+                {
+                    interfaceType = iface;
+                    break;
+                }
+            }
+
+            if (interfaceType == null)
+            {
+                throw new InvalidOperationException($"No grain interface found for {grainType.Name}");
+            }
+
+            // Get methods sorted alphabetically by name for consistent ordering
+            var methods = interfaceType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Where(m => !m.IsSpecialName)
+                .OrderBy(m => m.Name, StringComparer.Ordinal)
+                .ToArray();
+
+            if (request.MethodId >= methods.Length)
+            {
+                throw new InvalidOperationException(
+                    $"Method ID {request.MethodId} not found on interface {interfaceType.Name}");
+            }
+
+            return (interfaceType, methods[request.MethodId]);
         }
 
         private byte[] SerializeResult(object result)

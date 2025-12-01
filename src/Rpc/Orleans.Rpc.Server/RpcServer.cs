@@ -20,6 +20,8 @@ using Orleans.Serialization.Session;
 using Orleans.Serialization.Buffers;
 using Orleans.Serialization.Invocation;
 using Orleans.Metadata;
+using Granville.Rpc.Security;
+using Granville.Rpc.Security.Authorization;
 
 namespace Granville.Rpc
 {
@@ -395,11 +397,16 @@ namespace Granville.Rpc
             return _connections.GetOrAdd(connectionId, id =>
             {
                 _logger.LogDebug("Creating new RPC connection for {ConnectionId}", id);
-                
+
                 var connectionLogger = _loggerFactory.CreateLogger<RpcConnection>();
                 var interfaceToImplementationMapping = _catalog.ServiceProvider.GetRequiredService<InterfaceToImplementationMappingCache>();
                 var sessionFactory = _serviceProvider.GetRequiredService<RpcSerializationSessionFactory>();
-                
+
+                // Get optional authorization filter and user accessor from DI
+                var authorizationFilter = _serviceProvider.GetService<IRpcAuthorizationFilter>();
+                var connectionUserAccessor = _transport as IConnectionUserAccessor
+                    ?? _serviceProvider.GetService<IConnectionUserAccessor>();
+
                 return new RpcConnection(
                     id,
                     remoteEndpoint,
@@ -410,7 +417,9 @@ namespace Granville.Rpc
                     interfaceToImplementationMapping,
                     _serializer,
                     sessionFactory,
-                    connectionLogger);
+                    connectionLogger,
+                    authorizationFilter,
+                    connectionUserAccessor);
             });
         }
 
