@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Security.Cryptography;
+using Granville.Rpc.Security;
 
 namespace Shooter.Shared.GrainInterfaces;
 
@@ -13,7 +14,9 @@ namespace Shooter.Shared.GrainInterfaces;
 /// Each player has one session grain keyed by PlayerId.
 /// The session stores a 256-bit random key used for DTLS-PSK encryption.
 /// Sessions expire after a configurable period (default 4 hours).
+/// This grain is SERVER-ONLY - clients cannot directly create or manage sessions.
 /// </remarks>
+[ServerOnly]
 public interface IPlayerSessionGrain : Orleans.IGrainWithStringKey
 {
     /// <summary>

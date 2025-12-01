@@ -289,6 +289,9 @@ else
 rpcPortProvider.SetPort(rpcPort);
 builder.Configuration["RpcPort"] = rpcPort.ToString();
 
+// Add RPC authorization (development mode - logs decisions, allows anonymous by default)
+// For production, use AddRpcAuthorizationProduction() which requires authentication by default
+builder.Services.AddRpcAuthorizationDevelopment();
 
 builder.Host.UseOrleansRpc(rpcBuilder =>
 {
