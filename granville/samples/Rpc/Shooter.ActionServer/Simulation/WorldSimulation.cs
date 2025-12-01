@@ -31,6 +31,11 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     private DateTime _victoryPauseTime = DateTime.MinValue;
     private bool _allEnemiesDefeated = false;
     private readonly ConcurrentDictionary<string, int> _playerRespawnCounts = new();
+    private readonly ConcurrentDictionary<string, PendingBulletInfo> _pendingBullets = new();
+    // Track bullets we've handed off to other zones - prevents re-accepting bullets that exited our zone.
+    // This eliminates continuous oscillation where both zones simulate the same bullet.
+    // Note: One-time position jumps during handoff are acceptable (see docs/historical/ZONE_TRANSITION_FIXES_SUMMARY.md)
+    private readonly ConcurrentDictionary<string, DateTime> _handedOffBullets = new();
     private readonly List<DamageEvent> _damageEvents = new();
     private readonly object _damageEventsLock = new();
     private readonly GameEventBroker _gameEventBroker;
@@ -373,6 +378,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             if (_currentPhase == GamePhase.Playing)
             {
                 await UpdatePhysicsAsync(deltaTime);
+                ActivatePendingBullets(); // Activate any pending bullets that entered our zone
                 UpdateAI(deltaTime);
                 CheckCollisions();
                 UpdateEntityStates(deltaTime);
@@ -596,6 +602,18 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 {
                     entity.Health -= deltaTime;
                     entity.StateTimer += deltaTime;
+
+                    // Immediately remove bullets that exit our zone to prevent dual-simulation
+                    var bulletZone = GridSquare.FromPosition(entity.Position);
+                    if (bulletZone != _assignedSquare)
+                    {
+                        // Mark bullet for immediate removal - it will be simulated by the target zone
+                        entity.Health = 0;
+                        // Track this bullet as handed off so we don't re-accept it via trajectory
+                        _handedOffBullets[entity.EntityId] = DateTime.UtcNow;
+                        _logger.LogDebug("[BULLET_ZONE_EXIT] Bullet {Id} exited zone {OurZone} to {NewZone}, marking for removal and handoff",
+                            entity.EntityId, _assignedSquare, bulletZone);
+                    }
                 }
                 
                 // Enforce zone boundaries for enemies (bullets will be removed in zone monitoring)
@@ -635,6 +653,83 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                     }
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Checks pending bullet trajectories and activates any bullets that have entered our zone.
+    /// </summary>
+    private void ActivatePendingBullets()
+    {
+        // First, clean up old handed-off bullet entries (older than 5 seconds)
+        var handoffExpiry = DateTime.UtcNow.AddSeconds(-5);
+        var expiredHandoffs = _handedOffBullets.Where(kvp => kvp.Value < handoffExpiry).Select(kvp => kvp.Key).ToList();
+        foreach (var bulletId in expiredHandoffs)
+        {
+            _handedOffBullets.TryRemove(bulletId, out _);
+        }
+
+        if (_pendingBullets.IsEmpty)
+            return;
+
+        var currentTime = GetCurrentGameTime();
+        var bulletsToRemove = new List<string>();
+
+        foreach (var (bulletId, pending) in _pendingBullets)
+        {
+            // Skip bullets we've already handed off
+            if (_handedOffBullets.ContainsKey(bulletId))
+            {
+                bulletsToRemove.Add(bulletId);
+                continue;
+            }
+
+            var elapsedTime = currentTime - pending.SpawnTime;
+
+            // Check if bullet has expired
+            if (elapsedTime >= pending.Lifespan)
+            {
+                bulletsToRemove.Add(bulletId);
+                continue;
+            }
+
+            // Calculate current position
+            var currentPosition = pending.Origin + pending.Velocity * elapsedTime;
+            var currentZone = GridSquare.FromPosition(currentPosition);
+
+            // If bullet is now in our zone, activate it
+            if (currentZone == _assignedSquare)
+            {
+                // Don't activate if we already have this bullet (e.g., from originating in this zone)
+                if (!_entities.ContainsKey(bulletId))
+                {
+                    var bullet = new SimulatedEntity
+                    {
+                        EntityId = bulletId,
+                        Type = EntityType.Bullet,
+                        SubType = pending.SubType,
+                        Position = currentPosition,
+                        Velocity = pending.Velocity,
+                        Health = pending.Lifespan - elapsedTime,
+                        Rotation = MathF.Atan2(pending.Velocity.Y, pending.Velocity.X),
+                        State = EntityStateType.Active,
+                        StateTimer = elapsedTime,
+                        OwnerId = pending.OwnerId,
+                        Team = pending.Team
+                    };
+
+                    _entities[bulletId] = bullet;
+                    _logger.LogDebug("[PENDING_BULLET] Activated bullet {BulletId} at position {Position} in zone {Zone}",
+                        bulletId, currentPosition, _assignedSquare);
+                }
+                bulletsToRemove.Add(bulletId);
+            }
+        }
+
+        // Clean up processed pending bullets
+        foreach (var bulletId in bulletsToRemove)
+        {
+            _pendingBullets.TryRemove(bulletId, out _);
         }
     }
 
@@ -1238,7 +1333,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             
             var factory = new SimulatedEntity
             {
-                EntityId = $"factory_{_nextEntityId++}",
+                EntityId = $"factory_{_assignedSquare.X}_{_assignedSquare.Y}_{_nextEntityId++}",
                 Type = EntityType.Factory,
                 Position = position,
                 Velocity = Vector2.Zero,
@@ -1356,7 +1451,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
                 
             var enemy = new SimulatedEntity
             {
-                EntityId = $"enemy_{_nextEntityId++}",
+                EntityId = $"enemy_{_assignedSquare.X}_{_assignedSquare.Y}_{_nextEntityId++}",
                 Type = EntityType.Enemy,
                 SubType = (int)enemyType,
                 Position = position,
@@ -1432,7 +1527,7 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     {
         var explosion = new SimulatedEntity
         {
-            EntityId = $"explosion_{_nextEntityId++}",
+            EntityId = $"explosion_{_assignedSquare.X}_{_assignedSquare.Y}_{_nextEntityId++}",
             Type = EntityType.Explosion,
             Position = position,
             Velocity = Vector2.Zero,
@@ -2035,64 +2130,72 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
     {
         try
         {
+            // CRITICAL: Reject bullets we've already handed off to another zone
+            // This prevents oscillation when a bullet crosses back into our zone
+            if (_handedOffBullets.ContainsKey(bulletId))
+            {
+                _logger.LogDebug("[BULLET_REJECTED] Bullet {BulletId} was previously handed off, ignoring trajectory", bulletId);
+                return;
+            }
+
             // Calculate current position based on elapsed time
             var currentTime = GetCurrentGameTime();
             var elapsedTime = currentTime - spawnTime;
-            
+
             // If the bullet has already expired, don't spawn it
             if (elapsedTime >= lifespan)
             {
-                _logger.LogDebug("Bullet {BulletId} has already expired (elapsed: {Elapsed}s, lifespan: {Lifespan}s)", 
+                _logger.LogDebug("Bullet {BulletId} has already expired (elapsed: {Elapsed}s, lifespan: {Lifespan}s)",
                     bulletId, elapsedTime, lifespan);
                 return;
             }
-            
+
             // Calculate current position along trajectory
             var currentPosition = origin + velocity * elapsedTime;
-            
-            // Check if bullet is currently in our zone OR will enter our zone soon
+
+            // IMPORTANT: Only spawn bullet if it's ACTUALLY in our zone right now
+            // Do NOT use look-ahead or "recently left" logic - this causes oscillation
+            // because both zones will simulate the bullet simultaneously near boundaries
             var currentZone = GridSquare.FromPosition(currentPosition);
-            var remainingLifespan = lifespan - elapsedTime;
-            
-            // Look ahead to see if bullet will enter our zone
-            const float lookAheadTime = 0.5f; // Look ahead half a second
-            const float sampleInterval = 0.05f; // Sample every 50ms
-            bool isInZoneOrWillEnter = currentZone == _assignedSquare;
-            
-            if (!isInZoneOrWillEnter && remainingLifespan > 0)
+
+            if (currentZone != _assignedSquare)
             {
-                // Check future positions
-                for (float t = 0; t <= Math.Min(lookAheadTime, remainingLifespan); t += sampleInterval)
+                // Bullet is not in our zone yet - store the trajectory info for later spawning
+                // when the bullet actually enters our zone
+                var remainingLifespan = lifespan - elapsedTime;
+                if (remainingLifespan > 0)
                 {
-                    var futurePosition = origin + velocity * (elapsedTime + t);
-                    var futureZone = GridSquare.FromPosition(futurePosition);
-                    
-                    if (futureZone == _assignedSquare)
+                    // Check if bullet will ever enter our zone
+                    bool willEnter = false;
+                    for (float t = 0; t <= remainingLifespan; t += 0.05f)
                     {
-                        isInZoneOrWillEnter = true;
-                        _logger.LogDebug("Bullet {BulletId} will enter our zone in {Time:F2}s at position {Position}", 
-                            bulletId, t, futurePosition);
-                        break;
+                        var futurePosition = origin + velocity * (elapsedTime + t);
+                        var futureZone = GridSquare.FromPosition(futurePosition);
+                        if (futureZone == _assignedSquare)
+                        {
+                            willEnter = true;
+                            break;
+                        }
+                    }
+
+                    if (willEnter)
+                    {
+                        // Store pending bullet trajectory for later activation
+                        _pendingBullets[bulletId] = new PendingBulletInfo
+                        {
+                            BulletId = bulletId,
+                            SubType = subType,
+                            Origin = origin,
+                            Velocity = velocity,
+                            SpawnTime = spawnTime,
+                            Lifespan = lifespan,
+                            OwnerId = ownerId,
+                            Team = team
+                        };
+                        _logger.LogDebug("Bullet {BulletId} not in our zone yet (zone: {Zone}), stored as pending for zone {OurZone}",
+                            bulletId, currentZone, _assignedSquare);
                     }
                 }
-            }
-            
-            // Also accept bullets that recently left our zone (for smooth transitions)
-            if (!isInZoneOrWillEnter && elapsedTime < 0.2f) // Within 200ms of spawn
-            {
-                // Check if bullet originated from our zone
-                var originZone = GridSquare.FromPosition(origin);
-                if (originZone == _assignedSquare)
-                {
-                    isInZoneOrWillEnter = true;
-                    _logger.LogDebug("Bullet {BulletId} recently left our zone, keeping for smooth transition", bulletId);
-                }
-            }
-            
-            if (!isInZoneOrWillEnter)
-            {
-                _logger.LogDebug("Bullet {BulletId} not in our zone and won't enter (position: {Position}, zone: {Zone})", 
-                    bulletId, currentPosition, currentZone);
                 return;
             }
             
@@ -2576,11 +2679,27 @@ public class WorldSimulation : BackgroundService, IWorldSimulation
             _currentPhase = GamePhase.GameOver;
             _gameOverTime = DateTime.UtcNow;
             _logger.LogInformation("Victory pause ended, entering game over phase");
-            
+
             // Generate scores again for GameOver message
             var playerScores = GeneratePlayerScores();
             var gameOverMessage = new GameOverMessage(playerScores, _gameOverTime, 15);
             await NotifyAllPlayersGameOver(gameOverMessage);
         }
     }
+}
+
+/// <summary>
+/// Information about a bullet trajectory that has been received but the bullet
+/// hasn't entered our zone yet.
+/// </summary>
+public class PendingBulletInfo
+{
+    public required string BulletId { get; init; }
+    public required int SubType { get; init; }
+    public required Vector2 Origin { get; init; }
+    public required Vector2 Velocity { get; init; }
+    public required float SpawnTime { get; init; }
+    public required float Lifespan { get; init; }
+    public string? OwnerId { get; init; }
+    public int Team { get; init; }
 }

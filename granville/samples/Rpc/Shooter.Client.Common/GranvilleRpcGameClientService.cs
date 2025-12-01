@@ -51,6 +51,7 @@ public class GranvilleRpcGameClientService : IDisposable
     private readonly object _transitionLock = new object();
     private int _transitionAttempts = 0;
     private DateTime _lastTransitionAttempt = DateTime.MinValue;
+    private DateTime _lastForcedTransitionTime = DateTime.MinValue; // Track last forced reconnection to prevent rapid-fire
     private string? _currentTransitionTarget = null; // Track zone transition target for deduplication
     private long _lastSequenceNumber = -1;
     private readonly ConcurrentDictionary<string, PreEstablishedConnection> _preEstablishedConnections = new();
@@ -1699,8 +1700,39 @@ public class GranvilleRpcGameClientService : IDisposable
     {
         _logger.LogInformation("[FORCE_TRANSITION] Forcing transition to zone {Zone}", targetZone);
 
-        // Bypass debouncing for forced transitions
-        _isTransitioning = true;
+        // CRITICAL FIX: Check if a transition is already in progress using the lock
+        // This prevents race conditions between normal and forced transitions
+        bool shouldProceed;
+        lock (_transitionLock)
+        {
+            if (_isTransitioning)
+            {
+                _logger.LogWarning("[FORCE_TRANSITION] Skipping forced transition - a transition is already in progress");
+                return;
+            }
+
+            // Debouncing: Prevent rapid-fire forced reconnections
+            // Only allow one forced transition every 10 seconds
+            var timeSinceLastForced = DateTime.UtcNow - _lastForcedTransitionTime;
+            if (timeSinceLastForced.TotalSeconds < 10)
+            {
+                _logger.LogWarning("[FORCE_TRANSITION] Skipping forced transition - too soon after last forced transition " +
+                    "({ElapsedSeconds:F1}s ago, minimum 10s required)", timeSinceLastForced.TotalSeconds);
+                return;
+            }
+
+            _isTransitioning = true;
+            _lastForcedTransitionTime = DateTime.UtcNow;
+            shouldProceed = true;
+        }
+
+        if (!shouldProceed)
+        {
+            return;
+        }
+
+        // Add timeout to prevent hanging forever
+        using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 
         try
         {
@@ -1786,13 +1818,24 @@ public class GranvilleRpcGameClientService : IDisposable
 
             _logger.LogInformation("[FORCE_TRANSITION] Successfully forced transition to zone {Zone}", targetZone);
         }
+        catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
+        {
+            _logger.LogError("[FORCE_TRANSITION] Forced transition to zone {Zone} timed out after 10 seconds. " +
+                "This may indicate network issues or server overload.", targetZone);
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "[FORCE_TRANSITION] Failed to force transition to zone {Zone}", targetZone);
+            _logger.LogError(ex, "[FORCE_TRANSITION] Failed to force transition to zone {Zone}. " +
+                "Error type: {ErrorType}, Message: {Message}",
+                targetZone, ex.GetType().Name, ex.Message);
         }
         finally
         {
-            _isTransitioning = false;
+            lock (_transitionLock)
+            {
+                _isTransitioning = false;
+            }
+            _logger.LogDebug("[FORCE_TRANSITION] Released transition lock for zone {Zone}", targetZone);
         }
     }
     
@@ -4167,7 +4210,11 @@ public class GranvilleRpcGameClientService : IDisposable
 }
 
 // Response types from Silo HTTP endpoints - using models from Shooter.Shared
-public record PlayerRegistrationResponse(Shooter.Shared.Models.PlayerInfo PlayerInfo, Shooter.Shared.Models.ActionServerInfo ActionServer);
+public record PlayerRegistrationResponse(
+    Shooter.Shared.Models.PlayerInfo PlayerInfo,
+    Shooter.Shared.Models.ActionServerInfo ActionServer,
+    string? SessionKey = null,
+    DateTime? SessionExpiresAt = null);
 
 // Pre-established connection tracking
 internal class PreEstablishedConnection
