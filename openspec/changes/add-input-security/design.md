@@ -26,7 +26,7 @@ RPC systems accepting untrusted input face two categories of attacks: type-level
 
 ## Decisions
 
-### Decision 1: Type Whitelist with Assembly Scoping
+### Decision 1: Type Whitelist with Assembly Scoping (Defense in Depth)
 
 **What**: Allow types from trusted assemblies (application code) by default; block types from untrusted sources.
 
@@ -34,16 +34,33 @@ RPC systems accepting untrusted input face two categories of attacks: type-level
 
 **Implementation**: Scan assemblies at startup for `[GenerateSerializer]` types, build whitelist. Check during deserialization via Orleans codec hooks.
 
-### Decision 2: Attribute-Based Validation
+**Note on Orleans Codecs**: Orleans only generates codecs for types with `[GenerateSerializer]`, so types without codecs will fail deserialization anyway. However, explicit whitelisting remains valuable as **defense in depth**:
+- **Auditability**: Explicit list of allowed types for security review
+- **Logging**: Detect and log attempted attacks even if they would fail
+- **Edge cases**: Orleans has fallback serializers for some built-in types
+- **Future-proofing**: Protection against Orleans serialization changes
+- **ISerializable types**: Some configurations support these (potential gadget vectors)
 
-**What**: Use attributes like `[Required]`, `[Range]` on method parameters.
+Type whitelisting should be **optional but recommended** for internet-facing deployments.
 
-**Why**: Declarative, easy to read, similar to ASP.NET Core model validation. Validators are cached per-method at startup.
+### Decision 2: Use System.ComponentModel.DataAnnotations
+
+**What**: Use `System.ComponentModel.DataAnnotations` attributes (`[Required]`, `[Range]`, `[StringLength]`, etc.) on RPC method parameters and DTO properties.
+
+**Why**:
+- Familiar to all .NET developers (used in ASP.NET Core, EF Core, Blazor)
+- Extensive ecosystem of existing validators
+- Works with existing tooling and IDE support
+- No new attributes to learn
+
+**Implementation**: `RpcValidationFilter` invokes DataAnnotations `Validator.TryValidateObject()` and converts results to `RpcStatus.InvalidArgument` responses.
+
+**Custom validators**: For RPC-specific validation (e.g., speed-hack detection, game coordinate bounds), use `IValidator<T>` interface alongside DataAnnotations.
 
 **Alternatives considered**:
 - FluentValidation → More complex, external dependency
+- Custom Granville attributes → Duplicates existing functionality, learning curve
 - Manual validation in handlers → Inconsistent, error-prone
-- Contract-first validation → Requires schema definition, more work
 
 ### Decision 3: Validation Filter Pipeline
 
@@ -77,5 +94,6 @@ RPC systems accepting untrusted input face two categories of attacks: type-level
 
 ## Open Questions
 
-- Should we integrate with DataAnnotations validators? → Yes, reuse existing validators
+- ~~Should we integrate with DataAnnotations validators?~~ → **Resolved**: Yes, use `System.ComponentModel.DataAnnotations` as the primary validation API (see Decision 2)
 - How to handle generic types? → Whitelist open generic + verify type arguments
+- ~~Is type whitelisting necessary given Orleans codec requirements?~~ → **Resolved**: Optional but recommended as defense-in-depth (see Decision 1 note)
