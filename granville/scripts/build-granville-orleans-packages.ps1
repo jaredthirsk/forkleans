@@ -9,9 +9,12 @@ param(
 
 Write-Host "Building and packaging Granville.Orleans packages..." -ForegroundColor Green
 
-# Determine if we're running in WSL2
+# Detect if we're running in a container (Docker/devcontainer)
+$isContainer = Test-Path "/.dockerenv"
+
+# Determine if we're running in WSL2 (but not in a container)
 $isWSL = $false
-if (Test-Path "/proc/version") {
+if (-not $isContainer -and (Test-Path "/proc/version")) {
     $procVersion = Get-Content "/proc/version" -ErrorAction SilentlyContinue
     if ($procVersion -match "(WSL|Microsoft)") {
         $isWSL = $true
@@ -19,7 +22,8 @@ if (Test-Path "/proc/version") {
 }
 
 # Choose appropriate dotnet command
-$dotnetCmd = if ($isWSL) { "dotnet-win" } else { "dotnet" }
+# In containers, always use native dotnet; in WSL2 (not container), use dotnet-win
+$dotnetCmd = if ($isContainer) { "dotnet" } elseif ($isWSL) { "dotnet-win" } else { "dotnet" }
 
 # Get version dynamically if not provided
 if ([string]::IsNullOrEmpty($Version)) {
@@ -60,12 +64,15 @@ $projects = @(
     "src/Orleans.Sdk/Orleans.Sdk.csproj",
     "src/Orleans.Runtime/Orleans.Runtime.csproj",
     "src/Orleans.Server/Orleans.Server.csproj",
-    "src/Orleans.Client/Orleans.Client.csproj"
+    "src/Orleans.Client/Orleans.Client.csproj",
+    "src/Orleans.Reminders/Orleans.Reminders.csproj"
 )
 
 # First build all dependencies
+# Note: We disable NuGet audit to avoid failing on vulnerable packages in upstream Orleans
+# that aren't part of the Granville RPC packages we're building
 Write-Host "Building Orleans.sln to ensure all dependencies are built..." -ForegroundColor Yellow
-& $dotnetCmd build Orleans.sln -c $Configuration -p:BuildAsGranville=true
+& $dotnetCmd build Orleans.sln -c $Configuration -p:BuildAsGranville=true -p:NuGetAudit=false
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Failed to build Orleans.sln"
     exit 1

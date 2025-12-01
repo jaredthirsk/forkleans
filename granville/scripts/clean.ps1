@@ -140,9 +140,12 @@ elseif ($All) {
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 Push-Location $repoRoot
 
-# Cache WSL detection
+# Detect if we're running in a container (Docker/devcontainer)
+$isContainer = Test-Path "/.dockerenv"
+
+# Cache WSL detection (only relevant if not in container)
 $isWSL = $false
-if (Test-Path "/proc/version") {
+if (-not $isContainer -and (Test-Path "/proc/version")) {
     $procVersion = Get-Content "/proc/version" -ErrorAction SilentlyContinue
     if ($procVersion -match "(WSL|Microsoft)") {
         $isWSL = $true
@@ -150,7 +153,8 @@ if (Test-Path "/proc/version") {
 }
 
 # Choose appropriate dotnet command
-$dotnetCmd = if ($isWSL) { "dotnet-win" } else { "dotnet" }
+# In containers, always use native dotnet; in WSL2 (not container), use dotnet-win
+$dotnetCmd = if ($isContainer) { "dotnet" } elseif ($isWSL) { "dotnet-win" } else { "dotnet" }
 
 try {
     Write-Host "Granville Orleans High-Performance Cleaning Utility" -ForegroundColor Cyan

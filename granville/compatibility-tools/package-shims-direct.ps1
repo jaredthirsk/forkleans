@@ -28,10 +28,17 @@ Write-Host "  Prerelease version: $Version" -ForegroundColor Cyan
 # Ensure output directory exists
 New-Item -ItemType Directory -Force -Path "../../Artifacts/Release" | Out-Null
 
-# Download nuget.exe if not present
-if (!(Test-Path "nuget.exe")) {
-    Write-Host "Downloading nuget.exe..." -ForegroundColor Yellow
-    Invoke-WebRequest -Uri "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe" -OutFile "nuget.exe"
+# Detect if we're running in a container (Docker/devcontainer) or on Linux
+$useLinuxPacking = $IsLinux -or (Test-Path "/.dockerenv")
+
+# On Linux, we'll use dotnet pack with a generated csproj instead of nuget.exe
+# On Windows, we can use nuget.exe directly
+if (-not $useLinuxPacking) {
+    # Download nuget.exe if not present (Windows only)
+    if (!(Test-Path "nuget.exe")) {
+        Write-Host "Downloading nuget.exe..." -ForegroundColor Yellow
+        Invoke-WebRequest -Uri "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe" -OutFile "nuget.exe"
+    }
 }
 
 # Create nuspec for each assembly
@@ -100,14 +107,53 @@ $depXml
     
     # Save nuspec
     $nuspec | Out-File -FilePath "$packageName.nuspec" -Encoding UTF8
-    
-    # Pack
-    & .\nuget.exe pack "$packageName.nuspec" -OutputDirectory "../../Artifacts/Release" -NoDefaultExcludes
-    
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "    Successfully created $packageName.$Version.nupkg" -ForegroundColor Green
-        Remove-Item "$packageName.nuspec" -Force
+
+    # Pack - use dotnet pack on Linux, nuget.exe on Windows
+    if ($useLinuxPacking) {
+        # Create a minimal csproj that references the nuspec for packaging
+        $csproj = @"
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <PackageId>$packageName</PackageId>
+    <Version>$Version</Version>
+    <Title>$packageName Type Forwarding Assembly</Title>
+    <Authors>Granville Orleans Fork</Authors>
+    <Description>COMPATIBILITY SHIM: Type forwarding assembly that redirects $packageName types to Granville.Orleans.</Description>
+    <PackageProjectUrl>https://github.com/jaredthirsk/orleans</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>Orleans Granville Compatibility TypeForwarding Shim</PackageTags>
+    <NoBuild>true</NoBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <NoWarn>NU5128</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="shims-proper/$dllName.dll" PackagePath="lib/net8.0/" />
+  </ItemGroup>
+</Project>
+"@
+        $csproj | Out-File -FilePath "$packageName.csproj" -Encoding UTF8
+
+        # Restore then pack (dotnet pack requires a restore first)
+        & dotnet restore "$packageName.csproj" --verbosity quiet 2>&1 | Out-Null
+        & dotnet pack "$packageName.csproj" -o "../../Artifacts/Release" /p:NuspecFile="$packageName.nuspec" --no-build
+
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "    Successfully created $packageName.$Version.nupkg" -ForegroundColor Green
+        }
+
+        Remove-Item "$packageName.csproj" -Force -ErrorAction SilentlyContinue
+    } else {
+        # Windows - use nuget.exe
+        & .\nuget.exe pack "$packageName.nuspec" -OutputDirectory "../../Artifacts/Release" -NoDefaultExcludes
+
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "    Successfully created $packageName.$Version.nupkg" -ForegroundColor Green
+        }
     }
+
+    Remove-Item "$packageName.nuspec" -Force -ErrorAction SilentlyContinue
 }
 
 Write-Host "`nPackaging complete!" -ForegroundColor Green

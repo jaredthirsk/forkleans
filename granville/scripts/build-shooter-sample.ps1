@@ -40,9 +40,12 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Determine if we're running in WSL2
+# Detect if we're running in a container (Docker/devcontainer)
+$isContainer = Test-Path "/.dockerenv"
+
+# Determine if we're running in WSL2 (but not in a container)
 $isWSL = $false
-if (Test-Path "/proc/version") {
+if (-not $isContainer -and (Test-Path "/proc/version")) {
     $procVersion = Get-Content "/proc/version" -ErrorAction SilentlyContinue
     if ($procVersion -match "(WSL|Microsoft)") {
         $isWSL = $true
@@ -50,7 +53,8 @@ if (Test-Path "/proc/version") {
 }
 
 # Choose appropriate dotnet command
-$dotnetCmd = if ($isWSL) { "dotnet-win" } else { "dotnet" }
+# In containers, always use native dotnet; in WSL2 (not container), use dotnet-win
+$dotnetCmd = if ($isContainer) { "dotnet" } elseif ($isWSL) { "dotnet-win" } else { "dotnet" }
 
 # Get repository root
 $repoRoot = (Get-Item $PSScriptRoot).Parent.Parent.FullName

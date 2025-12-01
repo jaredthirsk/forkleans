@@ -9,9 +9,12 @@ if (!(Test-Path "shims-proper")) {
     New-Item -ItemType Directory -Path "shims-proper" | Out-Null
 }
 
-# Determine if we're running in WSL2
+# Detect if we're running in a container (Docker/devcontainer)
+$isContainer = Test-Path "/.dockerenv"
+
+# Determine if we're running in WSL2 (but not in a container)
 $isWSL = $false
-if (Test-Path "/proc/version") {
+if (-not $isContainer -and (Test-Path "/proc/version")) {
     $procVersion = Get-Content "/proc/version" -ErrorAction SilentlyContinue
     if ($procVersion -match "(WSL|Microsoft)") {
         $isWSL = $true
@@ -19,10 +22,11 @@ if (Test-Path "/proc/version") {
 }
 
 # Choose appropriate dotnet command
-$dotnetCmd = if ($isWSL) { "dotnet-win" } else { "dotnet" }
+# In containers, always use native dotnet; in WSL2 (not container), use dotnet-win
+$dotnetCmd = if ($isContainer) { "dotnet" } elseif ($isWSL) { "dotnet-win" } else { "dotnet" }
 
 # Build the type-forwarding-generator tool if needed
-if (!(Test-Path "type-forwarding-generator/bin/Release/net8.0/GenerateTypeForwardingAssemblies.dll")) {
+if (!(Test-Path "type-forwarding-generator/bin/Release/net9.0/GenerateTypeForwardingAssemblies.dll")) {
     Write-Host "Building type-forwarding-generator tool..." -ForegroundColor Yellow
     Push-Location type-forwarding-generator
     & $dotnetCmd build -c Release
@@ -118,7 +122,7 @@ foreach ($asm in $assemblies) {
     Write-Host "  Target: $shimPath"
     
     # Run the generator
-    & $dotnetCmd type-forwarding-generator/bin/Release/net8.0/GenerateTypeForwardingAssemblies.dll $granvillePath $shimPath
+    & $dotnetCmd type-forwarding-generator/bin/Release/net9.0/GenerateTypeForwardingAssemblies.dll $granvillePath $shimPath
     
     if ($LASTEXITCODE -eq 0 -and (Test-Path $shimPath)) {
         $fileInfo = Get-Item $shimPath

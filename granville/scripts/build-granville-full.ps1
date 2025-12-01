@@ -13,9 +13,12 @@ Push-Location $repoRoot
 
 Write-Host "Building ALL Granville Orleans assemblies..." -ForegroundColor Green
 
-# Determine if we're running in WSL2
+# Determine if we're running in a container (Docker/devcontainer)
+$isContainer = Test-Path "/.dockerenv"
+
+# Determine if we're running in WSL2 (but not in a container)
 $isWSL = $false
-if (Test-Path "/proc/version") {
+if (-not $isContainer -and (Test-Path "/proc/version")) {
     $procVersion = Get-Content "/proc/version" -ErrorAction SilentlyContinue
     if ($procVersion -match "(WSL|Microsoft)") {
         $isWSL = $true
@@ -23,7 +26,8 @@ if (Test-Path "/proc/version") {
 }
 
 # Choose appropriate dotnet command
-$dotnetCmd = if ($isWSL) { "dotnet-win" } else { "dotnet" }
+# In containers, always use native dotnet; in WSL2 (not container), use dotnet-win
+$dotnetCmd = if ($isContainer) { "dotnet" } elseif ($isWSL) { "dotnet-win" } else { "dotnet" }
 
 # Clean previous builds
 if (-not $SkipClean) {
