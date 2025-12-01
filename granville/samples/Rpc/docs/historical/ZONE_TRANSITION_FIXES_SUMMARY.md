@@ -153,6 +153,37 @@ The fixes are working correctly when:
 5. ✅ Zone transitions complete within 10 seconds
 6. ✅ Success rate for zone transitions >80%
 
+## Known Acceptable Behaviors
+
+### One-Time Position Jumps for Cross-Zone Entities (Bullets)
+
+**Date:** 2025-11-25
+
+**Background:** In a distributed simulation where each zone is managed by a separate ActionServer, entities that cross zone boundaries experience a brief timing gap during handoff.
+
+**Behavior:** When a bullet crosses from Zone A to Zone B:
+1. Zone A spawns the bullet and sends trajectory info to neighboring zones
+2. Zone A continues simulating until the bullet exits its boundary
+3. Zone B receives the trajectory and creates the bullet based on calculated position
+4. A **one-time position jump** (typically 100-300 units) may occur during this handoff
+
+**Why This Is Acceptable:**
+- The jump happens only once per zone transition
+- Bullets move fast (300-500 units/second), so visual impact is minimal
+- Eliminating the jump entirely would require complex distributed locking or state synchronization
+- The game remains playable and fun despite the artifact
+
+**Implementation Details:**
+- Bullets are immediately removed from the originating zone when they exit (`_handedOffBullets` tracking)
+- The receiving zone only activates bullets when they're actually in its bounds
+- This prevents the more severe issue of continuous oscillation (where both zones simulate the same bullet)
+
+**What Was Fixed:**
+- **Continuous oscillation** was eliminated - bullets no longer bounce back-and-forth between zones indefinitely
+- The fix uses a "handoff blacklist" to prevent a zone from re-accepting a bullet it already handed off
+
+**Code Reference:** `WorldSimulation.cs` - `ReceiveBulletTrajectory()`, `ActivatePendingBullets()`, bullet update loop
+
 ## Next Steps
 
 If issues persist:
