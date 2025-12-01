@@ -15,6 +15,13 @@ public class DtlsPskOptions
     public Func<string, CancellationToken, Task<byte[]?>>? PskLookup { get; set; }
 
     /// <summary>
+    /// Callback to look up PSK and user info by identity.
+    /// Returns null if identity is not valid.
+    /// Preferred over <see cref="PskLookup"/> when user identity info is available.
+    /// </summary>
+    public Func<string, CancellationToken, Task<PskLookupResult?>>? PskLookupWithIdentity { get; set; }
+
+    /// <summary>
     /// Client-side: The PSK identity (player ID) to present during handshake.
     /// </summary>
     public string? PskIdentity { get; set; }
@@ -90,4 +97,20 @@ public enum DtlsCipherSuite
     /// TLS_PSK_WITH_CHACHA20_POLY1305_SHA256 - Fast on mobile, good security.
     /// </summary>
     TLS_PSK_WITH_CHACHA20_POLY1305_SHA256
+}
+
+/// <summary>
+/// Result of a PSK lookup including user identity info.
+/// </summary>
+public sealed record PskLookupResult
+{
+    /// <summary>
+    /// The pre-shared key bytes.
+    /// </summary>
+    public required byte[] Psk { get; init; }
+
+    /// <summary>
+    /// The authenticated user identity.
+    /// </summary>
+    public required RpcUserIdentity User { get; init; }
 }

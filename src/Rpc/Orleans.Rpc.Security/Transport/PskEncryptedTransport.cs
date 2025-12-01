@@ -28,7 +28,7 @@ namespace Granville.Rpc.Security.Transport;
 /// Message format after handshake:
 /// [1 byte: MessageType] [8 bytes: SequenceNumber] [12 bytes: Nonce] [N bytes: Ciphertext] [16 bytes: Tag]
 /// </remarks>
-public class PskEncryptedTransport : IRpcTransport
+public class PskEncryptedTransport : IRpcTransport, IConnectionUserAccessor
 {
     private readonly IRpcTransport _innerTransport;
     private readonly DtlsPskOptions _options;
@@ -212,14 +212,30 @@ public class PskEncryptedTransport : IRpcTransport
         _logger.LogDebug("[PSK] Received HELLO from identity '{Identity}'", identity);
 
         // Look up PSK for this identity
-        if (_options.PskLookup == null)
+        byte[]? psk = null;
+        RpcUserIdentity? userIdentity = null;
+
+        // Prefer PskLookupWithIdentity if available (provides user identity info)
+        if (_options.PskLookupWithIdentity != null)
+        {
+            var lookupResult = await _options.PskLookupWithIdentity(identity, CancellationToken.None);
+            if (lookupResult != null)
+            {
+                psk = lookupResult.Psk;
+                userIdentity = lookupResult.User;
+            }
+        }
+        else if (_options.PskLookup != null)
+        {
+            psk = await _options.PskLookup(identity, CancellationToken.None);
+        }
+        else
         {
             _logger.LogError("[PSK] No PSK lookup callback configured");
             await SendHandshakeErrorAsync(e.RemoteEndPoint, "No PSK lookup configured");
             return;
         }
 
-        var psk = await _options.PskLookup(identity, CancellationToken.None);
         if (psk == null)
         {
             _logger.LogWarning("[PSK] No PSK found for identity '{Identity}'", identity);
@@ -230,6 +246,7 @@ public class PskEncryptedTransport : IRpcTransport
         // Create session with challenge
         var session = new PskSession(identity, psk, _logger);
         session.GenerateChallenge();
+        session.AuthenticatedUser = userIdentity;
         _sessions[connectionId] = session;
         _endpointToConnection[e.RemoteEndPoint] = connectionId;
 
@@ -442,6 +459,19 @@ public class PskEncryptedTransport : IRpcTransport
 
         _endpointToConnection.TryRemove(e.RemoteEndPoint, out _);
         ConnectionClosed?.Invoke(this, e);
+    }
+
+    /// <summary>
+    /// Gets the authenticated user for the given connection ID.
+    /// Returns null if the connection is anonymous or not found.
+    /// </summary>
+    public RpcUserIdentity? GetUserForConnection(string connectionId)
+    {
+        if (_sessions.TryGetValue(connectionId, out var session) && session.IsEstablished)
+        {
+            return session.AuthenticatedUser;
+        }
+        return null;
     }
 
     public void Dispose()

@@ -45,6 +45,12 @@ internal sealed class PskSession : IDisposable
     /// </summary>
     public bool IsEstablished { get; set; }
 
+    /// <summary>
+    /// The authenticated user identity after successful handshake.
+    /// Populated by the transport when PSK lookup returns user info.
+    /// </summary>
+    public RpcUserIdentity? AuthenticatedUser { get; set; }
+
     public PskSession(string identity, byte[] psk, ILogger logger)
     {
         Identity = identity ?? throw new ArgumentNullException(nameof(identity));
